@@ -3,7 +3,7 @@ package com.example.myapplication.data
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import com.example.myapplication.model.AppInfo
+import com.example.myapplication.domain.model.AppInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

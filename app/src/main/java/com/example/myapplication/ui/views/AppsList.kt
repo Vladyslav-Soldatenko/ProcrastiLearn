@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.model.AppInfo
+import com.example.myapplication.domain.model.AppInfo
 
 @Composable
 fun AppsList(

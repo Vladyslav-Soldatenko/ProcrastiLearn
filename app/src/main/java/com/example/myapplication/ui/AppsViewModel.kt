@@ -3,7 +3,7 @@ package com.example.myapplication.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.data.AppRepository
-import com.example.myapplication.model.AppInfo
+import com.example.myapplication.domain.model.AppInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

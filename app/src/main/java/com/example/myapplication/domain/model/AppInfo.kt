@@ -1,4 +1,4 @@
-package com.example.myapplication.model
+package com.example.myapplication.domain.model
 
 data class AppInfo(
     val label: String,
