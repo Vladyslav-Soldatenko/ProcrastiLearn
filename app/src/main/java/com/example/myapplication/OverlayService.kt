@@ -2,24 +2,32 @@ package com.example.myapplication
 
 import android.accessibilityservice.AccessibilityService
 import android.graphics.PixelFormat
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
-import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
-import android.widget.FrameLayout
-import android.widget.TextView
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.*
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 
 class OverlayService : AccessibilityService() {
     private var wm: WindowManager? = null
     private var overlayView: View? = null
     private var isOverlayShown = false
-    private val handler = Handler(Looper.getMainLooper())
-
-    // Store the last valid app package (excluding our own)
-    private var lastValidPackage: String? = null
+    private var lifecycleOwner: ServiceLifecycleOwner? = null
 
     override fun onServiceConnected() {
         wm = getSystemService(WINDOW_SERVICE) as WindowManager
@@ -33,125 +41,168 @@ class OverlayService : AccessibilityService() {
             else -> return
         }
 
-        // Ignore events from our own app
-        if (pkg == packageName) {
-            Log.i("LaunchableApp", "Ignoring event from own package")
-            return
-        }
-
-        Log.i("LaunchableApp", "Event from package: $pkg, type: ${event.eventType}")
-
-        // Update last valid package
-        if (pkg != null) {
-            lastValidPackage = pkg
-        }
-
-        // Cancel any pending operations
-        handler.removeCallbacksAndMessages(null)
+        if (pkg == packageName) return
 
         when (pkg) {
             "com.android.vending" -> {
-                // Small delay to ensure window is fully loaded
-                handler.postDelayed({
-                    if (!isOverlayShown) {
-                        showOverlay()
-                    }
-                }, 100)
+                if (!isOverlayShown) showOverlay()
             }
             else -> {
-                // Only hide if we're actually leaving Play Store
-                // and not just getting an event from our overlay
-                if (isOverlayShown && pkg != null && pkg != packageName) {
-                    hideOverlay()
-                }
+                if (isOverlayShown && pkg != null) hideOverlay()
             }
         }
     }
 
     private fun showOverlay() {
-        Log.i("LaunchableApp", "Showing overlay")
-
-        // Ensure no duplicate overlays
         if (isOverlayShown) return
 
-        overlayView = createOverlayView()
+        lifecycleOwner = ServiceLifecycleOwner()
+        overlayView = createComposeOverlay()
 
         val params = WindowManager.LayoutParams().apply {
             width = WindowManager.LayoutParams.MATCH_PARENT
             height = WindowManager.LayoutParams.MATCH_PARENT
             type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
             flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
             format = PixelFormat.TRANSLUCENT
         }
 
-        try {
-            wm?.addView(overlayView, params)
-            isOverlayShown = true
-
-            // Double-check after a short delay that we're still in Play Store
-            handler.postDelayed({
-                if (lastValidPackage != "com.android.vending" && isOverlayShown) {
-                    Log.i("LaunchableApp", "Not in Play Store anymore, hiding overlay")
-                    hideOverlay()
-                }
-            }, 500)
-        } catch (e: Exception) {
-            Log.e("LaunchableApp", "Error adding overlay", e)
-            isOverlayShown = false
-        }
+        wm?.addView(overlayView, params)
+        isOverlayShown = true
     }
 
     private fun hideOverlay() {
-        Log.i("LaunchableApp", "Hiding overlay")
-
         overlayView?.let {
-            try {
-                wm?.removeView(it)
-            } catch (e: Exception) {
-                Log.e("LaunchableApp", "Error removing overlay", e)
-            }
+            wm?.removeView(it)
             overlayView = null
         }
         isOverlayShown = false
+        lifecycleOwner = null
     }
 
-    private fun createOverlayView(): View {
-        // Create a full-screen overlay
-        val layout = FrameLayout(this).apply {
-            setBackgroundColor(0xE6FF0000.toInt()) // Semi-transparent red background
-            // Important: make it non-importantForAccessibility to reduce events
+    private fun createComposeOverlay(): View {
+        return ComposeView(this).apply {
+            setContent {
+                WarningOverlay()
+            }
+
+            // Setup lifecycle for Compose
+            lifecycleOwner?.let { owner ->
+                setViewTreeLifecycleOwner(owner)
+                setViewTreeViewModelStoreOwner(owner)
+                setViewTreeSavedStateRegistryOwner(owner)
+            }
+
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
         }
-
-        val textView = TextView(this).apply {
-            text = "⚠️ WARNING ⚠️\n\nYou are in Play Store\n\nThis is a restricted app"
-            textSize = 32f
-            setTextColor(0xFFFFFFFF.toInt()) // White text
-            gravity = Gravity.CENTER
-            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                gravity = Gravity.CENTER
-            }
-        }
-
-        layout.addView(textView)
-        return layout
     }
 
     override fun onInterrupt() {
         hideOverlay()
-        handler.removeCallbacksAndMessages(null)
     }
 
     override fun onDestroy() {
         hideOverlay()
-        handler.removeCallbacksAndMessages(null)
         super.onDestroy()
+    }
+}
+
+@Composable
+fun WarningOverlay() {
+    // State management
+    var isAuthenticated by remember { mutableStateOf(false) }
+    var showError by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                if (isAuthenticated)
+                    Color.Green.copy(alpha = 0.9f)
+                else
+                    Color.Red.copy(alpha = 0.9f)
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            if (!isAuthenticated) {
+                Text(
+                    text = "⚠️ WARNING ⚠️",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+
+                Text(
+                    text = "Play Store is restricted",
+                    fontSize = 20.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+
+                // Placeholder for password input
+                Text(
+                    text = "[Password Input Here]",
+                    fontSize = 16.sp,
+                    color = Color.White.copy(alpha = 0.7f)
+                )
+
+                if (showError) {
+                    Text(
+                        text = "Incorrect password",
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                }
+
+                // Placeholder for buttons
+                Text(
+                    text = "[Go Back] [Unlock]",
+                    fontSize = 16.sp,
+                    color = Color.White.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            } else {
+                Text(
+                    text = "✓ Access Granted",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+
+                Text(
+                    text = "[Continue Button]",
+                    fontSize = 16.sp,
+                    color = Color.White.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+        }
+    }
+}
+
+// Minimal lifecycle owner implementation
+class ServiceLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
+    private val lifecycleRegistry = LifecycleRegistry(this)
+    private val store = ViewModelStore()
+    private val savedStateRegistryController = SavedStateRegistryController.create(this)
+
+    override val lifecycle: Lifecycle = lifecycleRegistry
+    override val viewModelStore: ViewModelStore = store
+    override val savedStateRegistry: SavedStateRegistry = savedStateRegistryController.savedStateRegistry
+
+    init {
+        savedStateRegistryController.performRestore(null)
+        lifecycleRegistry.currentState = Lifecycle.State.CREATED
+        lifecycleRegistry.currentState = Lifecycle.State.RESUMED
     }
 }
