@@ -1,13 +1,16 @@
 package com.example.myapplication.data.repository
 
+import android.util.Log
 import com.example.myapplication.data.local.dao.VocabularyDao
 import com.example.myapplication.data.local.mapper.toDomainModel
+import com.example.myapplication.data.local.mapper.toEntity
 import com.example.myapplication.domain.model.VocabularyItem
 import com.example.myapplication.domain.repository.VocabularyRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,6 +23,10 @@ class VocabularyRepositoryImpl @Inject constructor(
     private val _currentItem = MutableStateFlow<VocabularyItem?>(null)
 
     override suspend fun getRandomVocabularyItem(): VocabularyItem {
+        getAllVocabulary().collect {
+            Log.i("LaunchableApp", it.toString())
+
+        }
         val entity = vocabularyDao.getRandomVocabulary()
             ?: throw NoSuchElementException("No vocabulary items in database")
 
@@ -37,5 +44,9 @@ class VocabularyRepositoryImpl @Inject constructor(
     fun getAllVocabulary(): Flow<List<VocabularyItem>> {
         return vocabularyDao.getAllVocabulary()
             .map { entities -> entities.map { it.toDomainModel() } }
+    }
+
+    override suspend fun addVocabularyItem(item: VocabularyItem) {
+        vocabularyDao.insertVocabulary(item.toEntity())
     }
 }
