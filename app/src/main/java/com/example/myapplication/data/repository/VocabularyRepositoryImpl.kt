@@ -1,39 +1,41 @@
 package com.example.myapplication.data.repository
 
+import com.example.myapplication.data.local.dao.VocabularyDao
+import com.example.myapplication.data.local.mapper.toDomainModel
 import com.example.myapplication.domain.model.VocabularyItem
 import com.example.myapplication.domain.repository.VocabularyRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.random.Random
+
 @Singleton
-class VocabularyRepositoryImpl @Inject constructor() : VocabularyRepository {
-    // Temporary hardcoded data - will be replaced with database later
-    private val vocabularyDatabase = listOf(
-        VocabularyItem("Cat", "кот"),
-        VocabularyItem("Dog", "собака"),
-        VocabularyItem("Water", "вода"),
-        VocabularyItem("Book", "книга"),
-        VocabularyItem("Phone", "телефон"),
-        VocabularyItem("Computer", "компьютер"),
-        VocabularyItem("Happiness", "счастье"),
-        VocabularyItem("Friend", "друг"),
-        VocabularyItem("Family", "семья"),
-        VocabularyItem("Knowledge", "знание"),
-    )
-    private val _currentItem = MutableStateFlow(getDefaultItem())
+class VocabularyRepositoryImpl @Inject constructor(
+    private val vocabularyDao: VocabularyDao
+) : VocabularyRepository {
+
+    private val _currentItem = MutableStateFlow<VocabularyItem?>(null)
 
     override suspend fun getRandomVocabularyItem(): VocabularyItem {
-        val item = vocabularyDatabase[Random.nextInt(vocabularyDatabase.size)]
+        val entity = vocabularyDao.getRandomVocabulary()
+            ?: throw NoSuchElementException("No vocabulary items in database")
+
+        val item = entity.toDomainModel()
         _currentItem.value = item
         return item
     }
 
+
     override fun observeCurrentItem(): Flow<VocabularyItem> {
-        return _currentItem.asStateFlow()
+        return _currentItem.asStateFlow().filterNotNull()
     }
 
-    private fun getDefaultItem() = vocabularyDatabase.first()
+    // Additional method to get all vocabulary
+    fun getAllVocabulary(): Flow<List<VocabularyItem>> {
+        return vocabularyDao.getAllVocabulary()
+            .map { entities -> entities.map { it.toDomainModel() } }
+    }
 }
