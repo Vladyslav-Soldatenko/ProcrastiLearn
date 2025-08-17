@@ -1,5 +1,6 @@
 package com.example.myapplication.data.repository
 
+import android.util.Log
 import com.example.myapplication.data.local.PreferencesDataStore
 import com.example.myapplication.domain.repository.AppPreferencesRepository
 import kotlinx.coroutines.flow.Flow
@@ -30,5 +31,9 @@ class AppPreferencesRepositoryImpl @Inject constructor(
 
     override suspend fun isAppBlocked(packageName: String): Boolean {
         return preferencesDataStore.blockedApps.first().contains(packageName)
+    }
+
+    override suspend fun toggleApp(packageName: String) {
+        return preferencesDataStore.toggleApp(packageName)
     }
 }

@@ -8,4 +8,5 @@ interface AppPreferencesRepository {
     suspend fun removeBlockedApp(packageName: String)
     suspend fun setBlockedApps(packageNames: Set<String>)
     suspend fun isAppBlocked(packageName: String): Boolean
+    suspend fun toggleApp(packageName: String)
 }

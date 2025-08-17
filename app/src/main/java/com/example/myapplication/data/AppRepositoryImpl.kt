@@ -31,14 +31,14 @@ class AppRepositoryImpl @Inject constructor(
                     AppInfo(
                         label = resolveInfo.loadLabel(pm).toString(),
                         packageName = resolveInfo.activityInfo.packageName,
-                        activityName = resolveInfo.activityInfo.name,
+//                        activityName = resolveInfo.activityInfo.name,
                         icon = resolveInfo.loadIcon(pm)
                     )
                 } catch (e: Exception) {
                     null // Skip apps that fail to load
                 }
             }
-            .distinctBy { "${it.packageName}/${it.activityName}" }
+            .distinctBy { "${it.packageName}" }
             .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.label })
             .toList()
     }

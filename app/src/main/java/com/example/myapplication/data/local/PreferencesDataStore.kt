@@ -56,4 +56,15 @@ class PreferencesDataStore @Inject constructor(
             preferences[BLOCKED_APPS_KEY] = current - packageName
         }
     }
+
+    suspend fun toggleApp(appKey: String) {
+        context.dataStore.edit { preferences ->
+            val current = preferences[BLOCKED_APPS_KEY] ?: emptySet()
+            preferences[BLOCKED_APPS_KEY] = if (appKey in current) {
+                current - appKey
+            } else {
+                current + appKey
+            }
+        }
+    }
 }

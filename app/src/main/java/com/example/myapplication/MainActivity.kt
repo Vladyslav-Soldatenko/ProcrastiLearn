@@ -31,7 +31,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.example.myapplication.service.OverlayAccessibilityService
 import com.example.myapplication.ui.AppsViewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
-import com.example.myapplication.ui.views.AppsList
+import com.example.myapplication.ui.views.MainScreen
 import com.example.myapplication.utils.AccessibilityUtils
 
 import dagger.hilt.android.AndroidEntryPoint
@@ -142,11 +142,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                             else -> {
-                                AppsList(
-                                    apps = state.apps,
-                                    selectedKeys = state.selected,
-                                    onToggle = vm::toggle
-                                )
+                                MainScreen()
                             }
                         }
                     }

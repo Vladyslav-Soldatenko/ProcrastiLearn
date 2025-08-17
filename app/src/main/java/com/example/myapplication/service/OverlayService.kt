@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.SystemClock
 import android.provider.Settings
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
@@ -24,11 +25,16 @@ import com.example.myapplication.overlay.OverlayScreen
 import com.example.myapplication.presentation.overlay.OverlayViewModel
 import com.example.myapplication.utils.ServiceLifecycleOwner
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class OverlayAccessibilityService : AccessibilityService() {
     private var windowManager: WindowManager? = null
     private var overlayView: View? = null
     private var lifecycleOwner: ServiceLifecycleOwner? = null
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     // Gate session state
     private var gateActive = false
@@ -61,10 +67,12 @@ class OverlayAccessibilityService : AccessibilityService() {
         serviceEntryPoint.validateTranslationUseCase()
     }
     // TODO: Move to repository/preferences later
-    private val blockedPackages = setOf(
-        "com.android.vending" // Play Store example
-        // "com.zhiliaoapp.musically" // TikTok
-    )
+//    private val blockedPackages = setOf(
+//        "com.android.vending" // Play Store example
+//        // "com.zhiliaoapp.musically" // TikTok
+//    )
+    private var blockedPackages: Set<String> = emptySet()
+
 
     private val ignoredPackages = setOf(
         "com.google.android.inputmethod.latin",
@@ -89,6 +97,16 @@ class OverlayAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        // Load blocked apps from preferences
+        serviceScope.launch {
+            appPreferencesRepository.getBlockedApps().collect { apps ->
+                Log.i(
+                    "LaunchableApp", "foo" + if(apps.isNotEmpty()){apps.first()} else{"empty"}
+                )
+
+                blockedPackages = apps
+            }
+        }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {

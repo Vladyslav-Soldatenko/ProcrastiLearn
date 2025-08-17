@@ -45,11 +45,11 @@ fun AppsList(
     ) {
         items(
             items = apps,
-            key = { "${it.packageName}/${it.activityName}" }
+            key = { "${it.packageName}" }
         ) { app ->
             AppRow(
                 app = app,
-                checked = selectedKeys.contains("${app.packageName}/${app.activityName}"),
+                checked = selectedKeys.contains("${app.packageName}"),
                 onCheckedChange = { onToggle(app) }
             )
         }
@@ -111,7 +111,7 @@ private fun AppRow(
     // Divider between items
     HorizontalDivider(
         modifier = Modifier.padding(horizontal = 16.dp),
-        thickness = 0.5.dp,
+        thickness = 1.dp,
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
     )
 }
