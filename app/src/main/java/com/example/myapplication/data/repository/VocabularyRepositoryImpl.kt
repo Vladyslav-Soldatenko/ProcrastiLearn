@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -41,12 +40,16 @@ class VocabularyRepositoryImpl @Inject constructor(
     }
 
     // Additional method to get all vocabulary
-    fun getAllVocabulary(): Flow<List<VocabularyItem>> {
+    override fun getAllVocabulary(): Flow<List<VocabularyItem>> {
         return vocabularyDao.getAllVocabulary()
             .map { entities -> entities.map { it.toDomainModel() } }
     }
 
     override suspend fun addVocabularyItem(item: VocabularyItem) {
         vocabularyDao.insertVocabulary(item.toEntity())
+    }
+
+    override suspend fun deleteVocabularyItem(item: VocabularyItem) {
+        vocabularyDao.deleteVocabulary(item.toEntity())
     }
 }

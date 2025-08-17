@@ -3,7 +3,7 @@ package com.example.myapplication.overlay
 import com.example.myapplication.domain.model.VocabularyItem
 
 data class OverlayUiState(
-    val vocabularyItem: VocabularyItem = VocabularyItem("Cat", "кот"),
+    val vocabularyItem: VocabularyItem = VocabularyItem(id=0, "Cat", "кот"),
     val input: String = "",
     val showAnswer: Boolean = false,
     val error: Boolean = false,

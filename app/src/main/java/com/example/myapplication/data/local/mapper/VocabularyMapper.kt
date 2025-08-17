@@ -5,6 +5,7 @@ import com.example.myapplication.domain.model.VocabularyItem
 
 fun VocabularyEntity.toDomainModel(): VocabularyItem {
     return VocabularyItem(
+        id=id,
         word = word,
         translation = translation
     )
@@ -12,6 +13,7 @@ fun VocabularyEntity.toDomainModel(): VocabularyItem {
 
 fun VocabularyItem.toEntity(): VocabularyEntity {
     return VocabularyEntity(
+        id=id,
         word = word,
         translation = translation
     )

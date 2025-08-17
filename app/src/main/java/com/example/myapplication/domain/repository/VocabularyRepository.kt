@@ -8,4 +8,6 @@ interface VocabularyRepository {
     suspend fun getRandomVocabularyItem(): VocabularyItem
     fun observeCurrentItem(): Flow<VocabularyItem>
     suspend fun addVocabularyItem(item: VocabularyItem)
+    fun getAllVocabulary():Flow<List<VocabularyItem>>
+    suspend fun deleteVocabularyItem(item: VocabularyItem)
 }

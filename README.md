@@ -4,6 +4,7 @@ add SRS (space repetition)
 show overlay each X minutes while in app
 try to add verbose description (usage examples, difference with other words, etc)
 UI improvements (color scheme, etc)
+transcription
 
 long roadmap:
 add sync
