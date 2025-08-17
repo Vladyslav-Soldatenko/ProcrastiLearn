@@ -10,8 +10,6 @@ import javax.inject.Singleton
 import kotlin.random.Random
 @Singleton
 class VocabularyRepositoryImpl @Inject constructor() : VocabularyRepository {
-    private val _currentItem = MutableStateFlow(getDefaultItem())
-
     // Temporary hardcoded data - will be replaced with database later
     private val vocabularyDatabase = listOf(
         VocabularyItem("Cat", "кот"),
@@ -25,6 +23,7 @@ class VocabularyRepositoryImpl @Inject constructor() : VocabularyRepository {
         VocabularyItem("Family", "семья"),
         VocabularyItem("Knowledge", "знание"),
     )
+    private val _currentItem = MutableStateFlow(getDefaultItem())
 
     override suspend fun getRandomVocabularyItem(): VocabularyItem {
         val item = vocabularyDatabase[Random.nextInt(vocabularyDatabase.size)]

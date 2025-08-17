@@ -1,39 +1,34 @@
 package com.example.myapplication.data.repository
 
+import com.example.myapplication.data.local.PreferencesDataStore
 import com.example.myapplication.domain.repository.AppPreferencesRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AppPreferencesRepositoryImpl @Inject constructor() : AppPreferencesRepository {
-    private val _blockedApps = MutableStateFlow(
-        setOf(
-            "com.android.vending", // Play Store for testing
-            // "com.zhiliaoapp.musically" // TikTok
-        )
-    )
+class AppPreferencesRepositoryImpl @Inject constructor(
+    private val preferencesDataStore: PreferencesDataStore
+) : AppPreferencesRepository {
 
     override fun getBlockedApps(): Flow<Set<String>> {
-        return _blockedApps.asStateFlow()
+        return preferencesDataStore.blockedApps
     }
 
     override suspend fun addBlockedApp(packageName: String) {
-        _blockedApps.value = _blockedApps.value + packageName
+        preferencesDataStore.addBlockedApp(packageName)
     }
 
     override suspend fun removeBlockedApp(packageName: String) {
-        _blockedApps.value = _blockedApps.value - packageName
+        preferencesDataStore.removeBlockedApp(packageName)
     }
 
     override suspend fun setBlockedApps(packageNames: Set<String>) {
-        _blockedApps.value = packageNames
+        preferencesDataStore.setBlockedApps(packageNames)
     }
 
     override suspend fun isAppBlocked(packageName: String): Boolean {
-        return _blockedApps.first().contains(packageName)
+        return preferencesDataStore.blockedApps.first().contains(packageName)
     }
 }

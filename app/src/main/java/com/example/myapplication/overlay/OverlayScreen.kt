@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.presentation.overlay.OverlayViewModel
+
 
 @Composable
 fun OverlayScreen(onUnlock: () -> Unit, viewModel: OverlayViewModel) {
