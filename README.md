@@ -1,6 +1,5 @@
 roadmap:
 Edit added words
-change translation input to anki-style controls
 add SRS (space repetition)
 show overlay each X minutes while in app
 try to add verbose description (usage examples, difference with other words, etc)

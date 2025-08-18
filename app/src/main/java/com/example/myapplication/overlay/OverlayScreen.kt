@@ -1,17 +1,17 @@
 package com.example.myapplication.overlay
 
-import com.example.myapplication.overlay.components.LearningCard
-
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.overlay.components.LearningCard
 import com.example.myapplication.presentation.overlay.OverlayViewModel
 
 
@@ -36,9 +36,8 @@ fun OverlayScreen(onUnlock: () -> Unit, viewModel: OverlayViewModel) {
     ) {
         LearningCard(
             state = uiState,
-            onInputChanged = viewModel::onInputChanged,
-            onSubmit = viewModel::onSubmit,
-            onToggleShowAnswer = viewModel::onToggleShowAnswer
+            onToggleShowAnswer = viewModel::onToggleShowAnswer,
+            onDifficultySelected = viewModel::onDifficultySelected
         )
     }
 }

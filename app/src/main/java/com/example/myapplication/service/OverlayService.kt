@@ -9,15 +9,13 @@ import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
-
-import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.example.myapplication.domain.model.GateSession
 import com.example.myapplication.domain.repository.AppPreferencesRepository
 import com.example.myapplication.domain.repository.VocabularyRepository
@@ -63,14 +61,6 @@ class OverlayAccessibilityService : AccessibilityService() {
         serviceEntryPoint.getNextVocabularyItemUseCase()
     }
 
-    private val validateTranslationUseCase by lazy {
-        serviceEntryPoint.validateTranslationUseCase()
-    }
-    // TODO: Move to repository/preferences later
-//    private val blockedPackages = setOf(
-//        "com.android.vending" // Play Store example
-//        // "com.zhiliaoapp.musically" // TikTok
-//    )
     private var blockedPackages: Set<String> = emptySet()
 
 
@@ -267,7 +257,7 @@ class OverlayAccessibilityService : AccessibilityService() {
                 MaterialTheme(colorScheme = darkColorScheme()) {
                     // Provide the custom factory for ViewModels
                     val viewModel: OverlayViewModel = viewModel(
-                        factory = ServiceViewModelFactory(getNextVocabularyItemUseCase, validateTranslationUseCase )
+                        factory = ServiceViewModelFactory(getNextVocabularyItemUseCase )
                     )
 
                     OverlayScreen(

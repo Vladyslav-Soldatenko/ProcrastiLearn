@@ -3,8 +3,8 @@ package com.example.myapplication.presentation.overlay
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.domain.usecase.GetNextVocabularyItemUseCase
-import com.example.myapplication.domain.usecase.ValidateTranslationUseCase
 import com.example.myapplication.overlay.OverlayUiState
+import com.example.myapplication.overlay.components.Difficulty
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class OverlayViewModel @Inject constructor(
     private val getNextVocabularyItem: GetNextVocabularyItemUseCase,
-    private val validateTranslation: ValidateTranslationUseCase
+    // You might want to add a use case to save difficulty ratings
+//     private val saveDifficultyRating: SaveDifficultyRatingUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OverlayUiState())
@@ -26,41 +27,21 @@ class OverlayViewModel @Inject constructor(
         loadNewWord()
     }
 
-    fun onInputChanged(newValue: String) {
-        _uiState.update { it.copy(input = newValue, error = false) }
-    }
-
     fun onToggleShowAnswer() {
         _uiState.update { it.copy(showAnswer = !it.showAnswer) }
     }
 
-    fun onSubmit() {
-        val current = _uiState.value
-        val result = validateTranslation(
-            current.input,
-            current.vocabularyItem.translation
-        )
+    fun onDifficultySelected(difficulty: Difficulty) {
+        // Log or save the difficulty rating for spaced repetition algorithm
+        viewModelScope.launch {
+            // Optional: Save the difficulty rating to database
+            // saveDifficultyRating(uiState.value.vocabularyItem.id, difficulty)
 
-        when (result) {
-            is ValidateTranslationUseCase.ValidationResult.Correct -> {
-                _uiState.update { it.copy(unlocked = true, error = false) }
-            }
-            is ValidateTranslationUseCase.ValidationResult.Close -> {
-                _uiState.update {
-                    it.copy(
-                        error = true,
-                        errorTick = it.errorTick + 1,
-                    )
-                }
-            }
-            else -> {
-                _uiState.update {
-                    it.copy(
-                        error = true,
-                        errorTick = it.errorTick + 1,
-                    )
-                }
-            }
+            // Log for debugging
+            println("Word: ${uiState.value.vocabularyItem.word}, Difficulty: $difficulty")
+
+            // Unlock the overlay
+            _uiState.update { it.copy(unlocked = true) }
         }
     }
 
@@ -74,18 +55,13 @@ class OverlayViewModel @Inject constructor(
                         it.copy(
                             vocabularyItem = item,
                             isLoading = false,
-                            input = "",
-                            showAnswer = false,
-                            error = false
+                            showAnswer = false
                         )
                     }
                 }
                 .onFailure {
                     _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            error = true
-                        )
+                        it.copy(isLoading = false)
                     }
                 }
         }

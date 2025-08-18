@@ -3,7 +3,6 @@ package com.example.myapplication.service
 import com.example.myapplication.domain.repository.AppPreferencesRepository
 import com.example.myapplication.domain.repository.VocabularyRepository
 import com.example.myapplication.domain.usecase.GetNextVocabularyItemUseCase
-import com.example.myapplication.domain.usecase.ValidateTranslationUseCase
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
@@ -20,5 +19,4 @@ interface ServiceEntryPoint {
     fun appPreferencesRepository(): AppPreferencesRepository
     fun vocabularyRepository(): VocabularyRepository
     fun getNextVocabularyItemUseCase(): GetNextVocabularyItemUseCase
-    fun validateTranslationUseCase(): ValidateTranslationUseCase
 }

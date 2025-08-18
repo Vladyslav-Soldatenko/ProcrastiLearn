@@ -1,69 +1,42 @@
 package com.example.myapplication.overlay.components
 
-
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.overlay.OverlayUiState
-import kotlinx.coroutines.launch
 
 @Composable
 fun LearningCard(
     state: OverlayUiState,
-    onInputChanged: (String) -> Unit,
-    onSubmit: () -> Unit,
     onToggleShowAnswer: () -> Unit,
+    onDifficultySelected: (Difficulty) -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
-    val focusRequester = remember { FocusRequester() }
-    var focusRequested by remember { mutableStateOf(false) }
-
-    // Request focus once
-    LaunchedEffect(Unit) {
-        if (!focusRequested) {
-            focusRequested = true
-            focusRequester.requestFocus()
-        }
-    }
-
-    // Shake animation
-    val shakeOffset = remember { Animatable(0f) }
-    val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(state.errorTick) {
-        if (state.error && state.errorTick > 0) {
-            coroutineScope.launch {
-                shakeOffset.snapTo(0f)
-                val shakePattern = listOf(-12f, 12f, -8f, 8f, -4f, 4f, 0f)
-                for (offset in shakePattern) {
-                    shakeOffset.animateTo(offset)
-                }
-            }
-        }
-    }
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -87,133 +60,157 @@ fun LearningCard(
                 modifier = Modifier.padding(top = 6.dp, bottom = 2.dp)
             )
 
-            // Translation hint
+            // Show translation button
+            OutlinedButton(
+                onClick = onToggleShowAnswer,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color(0xFFBFDBFE)
+                )
+            ) {
+                Text(
+                    text = if (state.showAnswer) "Hide translation" else "Show translation",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            // Translation (shown when button is clicked)
             AnimatedVisibility(
                 visible = state.showAnswer,
                 enter = fadeIn() + expandVertically(),
                 exit = fadeOut() + shrinkVertically()
             ) {
-                Text(
-                    text = "Translation: \"${state.vocabularyItem.translation}\"",
-                    color = Color(0xFF93C5FD),
-                    fontSize = 16.sp,
-                    modifier = Modifier.alpha(0.95f)
-                )
-            }
-
-            // Input field
-            TranslationInputField(
-                value = state.input,
-                onValueChange = onInputChanged,
-                isError = state.error,
-                onSubmit = {
-                    focusManager.clearFocus(force = true)
-                    onSubmit()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester)
-            )
-
-            // Error message
-            AnimatedVisibility(visible = state.error) {
-                Text(
-                    text = "Incorrect translation. Try again.",
-                    color = Color(0xFFFFA7A7),
-                    fontSize = 14.sp,
+                Card(
                     modifier = Modifier.fillMaxWidth(),
-                )
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF111827)),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = state.vocabularyItem.translation,
+                        color = Color(0xFF93C5FD),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .alpha(0.95f)
+                    )
+                }
             }
 
-            // Action buttons
-            ActionButtons(
-                onSubmit = {
-                    focusManager.clearFocus(force = true)
-                    onSubmit()
-                },
-                onToggleShowAnswer = onToggleShowAnswer,
-                showingAnswer = state.showAnswer,
-                modifier = Modifier.offset(x = shakeOffset.value.dp)
+            // Divider
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 4.dp),
+                color = Color(0xFF374151),
+                thickness = 1.dp
             )
 
-            // Tip
+            // Difficulty buttons
             Text(
-                text = "Tip: press Enter on keyboard to submit",
+                text = "How well did you know this?",
                 color = Color(0xFF9CA3AF),
-                fontSize = 12.sp,
-                modifier = Modifier.padding(top = 2.dp)
+                fontSize = 14.sp,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+
+            DifficultyButtons(
+                onDifficultySelected = onDifficultySelected,
+                enabled = state.showAnswer // Only enable buttons after showing answer
             )
         }
     }
 }
 
 @Composable
-private fun TranslationInputField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    isError: Boolean,
-    onSubmit: () -> Unit,
-    modifier: Modifier = Modifier
+private fun DifficultyButtons(
+    onDifficultySelected: (Difficulty) -> Unit,
+    enabled: Boolean
 ) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        singleLine = true,
-        placeholder = { Text("Type translation here…", color = Color(0xFF9CA3AF)) },
-        isError = isError,
-        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(onDone = { onSubmit() }),
-        modifier = modifier.shadow(0.dp, RoundedCornerShape(14.dp)),
-        shape = RoundedCornerShape(14.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color(0xFF60A5FA),
-            unfocusedBorderColor = Color(0xFF6B7280),
-            cursorColor = Color(0xFF93C5FD),
-            focusedTextColor = Color(0xFFF3F4F6),
-            unfocusedTextColor = Color(0xFFF3F4F6)
-        )
-    )
-}
-
-@Composable
-private fun ActionButtons(
-    onSubmit: () -> Unit,
-    onToggleShowAnswer: () -> Unit,
-    showingAnswer: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Button(
-            onClick = onSubmit,
-            modifier = Modifier
-                .weight(1f)
-                .height(52.dp),
-            shape = RoundedCornerShape(14.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Enter", fontSize = 16.sp)
-        }
-
-        OutlinedButton(
-            onClick = onToggleShowAnswer,
-            modifier = Modifier
-                .weight(1f)
-                .height(52.dp),
-            shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = Color(0xFFBFDBFE)
+            DifficultyButton(
+                text = "Again",
+                difficulty = Difficulty.AGAIN,
+                color = Color(0xFFEF4444),
+                enabled = enabled,
+                onClick = { onDifficultySelected(Difficulty.AGAIN) },
+                modifier = Modifier.weight(1f)
             )
+            DifficultyButton(
+                text = "Hard",
+                difficulty = Difficulty.HARD,
+                color = Color(0xFFF59E0B),
+                enabled = enabled,
+                onClick = { onDifficultySelected(Difficulty.HARD) },
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = if (showingAnswer) "Hide translation" else "Show translation",
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center
+            DifficultyButton(
+                text = "Good",
+                difficulty = Difficulty.GOOD,
+                color = Color(0xFF10B981),
+                enabled = enabled,
+                onClick = { onDifficultySelected(Difficulty.GOOD) },
+                modifier = Modifier.weight(1f)
+            )
+            DifficultyButton(
+                text = "Easy",
+                difficulty = Difficulty.EASY,
+                color = Color(0xFF3B82F6),
+                enabled = enabled,
+                onClick = { onDifficultySelected(Difficulty.EASY) },
+                modifier = Modifier.weight(1f)
             )
         }
     }
+}
+
+@Composable
+private fun DifficultyButton(
+    text: String,
+    difficulty: Difficulty,
+    color: Color,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier.height(48.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (enabled) color else Color(0xFF374151),
+            disabledContainerColor = Color(0xFF374151)
+        )
+    ) {
+        Text(
+            text = text,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            color = if (enabled) Color.White else Color(0xFF6B7280)
+        )
+    }
+}
+
+enum class Difficulty {
+    AGAIN,
+    HARD,
+    GOOD,
+    EASY
 }
