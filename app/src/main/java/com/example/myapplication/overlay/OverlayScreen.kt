@@ -12,12 +12,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import com.example.myapplication.overlay.components.LearningCard
-import com.example.myapplication.presentation.overlay.OverlayViewModel
 
 
 @Composable
 fun OverlayScreen(onUnlock: () -> Unit, viewModel: OverlayViewModel) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // Initial load
+    LaunchedEffect(Unit) {
+        viewModel.onOverlayOpened()
+    }
 
     // When unlocked, tell the service to remove the overlay
     LaunchedEffect(uiState.unlocked) {

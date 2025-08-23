@@ -20,7 +20,7 @@ import com.example.myapplication.domain.model.GateSession
 import com.example.myapplication.domain.repository.AppPreferencesRepository
 import com.example.myapplication.domain.repository.VocabularyRepository
 import com.example.myapplication.overlay.OverlayScreen
-import com.example.myapplication.presentation.overlay.OverlayViewModel
+import com.example.myapplication.overlay.OverlayViewModel
 import com.example.myapplication.utils.ServiceLifecycleOwner
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
@@ -59,6 +59,9 @@ class OverlayAccessibilityService : AccessibilityService() {
 
     private val getNextVocabularyItemUseCase by lazy {
         serviceEntryPoint.getNextVocabularyItemUseCase()
+    }
+    private val getSaveDifficultyRatingUseCase by lazy {
+        serviceEntryPoint.getSaveDifficultyRatingUseCase()
     }
 
     private var blockedPackages: Set<String> = emptySet()
@@ -257,7 +260,7 @@ class OverlayAccessibilityService : AccessibilityService() {
                 MaterialTheme(colorScheme = darkColorScheme()) {
                     // Provide the custom factory for ViewModels
                     val viewModel: OverlayViewModel = viewModel(
-                        factory = ServiceViewModelFactory(getNextVocabularyItemUseCase )
+                        factory = ServiceViewModelFactory(getNextVocabularyItemUseCase, getSaveDifficultyRatingUseCase )
                     )
 
                     OverlayScreen(

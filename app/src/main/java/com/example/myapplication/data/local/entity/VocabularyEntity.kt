@@ -12,5 +12,12 @@ data class VocabularyEntity(
     val createdAt: Long = System.currentTimeMillis(),
     val lastShownAt: Long? = null,
     val correctCount: Int = 0,
-    val incorrectCount: Int = 0
+    val incorrectCount: Int = 0,
+
+    // --- FSRS persistence ---
+    // JSON blob of io.github.openspacedrepetition.Card (see library README). :contentReference[oaicite:3]{index=3}
+    val fsrsCardJson: String = "",
+
+    // Cached next due time (epoch millis) for SQL filtering/sorting.
+    val fsrsDueAt: Long = 0L
 )

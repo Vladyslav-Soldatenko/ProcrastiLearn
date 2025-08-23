@@ -2,12 +2,15 @@ package com.example.myapplication.domain.repository
 
 
 import com.example.myapplication.domain.model.VocabularyItem
+import io.github.openspacedrepetition.Rating
 import kotlinx.coroutines.flow.Flow
 
 interface VocabularyRepository {
-    suspend fun getRandomVocabularyItem(): VocabularyItem
+    suspend fun getNextVocabularyItem(): VocabularyItem
     fun observeCurrentItem(): Flow<VocabularyItem>
+    fun getAllVocabulary(): Flow<List<VocabularyItem>>
     suspend fun addVocabularyItem(item: VocabularyItem)
-    fun getAllVocabulary():Flow<List<VocabularyItem>>
     suspend fun deleteVocabularyItem(item: VocabularyItem)
+
+    suspend fun reviewVocabularyItem(id: Long, rating: Rating)
 }

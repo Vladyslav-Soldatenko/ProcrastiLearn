@@ -30,12 +30,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.overlay.OverlayUiState
+import io.github.openspacedrepetition.Rating
 
 @Composable
 fun LearningCard(
     state: OverlayUiState,
     onToggleShowAnswer: () -> Unit,
-    onDifficultySelected: (Difficulty) -> Unit,
+    onDifficultySelected: (Rating) -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -52,7 +53,7 @@ fun LearningCard(
         ) {
             // Word prompt
             Text(
-                text = state.vocabularyItem.word,
+                text = state.vocabularyItem?.word ?:"No word loaded",
                 fontSize = 30.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFFF9FAFB),
@@ -90,7 +91,7 @@ fun LearningCard(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
-                        text = state.vocabularyItem.translation,
+                        text = state.vocabularyItem?.translation ?: "No translation loaded",
                         color = Color(0xFF93C5FD),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Medium,
@@ -128,7 +129,7 @@ fun LearningCard(
 
 @Composable
 private fun DifficultyButtons(
-    onDifficultySelected: (Difficulty) -> Unit,
+    onDifficultySelected: (Rating) -> Unit,
     enabled: Boolean
 ) {
     Column(
@@ -141,18 +142,18 @@ private fun DifficultyButtons(
         ) {
             DifficultyButton(
                 text = "Again",
-                difficulty = Difficulty.AGAIN,
+                difficulty = Rating.AGAIN,
                 color = Color(0xFFEF4444),
                 enabled = enabled,
-                onClick = { onDifficultySelected(Difficulty.AGAIN) },
+                onClick = { onDifficultySelected(Rating.AGAIN) },
                 modifier = Modifier.weight(1f)
             )
             DifficultyButton(
                 text = "Hard",
-                difficulty = Difficulty.HARD,
+                difficulty = Rating.HARD,
                 color = Color(0xFFF59E0B),
                 enabled = enabled,
-                onClick = { onDifficultySelected(Difficulty.HARD) },
+                onClick = { onDifficultySelected(Rating.HARD) },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -162,18 +163,18 @@ private fun DifficultyButtons(
         ) {
             DifficultyButton(
                 text = "Good",
-                difficulty = Difficulty.GOOD,
+                difficulty = Rating.GOOD,
                 color = Color(0xFF10B981),
                 enabled = enabled,
-                onClick = { onDifficultySelected(Difficulty.GOOD) },
+                onClick = { onDifficultySelected(Rating.GOOD) },
                 modifier = Modifier.weight(1f)
             )
             DifficultyButton(
                 text = "Easy",
-                difficulty = Difficulty.EASY,
+                difficulty = Rating.EASY,
                 color = Color(0xFF3B82F6),
                 enabled = enabled,
-                onClick = { onDifficultySelected(Difficulty.EASY) },
+                onClick = { onDifficultySelected(Rating.EASY) },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -183,7 +184,7 @@ private fun DifficultyButtons(
 @Composable
 private fun DifficultyButton(
     text: String,
-    difficulty: Difficulty,
+    difficulty: Rating,
     color: Color,
     enabled: Boolean,
     onClick: () -> Unit,
@@ -208,9 +209,3 @@ private fun DifficultyButton(
     }
 }
 
-enum class Difficulty {
-    AGAIN,
-    HARD,
-    GOOD,
-    EASY
-}
