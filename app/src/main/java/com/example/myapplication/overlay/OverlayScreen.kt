@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import com.example.myapplication.overlay.components.LearningCard
 
+@Suppress("MagicNumber")
 @Composable
 fun OverlayScreen(
     onUnlock: () -> Unit,

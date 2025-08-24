@@ -109,6 +109,7 @@ class OverlayAccessibilityService : AccessibilityService() {
         }
     }
 
+    @Suppress("ReturnCount", "MagicNumber", "CyclomaticComplexMethod")
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
 
@@ -294,6 +295,7 @@ class OverlayAccessibilityService : AccessibilityService() {
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
         }
 
+    @Suppress("EmptyFunctionBlock")
     override fun onInterrupt() {}
 
     override fun onDestroy() {

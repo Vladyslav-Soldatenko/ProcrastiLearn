@@ -1,3 +1,4 @@
+@file:Suppress("MagicNumber")
 package com.example.myapplication.overlay.components
 
 import androidx.compose.animation.AnimatedVisibility
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import com.example.myapplication.overlay.OverlayUiState
 import io.github.openspacedrepetition.Rating
 
+@Suppress("LongMethod")
 @Composable
 fun LearningCard(
     state: OverlayUiState,
@@ -183,7 +185,6 @@ private fun DifficultyButtons(
         ) {
             DifficultyButton(
                 "Again",
-                Rating.AGAIN,
                 Color(0xFFEF4444),
                 enabled,
                 onClick = { onDifficultySelected(Rating.AGAIN) },
@@ -191,7 +192,6 @@ private fun DifficultyButtons(
             )
             DifficultyButton(
                 "Hard",
-                Rating.HARD,
                 Color(0xFFF59E0B),
                 enabled,
                 onClick = { onDifficultySelected(Rating.HARD) },
@@ -204,7 +204,6 @@ private fun DifficultyButtons(
         ) {
             DifficultyButton(
                 "Good",
-                Rating.GOOD,
                 Color(0xFF10B981),
                 enabled,
                 onClick = { onDifficultySelected(Rating.GOOD) },
@@ -212,7 +211,6 @@ private fun DifficultyButtons(
             )
             DifficultyButton(
                 "Easy",
-                Rating.EASY,
                 Color(0xFF3B82F6),
                 enabled,
                 onClick = { onDifficultySelected(Rating.EASY) },
@@ -222,10 +220,10 @@ private fun DifficultyButtons(
     }
 }
 
+@Suppress("LongParameterList")
 @Composable
 private fun DifficultyButton(
     text: String,
-    difficulty: Rating,
     color: Color,
     enabled: Boolean,
     onClick: () -> Unit,

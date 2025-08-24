@@ -104,12 +104,13 @@ class VocabularyRepositoryImpl
 
                 // IMPORTANT: Clear current item after review to force new item on next call
                 currentItem.value = null
-                // Update day counters based on card type at *display* time (Anki counts when answered; you can move this to reviewVocabularyItem if you prefer)
+                // Update day counters based on card type at *display* time
                 val isNew = (entity.correctCount == 0 && entity.incorrectCount == 0)
                 if (isNew) prefs.markNewShown() else prefs.markReviewShown()
                 Log.i("FSRS", "Reviewed $id as $rating; next due at $nextDue")
             }
 
+        @Suppress("CyclomaticComplexMethod")
         override suspend fun getNextVocabularyItem(): VocabularyItem =
             withContext(io) {
                 val now = System.currentTimeMillis()
@@ -174,9 +175,8 @@ class VocabularyRepositoryImpl
             }
 
         private suspend fun finalizePick(id: Long): VocabularyItem {
-            val entity =
-                vocabularyDao.getVocabularyById(id)
-                    ?: throw IllegalStateException("Picked id $id not found")
+            val entity = vocabularyDao.getVocabularyById(id)
+            check(entity != null) { "Picked id $id not found" }
 
             val item = entity.ensureFsrs().toDomain()
             currentItem.value = item

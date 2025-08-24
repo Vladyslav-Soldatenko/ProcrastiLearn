@@ -9,6 +9,7 @@ import androidx.room.Update
 import com.example.myapplication.data.local.entity.VocabularyEntity
 import kotlinx.coroutines.flow.Flow
 
+@Suppress("TooManyFunctions")
 @Dao
 interface VocabularyDao {
     // Existing
@@ -44,9 +45,9 @@ interface VocabularyDao {
     // Any due now or overdue
     @Query(
         """
-        SELECT * FROM vocabulary 
-        WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now 
-        ORDER BY fsrsDueAt ASC 
+        SELECT * FROM vocabulary
+        WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now
+        ORDER BY fsrsDueAt ASC
         LIMIT 1
     """,
     )
@@ -55,9 +56,9 @@ interface VocabularyDao {
     // Nearest upcoming due (when nothing is due)
     @Query(
         """
-        SELECT * FROM vocabulary 
-        WHERE fsrsDueAt > 0 
-        ORDER BY fsrsDueAt ASC 
+        SELECT * FROM vocabulary
+        WHERE fsrsDueAt > 0
+        ORDER BY fsrsDueAt ASC
         LIMIT 1
     """,
     )
@@ -66,7 +67,7 @@ interface VocabularyDao {
     // “New” is inferred by counts == 0
     @Query(
         """
-        SELECT COUNT(*) FROM vocabulary 
+        SELECT COUNT(*) FROM vocabulary
         WHERE correctCount = 0 AND incorrectCount = 0
     """,
     )
@@ -74,19 +75,20 @@ interface VocabularyDao {
 
     @Query(
         """
-        SELECT * FROM vocabulary 
-        WHERE correctCount = 0 AND incorrectCount = 0 
-        ORDER BY RANDOM() 
+        SELECT * FROM vocabulary
+        WHERE correctCount = 0 AND incorrectCount = 0
+        ORDER BY RANDOM()
         LIMIT 1
     """,
     )
     suspend fun getRandomNew(): VocabularyEntity?
 
     // Apply a review atomically
+    @Suppress("LongParameterList")
     @Query(
         """
-        UPDATE vocabulary 
-        SET 
+        UPDATE vocabulary
+        SET
             fsrsCardJson = :cardJson,
             fsrsDueAt = :dueAt,
             lastShownAt = :reviewedAt,
@@ -106,8 +108,8 @@ interface VocabularyDao {
 
     @Query(
         """
-        SELECT * FROM vocabulary 
-        WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now 
+        SELECT * FROM vocabulary
+        WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now
         ORDER BY fsrsDueAt ASC
     """,
     )
@@ -116,7 +118,7 @@ interface VocabularyDao {
     // Get new cards (never reviewed)
     @Query(
         """
-        SELECT * FROM vocabulary 
+        SELECT * FROM vocabulary
         WHERE correctCount = 0 AND incorrectCount = 0
         ORDER BY id ASC
         LIMIT :limit
@@ -127,8 +129,8 @@ interface VocabularyDao {
     // Count today's new cards studied
     @Query(
         """
-        SELECT COUNT(*) FROM vocabulary 
-        WHERE lastShownAt >= :startOfDay 
+        SELECT COUNT(*) FROM vocabulary
+        WHERE lastShownAt >= :startOfDay
         AND correctCount + incorrectCount = 1
     """,
     )
@@ -147,9 +149,9 @@ interface VocabularyDao {
     // Pick next review (due now), earliest first
     @Query(
         """
-        SELECT id FROM vocabulary 
-        WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now 
-        ORDER BY fsrsDueAt ASC 
+        SELECT id FROM vocabulary
+        WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now
+        ORDER BY fsrsDueAt ASC
         LIMIT 1
     """,
     )
@@ -158,9 +160,9 @@ interface VocabularyDao {
     // Pick next upcoming (when nothing is due)
     @Query(
         """
-        SELECT id FROM vocabulary 
-        WHERE fsrsDueAt > :now 
-        ORDER BY fsrsDueAt ASC 
+        SELECT id FROM vocabulary
+        WHERE fsrsDueAt > :now
+        ORDER BY fsrsDueAt ASC
         LIMIT 1
     """,
     )
@@ -169,7 +171,7 @@ interface VocabularyDao {
     // Pick a "new" by offset (efficient alternative to ORDER BY RANDOM())
     @Query(
         """
-        SELECT id FROM vocabulary 
+        SELECT id FROM vocabulary
         WHERE correctCount = 0 AND incorrectCount = 0
         LIMIT 1 OFFSET :offset
     """,
@@ -179,9 +181,9 @@ interface VocabularyDao {
     // Fallback: random any, excluding the last shown (still small; OK)
     @Query(
         """
-        SELECT id FROM vocabulary 
+        SELECT id FROM vocabulary
         WHERE (:excludeId IS NULL OR id != :excludeId)
-        ORDER BY RANDOM() 
+        ORDER BY RANDOM()
         LIMIT 1
     """,
     )

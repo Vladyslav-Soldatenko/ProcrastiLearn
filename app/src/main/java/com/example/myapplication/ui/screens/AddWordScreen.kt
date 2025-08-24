@@ -42,6 +42,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.myapplication.ui.AddWordViewModel
 import kotlinx.coroutines.delay
 
+@Suppress("MagicNumber", "LongMethod")
 @Composable
 fun AddWordScreen(
     viewModel: AddWordViewModel = hiltViewModel(),
@@ -51,8 +52,9 @@ fun AddWordScreen(
 
     // Show success message and reset form
     LaunchedEffect(uiState.isSuccess) {
+        val delayTime = 2000L
         if (uiState.isSuccess) {
-            delay(2000) // Show success message for 2 seconds
+            delay(delayTime) // Show success message for 2 seconds
             viewModel.resetSuccess()
         }
     }

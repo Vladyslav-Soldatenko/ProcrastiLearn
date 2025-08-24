@@ -15,6 +15,7 @@ class AppRepositoryImpl
     constructor(
         @ApplicationContext private val context: Context,
     ) : AppRepository {
+        @Suppress("TooGenericExceptionCaught", "SwallowedException")
         override suspend fun loadLaunchableApps(): List<AppInfo> =
             withContext(Dispatchers.IO) {
                 val pm = context.packageManager
@@ -32,7 +33,6 @@ class AppRepositoryImpl
                             AppInfo(
                                 label = resolveInfo.loadLabel(pm).toString(),
                                 packageName = resolveInfo.activityInfo.packageName,
-//                        activityName = resolveInfo.activityInfo.name,
                                 icon = resolveInfo.loadIcon(pm),
                             )
                         } catch (e: Exception) {

@@ -1,0 +1,68 @@
+build:
+    maxIssues: 0
+    excludeCorrectable: false
+
+style:
+    MagicNumber:
+        active: true
+        ignorePropertyDeclaration: true
+        ignoreAnnotation: true
+        ignoreNumbers: ['-1', '0', '1']
+    MaxLineLength:
+        active: true
+        maxLineLength: 120
+        excludePackageStatements: true
+        excludeImportStatements: true
+    WildcardImport:
+        active: false
+    UnusedPrivateMember:
+        active: true
+    ReturnCount:
+        active: true
+        max: 3
+        excludeLabeled: true
+
+complexity:
+    LongMethod:
+        active: true
+        threshold: 60
+    TooManyFunctions:
+        active: true
+        thresholdInClasses: 20
+    CyclomaticComplexMethod:
+        active: true
+        threshold: 10
+    NestedBlockDepth:
+        active: true
+        threshold: 4
+    LargeClass:
+        active: true
+        threshold: 600
+
+naming:
+    FunctionNaming:
+        active: true
+        ignoreAnnotated: ['Composable']
+    ClassNaming:
+        active: true
+    ObjectPropertyNaming:
+        active: true
+
+performance:
+    SpreadOperator:
+        active: true
+    UnnecessaryTemporaryInstantiation:
+        active: true
+
+potential-bugs:
+    EqualsAlwaysReturnsTrueOrFalse:
+        active: true
+    InvalidRange:
+        active: true
+    LateinitUsage:
+        active: false
+
+exceptions:
+    TooGenericExceptionCaught:
+        active: true
+        excludes: ['IOException']

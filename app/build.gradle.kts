@@ -5,6 +5,7 @@ plugins {
   id("com.google.devtools.ksp")
   id("com.google.dagger.hilt.android")
   id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
+  id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
 android {
@@ -74,8 +75,8 @@ dependencies {
 }
 tasks.named("check") {
   dependsOn("ktlintCheck")
+//  dependsOn("detekt")
 }
-
 ktlint {
   version.set("1.3.1")
   android.set(true)
@@ -85,4 +86,11 @@ ktlint {
     reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
     reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
   }
+}
+
+detekt {
+  buildUponDefaultConfig = true // start from default rules
+  allRules = false // don’t enable every experimental rule
+  config.setFrom(files("$rootDir/detekt.yml"))
+  ignoreFailures = true
 }

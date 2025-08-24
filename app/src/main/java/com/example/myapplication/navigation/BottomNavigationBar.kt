@@ -14,13 +14,13 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 
-data class BottomNavItem(
+private data class BottomNavItem(
     val screen: Screen,
     val icon: ImageVector,
     val label: String,
 )
 
-val bottomNavItems =
+private val bottomNavItems =
     listOf(
         BottomNavItem(
             screen = Screen.Apps,

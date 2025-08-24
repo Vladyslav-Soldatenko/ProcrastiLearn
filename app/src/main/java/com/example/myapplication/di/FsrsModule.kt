@@ -8,6 +8,7 @@ import io.github.openspacedrepetition.Scheduler
 import java.time.Duration
 import javax.inject.Singleton
 
+@Suppress("MagicNumber")
 @Module
 @InstallIn(SingletonComponent::class)
 object FsrsModule {

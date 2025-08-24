@@ -33,6 +33,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -79,7 +80,8 @@ class MainActivity : ComponentActivity() {
                             title = { Text("Enable Accessibility Service") },
                             text = {
                                 Text(
-                                    "To use this app, you need to enable the Vocabulary Overlay accessibility service in settings.",
+                                    "To use this app, you need to enable the " +
+                                        "Vocabulary Overlay accessibility service in settings.",
                                 )
                             },
                             confirmButton = {
