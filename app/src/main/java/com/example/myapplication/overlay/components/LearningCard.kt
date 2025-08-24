@@ -8,11 +8,18 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.paddingFromBaseline
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -21,6 +28,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -41,88 +49,110 @@ fun LearningCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp)
-            .wrapContentHeight(),
+            .fillMaxHeight(1f),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1F2937)),
-        shape = RoundedCornerShape(24.dp)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 28.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(18.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp, vertical = 22.dp)
+                .paddingFromBaseline(top = 45.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Word prompt
+            // Title
             Text(
-                text = state.vocabularyItem?.word ?:"No word loaded",
+                text = state.vocabularyItem?.word ?: "No word loaded",
                 fontSize = 30.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFFF9FAFB),
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 6.dp, bottom = 2.dp)
+                modifier = Modifier
+                    .padding(top = 6.dp, bottom = 10.dp)
+                    .fillMaxWidth()
             )
 
-            // Show translation button
-            OutlinedButton(
-                onClick = onToggleShowAnswer,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color(0xFFBFDBFE)
-                )
-            ) {
-                Text(
-                    text = if (state.showAnswer) "Hide translation" else "Show translation",
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Center
-                )
+            // Translation area (middle). Scrollable when shown.
+            val scrollState = rememberScrollState()
+            LaunchedEffect(state.vocabularyItem?.id, state.showAnswer) {
+                if (state.showAnswer) scrollState.scrollTo(0)
             }
 
-            // Translation (shown when button is clicked)
             AnimatedVisibility(
                 visible = state.showAnswer,
                 enter = fadeIn() + expandVertically(),
-                exit = fadeOut() + shrinkVertically()
+                exit = fadeOut() + shrinkVertically(),
+                modifier = Modifier
+                    .weight(1f, fill = true)
+                    .fillMaxWidth()
+                    .padding(top = 14.dp, bottom = 8.dp)
             ) {
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState),
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF111827)),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(
-                        text = state.vocabularyItem?.translation ?: "No translation loaded",
-                        color = Color(0xFF93C5FD),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                            .alpha(0.95f)
-                    )
+                    SelectionContainer {
+                        Text(
+                            text = state.vocabularyItem?.translation ?: "No translation loaded",
+                            color = Color(0xFF93C5FD),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .alpha(0.95f),
+                            lineHeight = 26.sp
+                        )
+                    }
                 }
             }
 
-            // Divider
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 4.dp),
-                color = Color(0xFF374151),
-                thickness = 1.dp
-            )
+            // When translation is hidden, push footer to the bottom.
+            if (!state.showAnswer) Spacer(modifier = Modifier.weight(1f))
 
-            // Difficulty buttons
-            Text(
-                text = "How well did you know this?",
-                color = Color(0xFF9CA3AF),
-                fontSize = 14.sp,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-
-            DifficultyButtons(
-                onDifficultySelected = onDifficultySelected,
-                enabled = state.showAnswer // Only enable buttons after showing answer
-            )
+            // Footer swaps content in-place:
+            if (!state.showAnswer) {
+                // Bottom: Show translation button
+                OutlinedButton(
+                    onClick = onToggleShowAnswer,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .navigationBarsPadding(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = Color(0xFFBFDBFE)
+                    )
+                ) {
+                    Text("Show translation", fontSize = 16.sp, textAlign = TextAlign.Center)
+                }
+            } else {
+                // Bottom: divider + help + difficulty buttons (replaces the Show button)
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 6.dp),
+                    color = Color(0xFF374151),
+                    thickness = 1.dp
+                )
+                Text(
+                    text = "How well did you know this?",
+                    color = Color(0xFF9CA3AF),
+                    fontSize = 14.sp,
+                    modifier = Modifier
+                        .padding(top = 2.dp, bottom = 8.dp)
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+                DifficultyButtons(
+                    onDifficultySelected = onDifficultySelected,
+                    enabled = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding()
+                )
+            }
         }
     }
 }
@@ -130,53 +160,30 @@ fun LearningCard(
 @Composable
 private fun DifficultyButtons(
     onDifficultySelected: (Rating) -> Unit,
-    enabled: Boolean
+    enabled: Boolean,
+    modifier: Modifier = Modifier
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            DifficultyButton(
-                text = "Again",
-                difficulty = Rating.AGAIN,
-                color = Color(0xFFEF4444),
-                enabled = enabled,
-                onClick = { onDifficultySelected(Rating.AGAIN) },
-                modifier = Modifier.weight(1f)
-            )
-            DifficultyButton(
-                text = "Hard",
-                difficulty = Rating.HARD,
-                color = Color(0xFFF59E0B),
-                enabled = enabled,
-                onClick = { onDifficultySelected(Rating.HARD) },
-                modifier = Modifier.weight(1f)
-            )
+            DifficultyButton("Again", Rating.AGAIN, Color(0xFFEF4444), enabled,
+                onClick = { onDifficultySelected(Rating.AGAIN) }, modifier = Modifier.weight(1f))
+            DifficultyButton("Hard", Rating.HARD, Color(0xFFF59E0B), enabled,
+                onClick = { onDifficultySelected(Rating.HARD) }, modifier = Modifier.weight(1f))
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            DifficultyButton(
-                text = "Good",
-                difficulty = Rating.GOOD,
-                color = Color(0xFF10B981),
-                enabled = enabled,
-                onClick = { onDifficultySelected(Rating.GOOD) },
-                modifier = Modifier.weight(1f)
-            )
-            DifficultyButton(
-                text = "Easy",
-                difficulty = Rating.EASY,
-                color = Color(0xFF3B82F6),
-                enabled = enabled,
-                onClick = { onDifficultySelected(Rating.EASY) },
-                modifier = Modifier.weight(1f)
-            )
+            DifficultyButton("Good", Rating.GOOD, Color(0xFF10B981), enabled,
+                onClick = { onDifficultySelected(Rating.GOOD) }, modifier = Modifier.weight(1f))
+            DifficultyButton("Easy", Rating.EASY, Color(0xFF3B82F6), enabled,
+                onClick = { onDifficultySelected(Rating.EASY) }, modifier = Modifier.weight(1f))
         }
     }
 }
@@ -200,12 +207,7 @@ private fun DifficultyButton(
             disabledContainerColor = Color(0xFF374151)
         )
     ) {
-        Text(
-            text = text,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Medium,
-            color = if (enabled) Color.White else Color(0xFF6B7280)
-        )
+        Text(text = text, fontSize = 15.sp, fontWeight = FontWeight.Medium,
+            color = if (enabled) Color.White else Color(0xFF6B7280))
     }
 }
-
