@@ -1,7 +1,6 @@
 package com.example.myapplication.data.repository
 
-import android.util.Log
-import com.example.myapplication.data.local.PreferencesDataStore
+import com.example.myapplication.data.local.prefs.PreferencesDataStore
 import com.example.myapplication.domain.repository.AppPreferencesRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first

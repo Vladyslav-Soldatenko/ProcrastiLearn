@@ -1,4 +1,4 @@
-package com.example.myapplication.data.local
+package com.example.myapplication.data.local.prefs
 
 import android.content.Context
 import androidx.datastore.core.DataStore

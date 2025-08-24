@@ -94,4 +94,74 @@ interface VocabularyDao {
         incCorrect: Int,
         incIncorrect: Int
     )
+
+    @Query("""
+        SELECT * FROM vocabulary 
+        WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now 
+        ORDER BY fsrsDueAt ASC
+    """)
+    suspend fun getDueCards(now: Long): List<VocabularyEntity>
+
+    // Get new cards (never reviewed)
+    @Query("""
+        SELECT * FROM vocabulary 
+        WHERE correctCount = 0 AND incorrectCount = 0
+        ORDER BY id ASC
+        LIMIT :limit
+    """)
+    suspend fun getNewCards(limit: Int): List<VocabularyEntity>
+
+    // Count today's new cards studied
+    @Query("""
+        SELECT COUNT(*) FROM vocabulary 
+        WHERE lastShownAt >= :startOfDay 
+        AND correctCount + incorrectCount = 1
+    """)
+    suspend fun countNewCardsStudiedToday(startOfDay: Long): Int
+
+    // Get a single card by ID
+    @Query("SELECT * FROM vocabulary WHERE id = :id LIMIT 1")
+    suspend fun getCard(id: Long): VocabularyEntity?
+
+    @Query("SELECT COUNT(*) FROM vocabulary WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now")
+    suspend fun countReviewsDue(now: Long): Int
+
+    @Query("SELECT COUNT(*) FROM vocabulary WHERE correctCount = 0 AND incorrectCount = 0")
+    suspend fun countNewTotal(): Int
+
+    // Pick next review (due now), earliest first
+    @Query("""
+        SELECT id FROM vocabulary 
+        WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now 
+        ORDER BY fsrsDueAt ASC 
+        LIMIT 1
+    """)
+    suspend fun pickNextReviewId(now: Long): Long?
+
+    // Pick next upcoming (when nothing is due)
+    @Query("""
+        SELECT id FROM vocabulary 
+        WHERE fsrsDueAt > :now 
+        ORDER BY fsrsDueAt ASC 
+        LIMIT 1
+    """)
+    suspend fun pickNextUpcomingId(now: Long): Long?
+
+    // Pick a "new" by offset (efficient alternative to ORDER BY RANDOM())
+    @Query("""
+        SELECT id FROM vocabulary 
+        WHERE correctCount = 0 AND incorrectCount = 0
+        LIMIT 1 OFFSET :offset
+    """)
+    suspend fun pickNewIdByOffset(offset: Int): Long?
+
+    // Fallback: random any, excluding the last shown (still small; OK)
+    @Query("""
+        SELECT id FROM vocabulary 
+        WHERE (:excludeId IS NULL OR id != :excludeId)
+        ORDER BY RANDOM() 
+        LIMIT 1
+    """)
+    suspend fun pickRandomAnyId(excludeId: Long?): Long?
+
 }

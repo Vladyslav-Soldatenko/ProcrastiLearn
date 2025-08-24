@@ -3,6 +3,9 @@ package com.example.myapplication.data.repository
 import android.util.Log
 import com.example.myapplication.data.local.dao.VocabularyDao
 import com.example.myapplication.data.local.entity.VocabularyEntity
+import com.example.myapplication.data.local.prefs.DayCountersStore
+import com.example.myapplication.domain.model.LearningPreferencesConfig
+import com.example.myapplication.domain.model.MixMode
 import com.example.myapplication.domain.model.VocabularyItem
 import com.example.myapplication.domain.repository.VocabularyRepository
 import io.github.openspacedrepetition.Card
@@ -13,36 +16,34 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.random.Random
+
+
+private fun todayStamp(): Int =
+    java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE).toInt()
 
 @Singleton
 class VocabularyRepositoryImpl @Inject constructor(
     private val vocabularyDao: VocabularyDao,
     private val scheduler: Scheduler,
+    private val prefs: DayCountersStore,
 ) : VocabularyRepository {
 
     private val _currentItem = MutableStateFlow<VocabularyItem?>(null)
     private val io = Dispatchers.IO
-
-    // Add this to track the last shown item ID to avoid repeats
     private var lastShownId: Long? = null
 
-    override fun observeCurrentItem(): Flow<VocabularyItem> =
-        _currentItem.asStateFlow().filterNotNull()
-
-    override fun getAllVocabulary(): Flow<List<VocabularyItem>> {
-        return vocabularyDao.getAllVocabulary()
-            .onEach { list -> Log.i("fsrs", list.toString()) }  // side effect
-            .map { list -> list.map { it.toDomain() } }
-    }
-
-
+    private val policy = LearningPreferencesConfig(
+        newPerDay = 20,
+        reviewPerDay = 200,
+        mixMode = MixMode.MIX,
+        buryImmediateRepeat = true
+    )
     override suspend fun addVocabularyItem(item: VocabularyItem): Unit = withContext(io) {
         val cardJson = Card.builder().build().toJson()
         val dueAt = Instant.now().toEpochMilli()
@@ -52,53 +53,11 @@ class VocabularyRepositoryImpl @Inject constructor(
     override suspend fun deleteVocabularyItem(item: VocabularyItem) = withContext(io) {
         vocabularyDao.deleteVocabulary(item.toEntity())
     }
+    override fun observeCurrentItem(): Flow<VocabularyItem> =
+        _currentItem.asStateFlow().filterNotNull()
 
-    override suspend fun getNextVocabularyItem(): VocabularyItem = withContext(io) {
-        val now = System.currentTimeMillis()
-
-        // 1) Prefer due/overdue (excluding the last shown)
-        vocabularyDao.getEarliestDue(now)?.let {
-            if (it.id != lastShownId) {
-                val item = it.toDomain()
-                _currentItem.value = item
-                lastShownId = item.id
-                return@withContext item
-            }
-        }
-
-        // 2) Sometimes inject a new card
-        val hasNew = vocabularyDao.countNew() > 0
-        if (hasNew && Random.nextDouble() < MIX_NEW_PROBABILITY) {
-            vocabularyDao.getRandomNew()?.let {
-                if (it.id != lastShownId) {
-                    val item = it.ensureFsrs().toDomain()
-                    _currentItem.value = item
-                    lastShownId = item.id
-                    return@withContext item
-                }
-            }
-        }
-
-        // 3) Otherwise take the nearest upcoming due
-        val candidate = vocabularyDao.getNearestDue() ?: vocabularyDao.getRandomAny()
-        val item = candidate?.ensureFsrs()?.toDomain()
-            ?: throw NoSuchElementException("No vocabulary items in database")
-
-        // If we got the same item, try to get a different one
-        if (item.id == lastShownId && vocabularyDao.getVocabularyCount() > 1) {
-            val alternativeItem = vocabularyDao.getRandomAny()?.toDomain()
-            if (alternativeItem != null && alternativeItem.id != lastShownId) {
-                _currentItem.value = alternativeItem
-                lastShownId = alternativeItem.id
-                return@withContext alternativeItem
-            }
-        }
-
-        _currentItem.value = item
-        lastShownId = item.id
-        return@withContext item
-    }
-
+    override fun getAllVocabulary(): Flow<List<VocabularyItem>> =
+        vocabularyDao.getAllVocabulary().map { list -> list.map { it.toDomain() } }
     override suspend fun reviewVocabularyItem(id: Long, rating: Rating) : Unit = withContext(io) {
         Log.i("fsrs", "reviewng $id")
         val entity = vocabularyDao.getVocabularyById(id)
@@ -130,37 +89,111 @@ class VocabularyRepositoryImpl @Inject constructor(
 
         // IMPORTANT: Clear current item after review to force new item on next call
         _currentItem.value = null
-
+        // Update day counters based on card type at *display* time (Anki counts when answered; you can move this to reviewVocabularyItem if you prefer)
+        val isNew = (entity.correctCount == 0 && entity.incorrectCount == 0)
+        if (isNew) prefs.markNewShown() else prefs.markReviewShown()
         Log.i("FSRS", "Reviewed $id as $rating; next due at $nextDue")
     }
 
-    // --- Helpers ---
+    override suspend fun getNextVocabularyItem(): VocabularyItem = withContext(io) {
+        val now = System.currentTimeMillis()
+        ensureDay()
+        Log.i("fsrs", "before counters")
+        // Read day counters once
+        val counters = prefs.read().first()
+        Log.i("fsrs", counters.toString())
+        val newRemaining = (policy.newPerDay - counters.newShown).coerceAtLeast(0)
+        val reviewRemaining = (policy.reviewPerDay - counters.reviewShown).coerceAtLeast(0)
+
+        // 1) Check due reviews (incl. learning due now via FSRS dueAt)
+        val dueCount = if (reviewRemaining > 0) vocabularyDao.countReviewsDue(now) else 0
+
+        // Decide which queue we *intend* to draw from
+        val wantNew = when (policy.mixMode) {
+            MixMode.NEW_FIRST -> newRemaining > 0 && (dueCount == 0)
+            MixMode.REVIEWS_FIRST -> false
+            MixMode.MIX -> shouldServeNewMixed(newRemaining, reviewRemaining, dueCount, counters.reviewsSinceLastNew)
+        }
+
+        val pickId: Long? = when {
+            // Prefer due reviews unless we explicitly want new right now
+            dueCount > 0 && !wantNew -> vocabularyDao.pickNextReviewId(now)
+
+            // If we want a new now (ratio hit) or no reviews due, try new (within daily cap)
+            newRemaining > 0 && (wantNew || dueCount == 0) -> {
+                val totalNew = vocabularyDao.countNewTotal()
+                if (totalNew > 0) {
+                    val offset = kotlin.random.Random.nextInt(totalNew) // O(1) sampler
+                    vocabularyDao.pickNewIdByOffset(offset)
+                        ?: vocabularyDao.pickNewIdByOffset(0)
+                } else null
+            }
+
+            // Otherwise (no cap space for new or none exist), and no due reviews:
+            else -> vocabularyDao.pickNextUpcomingId(now)
+        }
+
+        val chosenId = pickId ?: vocabularyDao.pickRandomAnyId(lastShownId)
+        ?: throw NoSuchElementException("No vocabulary items in database")
+
+        // Avoid immediate repeat if policy says so
+        if (policy.buryImmediateRepeat && lastShownId != null && chosenId == lastShownId) {
+            vocabularyDao.pickRandomAnyId(lastShownId)?.let { alternate ->
+                return@withContext finalizePick(alternate)
+            }
+        }
+
+        return@withContext finalizePick(chosenId)
+    }
+
+    private suspend fun finalizePick(id: Long): VocabularyItem {
+        val entity = vocabularyDao.getVocabularyById(id)
+            ?: throw IllegalStateException("Picked id $id not found")
+
+        val item = entity.ensureFsrs().toDomain()
+        _currentItem.value = item
+        lastShownId = item.id
+        return item
+    }
+
+    /**
+     * MIX policy: show 1 new after N reviews, where N is derived from remaining quotas.
+     * This mimics Anki’s dynamic interleaving rather than a fixed probability.
+     */
+    private fun shouldServeNewMixed(
+        newRemaining: Int,
+        reviewRemaining: Int,
+        dueCount: Int,
+        reviewsSinceLastNew: Int
+    ): Boolean {
+        if (newRemaining <= 0) return false
+        if (dueCount == 0 && reviewRemaining == 0) return true  // no reviews left; show new
+        // target: 1 new after R reviews
+        val R = kotlin.math.max(1.0, kotlin.math.ceil(reviewRemaining.toDouble() / newRemaining)).toInt()
+        return reviewsSinceLastNew >= R
+    }
+
+    private suspend fun ensureDay() {
+        val today = todayStamp()
+        val current = prefs.read().first()
+        if (current.yyyymmdd != today) {
+            prefs.resetFor(today)
+        }
+    }
+
+    // --- existing helpers unchanged ---
     private fun VocabularyEntity.ensureFsrs(): VocabularyEntity {
         if (fsrsCardJson.isNotBlank()) return this
         val card = Card.builder().build()
-        return copy(fsrsCardJson = card.toJson(), fsrsDueAt = Instant.now().toEpochMilli())
+        return copy(fsrsCardJson = card.toJson(), fsrsDueAt = 0L)
     }
 
     private fun VocabularyEntity.toDomain(): VocabularyItem =
-        VocabularyItem(
-            id = id,
-            word = word,
-            translation = translation
-        )
+        VocabularyItem(id = id, word = word, translation = translation)
 
     private fun VocabularyItem.toEntity(
         fsrsCardJson: String = "",
         fsrsDueAt: Long = 0L
     ): VocabularyEntity =
-        VocabularyEntity(
-            id = id,
-            word = word,
-            translation = translation,
-            fsrsCardJson = fsrsCardJson,
-            fsrsDueAt = fsrsDueAt
-        )
-
-    companion object {
-        private const val MIX_NEW_PROBABILITY = 0.35 // 35% chance to slip in a new card when none due
-    }
+        VocabularyEntity(id = id, word = word, translation = translation, fsrsCardJson = fsrsCardJson, fsrsDueAt = fsrsDueAt)
 }
