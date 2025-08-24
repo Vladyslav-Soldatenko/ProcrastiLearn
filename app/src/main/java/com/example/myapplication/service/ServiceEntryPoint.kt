@@ -18,7 +18,10 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 interface ServiceEntryPoint {
     fun appPreferencesRepository(): AppPreferencesRepository
+
     fun vocabularyRepository(): VocabularyRepository
+
     fun getNextVocabularyItemUseCase(): GetNextVocabularyItemUseCase
+
     fun getSaveDifficultyRatingUseCase(): SaveDifficultyRatingUseCase
 }

@@ -8,31 +8,27 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AppPreferencesRepositoryImpl @Inject constructor(
-    private val preferencesDataStore: PreferencesDataStore
-) : AppPreferencesRepository {
+class AppPreferencesRepositoryImpl
+    @Inject
+    constructor(
+        private val preferencesDataStore: PreferencesDataStore,
+    ) : AppPreferencesRepository {
+        override fun getBlockedApps(): Flow<Set<String>> = preferencesDataStore.blockedApps
 
-    override fun getBlockedApps(): Flow<Set<String>> {
-        return preferencesDataStore.blockedApps
-    }
+        override suspend fun addBlockedApp(packageName: String) {
+            preferencesDataStore.addBlockedApp(packageName)
+        }
 
-    override suspend fun addBlockedApp(packageName: String) {
-        preferencesDataStore.addBlockedApp(packageName)
-    }
+        override suspend fun removeBlockedApp(packageName: String) {
+            preferencesDataStore.removeBlockedApp(packageName)
+        }
 
-    override suspend fun removeBlockedApp(packageName: String) {
-        preferencesDataStore.removeBlockedApp(packageName)
-    }
+        override suspend fun setBlockedApps(packageNames: Set<String>) {
+            preferencesDataStore.setBlockedApps(packageNames)
+        }
 
-    override suspend fun setBlockedApps(packageNames: Set<String>) {
-        preferencesDataStore.setBlockedApps(packageNames)
-    }
+        override suspend fun isAppBlocked(packageName: String): Boolean =
+            preferencesDataStore.blockedApps.first().contains(packageName)
 
-    override suspend fun isAppBlocked(packageName: String): Boolean {
-        return preferencesDataStore.blockedApps.first().contains(packageName)
+        override suspend fun toggleApp(packageName: String) = preferencesDataStore.toggleApp(packageName)
     }
-
-    override suspend fun toggleApp(packageName: String) {
-        return preferencesDataStore.toggleApp(packageName)
-    }
-}

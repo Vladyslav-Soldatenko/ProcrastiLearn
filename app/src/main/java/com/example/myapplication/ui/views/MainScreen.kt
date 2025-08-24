@@ -20,18 +20,18 @@ fun MainScreen() {
     Scaffold(
         bottomBar = {
             BottomNavigationBar(navController = navController)
-        }
+        },
     ) { paddingValues ->
         NavHost(
             navController = navController,
             startDestination = Screen.Apps.route,
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(paddingValues),
         ) {
             composable(Screen.Apps.route) {
                 AppsListScreen()
             }
             composable(Screen.AddWord.route) {
-                AddWordScreen(onNavigateToList= { navController.navigate(Screen.WordList.route) })
+                AddWordScreen(onNavigateToList = { navController.navigate(Screen.WordList.route) })
             }
             composable(Screen.WordList.route) {
                 WordListScreen()

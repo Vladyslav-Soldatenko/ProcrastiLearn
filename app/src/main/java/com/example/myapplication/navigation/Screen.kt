@@ -1,7 +1,11 @@
 package com.example.myapplication.navigation
 
-sealed class Screen(val route: String) {
+sealed class Screen(
+    val route: String,
+) {
     object Apps : Screen("apps")
+
     object AddWord : Screen("add_word")
+
     object WordList : Screen("word_list")
 }

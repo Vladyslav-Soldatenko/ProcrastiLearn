@@ -10,74 +10,78 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
-class AddWordViewModel @Inject constructor(
-    private val addVocabularyItemUseCase: AddVocabularyItemUseCase
-) : ViewModel() {
+class AddWordViewModel
+    @Inject
+    constructor(
+        private val addVocabularyItemUseCase: AddVocabularyItemUseCase,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(AddWordUiState())
+        val uiState: StateFlow<AddWordUiState> = _uiState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(AddWordUiState())
-    val uiState: StateFlow<AddWordUiState> = _uiState.asStateFlow()
-
-    fun onWordChange(word: String) {
-        _uiState.value = _uiState.value.copy(
-            word = word,
-            wordError = null
-        )
-    }
-
-    fun onTranslationChange(translation: String) {
-        _uiState.value = _uiState.value.copy(
-            translation = translation,
-            translationError = null
-        )
-    }
-
-    fun onAddClick() {
-        val currentState = _uiState.value
-
-        // Validate inputs
-        var hasError = false
-
-        if (currentState.word.isBlank()) {
-            _uiState.value = _uiState.value.copy(wordError = "Please enter a word")
-            hasError = true
+        fun onWordChange(word: String) {
+            _uiState.value =
+                _uiState.value.copy(
+                    word = word,
+                    wordError = null,
+                )
         }
 
-        if (currentState.translation.isBlank()) {
-            _uiState.value = _uiState.value.copy(translationError = "Please enter a translation")
-            hasError = true
+        fun onTranslationChange(translation: String) {
+            _uiState.value =
+                _uiState.value.copy(
+                    translation = translation,
+                    translationError = null,
+                )
         }
 
-        if (hasError) return
+        fun onAddClick() {
+            val currentState = _uiState.value
 
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            // Validate inputs
+            var hasError = false
 
-            addVocabularyItemUseCase(
-                word = currentState.word,
-                translation = currentState.translation
-            ).fold(
-                onSuccess = {
-                    _uiState.value = AddWordUiState(
-                        isSuccess = true,
-                        successMessage = "Word added successfully!"
-                    )
-                },
-                onFailure = { error ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = error.message ?: "Failed to add word"
-                    )
-                }
-            )
+            if (currentState.word.isBlank()) {
+                _uiState.value = _uiState.value.copy(wordError = "Please enter a word")
+                hasError = true
+            }
+
+            if (currentState.translation.isBlank()) {
+                _uiState.value = _uiState.value.copy(translationError = "Please enter a translation")
+                hasError = true
+            }
+
+            if (hasError) return
+
+            viewModelScope.launch {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+
+                addVocabularyItemUseCase(
+                    word = currentState.word,
+                    translation = currentState.translation,
+                ).fold(
+                    onSuccess = {
+                        _uiState.value =
+                            AddWordUiState(
+                                isSuccess = true,
+                                successMessage = "Word added successfully!",
+                            )
+                    },
+                    onFailure = { error ->
+                        _uiState.value =
+                            _uiState.value.copy(
+                                isLoading = false,
+                                errorMessage = error.message ?: "Failed to add word",
+                            )
+                    },
+                )
+            }
+        }
+
+        fun resetSuccess() {
+            _uiState.value = AddWordUiState()
         }
     }
-
-    fun resetSuccess() {
-        _uiState.value = AddWordUiState()
-    }
-}
 
 data class AddWordUiState(
     val word: String = "",
@@ -87,5 +91,5 @@ data class AddWordUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isSuccess: Boolean = false,
-    val successMessage: String? = null
+    val successMessage: String? = null,
 )

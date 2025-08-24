@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -37,20 +36,20 @@ import com.example.myapplication.domain.model.AppInfo
 fun AppsList(
     apps: List<AppInfo>,
     selectedKeys: Set<String>,
-    onToggle: (AppInfo) -> Unit
+    onToggle: (AppInfo) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 8.dp)
+        contentPadding = PaddingValues(vertical = 8.dp),
     ) {
         items(
             items = apps,
-            key = { "${it.packageName}" }
+            key = { "${it.packageName}" },
         ) { app ->
             AppRow(
                 app = app,
                 checked = selectedKeys.contains("${app.packageName}"),
-                onCheckedChange = { onToggle(app) }
+                onCheckedChange = { onToggle(app) },
             )
         }
     }
@@ -60,31 +59,34 @@ fun AppsList(
 private fun AppRow(
     app: AppInfo,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
 ) {
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onCheckedChange(!checked) },
-        color = if (checked) {
-            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.12f)
-        } else {
-            MaterialTheme.colorScheme.surface
-        }
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable { onCheckedChange(!checked) },
+        color =
+            if (checked) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.12f)
+            } else {
+                MaterialTheme.colorScheme.surface
+            },
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // App icon
             app.icon?.let { drawable ->
                 Image(
                     painter = rememberDrawablePainter(drawable),
                     contentDescription = null,
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier.size(30.dp),
                 )
             }
 
@@ -94,16 +96,17 @@ private fun AppRow(
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodyLarge,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
 
             // Checkbox
             Checkbox(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
-                colors = CheckboxDefaults.colors(
-                    checkedColor = MaterialTheme.colorScheme.primary
-                )
+                colors =
+                    CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.colorScheme.primary,
+                    ),
             )
         }
     }
@@ -112,17 +115,16 @@ private fun AppRow(
     HorizontalDivider(
         modifier = Modifier.padding(horizontal = 16.dp),
         thickness = 1.dp,
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
     )
 }
 
 // Helper composable to convert Drawable to Painter
 @Composable
-fun rememberDrawablePainter(drawable: Drawable): Painter {
-    return remember(drawable) {
+fun rememberDrawablePainter(drawable: Drawable): Painter =
+    remember(drawable) {
         drawable.toBitmap().asImageBitmap().let { BitmapPainter(it) }
     }
-}
 
 // Extension function to convert Drawable to Bitmap
 fun Drawable.toBitmap(): Bitmap {
@@ -130,11 +132,12 @@ fun Drawable.toBitmap(): Bitmap {
         return bitmap
     }
 
-    val bitmap = Bitmap.createBitmap(
-        intrinsicWidth.coerceAtLeast(1),
-        intrinsicHeight.coerceAtLeast(1),
-        Bitmap.Config.ARGB_8888
-    )
+    val bitmap =
+        Bitmap.createBitmap(
+            intrinsicWidth.coerceAtLeast(1),
+            intrinsicHeight.coerceAtLeast(1),
+            Bitmap.Config.ARGB_8888,
+        )
 
     val canvas = Canvas(bitmap)
     setBounds(0, 0, canvas.width, canvas.height)

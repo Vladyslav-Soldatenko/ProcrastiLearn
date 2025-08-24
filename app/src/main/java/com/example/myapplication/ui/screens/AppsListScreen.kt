@@ -22,7 +22,7 @@ fun AppsListScreen() {
         state.isLoading -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator()
             }
@@ -30,7 +30,7 @@ fun AppsListScreen() {
         state.error != null -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text("Error: ${state.error}")
             }
@@ -39,7 +39,7 @@ fun AppsListScreen() {
             AppsList(
                 apps = state.apps,
                 selectedKeys = state.selected,
-                onToggle = vm::toggle
+                onToggle = vm::toggle,
             )
         }
     }

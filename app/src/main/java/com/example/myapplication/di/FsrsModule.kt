@@ -11,13 +11,13 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object FsrsModule {
-
     @Provides
     @Singleton
     fun provideFsrsScheduler(): Scheduler {
         // Defaults are sensible; tweak desiredRetention/steps if you want.
         // Library uses UTC internally. :contentReference[oaicite:1]{index=1}
-        return Scheduler.builder()
+        return Scheduler
+            .builder()
             .desiredRetention(0.9)
             .learningSteps(arrayOf(Duration.ofMinutes(1), Duration.ofMinutes(10)))
             .relearningSteps(arrayOf(Duration.ofMinutes(10)))

@@ -15,73 +15,73 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class OverlayViewModel @Inject constructor(
-    private val getNextVocabularyItem: GetNextVocabularyItemUseCase,
-    private val saveDifficultyRating: SaveDifficultyRatingUseCase
-) : ViewModel() {
+class OverlayViewModel
+    @Inject
+    constructor(
+        private val getNextVocabularyItem: GetNextVocabularyItemUseCase,
+        private val saveDifficultyRating: SaveDifficultyRatingUseCase,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(OverlayUiState())
+        val uiState: StateFlow<OverlayUiState> = _uiState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(OverlayUiState())
-    val uiState: StateFlow<OverlayUiState> = _uiState.asStateFlow()
-
-    fun onOverlayOpened() {
-        // Call this when overlay is opened/shown
-        if (!_uiState.value.unlocked) {
-            loadNewWord()
-        }
-    }
-
-    fun onToggleShowAnswer() {
-        _uiState.update { it.copy(showAnswer = !it.showAnswer) }
-    }
-
-    fun onDifficultySelected(rating: Rating) {
-        val current = _uiState.value.vocabularyItem
-        if(current == null){
-            throw NoSuchElementException("current word is null")
+        fun onOverlayOpened() {
+            // Call this when overlay is opened/shown
+            if (!_uiState.value.unlocked) {
+                loadNewWord()
+            }
         }
 
-        Log.i("fsrs", "$rating selected for $current ")
+        fun onToggleShowAnswer() {
+            _uiState.update { it.copy(showAnswer = !it.showAnswer) }
+        }
 
-        viewModelScope.launch {
-            saveDifficultyRating(current.id, rating)
+        fun onDifficultySelected(rating: Rating) {
+            val current = _uiState.value.vocabularyItem
+            if (current == null) {
+                throw NoSuchElementException("current word is null")
+            }
+
+            Log.i("fsrs", "$rating selected for $current ")
+
+            viewModelScope.launch {
+                saveDifficultyRating(current.id, rating)
+                _uiState.update {
+                    it.copy(
+                        unlocked = true,
+                        showAnswer = false, // Reset for next time
+                    )
+                }
+            }
+        }
+
+        fun resetForNextSession() {
+            // Call this when overlay is dismissed/closed
             _uiState.update {
                 it.copy(
-                    unlocked = true,
-                    showAnswer = false // Reset for next time
+                    unlocked = false,
+                    showAnswer = false,
                 )
             }
         }
-    }
 
-    fun resetForNextSession() {
-        // Call this when overlay is dismissed/closed
-        _uiState.update {
-            it.copy(
-                unlocked = false,
-                showAnswer = false
-            )
+        private fun loadNewWord() {
+            viewModelScope.launch {
+                _uiState.update { it.copy(isLoading = true) }
+                getNextVocabularyItem()
+                    .onSuccess { item ->
+                        _uiState.update {
+                            it.copy(
+                                vocabularyItem = item,
+                                isLoading = false,
+                                showAnswer = false,
+                                unlocked = false,
+                            )
+                        }
+                    }.onFailure {
+                        _uiState.update {
+                            it.copy(isLoading = false)
+                        }
+                    }
+            }
         }
     }
-
-    private fun loadNewWord() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            getNextVocabularyItem()
-                .onSuccess { item ->
-                    _uiState.update {
-                        it.copy(
-                            vocabularyItem = item,
-                            isLoading = false,
-                            showAnswer = false,
-                            unlocked = false
-                        )
-                    }
-                }
-                .onFailure {
-                    _uiState.update {
-                        it.copy(isLoading = false)
-                    }
-                }
-        }
-    }
-}

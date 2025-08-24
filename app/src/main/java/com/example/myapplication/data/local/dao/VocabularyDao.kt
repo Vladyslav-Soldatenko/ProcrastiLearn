@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface VocabularyDao {
-
     // Existing
     @Query("SELECT * FROM vocabulary")
     fun getAllVocabulary(): Flow<List<VocabularyEntity>>
@@ -43,40 +42,49 @@ interface VocabularyDao {
     // --- FSRS-oriented helpers ---
 
     // Any due now or overdue
-    @Query("""
+    @Query(
+        """
         SELECT * FROM vocabulary 
         WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now 
         ORDER BY fsrsDueAt ASC 
         LIMIT 1
-    """)
+    """,
+    )
     suspend fun getEarliestDue(now: Long): VocabularyEntity?
 
     // Nearest upcoming due (when nothing is due)
-    @Query("""
+    @Query(
+        """
         SELECT * FROM vocabulary 
         WHERE fsrsDueAt > 0 
         ORDER BY fsrsDueAt ASC 
         LIMIT 1
-    """)
+    """,
+    )
     suspend fun getNearestDue(): VocabularyEntity?
 
     // “New” is inferred by counts == 0
-    @Query("""
+    @Query(
+        """
         SELECT COUNT(*) FROM vocabulary 
         WHERE correctCount = 0 AND incorrectCount = 0
-    """)
+    """,
+    )
     suspend fun countNew(): Int
 
-    @Query("""
+    @Query(
+        """
         SELECT * FROM vocabulary 
         WHERE correctCount = 0 AND incorrectCount = 0 
         ORDER BY RANDOM() 
         LIMIT 1
-    """)
+    """,
+    )
     suspend fun getRandomNew(): VocabularyEntity?
 
     // Apply a review atomically
-    @Query("""
+    @Query(
+        """
         UPDATE vocabulary 
         SET 
             fsrsCardJson = :cardJson,
@@ -85,38 +93,45 @@ interface VocabularyDao {
             correctCount = correctCount + :incCorrect,
             incorrectCount = incorrectCount + :incIncorrect
         WHERE id = :id
-    """)
+    """,
+    )
     suspend fun applyFsrsReview(
         id: Long,
         cardJson: String,
         dueAt: Long,
         reviewedAt: Long,
         incCorrect: Int,
-        incIncorrect: Int
+        incIncorrect: Int,
     )
 
-    @Query("""
+    @Query(
+        """
         SELECT * FROM vocabulary 
         WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now 
         ORDER BY fsrsDueAt ASC
-    """)
+    """,
+    )
     suspend fun getDueCards(now: Long): List<VocabularyEntity>
 
     // Get new cards (never reviewed)
-    @Query("""
+    @Query(
+        """
         SELECT * FROM vocabulary 
         WHERE correctCount = 0 AND incorrectCount = 0
         ORDER BY id ASC
         LIMIT :limit
-    """)
+    """,
+    )
     suspend fun getNewCards(limit: Int): List<VocabularyEntity>
 
     // Count today's new cards studied
-    @Query("""
+    @Query(
+        """
         SELECT COUNT(*) FROM vocabulary 
         WHERE lastShownAt >= :startOfDay 
         AND correctCount + incorrectCount = 1
-    """)
+    """,
+    )
     suspend fun countNewCardsStudiedToday(startOfDay: Long): Int
 
     // Get a single card by ID
@@ -130,38 +145,45 @@ interface VocabularyDao {
     suspend fun countNewTotal(): Int
 
     // Pick next review (due now), earliest first
-    @Query("""
+    @Query(
+        """
         SELECT id FROM vocabulary 
         WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now 
         ORDER BY fsrsDueAt ASC 
         LIMIT 1
-    """)
+    """,
+    )
     suspend fun pickNextReviewId(now: Long): Long?
 
     // Pick next upcoming (when nothing is due)
-    @Query("""
+    @Query(
+        """
         SELECT id FROM vocabulary 
         WHERE fsrsDueAt > :now 
         ORDER BY fsrsDueAt ASC 
         LIMIT 1
-    """)
+    """,
+    )
     suspend fun pickNextUpcomingId(now: Long): Long?
 
     // Pick a "new" by offset (efficient alternative to ORDER BY RANDOM())
-    @Query("""
+    @Query(
+        """
         SELECT id FROM vocabulary 
         WHERE correctCount = 0 AND incorrectCount = 0
         LIMIT 1 OFFSET :offset
-    """)
+    """,
+    )
     suspend fun pickNewIdByOffset(offset: Int): Long?
 
     // Fallback: random any, excluding the last shown (still small; OK)
-    @Query("""
+    @Query(
+        """
         SELECT id FROM vocabulary 
         WHERE (:excludeId IS NULL OR id != :excludeId)
         ORDER BY RANDOM() 
         LIMIT 1
-    """)
+    """,
+    )
     suspend fun pickRandomAnyId(excludeId: Long?): Long?
-
 }

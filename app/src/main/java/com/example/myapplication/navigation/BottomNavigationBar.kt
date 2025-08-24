@@ -1,6 +1,5 @@
 package com.example.myapplication.navigation
 
-import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
@@ -10,9 +9,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -20,21 +17,22 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 data class BottomNavItem(
     val screen: Screen,
     val icon: ImageVector,
-    val label: String
+    val label: String,
 )
 
-val bottomNavItems = listOf(
-    BottomNavItem(
-        screen = Screen.Apps,
-        icon = Icons.Default.Edit,
-        label = "Apps"
-    ),
-    BottomNavItem(
-        screen = Screen.AddWord,
-        icon = Icons.Default.Add,
-        label = "Add Word"
+val bottomNavItems =
+    listOf(
+        BottomNavItem(
+            screen = Screen.Apps,
+            icon = Icons.Default.Edit,
+            label = "Apps",
+        ),
+        BottomNavItem(
+            screen = Screen.AddWord,
+            icon = Icons.Default.Add,
+            label = "Add Word",
+        ),
     )
-)
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
@@ -61,12 +59,12 @@ fun BottomNavigationBar(navController: NavController) {
                 icon = {
                     Icon(
                         imageVector = item.icon,
-                        contentDescription = item.label
+                        contentDescription = item.label,
                     )
                 },
                 label = {
                     Text(text = item.label)
-                }
+                },
             )
         }
     }

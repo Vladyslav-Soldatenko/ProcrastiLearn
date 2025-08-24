@@ -47,17 +47,19 @@ fun LearningCard(
     onDifficultySelected: (Rating) -> Unit,
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(1f),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(1f),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1F2937)),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 22.dp)
-                .paddingFromBaseline(top = 45.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp, vertical = 22.dp)
+                    .paddingFromBaseline(top = 45.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Title
             Text(
@@ -66,9 +68,10 @@ fun LearningCard(
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFFF9FAFB),
                 textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(top = 6.dp, bottom = 10.dp)
-                    .fillMaxWidth()
+                modifier =
+                    Modifier
+                        .padding(top = 6.dp, bottom = 10.dp)
+                        .fillMaxWidth(),
             )
 
             // Translation area (middle). Scrollable when shown.
@@ -81,17 +84,19 @@ fun LearningCard(
                 visible = state.showAnswer,
                 enter = fadeIn() + expandVertically(),
                 exit = fadeOut() + shrinkVertically(),
-                modifier = Modifier
-                    .weight(1f, fill = true)
-                    .fillMaxWidth()
-                    .padding(top = 14.dp, bottom = 8.dp)
+                modifier =
+                    Modifier
+                        .weight(1f, fill = true)
+                        .fillMaxWidth()
+                        .padding(top = 14.dp, bottom = 8.dp),
             ) {
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(scrollState),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(scrollState),
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF111827)),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
                 ) {
                     SelectionContainer {
                         Text(
@@ -100,11 +105,12 @@ fun LearningCard(
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Medium,
                             textAlign = TextAlign.Start,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                                .alpha(0.95f),
-                            lineHeight = 26.sp
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                                    .alpha(0.95f),
+                            lineHeight = 26.sp,
                         )
                     }
                 }
@@ -118,14 +124,16 @@ fun LearningCard(
                 // Bottom: Show translation button
                 OutlinedButton(
                     onClick = onToggleShowAnswer,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp)
-                        .navigationBarsPadding(),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(52.dp)
+                            .navigationBarsPadding(),
                     shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color(0xFFBFDBFE)
-                    )
+                    colors =
+                        ButtonDefaults.outlinedButtonColors(
+                            contentColor = Color(0xFFBFDBFE),
+                        ),
                 ) {
                     Text("Show translation", fontSize = 16.sp, textAlign = TextAlign.Center)
                 }
@@ -134,23 +142,25 @@ fun LearningCard(
                 HorizontalDivider(
                     modifier = Modifier.padding(vertical = 6.dp),
                     color = Color(0xFF374151),
-                    thickness = 1.dp
+                    thickness = 1.dp,
                 )
                 Text(
                     text = "How well did you know this?",
                     color = Color(0xFF9CA3AF),
                     fontSize = 14.sp,
-                    modifier = Modifier
-                        .padding(top = 2.dp, bottom = 8.dp)
-                        .fillMaxWidth(),
-                    textAlign = TextAlign.Center
+                    modifier =
+                        Modifier
+                            .padding(top = 2.dp, bottom = 8.dp)
+                            .fillMaxWidth(),
+                    textAlign = TextAlign.Center,
                 )
                 DifficultyButtons(
                     onDifficultySelected = onDifficultySelected,
                     enabled = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .navigationBarsPadding()
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .navigationBarsPadding(),
                 )
             }
         }
@@ -161,29 +171,53 @@ fun LearningCard(
 private fun DifficultyButtons(
     onDifficultySelected: (Rating) -> Unit,
     enabled: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = modifier
+        modifier = modifier,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            DifficultyButton("Again", Rating.AGAIN, Color(0xFFEF4444), enabled,
-                onClick = { onDifficultySelected(Rating.AGAIN) }, modifier = Modifier.weight(1f))
-            DifficultyButton("Hard", Rating.HARD, Color(0xFFF59E0B), enabled,
-                onClick = { onDifficultySelected(Rating.HARD) }, modifier = Modifier.weight(1f))
+            DifficultyButton(
+                "Again",
+                Rating.AGAIN,
+                Color(0xFFEF4444),
+                enabled,
+                onClick = { onDifficultySelected(Rating.AGAIN) },
+                modifier = Modifier.weight(1f),
+            )
+            DifficultyButton(
+                "Hard",
+                Rating.HARD,
+                Color(0xFFF59E0B),
+                enabled,
+                onClick = { onDifficultySelected(Rating.HARD) },
+                modifier = Modifier.weight(1f),
+            )
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            DifficultyButton("Good", Rating.GOOD, Color(0xFF10B981), enabled,
-                onClick = { onDifficultySelected(Rating.GOOD) }, modifier = Modifier.weight(1f))
-            DifficultyButton("Easy", Rating.EASY, Color(0xFF3B82F6), enabled,
-                onClick = { onDifficultySelected(Rating.EASY) }, modifier = Modifier.weight(1f))
+            DifficultyButton(
+                "Good",
+                Rating.GOOD,
+                Color(0xFF10B981),
+                enabled,
+                onClick = { onDifficultySelected(Rating.GOOD) },
+                modifier = Modifier.weight(1f),
+            )
+            DifficultyButton(
+                "Easy",
+                Rating.EASY,
+                Color(0xFF3B82F6),
+                enabled,
+                onClick = { onDifficultySelected(Rating.EASY) },
+                modifier = Modifier.weight(1f),
+            )
         }
     }
 }
@@ -195,19 +229,24 @@ private fun DifficultyButton(
     color: Color,
     enabled: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier.height(48.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (enabled) color else Color(0xFF374151),
-            disabledContainerColor = Color(0xFF374151)
-        )
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = if (enabled) color else Color(0xFF374151),
+                disabledContainerColor = Color(0xFF374151),
+            ),
     ) {
-        Text(text = text, fontSize = 15.sp, fontWeight = FontWeight.Medium,
-            color = if (enabled) Color.White else Color(0xFF6B7280))
+        Text(
+            text = text,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            color = if (enabled) Color.White else Color(0xFF6B7280),
+        )
     }
 }

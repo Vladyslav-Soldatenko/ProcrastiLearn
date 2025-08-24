@@ -45,7 +45,7 @@ class OverlayAccessibilityService : AccessibilityService() {
     private val serviceEntryPoint: ServiceEntryPoint by lazy {
         EntryPointAccessors.fromApplication(
             applicationContext,
-            ServiceEntryPoint::class.java
+            ServiceEntryPoint::class.java,
         )
     }
 
@@ -66,27 +66,28 @@ class OverlayAccessibilityService : AccessibilityService() {
 
     private var blockedPackages: Set<String> = emptySet()
 
-
-    private val ignoredPackages = setOf(
-        "com.google.android.inputmethod.latin",
-        "com.android.inputmethod.latin",
-        "com.samsung.android.honeyboard",
-        "com.baidu.input",
-        "com.android.systemui",
-        "com.google.android.systemui"
-    )
+    private val ignoredPackages =
+        setOf(
+            "com.google.android.inputmethod.latin",
+            "com.android.inputmethod.latin",
+            "com.samsung.android.honeyboard",
+            "com.baidu.input",
+            "com.android.systemui",
+            "com.google.android.systemui",
+        )
 
     // Home/launcher packages that should clear sessions
-    private val launcherPackages = setOf(
-        "com.android.launcher",
-        "com.android.launcher2",
-        "com.android.launcher3",
-        "com.google.android.launcher",
-        "com.google.android.apps.nexuslauncher",
-        "com.samsung.android.launcher",
-        "com.mi.android.globallauncher",
-        "com.miui.home"
-    )
+    private val launcherPackages =
+        setOf(
+            "com.android.launcher",
+            "com.android.launcher2",
+            "com.android.launcher3",
+            "com.google.android.launcher",
+            "com.google.android.apps.nexuslauncher",
+            "com.samsung.android.launcher",
+            "com.mi.android.globallauncher",
+            "com.miui.home",
+        )
 
     override fun onServiceConnected() {
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
@@ -94,7 +95,13 @@ class OverlayAccessibilityService : AccessibilityService() {
         serviceScope.launch {
             appPreferencesRepository.getBlockedApps().collect { apps ->
                 Log.i(
-                    "LaunchableApp", "foo" + if(apps.isNotEmpty()){apps.first()} else{"empty"}
+                    "LaunchableApp",
+                    "foo" +
+                        if (apps.isNotEmpty()) {
+                            apps.first()
+                        } else {
+                            "empty"
+                        },
                 )
 
                 blockedPackages = apps
@@ -160,11 +167,12 @@ class OverlayAccessibilityService : AccessibilityService() {
     }
 
     private fun markAsUnlocked(packageName: String) {
-        unlockedSessions[packageName] = GateSession(
-            packageName = packageName,
-            unlockedAt = System.currentTimeMillis(),
-            isActive = true
-        )
+        unlockedSessions[packageName] =
+            GateSession(
+                packageName = packageName,
+                unlockedAt = System.currentTimeMillis(),
+                isActive = true,
+            )
     }
 
     private fun clearSession(packageName: String) {
@@ -188,11 +196,13 @@ class OverlayAccessibilityService : AccessibilityService() {
         gatedPackage = null
     }
 
-    private fun isFromInputMethod(pkg: String, cls: String): Boolean {
-        return pkg.contains("inputmethod", ignoreCase = true) ||
-                cls.contains("InputMethod", ignoreCase = true) ||
-                pkg in ignoredPackages
-    }
+    private fun isFromInputMethod(
+        pkg: String,
+        cls: String,
+    ): Boolean =
+        pkg.contains("inputmethod", ignoreCase = true) ||
+            cls.contains("InputMethod", ignoreCase = true) ||
+            pkg in ignoredPackages
 
     private fun isIgnorableSystem(pkg: String): Boolean = pkg in ignoredPackages
 
@@ -202,29 +212,33 @@ class OverlayAccessibilityService : AccessibilityService() {
         if (overlayView != null) return
 
         lifecycleOwner = ServiceLifecycleOwner()
-        overlayView = createComposeOverlay(
-            onUnlock = {
-                // Mark this app as unlocked for current session
-                gatedPackage?.let { pkg ->
-                    markAsUnlocked(pkg)
-                    endGateSession()
-                    bringToFront(pkg)
-                }
-            }
-        )
+        overlayView =
+            createComposeOverlay(
+                onUnlock = {
+                    // Mark this app as unlocked for current session
+                    gatedPackage?.let { pkg ->
+                        markAsUnlocked(pkg)
+                        endGateSession()
+                        bringToFront(pkg)
+                    }
+                },
+            )
 
-        val params = WindowManager.LayoutParams().apply {
-            width = WindowManager.LayoutParams.MATCH_PARENT
-            height = WindowManager.LayoutParams.MATCH_PARENT
-            type = if (Settings.canDrawOverlays(this@OverlayAccessibilityService))
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-            else
-                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
-            flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+        val params =
+            WindowManager.LayoutParams().apply {
+                width = WindowManager.LayoutParams.MATCH_PARENT
+                height = WindowManager.LayoutParams.MATCH_PARENT
+                type =
+                    if (Settings.canDrawOverlays(this@OverlayAccessibilityService)) {
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                    } else {
+                        WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+                    }
+                flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-            softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-            format = PixelFormat.TRANSLUCENT
-        }
+                softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+                format = PixelFormat.TRANSLUCENT
+            }
 
         windowManager?.addView(overlayView, params)
     }
@@ -233,7 +247,8 @@ class OverlayAccessibilityService : AccessibilityService() {
         overlayView?.let {
             try {
                 windowManager?.removeView(it)
-            } catch (_: Throwable) {}
+            } catch (_: Throwable) {
+            }
         }
         overlayView = null
         lifecycleOwner?.onDestroy()
@@ -245,11 +260,12 @@ class OverlayAccessibilityService : AccessibilityService() {
             val intent = packageManager.getLaunchIntentForPackage(pkg) ?: return
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
-        } catch (_: Throwable) {}
+        } catch (_: Throwable) {
+        }
     }
 
-    private fun createComposeOverlay(onUnlock: () -> Unit): View {
-        return ComposeView(this).apply {
+    private fun createComposeOverlay(onUnlock: () -> Unit): View =
+        ComposeView(this).apply {
             lifecycleOwner?.let { owner ->
                 setViewTreeLifecycleOwner(owner)
                 setViewTreeViewModelStoreOwner(owner)
@@ -259,20 +275,25 @@ class OverlayAccessibilityService : AccessibilityService() {
             setContent {
                 MaterialTheme(colorScheme = darkColorScheme()) {
                     // Provide the custom factory for ViewModels
-                    val viewModel: OverlayViewModel = viewModel(
-                        factory = ServiceViewModelFactory(getNextVocabularyItemUseCase, getSaveDifficultyRatingUseCase )
-                    )
+                    val viewModel: OverlayViewModel =
+                        viewModel(
+                            factory =
+                                ServiceViewModelFactory(
+                                    getNextVocabularyItemUseCase,
+                                    getSaveDifficultyRatingUseCase,
+                                ),
+                        )
 
                     OverlayScreen(
                         onUnlock = onUnlock,
-                        viewModel = viewModel  // Pass it explicitly
+                        viewModel = viewModel, // Pass it explicitly
                     )
                 }
             }
 
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
         }
-    }
+
     override fun onInterrupt() {}
 
     override fun onDestroy() {

@@ -11,20 +11,23 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class WordListViewModel @Inject constructor(
-    private val repository: VocabularyRepository
-) : ViewModel() {
+class WordListViewModel
+    @Inject
+    constructor(
+        private val repository: VocabularyRepository,
+    ) : ViewModel() {
+        val words =
+            repository
+                .getAllVocabulary()
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = emptyList(),
+                )
 
-    val words = repository.getAllVocabulary()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
-
-    fun deleteWord(item: VocabularyItem) {
-        viewModelScope.launch {
-            repository.deleteVocabularyItem(item)
+        fun deleteWord(item: VocabularyItem) {
+            viewModelScope.launch {
+                repository.deleteVocabularyItem(item)
+            }
         }
     }
-}

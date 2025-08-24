@@ -13,58 +13,61 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "app_preferences"
+    name = "app_preferences",
 )
 
-
 @Singleton
-class PreferencesDataStore @Inject constructor(
-    @ApplicationContext private val context: Context
-) {
-    private val dataStore = context.dataStore
+class PreferencesDataStore
+    @Inject
+    constructor(
+        @ApplicationContext private val context: Context,
+    ) {
+        private val dataStore = context.dataStore
 
-    companion object {
-        // Keys for stored values - like localStorage keys
-        val BLOCKED_APPS_KEY = stringSetPreferencesKey("blocked_apps")
-    }
-
-    // Observe blocked apps
-    val blockedApps: Flow<Set<String>> = dataStore.data
-        .map { preferences ->
-            preferences[BLOCKED_APPS_KEY] ?: emptySet()
+        companion object {
+            // Keys for stored values - like localStorage keys
+            val BLOCKED_APPS_KEY = stringSetPreferencesKey("blocked_apps")
         }
 
-    // Save blocked apps
-    suspend fun setBlockedApps(apps: Set<String>) {
-        dataStore.edit { preferences ->
-            preferences[BLOCKED_APPS_KEY] = apps
-        }
-    }
+        // Observe blocked apps
+        val blockedApps: Flow<Set<String>> =
+            dataStore.data
+                .map { preferences ->
+                    preferences[BLOCKED_APPS_KEY] ?: emptySet()
+                }
 
-    // Add single app
-    suspend fun addBlockedApp(packageName: String) {
-        dataStore.edit { preferences ->
-            val current = preferences[BLOCKED_APPS_KEY] ?: emptySet()
-            preferences[BLOCKED_APPS_KEY] = current + packageName
+        // Save blocked apps
+        suspend fun setBlockedApps(apps: Set<String>) {
+            dataStore.edit { preferences ->
+                preferences[BLOCKED_APPS_KEY] = apps
+            }
         }
-    }
 
-    // Remove single app
-    suspend fun removeBlockedApp(packageName: String) {
-        dataStore.edit { preferences ->
-            val current = preferences[BLOCKED_APPS_KEY] ?: emptySet()
-            preferences[BLOCKED_APPS_KEY] = current - packageName
+        // Add single app
+        suspend fun addBlockedApp(packageName: String) {
+            dataStore.edit { preferences ->
+                val current = preferences[BLOCKED_APPS_KEY] ?: emptySet()
+                preferences[BLOCKED_APPS_KEY] = current + packageName
+            }
         }
-    }
 
-    suspend fun toggleApp(appKey: String) {
-        context.dataStore.edit { preferences ->
-            val current = preferences[BLOCKED_APPS_KEY] ?: emptySet()
-            preferences[BLOCKED_APPS_KEY] = if (appKey in current) {
-                current - appKey
-            } else {
-                current + appKey
+        // Remove single app
+        suspend fun removeBlockedApp(packageName: String) {
+            dataStore.edit { preferences ->
+                val current = preferences[BLOCKED_APPS_KEY] ?: emptySet()
+                preferences[BLOCKED_APPS_KEY] = current - packageName
+            }
+        }
+
+        suspend fun toggleApp(appKey: String) {
+            context.dataStore.edit { preferences ->
+                val current = preferences[BLOCKED_APPS_KEY] ?: emptySet()
+                preferences[BLOCKED_APPS_KEY] =
+                    if (appKey in current) {
+                        current - appKey
+                    } else {
+                        current + appKey
+                    }
             }
         }
     }
-}
