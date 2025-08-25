@@ -41,7 +41,7 @@ private val KEY_OVERLAY_SKIPPED = booleanPreferencesKey("overlay_skipped")
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Suppress("LongMethod", "CyclomaticComplexMethod")
+    @Suppress("LongMethod", "CyclomaticComplexMethod", "ForbiddenComment")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

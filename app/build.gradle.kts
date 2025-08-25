@@ -13,7 +13,7 @@ android {
   compileSdk = 36
 
   defaultConfig {
-    applicationId = "com.example.myapplication"
+    applicationId = "com.procrastilearn.app"
     minSdk = 26
     targetSdk = 36
     versionCode = 1
@@ -21,9 +21,22 @@ android {
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
+  ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.incremental", "true")
+    arg("room.generateKotlin", "true")
+  }
+  sourceSets {
+    getByName("androidTest").assets.srcDir("$projectDir/schemas")
+  }
+
   buildTypes {
-    release {
+    debug {
       isMinifyEnabled = false
+    }
+    release {
+      isMinifyEnabled = true
+      isShrinkResources = true
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"),
         "proguard-rules.pro",
@@ -75,7 +88,7 @@ dependencies {
 }
 tasks.named("check") {
   dependsOn("ktlintCheck")
-//  dependsOn("detekt")
+  dependsOn("detekt")
 }
 ktlint {
   version.set("1.3.1")
@@ -92,5 +105,5 @@ detekt {
   buildUponDefaultConfig = true // start from default rules
   allRules = false // don’t enable every experimental rule
   config.setFrom(files("$rootDir/detekt.yml"))
-  ignoreFailures = true
+  ignoreFailures = false
 }
