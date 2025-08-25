@@ -8,7 +8,7 @@ import com.procrastilearn.app.data.local.entity.VocabularyEntity
 @Database(
     entities = [VocabularyEntity::class],
     version = 1,
-    exportSchema = false,
+    exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun vocabularyDao(): VocabularyDao
