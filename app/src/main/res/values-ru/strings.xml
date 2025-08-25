@@ -1,5 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ProcrastiLearn</string>
+    <resources xmlns:tools="http://schemas.android.com/tools"
+        xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+        <string name="app_name" translatable="false">ProcrastiLearn</string>
+
+        <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
+        <string name="action_open_settings">Открыть настройки</string>
+        <string name="action_not_now">Не сейчас</string>
+        <string name="action_accept">Принять</string>
+        <string name="action_continue">Продолжить</string>
+        <string name="action_view_list">Просмотреть список</string>
+        <string name="action_add">Добавить</string>
+        <string name="action_delete">Удалить</string>
+
+        <!-- Back-compat aliases (so existing code keeps working) -->
+        <string name="overlay_permission_open_settings">@string/action_open_settings</string>
+        <string name="overlay_permission_not_now">@string/action_not_now</string>
+        <string name="add_word_button_add">@string/action_add</string>
+        <string name="word_list_delete">@string/action_delete</string>
+        <string name="add_word_view_list">@string/action_view_list</string>
+
+        <!-- ─── Navigation ──────────────────────────────────────────────────────── -->
+        <string name="nav_apps">Приложения</string>
+        <string name="nav_add_word">Добавить слово</string>
+        <string name="nav_settings">Настройки</string>
+
+        <!-- ─── Learning flow ───────────────────────────────────────────────────── -->
+        <string name="learning_no_word">Слово не загружено</string>
+        <string name="learning_no_translation">Перевод не загружен</string>
+        <string name="learning_show_translation">Показать перевод</string>
+        <string name="learning_question">Насколько хорошо вы знали это?</string>
+
+        <!-- Ratings -->
+        <string name="rating_again">Снова</string>
+        <string name="rating_hard">Сложно</string>
+        <string name="rating_good">Хорошо</string>
+        <string name="rating_easy">Легко</string>
+
+        <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
+        <string name="overlay_permission_title">Разрешить отображение поверх других окон</string>
+        <string name="overlay_permission_message">
+    Этому приложению нужно разрешение для показа оверлея поверх других приложений.
+</string>
+
+        <!-- ─── Accessibility disclosure (A11y) ─────────────────────────────────── -->
+        <string name="a11y_disclosure_title">Почему нужна служба доступности</string>
+        <string name="a11y_disclosure_description">
+    Это приложение использует разрешение службы доступности Android, чтобы обнаруживать, когда вы открываете выбранные приложения
+    (например, TikTok, Reddit или любые другие по вашему выбору), и показывать короткое обучающее задание перед продолжением.
+</string>
+
+        <string name="a11y_disclosure_section_access">К чему у нас есть доступ</string>
+
+        <!-- Keep your original paragraph for now (easy drop-in), but prefer the array below -->
+        <string name="a11y_disclosure_access_details">
+    • Какое приложение сейчас на экране.\n
+    • Мы НЕ читаем ваши пароли, сообщения или текст на экране.\n
+    • Ваши данные не покидают устройство и никогда не продаются и не передаются.
+</string>
+
+        <string-array name="a11y_disclosure_access_points">
+            <item>Сведения о пакете приложения и окнах, чтобы понимать, какое приложение на переднем плане.</item>
+            <item>Мы не читаем ваши пароли, сообщения или текст на экране.</item>
+            <item>Данные остаются на вашем устройстве и не продаются и не передаются.</item>
+        </string-array>
+
+        <string name="a11y_disclosure_section_usage">Как мы это используем</string>
+
+        <!-- Original paragraph -->
+        <string name="a11y_disclosure_usage_details">
+    Только для показа обучающего оверлея для выбранных вами приложений.
+    Вы можете отключить это в любое время в настройках. Мы не продаём и не передаём эти данные,
+    они не покидают ваше устройство.
+</string>
+
+        <string name="a11y_disclosure_checkbox">
+    Я понимаю и соглашаюсь предоставить этому приложению доступ к службе доступности для этой цели.
+</string>
+        <string name="a11y_disclosure_accept">Принять и продолжить</string>
+        <string name="a11y_disclosure_decline">@string/action_not_now</string>
+        <string name="a11y_disclosure_privacy">Политика конфиденциальности и подробности</string>
+
+        <!-- ─── Add Word ────────────────────────────────────────────────────────── -->
+        <string name="add_word_title">Добавить новое слово</string>
+        <string name="add_word_subtitle">Расширяйте словарный запас</string>
+        <string name="add_word_label_word">Слово</string>
+        <string name="add_word_placeholder_word">Введите слово</string>
+        <string name="add_word_label_translation">Перевод</string>
+        <string name="add_word_placeholder_translation">Введите перевод (в несколько строк)</string>
+        <string name="add_word_icon_add">Добавить</string>
+
+        <!-- Prefer using a proper icon. Keep these for compatibility. -->
+        <string name="add_word_success_icon" translatable="false">✓</string>
+        <string name="add_word_success_default">Готово!</string>
+
+        <!-- Helpful validation/toast messages -->
+        <string name="add_word_error_word_required">Введите слово.</string>
+        <string name="add_word_error_translation_required">Введите перевод.</string>
+        <string name="add_word_toast_added">Слово добавлено.</string>
+
+        <!-- ─── Settings ────────────────────────────────────────────────────────── -->
+        <string name="settings_title">Настройки</string>
+
+        <string name="settings_overlay_headline">Разрешение на оверлей</string>
+        <string name="settings_overlay_support">
+    Нужно, чтобы показывать обучающую карточку поверх выбранных приложений.
+</string>
+
+        <string name="settings_a11y_headline">Обучающий шлюз (служба доступности)</string>
+        <string name="settings_a11y_support">
+    Определяет выбранные приложения на переднем плане и отображает обучающую карточку.
+</string>
+
+        <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
+        <string name="word_list_title">Мой словарь</string>
+        <string name="word_list_empty">Вы ещё не добавили слов</string>
+
+
+        <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
+        <string name="cd_add_word">Добавить слово</string>
+        <string name="cd_delete_word">Удалить слово</string>
+        <string name="cd_show_translation">Показать перевод</string>
+    </resources>
 
 </resources>

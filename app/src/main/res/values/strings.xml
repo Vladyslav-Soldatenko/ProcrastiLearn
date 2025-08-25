@@ -31,9 +31,6 @@
     <string name="learning_show_translation">Show translation</string>
     <string name="learning_question">How well did you know this?</string>
 
-    <!-- Optional: example with placeholder -->
-    <string name="learning_next_review_in">Next review in <xliff:g id="minutes">%1$d</xliff:g> min</string>
-
     <!-- Ratings -->
     <string name="rating_again">Again</string>
     <string name="rating_hard">Hard</string>
@@ -43,26 +40,25 @@
     <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
     <string name="overlay_permission_title">Allow overlay display</string>
     <string name="overlay_permission_message">
-        This app needs permission to display a small learning card over other apps.
+        This app needs permission to display an overlay over other apps.
     </string>
 
     <!-- ─── Accessibility disclosure (A11y) ─────────────────────────────────── -->
     <string name="a11y_disclosure_title">Why we need Accessibility</string>
     <string name="a11y_disclosure_description">
-        This app uses Android Accessibility to detect when you open selected apps
-        (e.g., TikTok, Reddit) so it can show a short learning prompt before you continue.
+        This app uses Android Accessibility Service permission to detect when you open selected apps
+        (e.g., TikTok, Reddit or any other app you choose) so it can show a short learning prompt before you continue.
     </string>
 
     <string name="a11y_disclosure_section_access">What we access</string>
 
     <!-- Keep your original paragraph for now (easy drop-in), but prefer the array below -->
     <string name="a11y_disclosure_access_details">
-        • App package and window info to know which app is in the foreground.\n
+        • Which app is currently on your screen.\n
         • We do NOT read your passwords, messages, or on-screen text.\n
-        • Data stays on your device and is not sold or shared.
+        • Your data never leaves your device and is never sold or shared.
     </string>
 
-    <!-- Translator-friendly list version (use in new UI) -->
     <string-array name="a11y_disclosure_access_points">
         <item>App package and window info to know which app is in the foreground.</item>
         <item>We do not read your passwords, messages, or on-screen text.</item>
@@ -78,15 +74,9 @@
         it never leaves your device.
     </string>
 
-    <!-- List version -->
-    <string-array name="a11y_disclosure_usage_points">
-        <item>Only to trigger the learning overlay for apps you select.</item>
-        <item>You can turn this off anytime in Settings.</item>
-        <item>We don’t sell or share this data; it never leaves your device.</item>
-    </string-array>
 
     <string name="a11y_disclosure_checkbox">
-        I understand and agree to use Accessibility for this purpose.
+        I understand and agree to allow this app to use the Accessibility Service permission for this purpose.
     </string>
     <string name="a11y_disclosure_accept">Accept &amp; Continue</string>
     <string name="a11y_disclosure_decline">@string/action_not_now</string>
@@ -126,13 +116,6 @@
     <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
     <string name="word_list_title">My Vocabulary</string>
     <string name="word_list_empty">No words added yet</string>
-
-    <!-- Plurals for counts -->
-    <plurals name="word_list_count">
-        <item quantity="zero">No words</item>
-        <item quantity="one">1 word</item>
-        <item quantity="other"><xliff:g id="count">%1$d</xliff:g> words</item>
-    </plurals>
 
     <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
     <string name="cd_add_word">Add word</string>
