@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-  namespace = "com.example.myapplication"
+  namespace = "com.procrastilearn.app"
   compileSdk = 36
 
   defaultConfig {
