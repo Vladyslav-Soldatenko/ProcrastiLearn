@@ -1,5 +1,4 @@
 roadmap:
-Edit added words
 show overlay each X minutes while in app
 UI improvements (color scheme, etc)
 

@@ -13,6 +13,8 @@ interface VocabularyRepository {
 
     suspend fun addVocabularyItem(item: VocabularyItem)
 
+    suspend fun updateVocabularyItem(item: VocabularyItem)
+
     suspend fun deleteVocabularyItem(item: VocabularyItem)
 
     suspend fun reviewVocabularyItem(

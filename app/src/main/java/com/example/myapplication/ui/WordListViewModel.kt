@@ -30,4 +30,10 @@ class WordListViewModel
                 repository.deleteVocabularyItem(item)
             }
         }
+
+        fun updateWord(item: VocabularyItem) {
+            viewModelScope.launch {
+                repository.updateVocabularyItem(item)
+            }
+        }
     }

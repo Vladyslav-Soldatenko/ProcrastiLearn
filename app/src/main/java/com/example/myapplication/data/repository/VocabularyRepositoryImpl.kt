@@ -58,6 +58,19 @@ class VocabularyRepositoryImpl
                 vocabularyDao.insertVocabulary(item.toEntity(fsrsCardJson = cardJson, fsrsDueAt = dueAt))
             }
 
+        override suspend fun updateVocabularyItem(item: VocabularyItem): Unit =
+            withContext(io) {
+                val existingEntity = vocabularyDao.getVocabularyById(item.id)
+                if (existingEntity != null) {
+                    val updatedEntity =
+                        existingEntity.copy(
+                            word = item.word,
+                            translation = item.translation,
+                        )
+                    vocabularyDao.updateVocabulary(updatedEntity)
+                }
+            }
+
         override suspend fun deleteVocabularyItem(item: VocabularyItem) =
             withContext(io) {
                 vocabularyDao.deleteVocabulary(item.toEntity())

@@ -9,7 +9,9 @@
         <string name="action_continue">Продолжить</string>
         <string name="action_view_list">Просмотреть список</string>
         <string name="action_add">Добавить</string>
-        <string name="action_delete">Удалить</string>
+        <string name="action_edit">Редактировать</string>
+
+    <string name="action_delete">Удалить</string>
 
         <!-- Back-compat aliases (so existing code keeps working) -->
         <string name="overlay_permission_open_settings">@string/action_open_settings</string>
@@ -87,6 +89,7 @@
         <string name="add_word_label_translation">Перевод</string>
         <string name="add_word_placeholder_translation">Введите перевод (в несколько строк)</string>
         <string name="add_word_icon_add">Добавить</string>
+         <string name="edit_word_title">Редактировать слово</string>
 
         <!-- Prefer using a proper icon. Keep these for compatibility. -->
         <string name="add_word_success_icon" translatable="false">✓</string>
