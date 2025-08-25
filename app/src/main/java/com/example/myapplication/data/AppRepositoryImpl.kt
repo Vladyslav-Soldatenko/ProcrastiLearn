@@ -2,6 +2,9 @@ package com.example.myapplication.data
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
+import android.os.Build
 import com.example.myapplication.domain.model.AppInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -10,36 +13,50 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AppRepositoryImpl
-    @Inject
-    constructor(
-        @ApplicationContext private val context: Context,
-    ) : AppRepository {
-        @Suppress("TooGenericExceptionCaught", "SwallowedException")
-        override suspend fun loadLaunchableApps(): List<AppInfo> =
-            withContext(Dispatchers.IO) {
-                val pm = context.packageManager
-                val intent =
-                    Intent(Intent.ACTION_MAIN, null).apply {
-                        addCategory(Intent.CATEGORY_LAUNCHER)
+class AppRepositoryImpl @Inject constructor(
+    @ApplicationContext private val context: Context,
+) : AppRepository {
+    @Suppress("TooGenericExceptionCaught", "SwallowedException")
+    override suspend fun loadLaunchableApps(): List<AppInfo> =
+        withContext(Dispatchers.IO) {
+            val pm = context.packageManager
+            val mainIntent =
+                Intent(Intent.ACTION_MAIN).apply {
+                    addCategory(Intent.CATEGORY_LAUNCHER)
+                }
+
+            val resolveInfos: List<ResolveInfo> =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    pm.queryIntentActivities(
+                        mainIntent,
+                        PackageManager.ResolveInfoFlags.of(0),
+                    )
+                } else {
+                    @Suppress("DEPRECATION")
+                    pm.queryIntentActivities(mainIntent, 0)
+                }
+
+            val collator =
+                java.text.Collator.getInstance(
+                    context.resources.configuration.locales[0],
+                )
+
+            resolveInfos
+                .asSequence()
+                .mapNotNull { ri ->
+                    val ai = ri.activityInfo ?: return@mapNotNull null
+                    try {
+                        val label = ri.loadLabel(pm)?.toString() ?: ai.packageName
+                        AppInfo(
+                            label = label,
+                            packageName = ai.packageName,
+                            icon = ri.loadIcon(pm),
+                        )
+                    } catch (_: Exception) {
+                        null // gracefully skip anything that fails to load
                     }
-
-                val activities = pm.queryIntentActivities(intent, 0)
-
-                activities
-                    .asSequence()
-                    .mapNotNull { resolveInfo ->
-                        try {
-                            AppInfo(
-                                label = resolveInfo.loadLabel(pm).toString(),
-                                packageName = resolveInfo.activityInfo.packageName,
-                                icon = resolveInfo.loadIcon(pm),
-                            )
-                        } catch (e: Exception) {
-                            null // Skip apps that fail to load
-                        }
-                    }.distinctBy { "${it.packageName}" }
-                    .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.label })
-                    .toList()
-            }
-    }
+                }.distinctBy { it.packageName }
+                .sortedWith { a, b -> collator.compare(a.label, b.label) }
+                .toList()
+        }
+}

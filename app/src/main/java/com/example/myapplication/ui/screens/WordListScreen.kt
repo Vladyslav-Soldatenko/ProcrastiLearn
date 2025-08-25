@@ -26,9 +26,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.myapplication.R
 import com.example.myapplication.domain.model.VocabularyItem
 import com.example.myapplication.ui.WordListViewModel
 
@@ -44,7 +46,7 @@ fun WordListScreen(viewModel: WordListViewModel = hiltViewModel()) {
     ) {
         // Header
         Text(
-            text = "My Vocabulary",
+            text = stringResource(R.string.word_list_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
@@ -67,7 +69,7 @@ fun WordListScreen(viewModel: WordListViewModel = hiltViewModel()) {
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "No words added yet",
+                        text = stringResource(R.string.word_list_empty),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -134,7 +136,7 @@ fun WordListItem(
             ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete",
+                    contentDescription = stringResource(R.string.word_list_delete),
                     tint = MaterialTheme.colorScheme.error,
                 )
             }

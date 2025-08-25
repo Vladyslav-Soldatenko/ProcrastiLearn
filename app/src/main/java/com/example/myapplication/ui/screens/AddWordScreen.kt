@@ -36,12 +36,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.myapplication.R
 import com.example.myapplication.ui.AddWordViewModel
 import kotlinx.coroutines.delay
 
@@ -74,7 +76,7 @@ fun AddWordScreen(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Default.List,
-                contentDescription = "View List",
+                contentDescription = stringResource(R.string.add_word_view_list),
                 tint = MaterialTheme.colorScheme.primary,
             )
         }
@@ -89,7 +91,7 @@ fun AddWordScreen(
 
             // Title
             Text(
-                text = "Add New Word",
+                text = stringResource(R.string.add_word_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -98,7 +100,7 @@ fun AddWordScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Expand your vocabulary",
+                text = stringResource(R.string.add_word_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -123,8 +125,8 @@ fun AddWordScreen(
                     OutlinedTextField(
                         value = uiState.word,
                         onValueChange = viewModel::onWordChange,
-                        label = { Text("Word") },
-                        placeholder = { Text("Enter the word") },
+                        label = { Text(stringResource(R.string.add_word_label_word)) },
+                        placeholder = { Text(stringResource(R.string.add_word_placeholder_word)) },
                         isError = uiState.wordError != null,
                         supportingText = uiState.wordError?.let { { Text(it) } },
                         modifier = Modifier.fillMaxWidth(),
@@ -158,24 +160,28 @@ fun AddWordScreen(
                     OutlinedTextField(
                         value = uiState.translation,
                         onValueChange = viewModel::onTranslationChange,
-                        label = { Text("Translation") },
-                        placeholder = { Text("Enter the translation (multi-line)") },
+                        label = { Text(stringResource(R.string.add_word_label_translation)) },
+                        placeholder = { Text(stringResource(R.string.add_word_placeholder_translation)) },
                         isError = uiState.translationError != null,
                         supportingText = uiState.translationError?.let { { Text(it) } },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 120.dp, max = 240.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 120.dp, max = 240.dp),
                         singleLine = false,
                         minLines = 4,
                         maxLines = 8,
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.Sentences,
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                        ),
-                    )                }
+                        keyboardOptions =
+                            KeyboardOptions(
+                                capitalization = KeyboardCapitalization.Sentences,
+                            ),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            ),
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -206,12 +212,12 @@ fun AddWordScreen(
                 } else {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add",
+                        contentDescription = stringResource(R.string.add_word_icon_add),
                         modifier = Modifier.size(24.dp),
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Add Word",
+                        text = stringResource(R.string.add_word_button_add),
                         style = MaterialTheme.typography.titleMedium,
                     )
                 }
@@ -268,7 +274,7 @@ fun AddWordScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = uiState.successMessage ?: "Success!",
+                        text = uiState.successMessage ?: stringResource(R.string.add_word_success_default),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                     )

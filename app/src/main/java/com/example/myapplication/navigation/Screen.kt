@@ -8,4 +8,6 @@ sealed class Screen(
     object AddWord : Screen("add_word")
 
     object WordList : Screen("word_list")
+
+    data object Settings : Screen("settings")
 }

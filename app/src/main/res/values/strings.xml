@@ -1,3 +1,141 @@
-<resources>
-    <string name="app_name">ProcrastiLearn</string>
+<resources xmlns:tools="http://schemas.android.com/tools"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- ─── App / Brand ─────────────────────────────────────────────────────── -->
+    <string name="app_name" translatable="false">ProcrastiLearn</string>
+
+    <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
+    <string name="action_open_settings">Open Settings</string>
+    <string name="action_not_now">Not now</string>
+    <string name="action_accept">Accept</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_view_list">View List</string>
+    <string name="action_add">Add</string>
+    <string name="action_delete">Delete</string>
+
+    <!-- Back-compat aliases (so existing code keeps working) -->
+    <string name="overlay_permission_open_settings">@string/action_open_settings</string>
+    <string name="overlay_permission_not_now">@string/action_not_now</string>
+    <string name="add_word_button_add">@string/action_add</string>
+    <string name="word_list_delete">@string/action_delete</string>
+    <string name="add_word_view_list">@string/action_view_list</string>
+
+    <!-- ─── Navigation ──────────────────────────────────────────────────────── -->
+    <string name="nav_apps">Apps</string>
+    <string name="nav_add_word">Add Word</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- ─── Learning flow ───────────────────────────────────────────────────── -->
+    <string name="learning_no_word">No word loaded</string>
+    <string name="learning_no_translation">No translation loaded</string>
+    <string name="learning_show_translation">Show translation</string>
+    <string name="learning_question">How well did you know this?</string>
+
+    <!-- Optional: example with placeholder -->
+    <string name="learning_next_review_in">Next review in <xliff:g id="minutes">%1$d</xliff:g> min</string>
+
+    <!-- Ratings -->
+    <string name="rating_again">Again</string>
+    <string name="rating_hard">Hard</string>
+    <string name="rating_good">Good</string>
+    <string name="rating_easy">Easy</string>
+
+    <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
+    <string name="overlay_permission_title">Allow overlay display</string>
+    <string name="overlay_permission_message">
+        This app needs permission to display a small learning card over other apps.
+    </string>
+
+    <!-- ─── Accessibility disclosure (A11y) ─────────────────────────────────── -->
+    <string name="a11y_disclosure_title">Why we need Accessibility</string>
+    <string name="a11y_disclosure_description">
+        This app uses Android Accessibility to detect when you open selected apps
+        (e.g., TikTok, Reddit) so it can show a short learning prompt before you continue.
+    </string>
+
+    <string name="a11y_disclosure_section_access">What we access</string>
+
+    <!-- Keep your original paragraph for now (easy drop-in), but prefer the array below -->
+    <string name="a11y_disclosure_access_details">
+        • App package and window info to know which app is in the foreground.\n
+        • We do NOT read your passwords, messages, or on-screen text.\n
+        • Data stays on your device and is not sold or shared.
+    </string>
+
+    <!-- Translator-friendly list version (use in new UI) -->
+    <string-array name="a11y_disclosure_access_points">
+        <item>App package and window info to know which app is in the foreground.</item>
+        <item>We do not read your passwords, messages, or on-screen text.</item>
+        <item>Data stays on your device and is not sold or shared.</item>
+    </string-array>
+
+    <string name="a11y_disclosure_section_usage">How it’s used</string>
+
+    <!-- Original paragraph -->
+    <string name="a11y_disclosure_usage_details">
+        Only to trigger the learning overlay for the apps you selected.
+        You can turn this off anytime in Settings. We don’t sell or share this data,
+        it never leaves your device.
+    </string>
+
+    <!-- List version -->
+    <string-array name="a11y_disclosure_usage_points">
+        <item>Only to trigger the learning overlay for apps you select.</item>
+        <item>You can turn this off anytime in Settings.</item>
+        <item>We don’t sell or share this data; it never leaves your device.</item>
+    </string-array>
+
+    <string name="a11y_disclosure_checkbox">
+        I understand and agree to use Accessibility for this purpose.
+    </string>
+    <string name="a11y_disclosure_accept">Accept &amp; Continue</string>
+    <string name="a11y_disclosure_decline">@string/action_not_now</string>
+    <string name="a11y_disclosure_privacy">Privacy policy &amp; details</string>
+
+    <!-- ─── Add Word ────────────────────────────────────────────────────────── -->
+    <string name="add_word_title">Add New Word</string>
+    <string name="add_word_subtitle">Expand your vocabulary</string>
+    <string name="add_word_label_word">Word</string>
+    <string name="add_word_placeholder_word">Enter the word</string>
+    <string name="add_word_label_translation">Translation</string>
+    <string name="add_word_placeholder_translation">Enter the translation (multi-line)</string>
+    <string name="add_word_icon_add">Add</string>
+
+    <!-- Prefer using a proper icon. Keep these for compatibility. -->
+    <string name="add_word_success_icon" translatable="false">✓</string>
+    <string name="add_word_success_default">Success!</string>
+
+    <!-- Helpful validation/toast messages -->
+    <string name="add_word_error_word_required">Please enter a word.</string>
+    <string name="add_word_error_translation_required">Please enter a translation.</string>
+    <string name="add_word_toast_added">Word added.</string>
+
+    <!-- ─── Settings ────────────────────────────────────────────────────────── -->
+    <string name="settings_title">Settings</string>
+
+    <string name="settings_overlay_headline">Overlay permission</string>
+    <string name="settings_overlay_support">
+        Needed to show the learning card over selected apps.
+    </string>
+
+    <string name="settings_a11y_headline">Learning gate (Accessibility)</string>
+    <string name="settings_a11y_support">
+        Detects selected apps in foreground to trigger the learning card.
+    </string>
+
+    <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
+    <string name="word_list_title">My Vocabulary</string>
+    <string name="word_list_empty">No words added yet</string>
+
+    <!-- Plurals for counts -->
+    <plurals name="word_list_count">
+        <item quantity="zero">No words</item>
+        <item quantity="one">1 word</item>
+        <item quantity="other"><xliff:g id="count">%1$d</xliff:g> words</item>
+    </plurals>
+
+    <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
+    <string name="cd_add_word">Add word</string>
+    <string name="cd_delete_word">Delete word</string>
+    <string name="cd_show_translation">Show translation</string>
 </resources>

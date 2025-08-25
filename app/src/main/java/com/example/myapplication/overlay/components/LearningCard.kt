@@ -34,10 +34,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.myapplication.R
 import com.example.myapplication.overlay.OverlayUiState
 import io.github.openspacedrepetition.Rating
 
@@ -65,7 +67,7 @@ fun LearningCard(
         ) {
             // Title
             Text(
-                text = state.vocabularyItem?.word ?: "No word loaded",
+                text = state.vocabularyItem?.word ?: stringResource(R.string.learning_no_word),
                 fontSize = 30.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFFF9FAFB),
@@ -102,7 +104,10 @@ fun LearningCard(
                 ) {
                     SelectionContainer {
                         Text(
-                            text = state.vocabularyItem?.translation ?: "No translation loaded",
+                            text =
+                                state.vocabularyItem?.translation ?: stringResource(
+                                    R.string.learning_no_translation,
+                                ),
                             color = Color(0xFF93C5FD),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Medium,
@@ -137,7 +142,11 @@ fun LearningCard(
                             contentColor = Color(0xFFBFDBFE),
                         ),
                 ) {
-                    Text("Show translation", fontSize = 16.sp, textAlign = TextAlign.Center)
+                    Text(
+                        stringResource(R.string.learning_show_translation),
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center,
+                    )
                 }
             } else {
                 // Bottom: divider + help + difficulty buttons (replaces the Show button)
@@ -147,7 +156,7 @@ fun LearningCard(
                     thickness = 1.dp,
                 )
                 Text(
-                    text = "How well did you know this?",
+                    text = stringResource(R.string.learning_question),
                     color = Color(0xFF9CA3AF),
                     fontSize = 14.sp,
                     modifier =
@@ -184,14 +193,14 @@ private fun DifficultyButtons(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             DifficultyButton(
-                "Again",
+                stringResource(R.string.rating_again),
                 Color(0xFFEF4444),
                 enabled,
                 onClick = { onDifficultySelected(Rating.AGAIN) },
                 modifier = Modifier.weight(1f),
             )
             DifficultyButton(
-                "Hard",
+                stringResource(R.string.rating_hard),
                 Color(0xFFF59E0B),
                 enabled,
                 onClick = { onDifficultySelected(Rating.HARD) },
@@ -203,14 +212,14 @@ private fun DifficultyButtons(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             DifficultyButton(
-                "Good",
+                stringResource(R.string.rating_good),
                 Color(0xFF10B981),
                 enabled,
                 onClick = { onDifficultySelected(Rating.GOOD) },
                 modifier = Modifier.weight(1f),
             )
             DifficultyButton(
-                "Easy",
+                stringResource(R.string.rating_easy),
                 Color(0xFF3B82F6),
                 enabled,
                 onClick = { onDifficultySelected(Rating.EASY) },

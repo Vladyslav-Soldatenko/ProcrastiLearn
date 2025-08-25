@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,147 +10,153 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.platform.LocalContext
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.example.myapplication.service.OverlayAccessibilityService
-import com.example.myapplication.ui.AppsViewModel
+import androidx.lifecycle.lifecycleScope
+import com.example.myapplication.ui.components.OverlayPermissionDialog
+import com.example.myapplication.ui.components.ProminentA11yDisclosureScreen
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.ui.views.MainScreen
-import com.example.myapplication.utils.AccessibilityUtils
+import com.example.myapplication.utils.isPermissionsGranted
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+
+private val Context.dataStore by preferencesDataStore("app_prefs")
+private val KEY_ACCESSIBILITY_SKIPPED = booleanPreferencesKey("accessibility_skipped")
+private val KEY_OVERLAY_SKIPPED = booleanPreferencesKey("overlay_skipped")
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         enableEdgeToEdge()
+
         setContent {
             MyApplicationTheme {
-                // Track both permissions
-                var isAccessibilityEnabled by remember { mutableStateOf(false) }
-                var hasOverlayPermission by remember { mutableStateOf(false) }
+                val ctx = LocalContext.current
 
-                // Check permissions on lifecycle events
+                // Load preferences state
+                var preferencesLoaded by remember { mutableStateOf(false) }
+                var hasSkippedAccessibility by remember { mutableStateOf(false) }
+                var hasSkippedOverlay by remember { mutableStateOf(false) }
+
+                // Track dynamic permission state
+                var isAccessibilityEnabled by remember { mutableStateOf(isPermissionsGranted(ctx)) }
+                var hasOverlayPermission by remember { mutableStateOf(Settings.canDrawOverlays(ctx)) }
+
+                // Load preferences once
+                LaunchedEffect(Unit) {
+                    val prefs = ctx.dataStore.data.first()
+                    hasSkippedAccessibility = prefs[KEY_ACCESSIBILITY_SKIPPED] ?: false
+                    hasSkippedOverlay = prefs[KEY_OVERLAY_SKIPPED] ?: false
+                    preferencesLoaded = true
+                }
+
+                // Re-check when returning from Settings
                 DisposableEffect(Unit) {
                     val observer =
                         LifecycleEventObserver { _, event ->
                             if (event == Lifecycle.Event.ON_RESUME) {
-                                isAccessibilityEnabled =
-                                    AccessibilityUtils.isAccessibilityServiceEnabled(
-                                        this@MainActivity,
-                                        OverlayAccessibilityService::class.java,
-                                    )
-                                hasOverlayPermission = Settings.canDrawOverlays(this@MainActivity)
+                                val newAccessibilityState = isPermissionsGranted(ctx)
+                                val newOverlayState = Settings.canDrawOverlays(ctx)
+
+                                // If user enabled the permission, clear the skip preference
+                                if (newAccessibilityState && !isAccessibilityEnabled) {
+                                    lifecycleScope.launch {
+                                        ctx.dataStore.edit { it[KEY_ACCESSIBILITY_SKIPPED] = false }
+                                    }
+                                    hasSkippedAccessibility = false
+                                }
+                                if (newOverlayState && !hasOverlayPermission) {
+                                    lifecycleScope.launch {
+                                        ctx.dataStore.edit { it[KEY_OVERLAY_SKIPPED] = false }
+                                    }
+                                    hasSkippedOverlay = false
+                                }
+
+                                isAccessibilityEnabled = newAccessibilityState
+                                hasOverlayPermission = newOverlayState
                             }
                         }
                     lifecycle.addObserver(observer)
-
-                    // Initial check
-                    isAccessibilityEnabled =
-                        AccessibilityUtils.isAccessibilityServiceEnabled(
-                            this@MainActivity,
-                            OverlayAccessibilityService::class.java,
-                        )
-                    hasOverlayPermission = Settings.canDrawOverlays(this@MainActivity)
-
-                    onDispose {
-                        lifecycle.removeObserver(observer)
-                    }
+                    onDispose { lifecycle.removeObserver(observer) }
                 }
 
-                when {
-                    // First check accessibility service
-                    !isAccessibilityEnabled -> {
-                        AlertDialog(
-                            onDismissRequest = { /* Don't allow dismiss */ },
-                            title = { Text("Enable Accessibility Service") },
-                            text = {
-                                Text(
-                                    "To use this app, you need to enable the " +
-                                        "Vocabulary Overlay accessibility service in settings.",
-                                )
-                            },
-                            confirmButton = {
-                                Button(
-                                    onClick = {
-                                        startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                                    },
-                                ) {
-                                    Text("Open Settings")
-                                }
-                            },
-                        )
+                if (!preferencesLoaded) {
+                    // Show loading indicator while preferences are being loaded
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
                     }
+                } else {
+                    when {
+                        !isAccessibilityEnabled && !hasSkippedAccessibility -> {
+                            ProminentA11yDisclosureScreen(
+                                onAccept = {
+                                    // Take user to Accessibility Settings
+                                    openAccessibilitySettings()
+                                },
+                                onDecline = {
+                                    // Save skip preference and proceed with limited mode
+                                    lifecycleScope.launch {
+                                        ctx.dataStore.edit { it[KEY_ACCESSIBILITY_SKIPPED] = true }
+                                    }
+                                    hasSkippedAccessibility = true
+                                },
+                                onPrivacyPolicy = {
+                                    // TODO: open your privacy policy URL
+                                    // startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://your.site/policy")))
+                                },
+                            )
+                        }
 
-                    // Then check overlay permission
-                    !hasOverlayPermission -> {
-                        AlertDialog(
-                            onDismissRequest = { /* Don't allow dismiss */ },
-                            title = { Text("Enable Overlay Permission") },
-                            text = {
-                                Text("This app needs permission to display overlays on top of other apps.")
-                            },
-                            confirmButton = {
-                                Button(
-                                    onClick = {
-                                        startActivity(
-                                            Intent(
-                                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                                Uri.parse("package:$packageName"),
-                                            ),
-                                        )
-                                    },
-                                ) {
-                                    Text("Open Settings")
-                                }
-                            },
-                        )
-                    }
+                        !hasOverlayPermission && !hasSkippedOverlay -> {
+                            OverlayPermissionDialog(
+                                onOpenSettings = {
+                                    startActivity(
+                                        Intent(
+                                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                            Uri.parse("package:$packageName"),
+                                        ),
+                                    )
+                                },
+                                onSkip = {
+                                    // Save skip preference and let users continue
+                                    lifecycleScope.launch {
+                                        ctx.dataStore.edit { it[KEY_OVERLAY_SKIPPED] = true }
+                                    }
+                                    hasSkippedOverlay = true
+                                },
+                            )
+                        }
 
-                    // Both permissions granted - show main content
-                    else -> {
-                        val vm: AppsViewModel = hiltViewModel()
-                        val state by vm.state.collectAsState()
-
-                        when {
-                            state.isLoading -> {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    CircularProgressIndicator()
-                                }
-                            }
-                            state.error != null -> {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Text("Error: ${state.error}")
-                                }
-                            }
-                            else -> {
-                                MainScreen()
-                            }
+                        else -> {
+                            // Your normal app content
+                            MainScreen()
                         }
                     }
                 }
             }
         }
+    }
+
+    private fun openAccessibilitySettings() {
+        startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
     }
 }

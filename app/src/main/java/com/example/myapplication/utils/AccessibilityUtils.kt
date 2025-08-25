@@ -1,24 +1,25 @@
 package com.example.myapplication.utils
 
-import android.accessibilityservice.AccessibilityService
+import android.content.ComponentName
 import android.content.Context
 import android.provider.Settings
+import com.example.myapplication.service.OverlayAccessibilityService
 
-object AccessibilityUtils {
-    fun isAccessibilityServiceEnabled(
-        context: Context,
-        serviceClass: Class<out AccessibilityService>,
-    ): Boolean {
-        val expectedComponentName = "${context.packageName}/${serviceClass.name}"
+fun isPermissionsGranted(context: Context): Boolean {
+    val expected = ComponentName(context, OverlayAccessibilityService::class.java).flattenToString()
+    val enabled =
+        Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+        ) ?: return false
 
-        val enabledServices =
-            Settings.Secure.getString(
-                context.contentResolver,
-                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-            ) ?: return false
+    val isA11yOn =
+        Settings.Secure.getInt(
+            context.contentResolver,
+            Settings.Secure.ACCESSIBILITY_ENABLED,
+            0,
+        ) == 1
 
-        return enabledServices.split(':').any {
-            it.equals(expectedComponentName, ignoreCase = true)
-        }
-    }
+    if (!isA11yOn) return false
+    return enabled.split(':').any { it.equals(expected, ignoreCase = true) }
 }

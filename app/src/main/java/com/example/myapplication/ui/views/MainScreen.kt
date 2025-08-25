@@ -11,6 +11,7 @@ import com.example.myapplication.navigation.BottomNavigationBar
 import com.example.myapplication.navigation.Screen
 import com.example.myapplication.ui.screens.AddWordScreen
 import com.example.myapplication.ui.screens.AppsListScreen
+import com.example.myapplication.ui.screens.SettingsScreen
 import com.example.myapplication.ui.screens.WordListScreen
 
 @Composable
@@ -35,6 +36,9 @@ fun MainScreen() {
             }
             composable(Screen.WordList.route) {
                 WordListScreen()
+            }
+            composable(Screen.Settings.route) {
+                SettingsScreen()
             }
         }
     }
