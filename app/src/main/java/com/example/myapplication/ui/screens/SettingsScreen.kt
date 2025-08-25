@@ -29,11 +29,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.myapplication.R
+import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.utils.isPermissionsGranted
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,7 +52,7 @@ fun SettingsScreen() {
             overlayGranted = permissionStates.overlayGranted,
             a11yEnabled = permissionStates.a11yEnabled,
             onOverlayClick = { openOverlaySettings(ctx) },
-            onA11yClick = { openAccessibilitySettings(ctx) }
+            onA11yClick = { openAccessibilitySettings(ctx) },
         )
     }
 }
@@ -59,7 +61,7 @@ fun SettingsScreen() {
 @Composable
 private fun SettingsTopBar() {
     CenterAlignedTopAppBar(
-        title = { Text(stringResource(R.string.settings_title)) }
+        title = { Text(stringResource(R.string.settings_title)) },
     )
 }
 
@@ -69,27 +71,28 @@ private fun SettingsContent(
     overlayGranted: Boolean,
     a11yEnabled: Boolean,
     onOverlayClick: () -> Unit,
-    onA11yClick: () -> Unit
+    onA11yClick: () -> Unit,
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.TopStart,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
         ) {
             OverlayPermissionItem(
                 isGranted = overlayGranted,
-                onClick = onOverlayClick
+                onClick = onOverlayClick,
             )
 
             Spacer(Modifier.height(4.dp))
 
             AccessibilityPermissionItem(
                 isEnabled = a11yEnabled,
-                onClick = onA11yClick
+                onClick = onA11yClick,
             )
         }
     }
@@ -98,26 +101,26 @@ private fun SettingsContent(
 @Composable
 private fun OverlayPermissionItem(
     isGranted: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     PermissionSettingsItem(
         headline = stringResource(R.string.settings_overlay_headline),
         supportingText = stringResource(R.string.settings_overlay_support),
         isChecked = isGranted,
-        onClick = onClick
+        onClick = onClick,
     )
 }
 
 @Composable
 private fun AccessibilityPermissionItem(
     isEnabled: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     PermissionSettingsItem(
         headline = stringResource(R.string.settings_a11y_headline),
         supportingText = stringResource(R.string.settings_a11y_support),
         isChecked = isEnabled,
-        onClick = onClick
+        onClick = onClick,
     )
 }
 
@@ -126,7 +129,7 @@ private fun PermissionSettingsItem(
     headline: String,
     supportingText: String,
     isChecked: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     ListItem(
         headlineContent = { Text(headline) },
@@ -139,13 +142,14 @@ private fun PermissionSettingsItem(
         trailingContent = {
             Checkbox(
                 checked = isChecked,
-                onCheckedChange = null // Read-only
+                onCheckedChange = null, // Read-only
             )
         },
-        modifier = Modifier
-            .clickable { onClick() }
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .fillMaxWidth(),
+        modifier =
+            Modifier
+                .clickable { onClick() }
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .fillMaxWidth(),
     )
 }
 
@@ -156,12 +160,13 @@ private fun rememberPermissionStates(context: Context): PermissionStates {
     var a11yEnabled by remember { mutableStateOf(isPermissionsGranted(context)) }
 
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                overlayGranted = Settings.canDrawOverlays(context)
-                a11yEnabled = isPermissionsGranted(context)
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    overlayGranted = Settings.canDrawOverlays(context)
+                    a11yEnabled = isPermissionsGranted(context)
+                }
             }
-        }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
@@ -171,17 +176,31 @@ private fun rememberPermissionStates(context: Context): PermissionStates {
 
 data class PermissionStates(
     val overlayGranted: Boolean,
-    val a11yEnabled: Boolean
+    val a11yEnabled: Boolean,
 )
 
 private fun openOverlaySettings(context: Context) {
-    val intent = Intent(
-        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-        Uri.parse("package:${context.packageName}")
-    )
+    val intent =
+        Intent(
+            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            Uri.parse("package:${context.packageName}"),
+        )
     context.startActivity(intent)
 }
 
 private fun openAccessibilitySettings(context: Context) {
     context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SettingsScreenPreview_AllGranted() {
+    MyApplicationTheme {
+        SettingsContent(
+            overlayGranted = true,
+            a11yEnabled = true,
+            onOverlayClick = {},
+            onA11yClick = {},
+        )
+    }
 }
