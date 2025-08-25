@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <resources xmlns:tools="http://schemas.android.com/tools"
-        xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-        <string name="app_name" translatable="false">ProcrastiLearn</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+<string name="app_name" translatable="false">ProcrastiLearn</string>
 
         <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
         <string name="action_open_settings">Открыть настройки</string>
@@ -121,6 +119,5 @@
         <string name="cd_add_word">Добавить слово</string>
         <string name="cd_delete_word">Удалить слово</string>
         <string name="cd_show_translation">Показать перевод</string>
-    </resources>
 
 </resources>

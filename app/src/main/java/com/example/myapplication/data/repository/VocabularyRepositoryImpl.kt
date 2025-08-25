@@ -20,13 +20,15 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.time.Instant
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
 private fun todayStamp(): Int =
-    java.time.LocalDate
+    LocalDate
         .now()
-        .format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE)
+        .format(DateTimeFormatter.BASIC_ISO_DATE)
         .toInt()
 
 @Singleton
