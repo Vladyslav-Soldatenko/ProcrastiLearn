@@ -35,6 +35,6 @@ fun OverlayPermissionDialog(
 
 @Preview
 @Composable
-private fun OverlayPermissionDialogPreview(){
-    OverlayPermissionDialog(onOpenSettings ={}, onSkip = { })
+private fun OverlayPermissionDialogPreview() {
+    OverlayPermissionDialog(onOpenSettings = {}, onSkip = { })
 }

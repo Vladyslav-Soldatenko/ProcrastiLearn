@@ -16,6 +16,8 @@ style:
     WildcardImport:
         active: false
     UnusedPrivateMember:
+        ignoreAnnotated:
+            - "Preview"
         active: true
     ReturnCount:
         active: true

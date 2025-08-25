@@ -19,7 +19,6 @@ import com.example.myapplication.domain.model.VocabularyItem
 import com.example.myapplication.overlay.components.LearningCard
 import io.github.openspacedrepetition.Rating
 
-@Suppress("MagicNumber")
 @Composable
 fun OverlayScreen(
     onUnlock: () -> Unit,
@@ -40,6 +39,7 @@ fun OverlayScreen(
     OverlayScreen(uiState, viewModel::onToggleShowAnswer, viewModel::onDifficultySelected)
 }
 
+@Suppress("MagicNumber")
 @Composable
 private fun OverlayScreen(
     uiState: OverlayUiState,

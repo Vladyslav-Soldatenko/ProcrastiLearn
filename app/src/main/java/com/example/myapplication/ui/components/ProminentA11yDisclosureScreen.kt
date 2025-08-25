@@ -106,9 +106,8 @@ private fun RowWithCheckbox(
     }
 }
 
-
 @Preview
 @Composable
-private fun ProminentA11yDisclosureScreenPreview(){
-    ProminentA11yDisclosureScreen({},{},{})
+private fun ProminentA11yDisclosureScreenPreview() {
+    ProminentA11yDisclosureScreen({}, {}, {})
 }
