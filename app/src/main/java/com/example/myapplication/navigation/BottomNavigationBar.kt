@@ -42,6 +42,7 @@ private val bottomNavItems =
         ),
     )
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()

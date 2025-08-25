@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.screens
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -39,88 +40,148 @@ import com.example.myapplication.utils.isPermissionsGranted
 @Composable
 fun SettingsScreen() {
     val ctx = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    var overlayGranted by remember { mutableStateOf(Settings.canDrawOverlays(ctx)) }
-    var a11yEnabled by remember { mutableStateOf(isPermissionsGranted(ctx)) }
-
-    // Refresh the toggles after returning from system settings
-    DisposableEffect(lifecycleOwner) {
-        val obs =
-            LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_RESUME) {
-                    overlayGranted = Settings.canDrawOverlays(ctx)
-                    a11yEnabled = isPermissionsGranted(ctx)
-                }
-            }
-        lifecycleOwner.lifecycle.addObserver(obs)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(obs) }
-    }
+    val permissionStates = rememberPermissionStates(ctx)
 
     Scaffold(
-        topBar = { CenterAlignedTopAppBar(title = { Text(stringResource(R.string.settings_title)) }) },
+        topBar = { SettingsTopBar() },
     ) { innerPadding ->
-        Box(
-            modifier =
-                Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize(),
-            contentAlignment = Alignment.TopStart,
+        SettingsContent(
+            modifier = Modifier.padding(innerPadding),
+            overlayGranted = permissionStates.overlayGranted,
+            a11yEnabled = permissionStates.a11yEnabled,
+            onOverlayClick = { openOverlaySettings(ctx) },
+            onA11yClick = { openAccessibilitySettings(ctx) }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SettingsTopBar() {
+    CenterAlignedTopAppBar(
+        title = { Text(stringResource(R.string.settings_title)) }
+    )
+}
+
+@Composable
+private fun SettingsContent(
+    modifier: Modifier = Modifier,
+    overlayGranted: Boolean,
+    a11yEnabled: Boolean,
+    onOverlayClick: () -> Unit,
+    onA11yClick: () -> Unit
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopStart,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
         ) {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-            ) {
-                // Overlay permission row
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_overlay_headline)) },
-                    supportingContent = {
-                        Text(
-                            stringResource(R.string.settings_overlay_support),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    },
-                    trailingContent = {
-                        // Read-only; user must grant in system UI
-                        Checkbox(checked = overlayGranted, onCheckedChange = null)
-                    },
-                    modifier =
-                        Modifier
-                            .clickable {
-                                val intent =
-                                    Intent(
-                                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                        Uri.parse("package:${ctx.packageName}"),
-                                    )
-                                ctx.startActivity(intent)
-                            }.padding(horizontal = 8.dp, vertical = 4.dp)
-                            .fillMaxWidth(),
-                )
+            OverlayPermissionItem(
+                isGranted = overlayGranted,
+                onClick = onOverlayClick
+            )
 
-                Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(4.dp))
 
-                // Accessibility service row (for “reconsider after Not now”)
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_a11y_headline)) },
-                    supportingContent = {
-                        Text(
-                            stringResource(R.string.settings_a11y_support),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    },
-                    trailingContent = {
-                        Checkbox(checked = a11yEnabled, onCheckedChange = null)
-                    },
-                    modifier =
-                        Modifier
-                            .clickable {
-                                ctx.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                            }.padding(horizontal = 8.dp, vertical = 4.dp)
-                            .fillMaxWidth(),
-                )
-            }
+            AccessibilityPermissionItem(
+                isEnabled = a11yEnabled,
+                onClick = onA11yClick
+            )
         }
     }
+}
+
+@Composable
+private fun OverlayPermissionItem(
+    isGranted: Boolean,
+    onClick: () -> Unit
+) {
+    PermissionSettingsItem(
+        headline = stringResource(R.string.settings_overlay_headline),
+        supportingText = stringResource(R.string.settings_overlay_support),
+        isChecked = isGranted,
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun AccessibilityPermissionItem(
+    isEnabled: Boolean,
+    onClick: () -> Unit
+) {
+    PermissionSettingsItem(
+        headline = stringResource(R.string.settings_a11y_headline),
+        supportingText = stringResource(R.string.settings_a11y_support),
+        isChecked = isEnabled,
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun PermissionSettingsItem(
+    headline: String,
+    supportingText: String,
+    isChecked: Boolean,
+    onClick: () -> Unit
+) {
+    ListItem(
+        headlineContent = { Text(headline) },
+        supportingContent = {
+            Text(
+                supportingText,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        },
+        trailingContent = {
+            Checkbox(
+                checked = isChecked,
+                onCheckedChange = null // Read-only
+            )
+        },
+        modifier = Modifier
+            .clickable { onClick() }
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .fillMaxWidth(),
+    )
+}
+
+@Composable
+private fun rememberPermissionStates(context: Context): PermissionStates {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var overlayGranted by remember { mutableStateOf(Settings.canDrawOverlays(context)) }
+    var a11yEnabled by remember { mutableStateOf(isPermissionsGranted(context)) }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                overlayGranted = Settings.canDrawOverlays(context)
+                a11yEnabled = isPermissionsGranted(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    return PermissionStates(overlayGranted, a11yEnabled)
+}
+
+data class PermissionStates(
+    val overlayGranted: Boolean,
+    val a11yEnabled: Boolean
+)
+
+private fun openOverlaySettings(context: Context) {
+    val intent = Intent(
+        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+        Uri.parse("package:${context.packageName}")
+    )
+    context.startActivity(intent)
+}
+
+private fun openAccessibilitySettings(context: Context) {
+    context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
 }
