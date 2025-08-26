@@ -16,7 +16,6 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import com.procrastilearn.app.domain.model.GateSession
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
 import com.procrastilearn.app.domain.repository.VocabularyRepository
 import com.procrastilearn.app.overlay.OverlayScreen
@@ -38,10 +37,8 @@ class OverlayAccessibilityService : AccessibilityService() {
     private var gateActive = false
     private var gatedPackage: String? = null
     private var lastHandledAt: Long = 0
+    private var lastTopPackage: String? = null
 
-    // Session tracking - like React's session state
-    // Maps package name to unlock session
-    private val unlockedSessions = mutableMapOf<String, GateSession>()
     private val serviceEntryPoint: ServiceEntryPoint by lazy {
         EntryPointAccessors.fromApplication(
             applicationContext,
@@ -76,39 +73,15 @@ class OverlayAccessibilityService : AccessibilityService() {
             "com.google.android.systemui",
         )
 
-    // Home/launcher packages that should clear sessions
-    private val launcherPackages =
-        setOf(
-            "com.android.launcher",
-            "com.android.launcher2",
-            "com.android.launcher3",
-            "com.google.android.launcher",
-            "com.google.android.apps.nexuslauncher",
-            "com.samsung.android.launcher",
-            "com.mi.android.globallauncher",
-            "com.miui.home",
-        )
-
     override fun onServiceConnected() {
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        // Load blocked apps from preferences
+
         serviceScope.launch {
             appPreferencesRepository.getBlockedApps().collect { apps ->
-                Log.i(
-                    "LaunchableApp",
-                    "foo" +
-                        if (apps.isNotEmpty()) {
-                            apps.first()
-                        } else {
-                            "empty"
-                        },
-                )
-
                 blockedPackages = apps
             }
         }
     }
-
     @Suppress("ReturnCount", "MagicNumber", "CyclomaticComplexMethod")
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
@@ -125,65 +98,57 @@ class OverlayAccessibilityService : AccessibilityService() {
 
         val topPackage = currentTopPackage() ?: pkg
 
-        // Clear sessions when user goes to home screen
-        if (topPackage in launcherPackages) {
-            clearAllSessions()
-            if (gateActive) {
-                endGateSession()
-            }
-            return
-        }
+        Log.i("fsrs", "$topPackage, ")
 
-        // Check if user navigated away from blocked app to a different app
-        if (topPackage !in blockedPackages && topPackage !in ignoredPackages) {
-            // User switched to a different (non-blocked) app
-            gatedPackage?.let { previousGatedApp ->
-                if (topPackage != previousGatedApp) {
-                    // Clear the session for the previous app since user left it
-                    clearSession(previousGatedApp)
-                }
-            }
-            if (gateActive) {
-                endGateSession()
-            }
-            return
-        }
-
-        if (!gateActive) {
-            // Check if this app is blocked AND not already unlocked in this session
-            if (topPackage in blockedPackages && !isUnlockedInSession(topPackage)) {
+        // Check if this is a blocked app
+        if (topPackage in blockedPackages) {
+            // Only start gate if we're coming from a different app (not just unlocking)
+            if (!gateActive && lastTopPackage != topPackage) {
                 startGateSession(topPackage)
             }
-        } else {
-            // While gate is active, check if user switched apps
-            if (topPackage != gatedPackage && topPackage !in ignoredPackages) {
+            lastTopPackage = topPackage
+        } else if (topPackage !in ignoredPackages) {
+            // User navigated to a non-blocked, non-ignored app
+            if (gateActive) {
                 endGateSession()
             }
+            lastTopPackage = topPackage
         }
     }
 
-    private fun isUnlockedInSession(packageName: String): Boolean {
-        val session = unlockedSessions[packageName]
-        return session != null && session.isActive
-    }
+    private fun createComposeOverlay(onUnlock: () -> Unit): View =
+        ComposeView(this).apply {
+            lifecycleOwner?.let { owner ->
+                setViewTreeLifecycleOwner(owner)
+                setViewTreeViewModelStoreOwner(owner)
+                setViewTreeSavedStateRegistryOwner(owner)
+            }
 
-    private fun markAsUnlocked(packageName: String) {
-        unlockedSessions[packageName] =
-            GateSession(
-                packageName = packageName,
-                unlockedAt = System.currentTimeMillis(),
-                isActive = true,
-            )
-    }
+            setContent {
+                MaterialTheme(colorScheme = darkColorScheme()) {
+                    // Provide the custom factory for ViewModels
+                    val viewModel: OverlayViewModel =
+                        viewModel(
+                            factory =
+                                ServiceViewModelFactory(
+                                    getNextVocabularyItemUseCase,
+                                    getSaveDifficultyRatingUseCase,
+                                ),
+                        )
 
-    private fun clearSession(packageName: String) {
-        unlockedSessions.remove(packageName)
-    }
+                    OverlayScreen(
+                        onUnlock = {
+                            onUnlock()
+                            // Don't reset lastTopPackage here, keep it as the blocked app
+                            // so it won't trigger again until user leaves the app
+                        },
+                        viewModel = viewModel, // Pass it explicitly
+                    )
+                }
+            }
 
-    private fun clearAllSessions() {
-        unlockedSessions.clear()
-    }
-
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+        }
     private fun startGateSession(pkg: String) {
         if (gateActive) return
         gateActive = true
@@ -218,7 +183,6 @@ class OverlayAccessibilityService : AccessibilityService() {
                 onUnlock = {
                     // Mark this app as unlocked for current session
                     gatedPackage?.let { pkg ->
-                        markAsUnlocked(pkg)
                         endGateSession()
                         bringToFront(pkg)
                     }
@@ -265,42 +229,12 @@ class OverlayAccessibilityService : AccessibilityService() {
         }
     }
 
-    private fun createComposeOverlay(onUnlock: () -> Unit): View =
-        ComposeView(this).apply {
-            lifecycleOwner?.let { owner ->
-                setViewTreeLifecycleOwner(owner)
-                setViewTreeViewModelStoreOwner(owner)
-                setViewTreeSavedStateRegistryOwner(owner)
-            }
-
-            setContent {
-                MaterialTheme(colorScheme = darkColorScheme()) {
-                    // Provide the custom factory for ViewModels
-                    val viewModel: OverlayViewModel =
-                        viewModel(
-                            factory =
-                                ServiceViewModelFactory(
-                                    getNextVocabularyItemUseCase,
-                                    getSaveDifficultyRatingUseCase,
-                                ),
-                        )
-
-                    OverlayScreen(
-                        onUnlock = onUnlock,
-                        viewModel = viewModel, // Pass it explicitly
-                    )
-                }
-            }
-
-            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
-        }
 
     @Suppress("EmptyFunctionBlock")
     override fun onInterrupt() {}
 
     override fun onDestroy() {
         hideOverlay()
-        clearAllSessions()
         super.onDestroy()
     }
 }
