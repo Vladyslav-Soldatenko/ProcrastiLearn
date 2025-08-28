@@ -143,7 +143,7 @@ class VocabularyRepositoryImpl
                 // Decide which queue we *intend* to draw from
                 val wantNew =
                     when (policy.mixMode) {
-                        MixMode.NEW_FIRST -> newRemaining > 0 && (dueCount == 0)
+                        MixMode.NEW_FIRST -> newRemaining > 0
                         MixMode.REVIEWS_FIRST -> false
                         MixMode.MIX ->
                             shouldServeNewMixed(
