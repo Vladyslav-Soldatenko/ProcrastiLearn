@@ -11,8 +11,8 @@ import com.procrastilearn.app.navigation.BottomNavigationBar
 import com.procrastilearn.app.navigation.Screen
 import com.procrastilearn.app.ui.screens.AddWordScreen
 import com.procrastilearn.app.ui.screens.AppsListScreen
-import com.procrastilearn.app.ui.screens.settings.SettingsScreen
 import com.procrastilearn.app.ui.screens.WordListScreen
+import com.procrastilearn.app.ui.screens.settings.SettingsScreen
 
 @Composable
 fun MainScreen() {

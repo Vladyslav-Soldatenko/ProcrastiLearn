@@ -2,6 +2,7 @@ package com.procrastilearn.app.service
 
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
 import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.usecase.CheckVocabularyAvailabilityUseCase
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
 import dagger.hilt.EntryPoint
@@ -24,4 +25,6 @@ interface ServiceEntryPoint {
     fun getNextVocabularyItemUseCase(): GetNextVocabularyItemUseCase
 
     fun getSaveDifficultyRatingUseCase(): SaveDifficultyRatingUseCase
+
+    fun checkVocabularyAvailabilityUseCase(): CheckVocabularyAvailabilityUseCase
 }

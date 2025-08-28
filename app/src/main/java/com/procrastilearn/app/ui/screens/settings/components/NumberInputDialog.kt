@@ -21,7 +21,7 @@ fun NumberInputDialog(
     title: String,
     currentValue: Int,
     onValueConfirm: (Int) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     var textValue by remember { mutableStateOf(currentValue.toString()) }
 
@@ -36,11 +36,12 @@ fun NumberInputDialog(
                         textValue = newValue
                     }
                 },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number
-                ),
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                    ),
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         },
         confirmButton = {
@@ -51,7 +52,7 @@ fun NumberInputDialog(
                             onValueConfirm(value)
                         }
                     }
-                }
+                },
             ) {
                 Text("OK")
             }
@@ -60,6 +61,6 @@ fun NumberInputDialog(
             TextButton(onClick = onDismiss) {
                 Text("Cancel")
             }
-        }
+        },
     )
 }

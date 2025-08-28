@@ -60,6 +60,9 @@ class OverlayAccessibilityService : AccessibilityService() {
     private val getSaveDifficultyRatingUseCase by lazy {
         serviceEntryPoint.getSaveDifficultyRatingUseCase()
     }
+    private val checkVocabularyAvailabilityUseCase by lazy {
+        serviceEntryPoint.checkVocabularyAvailabilityUseCase()
+    }
 
     private var blockedPackages: Set<String> = emptySet()
 
@@ -82,6 +85,7 @@ class OverlayAccessibilityService : AccessibilityService() {
             }
         }
     }
+
     @Suppress("ReturnCount", "MagicNumber", "CyclomaticComplexMethod")
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
@@ -149,11 +153,21 @@ class OverlayAccessibilityService : AccessibilityService() {
 
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
         }
+
     private fun startGateSession(pkg: String) {
         if (gateActive) return
-        gateActive = true
-        gatedPackage = pkg
-        showOverlay()
+
+        serviceScope.launch {
+            val hasItems = checkVocabularyAvailabilityUseCase()
+
+            if (hasItems) {
+                gateActive = true
+                gatedPackage = pkg
+                showOverlay()
+            } else {
+                Log.i("fsrs", "No vocabulary items available (limits reached), not showing overlay")
+            }
+        }
     }
 
     private fun endGateSession() {
@@ -228,7 +242,6 @@ class OverlayAccessibilityService : AccessibilityService() {
         } catch (_: Throwable) {
         }
     }
-
 
     @Suppress("EmptyFunctionBlock")
     override fun onInterrupt() {}

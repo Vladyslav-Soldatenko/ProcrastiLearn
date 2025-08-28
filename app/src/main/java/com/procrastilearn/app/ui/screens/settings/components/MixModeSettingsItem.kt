@@ -17,13 +17,14 @@ import com.procrastilearn.app.domain.model.MixMode
 @Composable
 fun MixModeSettingsItem(
     mixMode: MixMode,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
-    val modeText = when (mixMode) {
-        MixMode.MIX -> "Mixed"
-        MixMode.REVIEWS_FIRST -> "Reviews First"
-        MixMode.NEW_FIRST -> "New First"
-    }
+    val modeText =
+        when (mixMode) {
+            MixMode.MIX -> "Mixed"
+            MixMode.REVIEWS_FIRST -> "Reviews First"
+            MixMode.NEW_FIRST -> "New First"
+        }
 
     ListItem(
         headlineContent = { Text("Study Mode") },
@@ -37,12 +38,13 @@ fun MixModeSettingsItem(
             Icon(
                 imageVector = Icons.Default.KeyboardArrowRight,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         },
-        modifier = Modifier
-            .clickable { onClick() }
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .fillMaxWidth(),
+        modifier =
+            Modifier
+                .clickable { onClick() }
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .fillMaxWidth(),
     )
 }

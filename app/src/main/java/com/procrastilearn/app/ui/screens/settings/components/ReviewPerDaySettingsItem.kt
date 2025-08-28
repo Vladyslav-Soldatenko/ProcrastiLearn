@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ReviewPerDaySettingsItem(
     value: Int,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     ListItem(
         headlineContent = { Text("Reviews Per Day") },
@@ -30,12 +30,13 @@ fun ReviewPerDaySettingsItem(
             Icon(
                 imageVector = Icons.Default.Edit,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         },
-        modifier = Modifier
-            .clickable { onClick() }
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .fillMaxWidth(),
+        modifier =
+            Modifier
+                .clickable { onClick() }
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .fillMaxWidth(),
     )
 }

@@ -32,9 +32,10 @@ fun PermissionSettingsItem(
                 onCheckedChange = null,
             )
         },
-        modifier = Modifier
-            .clickable { onClick() }
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .fillMaxWidth(),
+        modifier =
+            Modifier
+                .clickable { onClick() }
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .fillMaxWidth(),
     )
 }

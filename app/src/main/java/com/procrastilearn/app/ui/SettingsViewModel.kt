@@ -22,18 +22,20 @@ data class SettingsUiState(
 class SettingsViewModel @Inject constructor(
     private val store: DayCountersStore,
 ) : ViewModel() {
-
     val uiState: StateFlow<SettingsUiState> =
-        store.readPolicy()
+        store
+            .readPolicy()
             .map { SettingsUiState(it.mixMode, it.newPerDay, it.reviewPerDay) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
     fun onMixModeChange(mode: MixMode) {
         viewModelScope.launch { store.setMixMode(mode) }
     }
+
     fun onNewPerDayChange(value: Int) {
         viewModelScope.launch { store.setNewPerDay(value) }
     }
+
     fun onReviewPerDayChange(value: Int) {
         viewModelScope.launch { store.setReviewPerDay(value) }
     }

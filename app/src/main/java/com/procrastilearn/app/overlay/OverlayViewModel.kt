@@ -3,6 +3,7 @@ package com.procrastilearn.app.overlay
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.procrastilearn.app.data.repository.NoAvailableItemsException
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -77,9 +78,22 @@ class OverlayViewModel
                                 unlocked = false,
                             )
                         }
-                    }.onFailure {
-                        _uiState.update {
-                            it.copy(isLoading = false)
+                    }.onFailure { exception ->
+                        when (exception) {
+                            is NoAvailableItemsException -> {
+                                // Handle the case where limits are reached
+                                _uiState.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        unlocked = true,
+                                    )
+                                }
+                            }
+                            else -> {
+                                _uiState.update {
+                                    it.copy(isLoading = false)
+                                }
+                            }
                         }
                     }
             }

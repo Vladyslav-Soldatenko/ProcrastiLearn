@@ -51,17 +51,20 @@ import com.procrastilearn.app.ui.screens.settings.components.openAccessibilitySe
 import com.procrastilearn.app.ui.screens.settings.components.openOverlaySettings
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import com.procrastilearn.app.utils.isPermissionsGranted
+
 sealed interface DialogState {
     object None : DialogState
+
     object MixMode : DialogState
+
     object NewPerDay : DialogState
+
     object ReviewPerDay : DialogState
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(    viewModel: SettingsViewModel = hiltViewModel()
-) {
+fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val ctx = LocalContext.current
     val permissionStates = rememberPermissionStates(ctx)
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -78,8 +81,8 @@ fun SettingsScreen(    viewModel: SettingsViewModel = hiltViewModel()
             onOverlayClick = { openOverlaySettings(ctx) },
             onA11yClick = { openAccessibilitySettings(ctx) },
             onMixModeChange = viewModel::onMixModeChange,
-            onNewPerDayChange =  viewModel::onNewPerDayChange,
-            onReviewPerDayChange =  viewModel::onReviewPerDayChange ,
+            onNewPerDayChange = viewModel::onNewPerDayChange,
+            onReviewPerDayChange = viewModel::onReviewPerDayChange,
         )
     }
 }
@@ -120,27 +123,26 @@ private fun SettingsContent(
         ) {
             MixModeSettingsItem(
                 mixMode = mixMode,
-                onClick = { dialogState = DialogState.MixMode }
+                onClick = { dialogState = DialogState.MixMode },
             )
 
             Spacer(Modifier.height(4.dp))
 
             NewPerDaySettingsItem(
                 value = newPerDay,
-                onClick = { dialogState = DialogState.NewPerDay }
+                onClick = { dialogState = DialogState.NewPerDay },
             )
 
             Spacer(Modifier.height(4.dp))
 
             ReviewPerDaySettingsItem(
                 value = reviewPerDay,
-                onClick = { dialogState = DialogState.ReviewPerDay }
+                onClick = { dialogState = DialogState.ReviewPerDay },
             )
             Divider(
                 modifier = Modifier.padding(vertical = 8.dp),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
             )
-
 
             // Permission settings
             OverlayPermissionItem(
@@ -154,9 +156,6 @@ private fun SettingsContent(
                 isEnabled = a11yEnabled,
                 onClick = onA11yClick,
             )
-
-
-
         }
     }
 
@@ -169,7 +168,7 @@ private fun SettingsContent(
                     onMixModeChange(it)
                     dialogState = DialogState.None
                 },
-                onDismiss = { dialogState = DialogState.None }
+                onDismiss = { dialogState = DialogState.None },
             )
         }
         DialogState.NewPerDay -> {
@@ -180,7 +179,7 @@ private fun SettingsContent(
                     onNewPerDayChange(it)
                     dialogState = DialogState.None
                 },
-                onDismiss = { dialogState = DialogState.None }
+                onDismiss = { dialogState = DialogState.None },
             )
         }
         DialogState.ReviewPerDay -> {
@@ -191,19 +190,18 @@ private fun SettingsContent(
                     onReviewPerDayChange(it)
                     dialogState = DialogState.None
                 },
-                onDismiss = { dialogState = DialogState.None }
+                onDismiss = { dialogState = DialogState.None },
             )
         }
         DialogState.None -> { /* No dialog shown */ }
     }
 }
 
-
 @Composable
 private fun MixModeDialog(
     currentMode: MixMode,
     onModeSelected: (MixMode) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -212,34 +210,37 @@ private fun MixModeDialog(
             Column {
                 MixMode.values().forEach { mode ->
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onModeSelected(mode) }
-                            .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable { onModeSelected(mode) }
+                                .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(
                             selected = mode == currentMode,
-                            onClick = { onModeSelected(mode) }
+                            onClick = { onModeSelected(mode) },
                         )
                         Spacer(Modifier.width(8.dp))
                         Column {
                             Text(
-                                text = when (mode) {
-                                    MixMode.MIX -> "Mixed"
-                                    MixMode.REVIEWS_FIRST -> "Reviews First"
-                                    MixMode.NEW_FIRST -> "New First"
-                                },
-                                style = MaterialTheme.typography.bodyLarge
+                                text =
+                                    when (mode) {
+                                        MixMode.MIX -> "Mixed"
+                                        MixMode.REVIEWS_FIRST -> "Reviews First"
+                                        MixMode.NEW_FIRST -> "New First"
+                                    },
+                                style = MaterialTheme.typography.bodyLarge,
                             )
                             Text(
-                                text = when (mode) {
-                                    MixMode.MIX -> "Mix new and review cards"
-                                    MixMode.REVIEWS_FIRST -> "Show all reviews before new cards"
-                                    MixMode.NEW_FIRST -> "Show new cards before reviews"
-                                },
+                                text =
+                                    when (mode) {
+                                        MixMode.MIX -> "Mix new and review cards"
+                                        MixMode.REVIEWS_FIRST -> "Show all reviews before new cards"
+                                        MixMode.NEW_FIRST -> "Show new cards before reviews"
+                                    },
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
@@ -250,10 +251,9 @@ private fun MixModeDialog(
             TextButton(onClick = onDismiss) {
                 Text("Cancel")
             }
-        }
+        },
     )
 }
-
 
 @Composable
 private fun rememberPermissionStates(context: Context): PermissionStates {
@@ -280,9 +280,6 @@ data class PermissionStates(
     val overlayGranted: Boolean,
     val a11yEnabled: Boolean,
 )
-
-
-
 
 @Preview(showBackground = true)
 @Composable

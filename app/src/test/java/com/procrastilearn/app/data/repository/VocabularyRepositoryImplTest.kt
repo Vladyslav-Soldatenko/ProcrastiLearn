@@ -29,11 +29,10 @@ import org.robolectric.RobolectricTestRunner
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+// @Config(sdk = [33])
 @ExperimentalCoroutinesApi
 @RunWith(RobolectricTestRunner::class)
-//@Config(sdk = [33])
 class VocabularyRepositoryTest {
-
     private lateinit var database: AppDatabase
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var dayCountersStore: DayCountersStore
@@ -44,10 +43,13 @@ class VocabularyRepositoryTest {
     @Before
     fun setup() {
         // Setup in-memory database
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            AppDatabase::class.java
-        ).allowMainThreadQueries().build()
+        database =
+            Room
+                .inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    AppDatabase::class.java,
+                ).allowMainThreadQueries()
+                .build()
 
         vocabularyDao = database.vocabularyDao()
 
@@ -58,11 +60,12 @@ class VocabularyRepositoryTest {
         scheduler = Scheduler.builder().build()
 
         // Create repository
-        repository = VocabularyRepositoryImpl(
-            vocabularyDao = vocabularyDao,
-            scheduler = scheduler,
-            prefs = dayCountersStore
-        )
+        repository =
+            VocabularyRepositoryImpl(
+                vocabularyDao = vocabularyDao,
+                scheduler = scheduler,
+                prefs = dayCountersStore,
+            )
     }
 
     @After
@@ -70,8 +73,7 @@ class VocabularyRepositoryTest {
         database.close()
     }
 
-    private fun todayStamp(): Int =
-        LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE).toInt()
+    private fun todayStamp(): Int = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE).toInt()
 
     private suspend fun insertTestVocabulary(
         word: String,
@@ -80,9 +82,9 @@ class VocabularyRepositoryTest {
         fsrsDueAt: Long = 0L,
         correctCount: Int = 0,
         incorrectCount: Int = 0,
-        lastShownAt: Long = 0L
-    ): Long {
-        return vocabularyDao.insertVocabulary(
+        lastShownAt: Long = 0L,
+    ): Long =
+        vocabularyDao.insertVocabulary(
             VocabularyEntity(
                 id = 0,
                 word = word,
@@ -91,339 +93,383 @@ class VocabularyRepositoryTest {
                 fsrsDueAt = fsrsDueAt,
                 correctCount = correctCount,
                 incorrectCount = incorrectCount,
-                lastShownAt = lastShownAt
-            )
+                lastShownAt = lastShownAt,
+            ),
         )
-    }
 
     // Test 1: Empty database should throw exception
     @Test(expected = NoSuchElementException::class)
-    fun `getNextVocabularyItem throws when database is empty`() = runTest {
-        // Setup
-        coEvery { dayCountersStore.read() } returns flowOf(
-            DayCounters(
-                yyyymmdd = todayStamp(),
-                newShown = 0,
-                reviewShown = 0,
-                reviewsSinceLastNew = 0
-            )
-        )
+    fun `getNextVocabularyItem throws when database is empty`() =
+        runTest {
+            // Setup
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(
+                        yyyymmdd = todayStamp(),
+                        newShown = 0,
+                        reviewShown = 0,
+                        reviewsSinceLastNew = 0,
+                    ),
+                )
 
-        // Execute - should throw
-        repository.getNextVocabularyItem()
-    }
+            // Execute - should throw
+            repository.getNextVocabularyItem()
+        }
+
 //
 //    // Test 2: Single new item in database
     @Test
-    fun `getNextVocabularyItem returns single new item when only one exists`() = runTest {
-        // Setup
-        val id = insertTestVocabulary("hello", "hola")
-        coEvery { dayCountersStore.read() } returns flowOf(
-            DayCounters(
-                yyyymmdd = todayStamp(),
-                newShown = 0,
-                reviewShown = 0,
-                reviewsSinceLastNew = 0
-            )
-        )
+    fun `getNextVocabularyItem returns single new item when only one exists`() =
+        runTest {
+            // Setup
+            val id = insertTestVocabulary("hello", "hola")
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(
+                        yyyymmdd = todayStamp(),
+                        newShown = 0,
+                        reviewShown = 0,
+                        reviewsSinceLastNew = 0,
+                    ),
+                )
 
-        // Execute
-        val result = repository.getNextVocabularyItem()
+            // Execute
+            val result = repository.getNextVocabularyItem()
 
-        // Verify
-        assertThat(result.word).isEqualTo("hello")
-        assertThat(result.translation).isEqualTo("hola")
-    }
+            // Verify
+            assertThat(result.word).isEqualTo("hello")
+            assertThat(result.translation).isEqualTo("hola")
+        }
+
 //
 //    // Test 3: Respects daily new limit
     @Test
-    fun `getNextVocabularyItem respects daily new limit`() = runTest {
-        // Setup - insert multiple new items
-        insertTestVocabulary("word1", "trans1")
-        insertTestVocabulary("word2", "trans2")
-        insertTestVocabulary("word3", "trans3")
+    fun `getNextVocabularyItem respects daily new limit`() =
+        runTest {
+            // Setup - insert multiple new items
+            insertTestVocabulary("word1", "trans1")
+            insertTestVocabulary("word2", "trans2")
+            insertTestVocabulary("word3", "trans3")
 
-        // Set counters to show we've hit the new limit (20)
-        coEvery { dayCountersStore.read() } returns flowOf(
-            DayCounters(
-                yyyymmdd = todayStamp(),
-                newShown = 20, // Hit the limit
-                reviewShown = 0,
-                reviewsSinceLastNew = 0
-            )
-        )
+            // Set counters to show we've hit the new limit (20)
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(
+                        yyyymmdd = todayStamp(),
+                        newShown = 20, // Hit the limit
+                        reviewShown = 0,
+                        reviewsSinceLastNew = 0,
+                    ),
+                )
 
-        // Execute - should not return new items
-        val result = repository.getNextVocabularyItem()
+            // Execute - should not return new items
+            val result = repository.getNextVocabularyItem()
 
-        // Since no reviews are due and new limit is hit, it should pick random
-        assertThat(result).isNotNull()
-    }
+            // Since no reviews are due and new limit is hit, it should pick random
+            assertThat(result).isNotNull()
+        }
+
 //
 //    // Test 4: Prefers due reviews over new items
     @Test
-    fun `getNextVocabularyItem prefers due reviews over new items in MIX mode`() = runTest {
-        // Setup
-        val now = System.currentTimeMillis()
-        insertTestVocabulary("new", "nuevo")
-         insertTestVocabulary(
-            word = "review",
-            translation = "revisar",
-            fsrsCardJson = Card.builder().build().toJson(),
-            fsrsDueAt = now - 1000, // Due in the past
-            correctCount = 1,
-            incorrectCount = 0
-        )
-
-        coEvery { dayCountersStore.read() } returns flowOf(
-            DayCounters(
-                yyyymmdd = todayStamp(),
-                newShown = 0,
-                reviewShown = 0,
-                reviewsSinceLastNew = 0
+    fun `getNextVocabularyItem prefers due reviews over new items in MIX mode`() =
+        runTest {
+            // Setup
+            val now = System.currentTimeMillis()
+            insertTestVocabulary("new", "nuevo")
+            insertTestVocabulary(
+                word = "review",
+                translation = "revisar",
+                fsrsCardJson = Card.builder().build().toJson(),
+                fsrsDueAt = now - 1000, // Due in the past
+                correctCount = 1,
+                incorrectCount = 0,
             )
-        )
 
-        // Execute
-        val result = repository.getNextVocabularyItem()
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(
+                        yyyymmdd = todayStamp(),
+                        newShown = 0,
+                        reviewShown = 0,
+                        reviewsSinceLastNew = 0,
+                    ),
+                )
 
-        // Verify - should get the review item
-        assertThat(result.word).isEqualTo("review")
-    }
+            // Execute
+            val result = repository.getNextVocabularyItem()
+
+            // Verify - should get the review item
+            assertThat(result.word).isEqualTo("review")
+        }
+
 //
 //    // Test 5: NEW_FIRST mode prioritizes new items
     @Test
-    fun `getNextVocabularyItem prioritizes new in NEW_FIRST mode when available`() = runTest {
-        // Create custom repository with NEW_FIRST policy
-        val customRepo = VocabularyRepositoryImpl(
-            vocabularyDao = vocabularyDao,
-            scheduler = scheduler,
-            prefs = dayCountersStore
-        )
+    fun `getNextVocabularyItem prioritizes new in NEW_FIRST mode when available`() =
+        runTest {
+            // Create custom repository with NEW_FIRST policy
+            val customRepo =
+                VocabularyRepositoryImpl(
+                    vocabularyDao = vocabularyDao,
+                    scheduler = scheduler,
+                    prefs = dayCountersStore,
+                )
 
-        // Use reflection to set the policy (since it's private)
-        val policyField = VocabularyRepositoryImpl::class.java.getDeclaredField("policy")
-        policyField.isAccessible = true
-        policyField.set(customRepo, LearningPreferencesConfig(
-            newPerDay = 20,
-            reviewPerDay = 200,
-            mixMode = MixMode.NEW_FIRST,
-            buryImmediateRepeat = true
-        )
-        )
-
-        // Setup
-        val now = System.currentTimeMillis()
-        insertTestVocabulary("new", "nuevo")
-        insertTestVocabulary(
-            word = "review",
-            translation = "revisar",
-            fsrsCardJson = Card.builder().build().toJson(),
-            fsrsDueAt = now - 1000,
-            correctCount = 1,
-            incorrectCount = 0
-        )
-
-        coEvery { dayCountersStore.read() } returns flowOf(
-            DayCounters(
-                yyyymmdd = todayStamp(),
-                newShown = 0,
-                reviewShown = 0,
-                reviewsSinceLastNew = 0
+            // Use reflection to set the policy (since it's private)
+            val policyField = VocabularyRepositoryImpl::class.java.getDeclaredField("policy")
+            policyField.isAccessible = true
+            policyField.set(
+                customRepo,
+                LearningPreferencesConfig(
+                    newPerDay = 20,
+                    reviewPerDay = 200,
+                    mixMode = MixMode.NEW_FIRST,
+                    buryImmediateRepeat = true,
+                ),
             )
-        )
 
-        // Execute
-        val result = customRepo.getNextVocabularyItem()
-
-        // Verify - should get new item despite review being due
-        assertThat(result.word).isEqualTo("new")
-    }
-//
-//    // Test 6: Bury immediate repeat functionality
-//    @Test
-    fun `getNextVocabularyItem avoids immediate repeat when buryImmediateRepeat is true`() = runTest {
-        // Setup - insert two items
-         insertTestVocabulary("word1", "trans1")
-         insertTestVocabulary("word2", "trans2")
-
-        coEvery { dayCountersStore.read() } returns flowOf(
-            DayCounters(
-                yyyymmdd = todayStamp(),
-                newShown = 0,
-                reviewShown = 0,
-                reviewsSinceLastNew = 0
-            )
-        )
-
-        // Get first item
-        val first = repository.getNextVocabularyItem()
-
-        // Get second item - should be different
-        val second = repository.getNextVocabularyItem()
-
-        // Verify they're different
-        assertThat(first.id).isNotEqualTo(second.id)
-    }
-//
-//    // Test 7: MIX mode interleaving logic
-    @Test
-    fun `getNextVocabularyItem in MIX mode interleaves new and reviews properly`() = runTest {
-        // Setup
-        val now = System.currentTimeMillis()
-
-        // Add new items
-        repeat(5) { i ->
-            insertTestVocabulary("new$i", "nuevo$i")
-        }
-
-        // Add due reviews
-        repeat(10) { i ->
+            // Setup
+            val now = System.currentTimeMillis()
+            insertTestVocabulary("new", "nuevo")
             insertTestVocabulary(
-                word = "review$i",
-                translation = "revisar$i",
+                word = "review",
+                translation = "revisar",
                 fsrsCardJson = Card.builder().build().toJson(),
                 fsrsDueAt = now - 1000,
                 correctCount = 1,
-                incorrectCount = 0
+                incorrectCount = 0,
             )
-        }
 
-        val results = mutableListOf<VocabularyItem>()
-
-        // Simulate getting items with proper counter updates
-        repeat(15) { iteration ->
-            val reviewsSinceLastNew = if (iteration == 0) 0 else {
-                results.takeLast(results.size).indexOfLast {
-                    vocabularyDao.getVocabularyById(it.id)?.let {
-                        it.correctCount == 0 && it.incorrectCount == 0
-                    } ?: false
-                }.let { if (it == -1) results.size else results.size - it - 1 }
-            }
-
-            coEvery { dayCountersStore.read() } returns flowOf(
-                DayCounters(
-                    yyyymmdd = todayStamp(),
-                    newShown = results.count {
-                        vocabularyDao.getVocabularyById(it.id)?.let {
-                            it.correctCount == 0 && it.incorrectCount == 0
-                        } ?: false
-                    },
-                    reviewShown = results.count {
-                        vocabularyDao.getVocabularyById(it.id)?.let {
-                            it.correctCount > 0 || it.incorrectCount > 0
-                        } ?: false
-                    },
-                    reviewsSinceLastNew = reviewsSinceLastNew
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(
+                        yyyymmdd = todayStamp(),
+                        newShown = 0,
+                        reviewShown = 0,
+                        reviewsSinceLastNew = 0,
+                    ),
                 )
-            )
 
-            results.add(repository.getNextVocabularyItem())
+            // Execute
+            val result = customRepo.getNextVocabularyItem()
+
+            // Verify - should get new item despite review being due
+            assertThat(result.word).isEqualTo("new")
         }
+
 //
-        // Verify we got a mix (not all reviews first or all new first)
-        val newIndices = results.mapIndexedNotNull { index, item ->
-            vocabularyDao.getVocabularyById(item.id)?.let {
-                if (it.correctCount == 0 && it.incorrectCount == 0) index else null
-            }
+//    // Test 6: Bury immediate repeat functionality
+//    @Test
+    fun `getNextVocabularyItem avoids immediate repeat when buryImmediateRepeat is true`() =
+        runTest {
+            // Setup - insert two items
+            insertTestVocabulary("word1", "trans1")
+            insertTestVocabulary("word2", "trans2")
+
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(
+                        yyyymmdd = todayStamp(),
+                        newShown = 0,
+                        reviewShown = 0,
+                        reviewsSinceLastNew = 0,
+                    ),
+                )
+
+            // Get first item
+            val first = repository.getNextVocabularyItem()
+
+            // Get second item - should be different
+            val second = repository.getNextVocabularyItem()
+
+            // Verify they're different
+            assertThat(first.id).isNotEqualTo(second.id)
         }
 
-        // Should have some new items interspersed, not all at beginning or end
-        assertThat(newIndices).isNotEmpty()
-        assertThat(newIndices.first()).isGreaterThan(0) // Not all new first
-    }
+//
+//    // Test 7: MIX mode interleaving logic
+    @Test
+    fun `getNextVocabularyItem in MIX mode interleaves new and reviews properly`() =
+        runTest {
+            // Setup
+            val now = System.currentTimeMillis()
+
+            // Add new items
+            repeat(5) { i ->
+                insertTestVocabulary("new$i", "nuevo$i")
+            }
+
+            // Add due reviews
+            repeat(10) { i ->
+                insertTestVocabulary(
+                    word = "review$i",
+                    translation = "revisar$i",
+                    fsrsCardJson = Card.builder().build().toJson(),
+                    fsrsDueAt = now - 1000,
+                    correctCount = 1,
+                    incorrectCount = 0,
+                )
+            }
+
+            val results = mutableListOf<VocabularyItem>()
+
+            // Simulate getting items with proper counter updates
+            repeat(15) { iteration ->
+                val reviewsSinceLastNew =
+                    if (iteration == 0) {
+                        0
+                    } else {
+                        results
+                            .takeLast(results.size)
+                            .indexOfLast {
+                                vocabularyDao.getVocabularyById(it.id)?.let {
+                                    it.correctCount == 0 && it.incorrectCount == 0
+                                } ?: false
+                            }.let { if (it == -1) results.size else results.size - it - 1 }
+                    }
+
+                coEvery { dayCountersStore.read() } returns
+                    flowOf(
+                        DayCounters(
+                            yyyymmdd = todayStamp(),
+                            newShown =
+                                results.count {
+                                    vocabularyDao.getVocabularyById(it.id)?.let {
+                                        it.correctCount == 0 && it.incorrectCount == 0
+                                    } ?: false
+                                },
+                            reviewShown =
+                                results.count {
+                                    vocabularyDao.getVocabularyById(it.id)?.let {
+                                        it.correctCount > 0 || it.incorrectCount > 0
+                                    } ?: false
+                                },
+                            reviewsSinceLastNew = reviewsSinceLastNew,
+                        ),
+                    )
+
+                results.add(repository.getNextVocabularyItem())
+            }
+//
+            // Verify we got a mix (not all reviews first or all new first)
+            val newIndices =
+                results.mapIndexedNotNull { index, item ->
+                    vocabularyDao.getVocabularyById(item.id)?.let {
+                        if (it.correctCount == 0 && it.incorrectCount == 0) index else null
+                    }
+                }
+
+            // Should have some new items interspersed, not all at beginning or end
+            assertThat(newIndices).isNotEmpty()
+            assertThat(newIndices.first()).isGreaterThan(0) // Not all new first
+        }
+
 //
 //
 //    // Test 9: Day reset functionality
     @Test
-    fun `getNextVocabularyItem resets counters on new day`() = runTest {
-        // Setup
-        insertTestVocabulary("test", "prueba")
+    fun `getNextVocabularyItem resets counters on new day`() =
+        runTest {
+            // Setup
+            insertTestVocabulary("test", "prueba")
 
-        val yesterday = todayStamp() - 1
-        val today = todayStamp()
+            val yesterday = todayStamp() - 1
+            val today = todayStamp()
 
-        // First call with yesterday's date
-        coEvery { dayCountersStore.read() } returns flowOf(
-            DayCounters(
-                yyyymmdd = yesterday,
-                newShown = 15,
-                reviewShown = 150,
-                reviewsSinceLastNew = 5
-            )
-        )
+            // First call with yesterday's date
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(
+                        yyyymmdd = yesterday,
+                        newShown = 15,
+                        reviewShown = 150,
+                        reviewsSinceLastNew = 5,
+                    ),
+                )
 
-        // Expect reset to be called
-        coEvery { dayCountersStore.resetFor(today) } just  Runs
+            // Expect reset to be called
+            coEvery { dayCountersStore.resetFor(today) } just Runs
 
-        // Execute
-        repository.getNextVocabularyItem()
+            // Execute
+            repository.getNextVocabularyItem()
 
-        // Verify reset was called
-    coVerify { dayCountersStore.resetFor(today) }
-    }
+            // Verify reset was called
+            coVerify { dayCountersStore.resetFor(today) }
+        }
+
 //
 //    // Test 10: Upcoming items when nothing is due
     @Test
-    fun `getNextVocabularyItem returns upcoming item when nothing is due`() = runTest {
-        // Setup
-        val future = System.currentTimeMillis() + 3600000 // 1 hour from now
-        insertTestVocabulary(
-            word = "future",
-            translation = "futuro",
-            fsrsCardJson = Card.builder().build().toJson(),
-            fsrsDueAt = future,
-            correctCount = 1,
-            incorrectCount = 0
-        )
-
-        coEvery { dayCountersStore.read() } returns flowOf(
-            DayCounters(
-                yyyymmdd = todayStamp(),
-                newShown = 20, // Hit new limit
-                reviewShown = 0,
-                reviewsSinceLastNew = 0
+    fun `getNextVocabularyItem returns upcoming item when nothing is due`() =
+        runTest {
+            // Setup
+            val future = System.currentTimeMillis() + 3600000 // 1 hour from now
+            insertTestVocabulary(
+                word = "future",
+                translation = "futuro",
+                fsrsCardJson = Card.builder().build().toJson(),
+                fsrsDueAt = future,
+                correctCount = 1,
+                incorrectCount = 0,
             )
-        )
 
-        // Execute
-        val result = repository.getNextVocabularyItem()
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(
+                        yyyymmdd = todayStamp(),
+                        newShown = 20, // Hit new limit
+                        reviewShown = 0,
+                        reviewsSinceLastNew = 0,
+                    ),
+                )
 
-        // Verify - should get the future item since nothing else is available
-        assertThat(result.word).isEqualTo("future")
-    }
+            // Execute
+            val result = repository.getNextVocabularyItem()
+
+            // Verify - should get the future item since nothing else is available
+            assertThat(result.word).isEqualTo("future")
+        }
 
     @Test
-    fun `due reviews ignored and new word is shown when review cap reached even if mode is review first`() = runTest {
-        val now = System.currentTimeMillis()
-        val customRepo = VocabularyRepositoryImpl(
-            vocabularyDao = vocabularyDao,
-            scheduler = scheduler,
-            prefs = dayCountersStore
-        )
-        val policyField = VocabularyRepositoryImpl::class.java.getDeclaredField("policy")
-        policyField.isAccessible = true
-        policyField.set(customRepo, LearningPreferencesConfig(
-            newPerDay = 20,
-            reviewPerDay = 200,
-            mixMode = MixMode.REVIEWS_FIRST,
-            buryImmediateRepeat = true
-        )
-        )
-        insertTestVocabulary(
-            "r","t",
-            fsrsCardJson = Card.builder().build().toJson(),
-            fsrsDueAt = now - 1000, correctCount = 1
-        )
-        insertTestVocabulary(
-            "not seen","not seen"
-        )
+    fun `due reviews ignored and new word is shown when review cap reached even if mode is review first`() =
+        runTest {
+            val now = System.currentTimeMillis()
+            val customRepo =
+                VocabularyRepositoryImpl(
+                    vocabularyDao = vocabularyDao,
+                    scheduler = scheduler,
+                    prefs = dayCountersStore,
+                )
+            val policyField = VocabularyRepositoryImpl::class.java.getDeclaredField("policy")
+            policyField.isAccessible = true
+            policyField.set(
+                customRepo,
+                LearningPreferencesConfig(
+                    newPerDay = 20,
+                    reviewPerDay = 200,
+                    mixMode = MixMode.REVIEWS_FIRST,
+                    buryImmediateRepeat = true,
+                ),
+            )
+            insertTestVocabulary(
+                "r",
+                "t",
+                fsrsCardJson = Card.builder().build().toJson(),
+                fsrsDueAt = now - 1000,
+                correctCount = 1,
+            )
+            insertTestVocabulary(
+                "not seen",
+                "not seen",
+            )
 
-        coEvery { dayCountersStore.read() } returns flowOf(
-            DayCounters(todayStamp(), newShown = 0, reviewShown = 200, reviewsSinceLastNew = 0) // cap hit
-        )
-        val result = repository.getNextVocabularyItem()
-        // Should not be the due review; falls back to new/upcoming/random
-        assertThat(result.word).isEqualTo("not seen")
-    }
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(todayStamp(), newShown = 0, reviewShown = 200, reviewsSinceLastNew = 0), // cap hit
+                )
+            val result = repository.getNextVocabularyItem()
+            // Should not be the due review; falls back to new/upcoming/random
+            assertThat(result.word).isEqualTo("not seen")
+        }
 }
