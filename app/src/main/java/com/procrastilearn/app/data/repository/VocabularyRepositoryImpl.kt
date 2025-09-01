@@ -3,6 +3,8 @@ package com.procrastilearn.app.data.repository
 import android.util.Log
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
+import com.procrastilearn.app.data.local.mapper.toDomain
+import com.procrastilearn.app.data.local.mapper.toEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.VocabularyItem
@@ -251,25 +253,4 @@ class VocabularyRepositoryImpl
             val card = Card.builder().build()
             return copy(fsrsCardJson = card.toJson(), fsrsDueAt = 0L)
         }
-
-        private fun VocabularyEntity.toDomain(): VocabularyItem =
-            VocabularyItem(
-                id = id,
-                word = word,
-                translation = translation,
-                isNew =
-                    this.correctCount == 0 && this.incorrectCount == 0,
-            )
-
-        private fun VocabularyItem.toEntity(
-            fsrsCardJson: String = "",
-            fsrsDueAt: Long = 0L,
-        ): VocabularyEntity =
-            VocabularyEntity(
-                id = id,
-                word = word,
-                translation = translation,
-                fsrsCardJson = fsrsCardJson,
-                fsrsDueAt = fsrsDueAt,
-            )
     }

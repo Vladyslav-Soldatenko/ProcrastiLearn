@@ -231,7 +231,7 @@ private fun MixModeDialog(
         title = { Text(stringResource(R.string.settings_study_mode_title)) },
         text = {
             Column {
-                MixMode.values().forEach { mode ->
+                MixMode.entries.forEach { mode ->
                     Row(
                         modifier =
                             Modifier
@@ -250,7 +250,10 @@ private fun MixModeDialog(
                                 text =
                                     when (mode) {
                                         MixMode.MIX -> stringResource(R.string.settings_study_mode_mixed)
-                                        MixMode.REVIEWS_FIRST -> stringResource(R.string.settings_study_mode_reviews_first)
+                                        MixMode.REVIEWS_FIRST ->
+                                            stringResource(
+                                                R.string.settings_study_mode_reviews_first,
+                                            )
                                         MixMode.NEW_FIRST -> stringResource(R.string.settings_study_mode_new_first)
                                     },
                                 style = MaterialTheme.typography.bodyLarge,
@@ -259,7 +262,10 @@ private fun MixModeDialog(
                                 text =
                                     when (mode) {
                                         MixMode.MIX -> stringResource(R.string.settings_study_mode_mixed_desc)
-                                        MixMode.REVIEWS_FIRST -> stringResource(R.string.settings_study_mode_reviews_first_desc)
+                                        MixMode.REVIEWS_FIRST ->
+                                            stringResource(
+                                                R.string.settings_study_mode_reviews_first_desc,
+                                            )
                                         MixMode.NEW_FIRST -> stringResource(R.string.settings_study_mode_new_first_desc)
                                     },
                                 style = MaterialTheme.typography.bodySmall,

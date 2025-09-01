@@ -310,7 +310,6 @@ class VocabularyRepositoryImplTest {
             assertThat(first.id).isNotEqualTo(second.id)
         }
 
-
 //    // Test 7: MIX mode interleaving logic
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @Test

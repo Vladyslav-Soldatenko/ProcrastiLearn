@@ -36,6 +36,7 @@ class OverlayAccessibilityService : AccessibilityService() {
         const val SECONDS_PER_MINUTE = 60
         const val MILLIS_PER_SECOND = 1000L
     }
+
     private var windowManager: WindowManager? = null
     private var overlayView: View? = null
     private var lifecycleOwner: ServiceLifecycleOwner? = null

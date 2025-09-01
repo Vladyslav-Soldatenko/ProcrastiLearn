@@ -24,6 +24,7 @@ class AddVocabularyItemUseCase
                     VocabularyItem(
                         word = word.trim(),
                         translation = translation.trim(),
+                        isNew = true,
                     )
 
                 repository.addVocabularyItem(vocabularyItem)

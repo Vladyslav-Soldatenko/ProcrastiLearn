@@ -13,8 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.R
+import com.procrastilearn.app.domain.model.MixMode
 
 @Composable
 fun MixModeSettingsItem(
