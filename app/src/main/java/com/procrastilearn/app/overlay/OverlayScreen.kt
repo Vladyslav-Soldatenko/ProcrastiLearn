@@ -48,14 +48,15 @@ private fun OverlayScreen(
     onToggleShowAnswer: () -> Unit,
     onDifficultySelected: (Rating) -> Unit,
 ) {
-
     OverlayTheme {
-        val backgroundGradient = Brush.verticalGradient(
-            colors = listOf(
-                OverlayThemeTokens.colors.backgroundGradientStart,
-                OverlayThemeTokens.colors.backgroundGradientEnd,
-            ),
-        )
+        val backgroundGradient =
+            Brush.verticalGradient(
+                colors =
+                    listOf(
+                        OverlayThemeTokens.colors.backgroundGradientStart,
+                        OverlayThemeTokens.colors.backgroundGradientEnd,
+                    ),
+            )
         Box(
             modifier =
                 Modifier

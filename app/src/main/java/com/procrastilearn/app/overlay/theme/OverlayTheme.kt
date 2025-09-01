@@ -30,11 +30,63 @@ data class OverlayColors(
     val disabledContent: Color,
 )
 
-private val LocalOverlayColors = staticCompositionLocalOf {
-    // Reasonable defaults; will be overridden by OverlayTheme
+private val LocalOverlayColors =
+    staticCompositionLocalOf {
+        // Reasonable defaults; will be overridden by OverlayTheme
+        OverlayColors(
+            backgroundGradientStart = Color(0xFFFFFFFF),
+            backgroundGradientEnd = Color(0xFFF5F5F5),
+            cardContainer = Color(0xFFFFFFFF),
+            titleColor = Color(0xFF111827),
+            newBadgeColor = Color(0xFFB91C1C),
+            innerCardContainer = Color(0xFFF3F4F6),
+            translationText = Color(0xFF1D4ED8),
+            showButtonContent = Color(0xFF1D4ED8),
+            divider = Color(0xFFE5E7EB),
+            helpText = Color(0xFF6B7280),
+            difficultyAgainContainer = Color(0xFFEF4444),
+            difficultyAgainContent = Color(0xFFFFFFFF),
+            difficultyHardContainer = Color(0xFFF59E0B),
+            difficultyHardContent = Color(0xFFFFFFFF),
+            difficultyGoodContainer = Color(0xFF10B981),
+            difficultyGoodContent = Color(0xFFFFFFFF),
+            difficultyEasyContainer = Color(0xFF3B82F6),
+            difficultyEasyContent = Color(0xFFFFFFFF),
+            disabledContainer = Color(0xFFE5E7EB),
+            disabledContent = Color(0xFF9CA3AF),
+        )
+    }
+
+// Dark theme: exactly the original overlay colors
+private val OverlayDarkColors =
     OverlayColors(
-        backgroundGradientStart = Color(0xFFFFFFFF),
-        backgroundGradientEnd = Color(0xFFF5F5F5),
+        backgroundGradientStart = Color(0xFF0F172A),
+        backgroundGradientEnd = Color(0xFF111827),
+        cardContainer = Color(0xFF1F2937),
+        titleColor = Color(0xFFF9FAFB),
+        newBadgeColor = Color(0xFFEF4444),
+        innerCardContainer = Color(0xFF111827),
+        translationText = Color(0xFF93C5FD),
+        showButtonContent = Color(0xFFBFDBFE),
+        divider = Color(0xFF374151),
+        helpText = Color(0xFF9CA3AF),
+        difficultyAgainContainer = Color(0xFFEF4444),
+        difficultyAgainContent = Color(0xFFFFFFFF),
+        difficultyHardContainer = Color(0xFFF59E0B),
+        difficultyHardContent = Color(0xFFFFFFFF),
+        difficultyGoodContainer = Color(0xFF10B981),
+        difficultyGoodContent = Color(0xFFFFFFFF),
+        difficultyEasyContainer = Color(0xFF3B82F6),
+        difficultyEasyContent = Color(0xFFFFFFFF),
+        disabledContainer = Color(0xFF374151),
+        disabledContent = Color(0xFF6B7280),
+    )
+
+// Light theme: chosen to be readable and harmonious
+private val OverlayLightColors =
+    OverlayColors(
+        backgroundGradientStart = Color(0xFFF7FAFC),
+        backgroundGradientEnd = Color(0xFFEFF4FA),
         cardContainer = Color(0xFFFFFFFF),
         titleColor = Color(0xFF111827),
         newBadgeColor = Color(0xFFB91C1C),
@@ -54,55 +106,6 @@ private val LocalOverlayColors = staticCompositionLocalOf {
         disabledContainer = Color(0xFFE5E7EB),
         disabledContent = Color(0xFF9CA3AF),
     )
-}
-
-// Dark theme: exactly the original overlay colors
-private val OverlayDarkColors = OverlayColors(
-    backgroundGradientStart = Color(0xFF0F172A),
-    backgroundGradientEnd = Color(0xFF111827),
-    cardContainer = Color(0xFF1F2937),
-    titleColor = Color(0xFFF9FAFB),
-    newBadgeColor = Color(0xFFEF4444),
-    innerCardContainer = Color(0xFF111827),
-    translationText = Color(0xFF93C5FD),
-    showButtonContent = Color(0xFFBFDBFE),
-    divider = Color(0xFF374151),
-    helpText = Color(0xFF9CA3AF),
-    difficultyAgainContainer = Color(0xFFEF4444),
-    difficultyAgainContent = Color(0xFFFFFFFF),
-    difficultyHardContainer = Color(0xFFF59E0B),
-    difficultyHardContent = Color(0xFFFFFFFF),
-    difficultyGoodContainer = Color(0xFF10B981),
-    difficultyGoodContent = Color(0xFFFFFFFF),
-    difficultyEasyContainer = Color(0xFF3B82F6),
-    difficultyEasyContent = Color(0xFFFFFFFF),
-    disabledContainer = Color(0xFF374151),
-    disabledContent = Color(0xFF6B7280),
-)
-
-// Light theme: chosen to be readable and harmonious
-private val OverlayLightColors = OverlayColors(
-    backgroundGradientStart = Color(0xFFF7FAFC),
-    backgroundGradientEnd = Color(0xFFEFF4FA),
-    cardContainer = Color(0xFFFFFFFF),
-    titleColor = Color(0xFF111827),
-    newBadgeColor = Color(0xFFB91C1C),
-    innerCardContainer = Color(0xFFF3F4F6),
-    translationText = Color(0xFF1D4ED8),
-    showButtonContent = Color(0xFF1D4ED8),
-    divider = Color(0xFFE5E7EB),
-    helpText = Color(0xFF6B7280),
-    difficultyAgainContainer = Color(0xFFEF4444),
-    difficultyAgainContent = Color(0xFFFFFFFF),
-    difficultyHardContainer = Color(0xFFF59E0B),
-    difficultyHardContent = Color(0xFFFFFFFF),
-    difficultyGoodContainer = Color(0xFF10B981),
-    difficultyGoodContent = Color(0xFFFFFFFF),
-    difficultyEasyContainer = Color(0xFF3B82F6),
-    difficultyEasyContent = Color(0xFFFFFFFF),
-    disabledContainer = Color(0xFFE5E7EB),
-    disabledContent = Color(0xFF9CA3AF),
-)
 
 @Composable
 fun OverlayTheme(
