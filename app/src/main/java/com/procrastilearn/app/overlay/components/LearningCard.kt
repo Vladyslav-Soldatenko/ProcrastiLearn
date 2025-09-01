@@ -35,8 +35,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.procrastilearn.app.R
@@ -50,6 +54,21 @@ fun LearningCard(
     onToggleShowAnswer: () -> Unit,
     onDifficultySelected: (Rating) -> Unit,
 ) {
+    val titleAnnotated = buildAnnotatedString {
+        append(state.vocabularyItem?.word ?: stringResource(R.string.learning_no_word))
+        if (state.vocabularyItem?.isNew == true) {
+            append(" ")
+            withStyle(
+                SpanStyle(
+                    color = Color(0xFFEF4444),            // red
+                    fontSize = 12.sp,                      // smaller than main title
+                    fontWeight = FontWeight.SemiBold,      // a bit “elevated” emphasis
+                    baselineShift = BaselineShift.Superscript
+                )
+            ) { append("NEW") }
+        }
+    }
+
     Card(
         modifier =
             Modifier
@@ -67,17 +86,15 @@ fun LearningCard(
         ) {
             // Title
             Text(
-                text = state.vocabularyItem?.word ?: stringResource(R.string.learning_no_word),
+                text = titleAnnotated,
                 fontSize = 30.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFFF9FAFB),
                 textAlign = TextAlign.Center,
-                modifier =
-                    Modifier
-                        .padding(top = 6.dp, bottom = 10.dp)
-                        .fillMaxWidth(),
+                modifier = Modifier
+                    .padding(top = 6.dp, bottom = 10.dp)
+                    .fillMaxWidth(),
             )
-
             // Translation area (middle). Scrollable when shown.
             val scrollState = rememberScrollState()
             LaunchedEffect(state.vocabularyItem?.id, state.showAnswer) {

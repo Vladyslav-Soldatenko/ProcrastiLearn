@@ -44,7 +44,6 @@ class VocabularyRepositoryImpl
         private val io = Dispatchers.IO
         private var lastShownId: Long? = null
 
-
         override suspend fun addVocabularyItem(item: VocabularyItem): Unit =
             withContext(io) {
                 val cardJson = Card.builder().build().toJson()
@@ -254,7 +253,7 @@ class VocabularyRepositoryImpl
         }
 
         private fun VocabularyEntity.toDomain(): VocabularyItem =
-            VocabularyItem(id = id, word = word, translation = translation)
+            VocabularyItem(id = id, word = word, translation = translation, isNew =this.correctCount==0 && this.incorrectCount ==0)
 
         private fun VocabularyItem.toEntity(
             fsrsCardJson: String = "",

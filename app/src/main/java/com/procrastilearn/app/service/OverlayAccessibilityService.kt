@@ -16,6 +16,7 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
 import com.procrastilearn.app.domain.repository.VocabularyRepository
 import com.procrastilearn.app.overlay.OverlayScreen
@@ -24,7 +25,10 @@ import com.procrastilearn.app.utils.ServiceLifecycleOwner
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class OverlayAccessibilityService : AccessibilityService() {
@@ -38,6 +42,9 @@ class OverlayAccessibilityService : AccessibilityService() {
     private var gatedPackage: String? = null
     private var lastHandledAt: Long = 0
     private var lastTopPackage: String? = null
+
+    private var intervalTimerJob: Job? = null
+    private var overlayIntervalMinutes: Int = 0
 
     private val serviceEntryPoint: ServiceEntryPoint by lazy {
         EntryPointAccessors.fromApplication(
@@ -64,6 +71,10 @@ class OverlayAccessibilityService : AccessibilityService() {
         serviceEntryPoint.checkVocabularyAvailabilityUseCase()
     }
 
+    private val dayCountersStore: DayCountersStore by lazy {
+        serviceEntryPoint.dayCountersStore()
+    }
+
     private var blockedPackages: Set<String> = emptySet()
 
     private val ignoredPackages =
@@ -82,6 +93,14 @@ class OverlayAccessibilityService : AccessibilityService() {
         serviceScope.launch {
             appPreferencesRepository.getBlockedApps().collect { apps ->
                 blockedPackages = apps
+                Log.d("OverlayService", "Blocked packages updated: $blockedPackages")
+            }
+        }
+
+        serviceScope.launch {
+            dayCountersStore.readPolicy().collect { config ->
+                overlayIntervalMinutes = config.overlayInterval
+                Log.d("OverlayService", "Overlay interval updated: $overlayIntervalMinutes minutes")
             }
         }
     }
@@ -100,20 +119,34 @@ class OverlayAccessibilityService : AccessibilityService() {
         if (pkg == packageName) return
         if (isFromInputMethod(pkg, cls) || isIgnorableSystem(pkg)) return
 
-        val topPackage = currentTopPackage() ?: pkg
+        // Use the package from the event directly instead of querying
+        val topPackage = pkg // CHANGED: Use event package directly
 
-        Log.i("fsrs", "$topPackage, ")
+        Log.d("OverlayService", "Event from package: $topPackage")
 
         // Check if this is a blocked app
         if (topPackage in blockedPackages) {
-            // Only start gate if we're coming from a different app (not just unlocking)
-            if (!gateActive && lastTopPackage != topPackage) {
+            Log.d(
+                "OverlayService",
+                "Blocked app detected: $topPackage, gateActive=$gateActive, lastTopPackage=$lastTopPackage",
+            )
+
+            if (!gateActive) {
+                Log.d("OverlayService", "Starting new gate session for $topPackage")
+                startGateSession(topPackage)
+            } else if (lastTopPackage != topPackage) {
+                // Different blocked app - restart session
+                Log.d("OverlayService", "Switching to different blocked app: $lastTopPackage -> $topPackage")
+                endGateSession()
                 startGateSession(topPackage)
             }
+            // Always update the last top package when in a blocked app
             lastTopPackage = topPackage
+            gatedPackage = topPackage // Keep gatedPackage up to date
         } else if (topPackage !in ignoredPackages) {
             // User navigated to a non-blocked, non-ignored app
             if (gateActive) {
+                Log.d("OverlayService", "Leaving blocked app, ending gate session")
                 endGateSession()
             }
             lastTopPackage = topPackage
@@ -130,7 +163,6 @@ class OverlayAccessibilityService : AccessibilityService() {
 
             setContent {
                 MaterialTheme(colorScheme = darkColorScheme()) {
-                    // Provide the custom factory for ViewModels
                     val viewModel: OverlayViewModel =
                         viewModel(
                             factory =
@@ -142,11 +174,12 @@ class OverlayAccessibilityService : AccessibilityService() {
 
                     OverlayScreen(
                         onUnlock = {
+                            Log.d("OverlayService", "User unlocked overlay")
                             onUnlock()
-                            // Don't reset lastTopPackage here, keep it as the blocked app
-                            // so it won't trigger again until user leaves the app
+                            // Start timer after unlock and after hideOverlay() has been called
+                            startIntervalTimer()
                         },
-                        viewModel = viewModel, // Pass it explicitly
+                        viewModel = viewModel,
                     )
                 }
             }
@@ -155,23 +188,82 @@ class OverlayAccessibilityService : AccessibilityService() {
         }
 
     private fun startGateSession(pkg: String) {
-        if (gateActive) return
+        if (gateActive && gatedPackage == pkg && overlayView != null) {
+            Log.d("OverlayService", "Gate session already active for $pkg with overlay showing")
+            return
+        }
 
         serviceScope.launch {
             val hasItems = checkVocabularyAvailabilityUseCase()
+            Log.d("OverlayService", "Checking vocabulary availability: hasItems=$hasItems")
 
             if (hasItems) {
                 gateActive = true
                 gatedPackage = pkg
                 showOverlay()
+                // Don't start timer here - it will be started after unlock
+                Log.d("OverlayService", "Gate session started for $pkg, overlay shown")
             } else {
-                Log.i("fsrs", "No vocabulary items available (limits reached), not showing overlay")
+                Log.i("OverlayService", "No vocabulary items available (limits reached), not showing overlay")
             }
         }
     }
 
+    private fun startIntervalTimer() {
+        // Cancel any existing timer
+        intervalTimerJob?.cancel()
+        Log.d(
+            "OverlayService",
+            "Starting interval timer: intervalMinutes=$overlayIntervalMinutes, overlayView=${overlayView != null}, gateActive=$gateActive",
+        )
+
+        // Don't start timer if interval is 0 or overlay is currently showing
+        if (overlayIntervalMinutes <= 0) {
+            Log.d("OverlayService", "Timer not started: interval is 0 or negative")
+            return
+        }
+
+        if (overlayView != null) {
+            Log.d("OverlayService", "Timer not started: overlay is currently showing")
+            return
+        }
+
+        intervalTimerJob =
+            serviceScope.launch {
+                val delayMs = overlayIntervalMinutes * 60 * 1000L
+                Log.d("OverlayService", "Timer started, will fire in $overlayIntervalMinutes minutes ($delayMs ms)")
+
+                delay(delayMs)
+
+                Log.d("OverlayService", "Timer fired! gateActive=$gateActive, gatedPackage=$gatedPackage")
+
+                // If we're still in an active gate session, show the overlay
+                // Trust the gateActive state rather than re-querying the current package
+                if (gateActive && gatedPackage != null) {
+                    Log.d("OverlayService", "Still in gate session for $gatedPackage, showing overlay again")
+                    // Check if vocabulary is still available
+                    val hasItems = checkVocabularyAvailabilityUseCase()
+                    if (hasItems) {
+                        showOverlay()
+                    } else {
+                        Log.d("OverlayService", "No vocabulary items available, not showing overlay")
+                    }
+                } else {
+                    Log.d("OverlayService", "Gate not active or no gated package, not showing overlay")
+                }
+            }
+    }
+
+    private fun stopIntervalTimer() {
+        Log.d("OverlayService", "Stopping interval timer")
+        intervalTimerJob?.cancel()
+        intervalTimerJob = null
+    }
+
     private fun endGateSession() {
+        Log.d("OverlayService", "Ending gate session")
         hideOverlay()
+        stopIntervalTimer()
         gateActive = false
         gatedPackage = null
     }
@@ -186,18 +278,36 @@ class OverlayAccessibilityService : AccessibilityService() {
 
     private fun isIgnorableSystem(pkg: String): Boolean = pkg in ignoredPackages
 
-    private fun currentTopPackage(): String? = rootInActiveWindow?.packageName?.toString()
+    private fun currentTopPackage(): String? {
+        // Try to get the current package, with fallback to last known
+        val currentPkg = rootInActiveWindow?.packageName?.toString()
+        if (currentPkg != null) return currentPkg
+
+        // If rootInActiveWindow is null, try to refresh it
+        val root = rootInActiveWindow
+        if (root == null) {
+            Log.d("OverlayService", "rootInActiveWindow is null, using last known package: $lastTopPackage")
+            return lastTopPackage
+        }
+
+        return root.packageName?.toString() ?: lastTopPackage
+    }
 
     private fun showOverlay() {
-        if (overlayView != null) return
+        if (overlayView != null) {
+            Log.d("OverlayService", "Overlay already showing, not creating new one")
+            return
+        }
 
+        Log.d("OverlayService", "Creating and showing overlay")
         lifecycleOwner = ServiceLifecycleOwner()
         overlayView =
             createComposeOverlay(
                 onUnlock = {
                     // Mark this app as unlocked for current session
                     gatedPackage?.let { pkg ->
-                        endGateSession()
+                        Log.d("OverlayService", "Hiding overlay and bringing $pkg to front")
+                        hideOverlay()
                         bringToFront(pkg)
                     }
                 },
@@ -220,13 +330,17 @@ class OverlayAccessibilityService : AccessibilityService() {
             }
 
         windowManager?.addView(overlayView, params)
+        Log.d("OverlayService", "Overlay added to window manager")
     }
 
     private fun hideOverlay() {
+        Log.d("OverlayService", "Hiding overlay")
         overlayView?.let {
             try {
                 windowManager?.removeView(it)
-            } catch (_: Throwable) {
+                Log.d("OverlayService", "Overlay removed from window manager")
+            } catch (e: Throwable) {
+                Log.e("OverlayService", "Error removing overlay", e)
             }
         }
         overlayView = null
@@ -239,7 +353,9 @@ class OverlayAccessibilityService : AccessibilityService() {
             val intent = packageManager.getLaunchIntentForPackage(pkg) ?: return
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
-        } catch (_: Throwable) {
+            Log.d("OverlayService", "Brought $pkg to front")
+        } catch (e: Throwable) {
+            Log.e("OverlayService", "Error bringing $pkg to front", e)
         }
     }
 
@@ -247,7 +363,10 @@ class OverlayAccessibilityService : AccessibilityService() {
     override fun onInterrupt() {}
 
     override fun onDestroy() {
+        Log.d("OverlayService", "Service destroying")
         hideOverlay()
+        stopIntervalTimer()
+        serviceScope.cancel()
         super.onDestroy()
     }
 }

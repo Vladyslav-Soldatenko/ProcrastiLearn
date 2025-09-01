@@ -29,16 +29,14 @@ import org.robolectric.RobolectricTestRunner
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-// @Config(sdk = [33])
 @ExperimentalCoroutinesApi
 @RunWith(RobolectricTestRunner::class)
-class VocabularyRepositoryTest {
+class VocabularyRepositoryImplTest {
     private lateinit var database: AppDatabase
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var dayCountersStore: DayCountersStore
     private lateinit var scheduler: Scheduler
     private lateinit var repository: VocabularyRepositoryImpl
-//    private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setup() {
@@ -116,7 +114,6 @@ class VocabularyRepositoryTest {
             repository.getNextVocabularyItem()
         }
 
-//
 //    // Test 2: Single new item in database
     @Test
     fun `getNextVocabularyItem returns single new item when only one exists`() =
@@ -132,6 +129,17 @@ class VocabularyRepositoryTest {
                         reviewsSinceLastNew = 0,
                     ),
                 )
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 15,
+                        reviewPerDay = 99,
+                        overlayInterval = 6,
+                        mixMode = MixMode.MIX,
+                        buryImmediateRepeat = true,
+                    )
+                    ,
+                )
 
             // Execute
             val result = repository.getNextVocabularyItem()
@@ -143,9 +151,21 @@ class VocabularyRepositoryTest {
 
 //
 //    // Test 3: Respects daily new limit
-    @Test
-    fun `getNextVocabularyItem respects daily new limit`() =
+@Test(expected = NoAvailableItemsException::class)
+fun `getNextVocabularyItem respects daily new limit`() =
         runTest {
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 20,
+                        reviewPerDay = 99,
+                        overlayInterval = 6,
+                        mixMode = MixMode.REVIEWS_FIRST,
+                        buryImmediateRepeat = true,
+                    )
+                    ,
+                )
+
             // Setup - insert multiple new items
             insertTestVocabulary("word1", "trans1")
             insertTestVocabulary("word2", "trans2")
@@ -161,19 +181,27 @@ class VocabularyRepositoryTest {
                         reviewsSinceLastNew = 0,
                     ),
                 )
-
-            // Execute - should not return new items
-            val result = repository.getNextVocabularyItem()
-
-            // Since no reviews are due and new limit is hit, it should pick random
-            assertThat(result).isNotNull()
+            repository.getNextVocabularyItem()
         }
+
 
 //
 //    // Test 4: Prefers due reviews over new items
     @Test
     fun `getNextVocabularyItem prefers due reviews over new items in MIX mode`() =
         runTest {
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 20,
+                        reviewPerDay = 99,
+                        overlayInterval = 6,
+                        mixMode = MixMode.MIX,
+                        buryImmediateRepeat = true,
+                    )
+                    ,
+                )
+
             // Setup
             val now = System.currentTimeMillis()
             insertTestVocabulary("new", "nuevo")
@@ -216,18 +244,18 @@ class VocabularyRepositoryTest {
                     prefs = dayCountersStore,
                 )
 
-            // Use reflection to set the policy (since it's private)
-            val policyField = VocabularyRepositoryImpl::class.java.getDeclaredField("policy")
-            policyField.isAccessible = true
-            policyField.set(
-                customRepo,
-                LearningPreferencesConfig(
-                    newPerDay = 20,
-                    reviewPerDay = 200,
-                    mixMode = MixMode.NEW_FIRST,
-                    buryImmediateRepeat = true,
-                ),
-            )
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 15,
+                        reviewPerDay = 99,
+                        overlayInterval = 6,
+                        mixMode = MixMode.NEW_FIRST,
+                        buryImmediateRepeat = true,
+                    )
+                    ,
+                )
+
 
             // Setup
             val now = System.currentTimeMillis()
@@ -293,6 +321,18 @@ class VocabularyRepositoryTest {
     fun `getNextVocabularyItem in MIX mode interleaves new and reviews properly`() =
         runTest {
             // Setup
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 20,
+                        reviewPerDay = 99,
+                        overlayInterval = 6,
+                        mixMode = MixMode.MIX,
+                        buryImmediateRepeat = true,
+                    )
+                    ,
+                )
+
             val now = System.currentTimeMillis()
 
             // Add new items
@@ -372,6 +412,18 @@ class VocabularyRepositoryTest {
     fun `getNextVocabularyItem resets counters on new day`() =
         runTest {
             // Setup
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 20,
+                        reviewPerDay = 99,
+                        overlayInterval = 6,
+                        mixMode = MixMode.NEW_FIRST,
+                        buryImmediateRepeat = true,
+                    )
+                    ,
+                )
+
             insertTestVocabulary("test", "prueba")
 
             val yesterday = todayStamp() - 1
@@ -399,11 +451,22 @@ class VocabularyRepositoryTest {
         }
 
 //
-//    // Test 10: Upcoming items when nothing is due
-    @Test
-    fun `getNextVocabularyItem returns upcoming item when nothing is due`() =
+    @Test(expected = NoAvailableItemsException::class)
+    fun `getNextVocabularyItem thows when daily limit reached and nothing is due`() =
         runTest {
             // Setup
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 20,
+                        reviewPerDay = 99,
+                        overlayInterval = 6,
+                        mixMode = MixMode.REVIEWS_FIRST,
+                        buryImmediateRepeat = true,
+                    )
+                    ,
+                )
+
             val future = System.currentTimeMillis() + 3600000 // 1 hour from now
             insertTestVocabulary(
                 word = "future",
@@ -441,17 +504,18 @@ class VocabularyRepositoryTest {
                     scheduler = scheduler,
                     prefs = dayCountersStore,
                 )
-            val policyField = VocabularyRepositoryImpl::class.java.getDeclaredField("policy")
-            policyField.isAccessible = true
-            policyField.set(
-                customRepo,
-                LearningPreferencesConfig(
-                    newPerDay = 20,
-                    reviewPerDay = 200,
-                    mixMode = MixMode.REVIEWS_FIRST,
-                    buryImmediateRepeat = true,
-                ),
-            )
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 15,
+                        reviewPerDay = 99,
+                        overlayInterval = 6,
+                        mixMode = MixMode.REVIEWS_FIRST,
+                        buryImmediateRepeat = true,
+                    )
+                    ,
+                )
+
             insertTestVocabulary(
                 "r",
                 "t",

@@ -47,6 +47,7 @@ import com.procrastilearn.app.ui.screens.settings.components.NewPerDaySettingsIt
 import com.procrastilearn.app.ui.screens.settings.components.NumberInputDialog
 import com.procrastilearn.app.ui.screens.settings.components.OverlayPermissionItem
 import com.procrastilearn.app.ui.screens.settings.components.ReviewPerDaySettingsItem
+import com.procrastilearn.app.ui.screens.settings.components.ShowOverlayIntervalSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.openAccessibilitySettings
 import com.procrastilearn.app.ui.screens.settings.components.openOverlaySettings
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
@@ -60,6 +61,8 @@ sealed interface DialogState {
     object NewPerDay : DialogState
 
     object ReviewPerDay : DialogState
+
+    object OverlayInterval : DialogState
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,11 +81,13 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             mixMode = state.mixMode,
             newPerDay = state.newPerDay,
             reviewPerDay = state.reviewPerDay,
+            overlayInterval = state.overlayInterval,
             onOverlayClick = { openOverlaySettings(ctx) },
             onA11yClick = { openAccessibilitySettings(ctx) },
             onMixModeChange = viewModel::onMixModeChange,
             onNewPerDayChange = viewModel::onNewPerDayChange,
             onReviewPerDayChange = viewModel::onReviewPerDayChange,
+            onOverlayIntervalChange = viewModel::onOverlayIntervalChange,
         )
     }
 }
@@ -103,11 +108,13 @@ private fun SettingsContent(
     mixMode: MixMode,
     newPerDay: Int,
     reviewPerDay: Int,
+    overlayInterval: Int,
     onOverlayClick: () -> Unit,
     onA11yClick: () -> Unit,
     onMixModeChange: (MixMode) -> Unit,
     onNewPerDayChange: (Int) -> Unit,
     onReviewPerDayChange: (Int) -> Unit,
+    onOverlayIntervalChange: (Int) -> Unit,
 ) {
     var dialogState by remember { mutableStateOf<DialogState>(DialogState.None) }
 
@@ -138,6 +145,10 @@ private fun SettingsContent(
             ReviewPerDaySettingsItem(
                 value = reviewPerDay,
                 onClick = { dialogState = DialogState.ReviewPerDay },
+            )
+            ShowOverlayIntervalSettingsItem(
+                value = overlayInterval,
+                onClick = { dialogState = DialogState.OverlayInterval },
             )
             Divider(
                 modifier = Modifier.padding(vertical = 8.dp),
@@ -188,6 +199,17 @@ private fun SettingsContent(
                 currentValue = reviewPerDay,
                 onValueConfirm = {
                     onReviewPerDayChange(it)
+                    dialogState = DialogState.None
+                },
+                onDismiss = { dialogState = DialogState.None },
+            )
+        }
+        DialogState.OverlayInterval -> {
+            NumberInputDialog(
+                title = "Show overlay each X minutes:",
+                currentValue = overlayInterval,
+                onValueConfirm = {
+                    onOverlayIntervalChange(it)
                     dialogState = DialogState.None
                 },
                 onDismiss = { dialogState = DialogState.None },
@@ -291,11 +313,13 @@ fun SettingsScreenPreview_AllGranted() {
             mixMode = MixMode.MIX,
             newPerDay = 20,
             reviewPerDay = 200,
+            overlayInterval = 6,
             onOverlayClick = {},
             onA11yClick = {},
             onMixModeChange = {},
             onNewPerDayChange = {},
             onReviewPerDayChange = {},
+            onOverlayIntervalChange = {},
         )
     }
 }

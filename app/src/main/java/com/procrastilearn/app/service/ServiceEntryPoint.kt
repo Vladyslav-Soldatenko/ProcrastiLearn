@@ -1,5 +1,6 @@
 package com.procrastilearn.app.service
 
+import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
 import com.procrastilearn.app.domain.repository.VocabularyRepository
 import com.procrastilearn.app.domain.usecase.CheckVocabularyAvailabilityUseCase
@@ -27,4 +28,6 @@ interface ServiceEntryPoint {
     fun getSaveDifficultyRatingUseCase(): SaveDifficultyRatingUseCase
 
     fun checkVocabularyAvailabilityUseCase(): CheckVocabularyAvailabilityUseCase
+
+    fun dayCountersStore(): DayCountersStore
 }

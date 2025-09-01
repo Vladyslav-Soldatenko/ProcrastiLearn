@@ -16,6 +16,7 @@ data class SettingsUiState(
     val mixMode: MixMode = MixMode.MIX,
     val newPerDay: Int = 10,
     val reviewPerDay: Int = 100,
+    val overlayInterval: Int = 6,
 )
 
 @HiltViewModel
@@ -25,7 +26,7 @@ class SettingsViewModel @Inject constructor(
     val uiState: StateFlow<SettingsUiState> =
         store
             .readPolicy()
-            .map { SettingsUiState(it.mixMode, it.newPerDay, it.reviewPerDay) }
+            .map { SettingsUiState(it.mixMode, it.newPerDay, it.reviewPerDay, it.overlayInterval) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
     fun onMixModeChange(mode: MixMode) {
@@ -38,5 +39,9 @@ class SettingsViewModel @Inject constructor(
 
     fun onReviewPerDayChange(value: Int) {
         viewModelScope.launch { store.setReviewPerDay(value) }
+    }
+
+    fun onOverlayIntervalChange(value: Int) {
+        viewModelScope.launch { store.setOverlayInterval(value) }
     }
 }

@@ -31,20 +31,18 @@ class DayCountersStore @Inject constructor(
         val REVIEW_SHOWN = intPreferencesKey("review_shown")
         val REVIEWS_SINCE_NEW = intPreferencesKey("reviews_since_new")
 
-        // ── NEW: user policy (settings) ──────────────────────
         val MIX_MODE = stringPreferencesKey("mix_mode")
         val NEW_PER_DAY_LIMIT = intPreferencesKey("new_per_day_limit")
         val REVIEW_PER_DAY_LIMIT = intPreferencesKey("review_per_day_limit")
+        val OVERLAY_INTERVAL_TIME = intPreferencesKey("overlay_interval_time")
     }
 
-    // Defaults for policy
     private companion object {
         const val DEFAULT_NEW_PER_DAY = 15
         const val DEFAULT_REVIEW_PER_DAY = 99
+        const val DEFAULT_OVERLAY_INTERVAL_TIME = 0
     }
 
-    // ─────────────────────────────────────────────────────────
-    // Existing API (unchanged)
     fun read(): Flow<DayCounters> =
         ds.data.map { p ->
             DayCounters(
@@ -78,18 +76,15 @@ class DayCountersStore @Inject constructor(
         }
     }
 
-    // ─────────────────────────────────────────────────────────
-    // NEW: policy (settings) API used by your Settings screen
-
-    // Read the persisted settings as a single stream
     fun readPolicy(): Flow<LearningPreferencesConfig> =
         ds.data.map { p ->
             val mixName = p[K.MIX_MODE] ?: MixMode.MIX.name
             LearningPreferencesConfig(
                 newPerDay = p[K.NEW_PER_DAY_LIMIT] ?: DEFAULT_NEW_PER_DAY,
                 reviewPerDay = p[K.REVIEW_PER_DAY_LIMIT] ?: DEFAULT_REVIEW_PER_DAY,
+                overlayInterval = p[K.OVERLAY_INTERVAL_TIME] ?: DEFAULT_OVERLAY_INTERVAL_TIME,
                 mixMode = runCatching { MixMode.valueOf(mixName) }.getOrDefault(MixMode.MIX),
-                buryImmediateRepeat = true, // or load another flag if you add it later
+                buryImmediateRepeat = true,
             )
         }
 
@@ -103,5 +98,9 @@ class DayCountersStore @Inject constructor(
 
     suspend fun setReviewPerDay(value: Int) {
         ds.edit { it[K.REVIEW_PER_DAY_LIMIT] = value.coerceIn(0, 2000) }
+    }
+
+    suspend fun setOverlayInterval(value: Int) {
+        ds.edit { it[K.OVERLAY_INTERVAL_TIME] = value.coerceIn(0, 2000) }
     }
 }

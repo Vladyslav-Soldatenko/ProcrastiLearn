@@ -71,6 +71,7 @@ private val sampleWord =
         id = 1L,
         word = "impetuous",
         translation = "пылкий; буйний",
+        isNew = false
     )
 
 private class OverlayUiStateProvider : PreviewParameterProvider<OverlayUiState> {
@@ -83,7 +84,7 @@ private class OverlayUiStateProvider : PreviewParameterProvider<OverlayUiState> 
                 isLoading = false,
             ),
             OverlayUiState(
-                vocabularyItem = sampleWord,
+                vocabularyItem = sampleWord.copy(isNew = true),
                 showAnswer = true,
                 unlocked = false,
                 isLoading = false,

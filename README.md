@@ -1,7 +1,6 @@
 roadmap:
-show overlay each X minutes while in app
 UI improvements (color scheme, etc)
-don't show overlay if no word found
+add privacy policy
 
 long roadmap:
 add cloud sync
