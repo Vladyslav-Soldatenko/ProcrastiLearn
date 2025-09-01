@@ -132,6 +132,24 @@
     Определяет выбранные приложения на переднем плане и отображает обучающую карточку.
 </string>
 
+        <!-- About Us -->
+        <string name="settings_about_us_row">О нас</string>
+        <string name="settings_about_us_row_desc">Узнайте больше о приложении</string>
+        <string name="settings_about_us_title">О нас</string>
+        <string name="settings_about_us_intro">ProcrastiLearn превращает отвлекающие моменты в возможности для обучения. Когда вы пытаетесь открыть выбранное приложение, мы сначала показываем короткое задание по словарю. Так вы пополняете знания и держите отвлечения под контролем.</string>
+        <string name="settings_about_us_mission_title">Наша миссия</string>
+        <string name="settings_about_us_mission_body">Мы хотим помочь людям вернуть своё время и внимание, превращая повседневные привычки в возможность узнать что‑то новое.</string>
+        <string name="settings_about_us_who_title">Кто мы</string>
+        <string name="settings_about_us_who_body">ProcrastiLearn создаётся и поддерживается независимым разработчиком, увлечённым продуктивностью и изучением языков.</string>
+        <string name="settings_about_us_values_title">Наши ценности</string>
+        <string name="settings_about_us_values_simplicity">Простота: отсутствие отвлечений, минималистичный дизайн.</string>
+        <string name="settings_about_us_values_growth">Рост: маленькие шаги каждый день складываются в устойчивый прогресс.</string>
+        <string name="settings_about_us_contact_title">Контакты</string>
+        <string name="settings_about_us_contact_body">Если у вас есть вопросы или обратная связь, пишите на: Apocalypse_232@proton.me</string>
+        <string name="settings_about_us_privacy">Политика конфиденциальности</string>
+        <!-- Оставьте пустым, чтобы отключить ссылку, пока не настроено -->
+        <string name="settings_privacy_policy_url" translatable="false"></string>
+
         <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
         <string name="word_list_title">Мой словарь</string>
         <string name="word_list_empty">Вы ещё не добавили слов</string>

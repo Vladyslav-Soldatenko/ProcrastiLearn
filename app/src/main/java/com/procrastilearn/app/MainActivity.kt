@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.net.toUri
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
@@ -41,7 +42,7 @@ private val KEY_OVERLAY_SKIPPED = booleanPreferencesKey("overlay_skipped")
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Suppress("LongMethod", "CyclomaticComplexMethod", "ForbiddenComment")
+    @Suppress("LongMethod", "CyclomaticComplexMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -121,8 +122,8 @@ class MainActivity : ComponentActivity() {
                                     hasSkippedAccessibility = true
                                 },
                                 onPrivacyPolicy = {
-                                    // TODO: open your privacy policy URL
-                                    // startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://your.site/policy")))
+                                     startActivity(Intent(Intent.ACTION_VIEW,
+                                         "https://gist.github.com/Vladyslav-Soldatenko/adb5953ce000b9e8515d3dcd87773aef".toUri()))
                                 },
                             )
                         }

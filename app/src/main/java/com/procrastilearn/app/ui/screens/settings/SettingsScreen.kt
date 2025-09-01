@@ -41,6 +41,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.ui.SettingsViewModel
+import com.procrastilearn.app.ui.screens.settings.components.AboutUsDialog
+import com.procrastilearn.app.ui.screens.settings.components.AboutUsSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.AccessibilityPermissionItem
 import com.procrastilearn.app.ui.screens.settings.components.MixModeSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NewPerDaySettingsItem
@@ -63,6 +65,8 @@ sealed interface DialogState {
     object ReviewPerDay : DialogState
 
     object OverlayInterval : DialogState
+
+    object AboutUs : DialogState
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -168,6 +172,12 @@ private fun SettingsContent(
                 isEnabled = a11yEnabled,
                 onClick = onA11yClick,
             )
+
+            Spacer(Modifier.height(4.dp))
+
+            AboutUsSettingsItem(
+                onClick = { dialogState = DialogState.AboutUs },
+            )
         }
     }
 
@@ -217,6 +227,13 @@ private fun SettingsContent(
             )
         }
         DialogState.None -> { /* No dialog shown */ }
+        DialogState.AboutUs -> {
+            val url = "https://gist.github.com/Vladyslav-Soldatenko/adb5953ce000b9e8515d3dcd87773aef"
+            AboutUsDialog(
+                onDismiss = { dialogState = DialogState.None },
+                privacyPolicyUrl = url,
+            )
+        }
     }
 }
 
@@ -283,6 +300,8 @@ private fun MixModeDialog(
         },
     )
 }
+
+// AboutUsDialog moved to components package
 
 @Composable
 private fun rememberPermissionStates(context: Context): PermissionStates {

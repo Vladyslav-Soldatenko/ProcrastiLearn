@@ -137,6 +137,30 @@
         Detects selected apps in foreground to trigger the learning card.
     </string>
 
+    <!-- About Us -->
+    <string name="settings_about_us_row">About us</string>
+    <string name="settings_about_us_row_desc">Learn more about the app</string>
+    <string name="settings_about_us_title">About Us</string>
+    <string name="settings_about_us_intro">
+        ProcrastiLearn turns distracting moments into learning opportunities. When you try to open a selected app, we show you a quick vocabulary challenge first. This way, you build knowledge while keeping distractions in check.
+    </string>
+    <string name="settings_about_us_mission_title">Our Mission</string>
+    <string name="settings_about_us_mission_body">
+        We want to help people reclaim their time and attention by transforming everyday habits into chances to learn something new.
+    </string>
+    <string name="settings_about_us_who_title">Who We Are</string>
+    <string name="settings_about_us_who_body">
+        ProcrastiLearn is built and maintained by an independent developer passionate about productivity and language learning.
+    </string>
+    <string name="settings_about_us_values_title">Our Values</string>
+    <string name="settings_about_us_values_simplicity">Simplicity: distraction-free, minimal design.</string>
+    <string name="settings_about_us_values_growth">Growth: small steps every day add up to lasting progress.</string>
+    <string name="settings_about_us_contact_title">Contact</string>
+    <string name="settings_about_us_contact_body">If you have questions or feedback, reach us at: Apocalypse_232@proton.me</string>
+    <string name="settings_about_us_privacy">Privacy Policy</string>
+    <!-- Leave blank to disable link until configured -->
+    <string name="settings_privacy_policy_url" translatable="false"></string>
+
     <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
     <string name="word_list_title">My Vocabulary</string>
     <string name="word_list_empty">No words added yet</string>
