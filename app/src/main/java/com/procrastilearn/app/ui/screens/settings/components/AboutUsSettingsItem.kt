@@ -16,9 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.procrastilearn.app.R
 
 @Composable
-fun AboutUsSettingsItem(
-    onClick: () -> Unit,
-) {
+fun AboutUsSettingsItem(onClick: () -> Unit) {
     ListItem(
         headlineContent = { Text(stringResource(R.string.settings_about_us_row)) },
         supportingContent = {
@@ -41,4 +39,3 @@ fun AboutUsSettingsItem(
                 .fillMaxWidth(),
     )
 }
-

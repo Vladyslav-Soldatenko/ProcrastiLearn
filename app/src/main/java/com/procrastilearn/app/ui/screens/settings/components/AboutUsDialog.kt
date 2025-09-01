@@ -22,7 +22,7 @@ import com.procrastilearn.app.ui.theme.MyApplicationTheme
 @Composable
 fun AboutUsDialog(
     onDismiss: () -> Unit,
-    privacyPolicyUrl: String? = null,
+    privacyPolicyUrl: String,
 ) {
     val uriHandler = LocalUriHandler.current
     AlertDialog(
@@ -69,13 +69,8 @@ fun AboutUsDialog(
                 Text(
                     text = stringResource(R.string.settings_about_us_privacy),
                     style = MaterialTheme.typography.titleMedium,
-                    color = if (privacyPolicyUrl != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                    modifier =
-                        if (privacyPolicyUrl != null) {
-                            Modifier.clickable { uriHandler.openUri(privacyPolicyUrl) }
-                        } else {
-                            Modifier
-                        },
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable { uriHandler.openUri(privacyPolicyUrl) },
                 )
             }
         },

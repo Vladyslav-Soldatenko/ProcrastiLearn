@@ -145,7 +145,7 @@ interface VocabularyDao {
         SELECT COUNT(*) FROM vocabulary
         WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now
           AND NOT (correctCount = 0 AND incorrectCount = 0)
-        """
+        """,
     )
     suspend fun countReviewsDue(now: Long): Int
 

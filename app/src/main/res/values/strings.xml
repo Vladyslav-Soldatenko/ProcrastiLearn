@@ -158,8 +158,7 @@
     <string name="settings_about_us_contact_title">Contact</string>
     <string name="settings_about_us_contact_body">If you have questions or feedback, reach us at: Apocalypse_232@proton.me</string>
     <string name="settings_about_us_privacy">Privacy Policy</string>
-    <!-- Leave blank to disable link until configured -->
-    <string name="settings_privacy_policy_url" translatable="false"></string>
+    <string name="settings_privacy_policy_url" translatable="false">https://gist.github.com/Vladyslav-Soldatenko/adb5953ce000b9e8515d3dcd87773aef</string>
 
     <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
     <string name="word_list_title">My Vocabulary</string>

@@ -122,8 +122,10 @@ class MainActivity : ComponentActivity() {
                                     hasSkippedAccessibility = true
                                 },
                                 onPrivacyPolicy = {
-                                     startActivity(Intent(Intent.ACTION_VIEW,
-                                         "https://gist.github.com/Vladyslav-Soldatenko/adb5953ce000b9e8515d3dcd87773aef".toUri()))
+                                    val url = ctx.getString(R.string.settings_privacy_policy_url)
+                                    if (url.isNotBlank()) {
+                                        startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+                                    }
                                 },
                             )
                         }

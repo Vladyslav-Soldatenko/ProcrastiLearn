@@ -147,8 +147,7 @@
         <string name="settings_about_us_contact_title">Контакты</string>
         <string name="settings_about_us_contact_body">Если у вас есть вопросы или обратная связь, пишите на: Apocalypse_232@proton.me</string>
         <string name="settings_about_us_privacy">Политика конфиденциальности</string>
-        <!-- Оставьте пустым, чтобы отключить ссылку, пока не настроено -->
-        <string name="settings_privacy_policy_url" translatable="false"></string>
+        <string name="settings_privacy_policy_url" translatable="false">https://gist.github.com/Vladyslav-Soldatenko/adb5953ce000b9e8515d3dcd87773aef</string>
 
         <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
         <string name="word_list_title">Мой словарь</string>

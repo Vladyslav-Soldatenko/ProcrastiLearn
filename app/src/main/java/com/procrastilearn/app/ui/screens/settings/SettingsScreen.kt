@@ -2,25 +2,19 @@ package com.procrastilearn.app.ui.screens.settings
 
 import android.content.Context
 import android.provider.Settings
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -44,6 +38,7 @@ import com.procrastilearn.app.ui.SettingsViewModel
 import com.procrastilearn.app.ui.screens.settings.components.AboutUsDialog
 import com.procrastilearn.app.ui.screens.settings.components.AboutUsSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.AccessibilityPermissionItem
+import com.procrastilearn.app.ui.screens.settings.components.MixModeDialog
 import com.procrastilearn.app.ui.screens.settings.components.MixModeSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NewPerDaySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NumberInputDialog
@@ -226,7 +221,6 @@ private fun SettingsContent(
                 onDismiss = { dialogState = DialogState.None },
             )
         }
-        DialogState.None -> { /* No dialog shown */ }
         DialogState.AboutUs -> {
             val url = "https://gist.github.com/Vladyslav-Soldatenko/adb5953ce000b9e8515d3dcd87773aef"
             AboutUsDialog(
@@ -234,72 +228,12 @@ private fun SettingsContent(
                 privacyPolicyUrl = url,
             )
         }
+
+        DialogState.None -> { /* No dialog shown */ }
     }
 }
 
-@Composable
-private fun MixModeDialog(
-    currentMode: MixMode,
-    onModeSelected: (MixMode) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.settings_study_mode_title)) },
-        text = {
-            Column {
-                MixMode.entries.forEach { mode ->
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .clickable { onModeSelected(mode) }
-                                .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(
-                            selected = mode == currentMode,
-                            onClick = { onModeSelected(mode) },
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Column {
-                            Text(
-                                text =
-                                    when (mode) {
-                                        MixMode.MIX -> stringResource(R.string.settings_study_mode_mixed)
-                                        MixMode.REVIEWS_FIRST ->
-                                            stringResource(
-                                                R.string.settings_study_mode_reviews_first,
-                                            )
-                                        MixMode.NEW_FIRST -> stringResource(R.string.settings_study_mode_new_first)
-                                    },
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-                            Text(
-                                text =
-                                    when (mode) {
-                                        MixMode.MIX -> stringResource(R.string.settings_study_mode_mixed_desc)
-                                        MixMode.REVIEWS_FIRST ->
-                                            stringResource(
-                                                R.string.settings_study_mode_reviews_first_desc,
-                                            )
-                                        MixMode.NEW_FIRST -> stringResource(R.string.settings_study_mode_new_first_desc)
-                                    },
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.action_cancel))
-            }
-        },
-    )
-}
+// MixModeDialog moved to components package
 
 // AboutUsDialog moved to components package
 
