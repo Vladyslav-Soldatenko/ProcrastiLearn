@@ -11,7 +11,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.procrastilearn.app.R
 
 @Composable
 fun NewPerDaySettingsItem(
@@ -19,10 +22,10 @@ fun NewPerDaySettingsItem(
     onClick: () -> Unit,
 ) {
     ListItem(
-        headlineContent = { Text("New Cards Per Day") },
+        headlineContent = { Text(stringResource(R.string.settings_new_cards_per_day_title)) },
         supportingContent = {
             Text(
-                "$value cards",
+                pluralStringResource(R.plurals.cards_count, value, value),
                 style = MaterialTheme.typography.bodySmall,
             )
         },

@@ -13,6 +13,8 @@
     <string name="action_add">Add</string>
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Cancel</string>
 
 
     <!-- Back-compat aliases (so existing code keeps working) -->
@@ -108,6 +110,23 @@
     <!-- ─── Settings ────────────────────────────────────────────────────────── -->
     <string name="settings_title">Settings</string>
 
+    <!-- Study mode -->
+    <string name="settings_study_mode_title">Study Mode</string>
+    <string name="settings_study_mode_mixed">Mixed</string>
+    <string name="settings_study_mode_reviews_first">Reviews First</string>
+    <string name="settings_study_mode_new_first">New First</string>
+    <string name="settings_study_mode_mixed_desc">Mix new and review cards</string>
+    <string name="settings_study_mode_reviews_first_desc">Show all reviews before new cards</string>
+    <string name="settings_study_mode_new_first_desc">Show new cards before reviews</string>
+
+    <!-- Daily limits -->
+    <string name="settings_new_cards_per_day_title">New Cards Per Day</string>
+    <string name="settings_reviews_per_day_title">Reviews Per Day</string>
+
+    <!-- Overlay interval -->
+    <string name="settings_overlay_interval_title">Show overlay every X minutes</string>
+    <string name="settings_overlay_interval_headline">Show overlay each X minutes while blocked app is open</string>
+
     <string name="settings_overlay_headline">Overlay permission</string>
     <string name="settings_overlay_support">
         Needed to show the learning card over selected apps.
@@ -126,4 +145,14 @@
     <string name="cd_add_word">Add word</string>
     <string name="cd_delete_word">Delete word</string>
     <string name="cd_show_translation">Show translation</string>
+
+    <!-- Plurals -->
+    <plurals name="cards_count">
+        <item quantity="one">%d card</item>
+        <item quantity="other">%d cards</item>
+    </plurals>
+    <plurals name="overlay_minutes_interval">
+        <item quantity="one">Every %d minute</item>
+        <item quantity="other">Every %d minutes</item>
+    </plurals>
 </resources>

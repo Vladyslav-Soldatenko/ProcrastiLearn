@@ -185,7 +185,7 @@ private fun SettingsContent(
         }
         DialogState.NewPerDay -> {
             NumberInputDialog(
-                title = "New Cards Per Day",
+                title = stringResource(R.string.settings_new_cards_per_day_title),
                 currentValue = newPerDay,
                 onValueConfirm = {
                     onNewPerDayChange(it)
@@ -196,7 +196,7 @@ private fun SettingsContent(
         }
         DialogState.ReviewPerDay -> {
             NumberInputDialog(
-                title = "Reviews Per Day",
+                title = stringResource(R.string.settings_reviews_per_day_title),
                 currentValue = reviewPerDay,
                 onValueConfirm = {
                     onReviewPerDayChange(it)
@@ -207,7 +207,7 @@ private fun SettingsContent(
         }
         DialogState.OverlayInterval -> {
             NumberInputDialog(
-                title = "Show overlay each X minutes:",
+                title = stringResource(R.string.settings_overlay_interval_title),
                 currentValue = overlayInterval,
                 onValueConfirm = {
                     onOverlayIntervalChange(it)
@@ -228,7 +228,7 @@ private fun MixModeDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Study Mode") },
+        title = { Text(stringResource(R.string.settings_study_mode_title)) },
         text = {
             Column {
                 MixMode.values().forEach { mode ->
@@ -249,18 +249,18 @@ private fun MixModeDialog(
                             Text(
                                 text =
                                     when (mode) {
-                                        MixMode.MIX -> "Mixed"
-                                        MixMode.REVIEWS_FIRST -> "Reviews First"
-                                        MixMode.NEW_FIRST -> "New First"
+                                        MixMode.MIX -> stringResource(R.string.settings_study_mode_mixed)
+                                        MixMode.REVIEWS_FIRST -> stringResource(R.string.settings_study_mode_reviews_first)
+                                        MixMode.NEW_FIRST -> stringResource(R.string.settings_study_mode_new_first)
                                     },
                                 style = MaterialTheme.typography.bodyLarge,
                             )
                             Text(
                                 text =
                                     when (mode) {
-                                        MixMode.MIX -> "Mix new and review cards"
-                                        MixMode.REVIEWS_FIRST -> "Show all reviews before new cards"
-                                        MixMode.NEW_FIRST -> "Show new cards before reviews"
+                                        MixMode.MIX -> stringResource(R.string.settings_study_mode_mixed_desc)
+                                        MixMode.REVIEWS_FIRST -> stringResource(R.string.settings_study_mode_reviews_first_desc)
+                                        MixMode.NEW_FIRST -> stringResource(R.string.settings_study_mode_new_first_desc)
                                     },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -272,7 +272,7 @@ private fun MixModeDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         },
     )

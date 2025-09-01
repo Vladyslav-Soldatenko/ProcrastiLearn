@@ -10,6 +10,8 @@
         <string name="action_view_list">Просмотреть список</string>
         <string name="action_add">Добавить</string>
         <string name="action_edit">Редактировать</string>
+        <string name="action_ok">ОК</string>
+        <string name="action_cancel">Отмена</string>
 
     <string name="action_delete">Удалить</string>
 
@@ -103,6 +105,23 @@
         <!-- ─── Settings ────────────────────────────────────────────────────────── -->
         <string name="settings_title">Настройки</string>
 
+        <!-- Study mode -->
+        <string name="settings_study_mode_title">Режим обучения</string>
+        <string name="settings_study_mode_mixed">Смешанный</string>
+        <string name="settings_study_mode_reviews_first">Сначала повторы</string>
+        <string name="settings_study_mode_new_first">Сначала новые</string>
+        <string name="settings_study_mode_mixed_desc">Смешивать новые и повторения</string>
+        <string name="settings_study_mode_reviews_first_desc">Показывать все повторения перед новыми карточками</string>
+        <string name="settings_study_mode_new_first_desc">Показывать новые карточки перед повторениями</string>
+
+        <!-- Daily limits -->
+        <string name="settings_new_cards_per_day_title">Новых карточек в день</string>
+        <string name="settings_reviews_per_day_title">Повторений в день</string>
+
+        <!-- Overlay interval -->
+        <string name="settings_overlay_interval_title">Показывать оверлей каждые X минут</string>
+        <string name="settings_overlay_interval_headline">Показывать оверлей каждые X минут, пока открыто заблокированное приложение</string>
+
         <string name="settings_overlay_headline">Разрешение на оверлей</string>
         <string name="settings_overlay_support">
     Нужно, чтобы показывать обучающую карточку поверх выбранных приложений.
@@ -122,5 +141,19 @@
         <string name="cd_add_word">Добавить слово</string>
         <string name="cd_delete_word">Удалить слово</string>
         <string name="cd_show_translation">Показать перевод</string>
+
+        <!-- Plurals -->
+        <plurals name="cards_count">
+            <item quantity="one">%d карточка</item>
+            <item quantity="few">%d карточки</item>
+            <item quantity="many">%d карточек</item>
+            <item quantity="other">%d карточки</item>
+        </plurals>
+        <plurals name="overlay_minutes_interval">
+            <item quantity="one">Каждую %d минуту</item>
+            <item quantity="few">Каждые %d минуты</item>
+            <item quantity="many">Каждые %d минут</item>
+            <item quantity="other">Каждые %d минуты</item>
+        </plurals>
 
 </resources>
