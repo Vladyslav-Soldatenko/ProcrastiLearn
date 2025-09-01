@@ -1,5 +1,6 @@
 package com.procrastilearn.app.overlay
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,13 +11,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.overlay.components.LearningCard
+import com.procrastilearn.app.overlay.theme.OverlayTheme
+import com.procrastilearn.app.overlay.theme.OverlayThemeTokens
 import io.github.openspacedrepetition.Rating
 
 @Composable
@@ -46,23 +48,27 @@ private fun OverlayScreen(
     onToggleShowAnswer: () -> Unit,
     onDifficultySelected: (Rating) -> Unit,
 ) {
-    val backgroundGradient =
-        Brush.verticalGradient(
-            colors = listOf(Color(0xFF0F172A), Color(0xFF111827)),
-        )
 
-    Box(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(backgroundGradient),
-        contentAlignment = Alignment.Center,
-    ) {
-        LearningCard(
-            state = uiState,
-            onToggleShowAnswer = onToggleShowAnswer,
-            onDifficultySelected = onDifficultySelected,
+    OverlayTheme {
+        val backgroundGradient = Brush.verticalGradient(
+            colors = listOf(
+                OverlayThemeTokens.colors.backgroundGradientStart,
+                OverlayThemeTokens.colors.backgroundGradientEnd,
+            ),
         )
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(backgroundGradient),
+            contentAlignment = Alignment.Center,
+        ) {
+            LearningCard(
+                state = uiState,
+                onToggleShowAnswer = onToggleShowAnswer,
+                onDifficultySelected = onDifficultySelected,
+            )
+        }
     }
 }
 
@@ -99,19 +105,28 @@ private class OverlayUiStateProvider : PreviewParameterProvider<OverlayUiState> 
 }
 
 @Preview(
-    name = "OverlayScreen states",
+    name = "OverlayScreen • Light",
     showSystemUi = false,
     device = Devices.PIXEL_7,
-    backgroundColor = 0xFF0F172A,
     showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+)
+@Preview(
+    name = "OverlayScreen • Dark",
+    showSystemUi = false,
+    device = Devices.PIXEL_7,
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
 private fun OverlayScreenPreview(
     @PreviewParameter(OverlayUiStateProvider::class) state: OverlayUiState,
 ) {
-    OverlayScreen(
-        uiState = state,
-        onToggleShowAnswer = {},
-        onDifficultySelected = {},
-    )
+    com.procrastilearn.app.ui.theme.MyApplicationTheme {
+        OverlayScreen(
+            uiState = state,
+            onToggleShowAnswer = {},
+            onDifficultySelected = {},
+        )
+    }
 }

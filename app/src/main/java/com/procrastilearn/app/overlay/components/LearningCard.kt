@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.procrastilearn.app.R
 import com.procrastilearn.app.overlay.OverlayUiState
+import com.procrastilearn.app.overlay.theme.OverlayThemeTokens
 import io.github.openspacedrepetition.Rating
 
 @Suppress("LongMethod")
@@ -61,7 +62,7 @@ fun LearningCard(
                 append(" ")
                 withStyle(
                     SpanStyle(
-                        color = Color(0xFFEF4444), // red
+                        color = OverlayThemeTokens.colors.newBadgeColor,
                         fontSize = 12.sp, // smaller than main title
                         fontWeight = FontWeight.SemiBold, // a bit “elevated” emphasis
                         baselineShift = BaselineShift.Superscript,
@@ -75,7 +76,7 @@ fun LearningCard(
             Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(1f),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1F2937)),
+        colors = CardDefaults.cardColors(containerColor = OverlayThemeTokens.colors.cardContainer),
     ) {
         Column(
             modifier =
@@ -90,7 +91,7 @@ fun LearningCard(
                 text = titleAnnotated,
                 fontSize = 30.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFFF9FAFB),
+                color = OverlayThemeTokens.colors.titleColor,
                 textAlign = TextAlign.Center,
                 modifier =
                     Modifier
@@ -118,7 +119,7 @@ fun LearningCard(
                         Modifier
                             .fillMaxWidth()
                             .verticalScroll(scrollState),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF111827)),
+                    colors = CardDefaults.cardColors(containerColor = OverlayThemeTokens.colors.innerCardContainer),
                     shape = RoundedCornerShape(12.dp),
                 ) {
                     SelectionContainer {
@@ -127,7 +128,7 @@ fun LearningCard(
                                 state.vocabularyItem?.translation ?: stringResource(
                                     R.string.learning_no_translation,
                                 ),
-                            color = Color(0xFF93C5FD),
+                            color = OverlayThemeTokens.colors.translationText,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Medium,
                             textAlign = TextAlign.Start,
@@ -158,7 +159,7 @@ fun LearningCard(
                     shape = RoundedCornerShape(14.dp),
                     colors =
                         ButtonDefaults.outlinedButtonColors(
-                            contentColor = Color(0xFFBFDBFE),
+                            contentColor = OverlayThemeTokens.colors.showButtonContent,
                         ),
                 ) {
                     Text(
@@ -171,12 +172,12 @@ fun LearningCard(
                 // Bottom: divider + help + difficulty buttons (replaces the Show button)
                 HorizontalDivider(
                     modifier = Modifier.padding(vertical = 6.dp),
-                    color = Color(0xFF374151),
+                    color = OverlayThemeTokens.colors.divider,
                     thickness = 1.dp,
                 )
                 Text(
                     text = stringResource(R.string.learning_question),
-                    color = Color(0xFF9CA3AF),
+                    color = OverlayThemeTokens.colors.helpText,
                     fontSize = 14.sp,
                     modifier =
                         Modifier
@@ -213,14 +214,16 @@ private fun DifficultyButtons(
         ) {
             DifficultyButton(
                 stringResource(R.string.rating_again),
-                Color(0xFFEF4444),
+                containerColor = OverlayThemeTokens.colors.difficultyAgainContainer,
+                contentColor = OverlayThemeTokens.colors.difficultyAgainContent,
                 enabled,
                 onClick = { onDifficultySelected(Rating.AGAIN) },
                 modifier = Modifier.weight(1f),
             )
             DifficultyButton(
                 stringResource(R.string.rating_hard),
-                Color(0xFFF59E0B),
+                containerColor = OverlayThemeTokens.colors.difficultyHardContainer,
+                contentColor = OverlayThemeTokens.colors.difficultyHardContent,
                 enabled,
                 onClick = { onDifficultySelected(Rating.HARD) },
                 modifier = Modifier.weight(1f),
@@ -232,14 +235,16 @@ private fun DifficultyButtons(
         ) {
             DifficultyButton(
                 stringResource(R.string.rating_good),
-                Color(0xFF10B981),
+                containerColor = OverlayThemeTokens.colors.difficultyGoodContainer,
+                contentColor = OverlayThemeTokens.colors.difficultyGoodContent,
                 enabled,
                 onClick = { onDifficultySelected(Rating.GOOD) },
                 modifier = Modifier.weight(1f),
             )
             DifficultyButton(
                 stringResource(R.string.rating_easy),
-                Color(0xFF3B82F6),
+                containerColor = OverlayThemeTokens.colors.difficultyEasyContainer,
+                contentColor = OverlayThemeTokens.colors.difficultyEasyContent,
                 enabled,
                 onClick = { onDifficultySelected(Rating.EASY) },
                 modifier = Modifier.weight(1f),
@@ -252,7 +257,8 @@ private fun DifficultyButtons(
 @Composable
 private fun DifficultyButton(
     text: String,
-    color: Color,
+    containerColor: Color,
+    contentColor: Color,
     enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -264,15 +270,17 @@ private fun DifficultyButton(
         shape = RoundedCornerShape(12.dp),
         colors =
             ButtonDefaults.buttonColors(
-                containerColor = if (enabled) color else Color(0xFF374151),
-                disabledContainerColor = Color(0xFF374151),
+                containerColor = containerColor,
+                contentColor = contentColor,
+                disabledContainerColor = OverlayThemeTokens.colors.disabledContainer,
+                disabledContentColor = OverlayThemeTokens.colors.disabledContent,
             ),
     ) {
         Text(
             text = text,
             fontSize = 15.sp,
             fontWeight = FontWeight.Medium,
-            color = if (enabled) Color.White else Color(0xFF6B7280),
+            color = if (enabled) contentColor else OverlayThemeTokens.colors.disabledContent,
         )
     }
 }
