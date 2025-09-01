@@ -140,7 +140,13 @@ interface VocabularyDao {
     @Query("SELECT * FROM vocabulary WHERE id = :id LIMIT 1")
     suspend fun getCard(id: Long): VocabularyEntity?
 
-    @Query("SELECT COUNT(*) FROM vocabulary WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now")
+    @Query(
+        """
+        SELECT COUNT(*) FROM vocabulary
+        WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now
+          AND NOT (correctCount = 0 AND incorrectCount = 0)
+        """
+    )
     suspend fun countReviewsDue(now: Long): Int
 
     @Query("SELECT COUNT(*) FROM vocabulary WHERE correctCount = 0 AND incorrectCount = 0")
@@ -151,6 +157,7 @@ interface VocabularyDao {
         """
         SELECT id FROM vocabulary
         WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now
+          AND NOT (correctCount = 0 AND incorrectCount = 0)
         ORDER BY fsrsDueAt ASC
         LIMIT 1
     """,

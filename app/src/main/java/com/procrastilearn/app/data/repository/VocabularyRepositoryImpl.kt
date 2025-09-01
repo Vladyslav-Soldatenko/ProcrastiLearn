@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -48,8 +47,10 @@ class VocabularyRepositoryImpl
 
         override suspend fun addVocabularyItem(item: VocabularyItem): Unit =
             withContext(io) {
+                // New items should not be counted as reviews due.
+                // Keep FSRS card JSON, but leave dueAt as 0 until first rating.
                 val cardJson = Card.builder().build().toJson()
-                val dueAt = Instant.now().toEpochMilli()
+                val dueAt = 0L
                 vocabularyDao.insertVocabulary(item.toEntity(fsrsCardJson = cardJson, fsrsDueAt = dueAt))
             }
 
