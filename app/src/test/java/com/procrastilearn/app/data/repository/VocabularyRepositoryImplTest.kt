@@ -73,6 +73,7 @@ class VocabularyRepositoryImplTest {
 
     private fun todayStamp(): Int = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE).toInt()
 
+    @Suppress("LongParameterList")
     private suspend fun insertTestVocabulary(
         word: String,
         translation: String,
@@ -137,8 +138,7 @@ class VocabularyRepositoryImplTest {
                         overlayInterval = 6,
                         mixMode = MixMode.MIX,
                         buryImmediateRepeat = true,
-                    )
-                    ,
+                    ),
                 )
 
             // Execute
@@ -151,8 +151,8 @@ class VocabularyRepositoryImplTest {
 
 //
 //    // Test 3: Respects daily new limit
-@Test(expected = NoAvailableItemsException::class)
-fun `getNextVocabularyItem respects daily new limit`() =
+    @Test(expected = NoAvailableItemsException::class)
+    fun `getNextVocabularyItem respects daily new limit`() =
         runTest {
             coEvery { dayCountersStore.readPolicy() } returns
                 flowOf(
@@ -162,8 +162,7 @@ fun `getNextVocabularyItem respects daily new limit`() =
                         overlayInterval = 6,
                         mixMode = MixMode.REVIEWS_FIRST,
                         buryImmediateRepeat = true,
-                    )
-                    ,
+                    ),
                 )
 
             // Setup - insert multiple new items
@@ -184,7 +183,6 @@ fun `getNextVocabularyItem respects daily new limit`() =
             repository.getNextVocabularyItem()
         }
 
-
 //
 //    // Test 4: Prefers due reviews over new items
     @Test
@@ -198,8 +196,7 @@ fun `getNextVocabularyItem respects daily new limit`() =
                         overlayInterval = 6,
                         mixMode = MixMode.MIX,
                         buryImmediateRepeat = true,
-                    )
-                    ,
+                    ),
                 )
 
             // Setup
@@ -252,10 +249,8 @@ fun `getNextVocabularyItem respects daily new limit`() =
                         overlayInterval = 6,
                         mixMode = MixMode.NEW_FIRST,
                         buryImmediateRepeat = true,
-                    )
-                    ,
+                    ),
                 )
-
 
             // Setup
             val now = System.currentTimeMillis()
@@ -315,8 +310,9 @@ fun `getNextVocabularyItem respects daily new limit`() =
             assertThat(first.id).isNotEqualTo(second.id)
         }
 
-//
+
 //    // Test 7: MIX mode interleaving logic
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
     @Test
     fun `getNextVocabularyItem in MIX mode interleaves new and reviews properly`() =
         runTest {
@@ -329,8 +325,7 @@ fun `getNextVocabularyItem respects daily new limit`() =
                         overlayInterval = 6,
                         mixMode = MixMode.MIX,
                         buryImmediateRepeat = true,
-                    )
-                    ,
+                    ),
                 )
 
             val now = System.currentTimeMillis()
@@ -420,8 +415,7 @@ fun `getNextVocabularyItem respects daily new limit`() =
                         overlayInterval = 6,
                         mixMode = MixMode.NEW_FIRST,
                         buryImmediateRepeat = true,
-                    )
-                    ,
+                    ),
                 )
 
             insertTestVocabulary("test", "prueba")
@@ -463,8 +457,7 @@ fun `getNextVocabularyItem respects daily new limit`() =
                         overlayInterval = 6,
                         mixMode = MixMode.REVIEWS_FIRST,
                         buryImmediateRepeat = true,
-                    )
-                    ,
+                    ),
                 )
 
             val future = System.currentTimeMillis() + 3600000 // 1 hour from now
@@ -512,8 +505,7 @@ fun `getNextVocabularyItem respects daily new limit`() =
                         overlayInterval = 6,
                         mixMode = MixMode.REVIEWS_FIRST,
                         buryImmediateRepeat = true,
-                    )
-                    ,
+                    ),
                 )
 
             insertTestVocabulary(

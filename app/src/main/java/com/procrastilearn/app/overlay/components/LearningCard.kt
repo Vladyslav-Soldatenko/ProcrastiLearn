@@ -54,20 +54,21 @@ fun LearningCard(
     onToggleShowAnswer: () -> Unit,
     onDifficultySelected: (Rating) -> Unit,
 ) {
-    val titleAnnotated = buildAnnotatedString {
-        append(state.vocabularyItem?.word ?: stringResource(R.string.learning_no_word))
-        if (state.vocabularyItem?.isNew == true) {
-            append(" ")
-            withStyle(
-                SpanStyle(
-                    color = Color(0xFFEF4444),            // red
-                    fontSize = 12.sp,                      // smaller than main title
-                    fontWeight = FontWeight.SemiBold,      // a bit “elevated” emphasis
-                    baselineShift = BaselineShift.Superscript
-                )
-            ) { append("NEW") }
+    val titleAnnotated =
+        buildAnnotatedString {
+            append(state.vocabularyItem?.word ?: stringResource(R.string.learning_no_word))
+            if (state.vocabularyItem?.isNew == true) {
+                append(" ")
+                withStyle(
+                    SpanStyle(
+                        color = Color(0xFFEF4444), // red
+                        fontSize = 12.sp, // smaller than main title
+                        fontWeight = FontWeight.SemiBold, // a bit “elevated” emphasis
+                        baselineShift = BaselineShift.Superscript,
+                    ),
+                ) { append("NEW") }
+            }
         }
-    }
 
     Card(
         modifier =
@@ -91,9 +92,10 @@ fun LearningCard(
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFFF9FAFB),
                 textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(top = 6.dp, bottom = 10.dp)
-                    .fillMaxWidth(),
+                modifier =
+                    Modifier
+                        .padding(top = 6.dp, bottom = 10.dp)
+                        .fillMaxWidth(),
             )
             // Translation area (middle). Scrollable when shown.
             val scrollState = rememberScrollState()

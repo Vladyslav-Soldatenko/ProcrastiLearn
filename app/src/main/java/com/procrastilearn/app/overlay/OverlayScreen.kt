@@ -71,7 +71,7 @@ private val sampleWord =
         id = 1L,
         word = "impetuous",
         translation = "пылкий; буйний",
-        isNew = false
+        isNew = false,
     )
 
 private class OverlayUiStateProvider : PreviewParameterProvider<OverlayUiState> {

@@ -32,6 +32,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class OverlayAccessibilityService : AccessibilityService() {
+    private companion object {
+        const val SECONDS_PER_MINUTE = 60
+        const val MILLIS_PER_SECOND = 1000L
+    }
     private var windowManager: WindowManager? = null
     private var overlayView: View? = null
     private var lifecycleOwner: ServiceLifecycleOwner? = null
@@ -214,7 +218,8 @@ class OverlayAccessibilityService : AccessibilityService() {
         intervalTimerJob?.cancel()
         Log.d(
             "OverlayService",
-            "Starting interval timer: intervalMinutes=$overlayIntervalMinutes, overlayView=${overlayView != null}, gateActive=$gateActive",
+            "Starting interval timer: intervalMinutes=$overlayIntervalMinutes," +
+                " overlayView=${overlayView != null}, gateActive=$gateActive",
         )
 
         // Don't start timer if interval is 0 or overlay is currently showing
@@ -230,7 +235,7 @@ class OverlayAccessibilityService : AccessibilityService() {
 
         intervalTimerJob =
             serviceScope.launch {
-                val delayMs = overlayIntervalMinutes * 60 * 1000L
+                val delayMs = overlayIntervalMinutes * SECONDS_PER_MINUTE * MILLIS_PER_SECOND
                 Log.d("OverlayService", "Timer started, will fire in $overlayIntervalMinutes minutes ($delayMs ms)")
 
                 delay(delayMs)
@@ -278,21 +283,6 @@ class OverlayAccessibilityService : AccessibilityService() {
 
     private fun isIgnorableSystem(pkg: String): Boolean = pkg in ignoredPackages
 
-    private fun currentTopPackage(): String? {
-        // Try to get the current package, with fallback to last known
-        val currentPkg = rootInActiveWindow?.packageName?.toString()
-        if (currentPkg != null) return currentPkg
-
-        // If rootInActiveWindow is null, try to refresh it
-        val root = rootInActiveWindow
-        if (root == null) {
-            Log.d("OverlayService", "rootInActiveWindow is null, using last known package: $lastTopPackage")
-            return lastTopPackage
-        }
-
-        return root.packageName?.toString() ?: lastTopPackage
-    }
-
     private fun showOverlay() {
         if (overlayView != null) {
             Log.d("OverlayService", "Overlay already showing, not creating new one")
@@ -339,8 +329,9 @@ class OverlayAccessibilityService : AccessibilityService() {
             try {
                 windowManager?.removeView(it)
                 Log.d("OverlayService", "Overlay removed from window manager")
-            } catch (e: Throwable) {
-                Log.e("OverlayService", "Error removing overlay", e)
+            } catch (e: IllegalArgumentException) {
+                // View not attached to window or already removed
+                Log.w("OverlayService", "Overlay remove called on a non-attached view", e)
             }
         }
         overlayView = null
@@ -354,8 +345,10 @@ class OverlayAccessibilityService : AccessibilityService() {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
             Log.d("OverlayService", "Brought $pkg to front")
-        } catch (e: Throwable) {
-            Log.e("OverlayService", "Error bringing $pkg to front", e)
+        } catch (e: android.content.ActivityNotFoundException) {
+            Log.e("OverlayService", "Launch activity for $pkg not found", e)
+        } catch (e: SecurityException) {
+            Log.e("OverlayService", "Security exception launching $pkg", e)
         }
     }
 

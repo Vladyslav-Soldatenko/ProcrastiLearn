@@ -100,6 +100,7 @@ private fun SettingsTopBar() {
     )
 }
 
+@Suppress("LongParameterList", "LongMethod")
 @Composable
 private fun SettingsContent(
     modifier: Modifier = Modifier,

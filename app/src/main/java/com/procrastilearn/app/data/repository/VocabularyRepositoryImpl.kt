@@ -253,7 +253,13 @@ class VocabularyRepositoryImpl
         }
 
         private fun VocabularyEntity.toDomain(): VocabularyItem =
-            VocabularyItem(id = id, word = word, translation = translation, isNew =this.correctCount==0 && this.incorrectCount ==0)
+            VocabularyItem(
+                id = id,
+                word = word,
+                translation = translation,
+                isNew =
+                    this.correctCount == 0 && this.incorrectCount == 0,
+            )
 
         private fun VocabularyItem.toEntity(
             fsrsCardJson: String = "",
