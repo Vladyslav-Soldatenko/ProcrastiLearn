@@ -214,6 +214,7 @@ private fun SettingsContent(
             NumberInputDialog(
                 title = stringResource(R.string.settings_overlay_interval_title),
                 currentValue = overlayInterval,
+                minValue = 0,
                 onValueConfirm = {
                     onOverlayIntervalChange(it)
                     dialogState = DialogState.None
@@ -233,9 +234,6 @@ private fun SettingsContent(
     }
 }
 
-// MixModeDialog moved to components package
-
-// AboutUsDialog moved to components package
 
 @Composable
 private fun rememberPermissionStates(context: Context): PermissionStates {

@@ -24,6 +24,7 @@ fun NumberInputDialog(
     currentValue: Int,
     onValueConfirm: (Int) -> Unit,
     onDismiss: () -> Unit,
+    minValue: Int = 1,
 ) {
     var textValue by remember { mutableStateOf(currentValue.toString()) }
 
@@ -50,7 +51,7 @@ fun NumberInputDialog(
             TextButton(
                 onClick = {
                     textValue.toIntOrNull()?.let { value ->
-                        if (value > 0) {
+                        if (value >= minValue) {
                             onValueConfirm(value)
                         }
                     }
