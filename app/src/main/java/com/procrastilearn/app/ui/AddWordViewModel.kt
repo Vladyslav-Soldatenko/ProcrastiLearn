@@ -2,11 +2,14 @@ package com.procrastilearn.app.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -15,9 +18,27 @@ class AddWordViewModel
     @Inject
     constructor(
         private val addVocabularyItemUseCase: AddVocabularyItemUseCase,
+        private val prefs: DayCountersStore,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(AddWordUiState())
         val uiState: StateFlow<AddWordUiState> = _uiState.asStateFlow()
+
+        init {
+            // Observe OpenAI key and toggle from preferences
+            viewModelScope.launch {
+                combine(
+                    prefs.readOpenAiApiKey(),
+                    prefs.readUseAiForTranslation(),
+                ) { key: String?, useAi: Boolean ->
+                    Pair(!key.isNullOrBlank(), useAi)
+                }.collectLatest { (hasKey, useAi) ->
+                    _uiState.value = _uiState.value.copy(
+                        openAiAvailable = hasKey,
+                        useAiForTranslation = useAi,
+                    )
+                }
+            }
+        }
 
         fun onWordChange(word: String) {
             _uiState.value =
@@ -46,9 +67,11 @@ class AddWordViewModel
                 hasError = true
             }
 
-            if (currentState.translation.isBlank()) {
-                _uiState.value = _uiState.value.copy(translationError = "Please enter a translation")
-                hasError = true
+            if (!(currentState.openAiAvailable && currentState.useAiForTranslation)) {
+                if (currentState.translation.isBlank()) {
+                    _uiState.value = _uiState.value.copy(translationError = "Please enter a translation")
+                    hasError = true
+                }
             }
 
             if (hasError) return
@@ -81,6 +104,13 @@ class AddWordViewModel
         fun resetSuccess() {
             _uiState.value = AddWordUiState()
         }
+
+        fun onUseAiToggle(checked: Boolean) {
+            viewModelScope.launch {
+                prefs.setUseAiForTranslation(checked)
+            }
+            _uiState.value = _uiState.value.copy(useAiForTranslation = checked)
+        }
     }
 
 data class AddWordUiState(
@@ -92,4 +122,6 @@ data class AddWordUiState(
     val errorMessage: String? = null,
     val isSuccess: Boolean = false,
     val successMessage: String? = null,
+    val openAiAvailable: Boolean = false,
+    val useAiForTranslation: Boolean = false,
 )

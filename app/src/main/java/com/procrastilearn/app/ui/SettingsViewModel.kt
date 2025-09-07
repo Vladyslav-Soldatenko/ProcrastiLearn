@@ -25,6 +25,7 @@ data class SettingsUiState(
     val newPerDay: Int = 10,
     val reviewPerDay: Int = 100,
     val overlayInterval: Int = 6,
+    val openAiApiKey: String? = null,
 )
 
 @HiltViewModel
@@ -33,10 +34,18 @@ class SettingsViewModel @Inject constructor(
     private val vocabularyDao: VocabularyDao,
 ) : ViewModel() {
     val uiState: StateFlow<SettingsUiState> =
-        store
-            .readPolicy()
-            .map { SettingsUiState(it.mixMode, it.newPerDay, it.reviewPerDay, it.overlayInterval) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
+        kotlinx.coroutines.flow.combine(
+            store.readPolicy(),
+            store.readOpenAiApiKey(),
+        ) { policy, apiKey ->
+            SettingsUiState(
+                mixMode = policy.mixMode,
+                newPerDay = policy.newPerDay,
+                reviewPerDay = policy.reviewPerDay,
+                overlayInterval = policy.overlayInterval,
+                openAiApiKey = apiKey,
+            )
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
     fun onMixModeChange(mode: MixMode) {
         viewModelScope.launch { store.setMixMode(mode) }
@@ -52,6 +61,10 @@ class SettingsViewModel @Inject constructor(
 
     fun onOverlayIntervalChange(value: Int) {
         viewModelScope.launch { store.setOverlayInterval(value) }
+    }
+
+    fun onOpenAiApiKeyChange(value: String) {
+        viewModelScope.launch { store.setOpenAiApiKey(value) }
     }
 
     /**

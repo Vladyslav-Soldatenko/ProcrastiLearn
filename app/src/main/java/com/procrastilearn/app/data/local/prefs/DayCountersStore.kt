@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.dataStoreFile
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.procrastilearn.app.data.counter.DayCounters
@@ -35,6 +36,8 @@ class DayCountersStore @Inject constructor(
         val NEW_PER_DAY_LIMIT = intPreferencesKey("new_per_day_limit")
         val REVIEW_PER_DAY_LIMIT = intPreferencesKey("review_per_day_limit")
         val OVERLAY_INTERVAL_TIME = intPreferencesKey("overlay_interval_time")
+        val OPENAI_API_KEY = stringPreferencesKey("openai_api_key")
+        val USE_AI_TRANSLATION = booleanPreferencesKey("use_ai_translation")
     }
 
     private companion object {
@@ -106,5 +109,21 @@ class DayCountersStore @Inject constructor(
 
     suspend fun setOverlayInterval(value: Int) {
         ds.edit { it[K.OVERLAY_INTERVAL_TIME] = value.coerceIn(MIN_LIMIT, MAX_OVERLAY_INTERVAL_MINUTES) }
+    }
+
+    // ── OpenAI API key ─────────────────────────────────────────────
+    fun readOpenAiApiKey(): Flow<String?> =
+        ds.data.map { p -> p[K.OPENAI_API_KEY] }
+
+    suspend fun setOpenAiApiKey(value: String) {
+        ds.edit { it[K.OPENAI_API_KEY] = value }
+    }
+
+    // ── Use AI to generate translation flag ───────────────────────
+    fun readUseAiForTranslation(): Flow<Boolean> =
+        ds.data.map { p -> p[K.USE_AI_TRANSLATION] ?: false }
+
+    suspend fun setUseAiForTranslation(value: Boolean) {
+        ds.edit { it[K.USE_AI_TRANSLATION] = value }
     }
 }

@@ -56,21 +56,22 @@ android {
 }
 
 dependencies {
-  implementation("io.github.open-spaced-repetition:fsrs:1.0.0")
-  implementation("androidx.room:room-runtime:2.6.1")
-  implementation("androidx.room:room-ktx:2.6.1")
-  androidTestImplementation("androidx.room:room-testing:2.6.1")
-  ksp("androidx.room:room-compiler:2.6.1")
+  implementation(libs.fsrs)
+  implementation(libs.androidx.room.runtime)
+  implementation(libs.androidx.room.ktx)
+  androidTestImplementation(libs.androidx.room.testing)
+  ksp(libs.androidx.room.compiler)
 
   implementation(libs.androidx.datastore.preferences)
-  implementation("com.google.dagger:hilt-android:2.56.2")
-  ksp("com.google.dagger:hilt-compiler:2.56.2")
-  implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+  implementation(libs.hilt.android)
+  ksp(libs.hilt.compiler)
+  implementation(libs.androidx.hilt.navigation.compose)
   // (Optional but common) AndroidX Hilt extensions:
   // If you use hiltViewModel(), WorkManager with Hilt, etc., add:
   // implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
   // ksp("androidx.hilt:hilt-compiler:1.2.0")
 
+  implementation(libs.openai.java)
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.lifecycle.runtime.ktx)
   implementation(libs.androidx.activity.compose)

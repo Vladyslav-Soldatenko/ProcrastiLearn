@@ -166,6 +166,15 @@
     <string name="settings_export_success">Export completed</string>
     <string name="settings_export_failure">Export failed</string>
 
+    <!-- OpenAI API Key -->
+    <string name="settings_openai_api_key_title">OpenAI API Key</string>
+    <string name="settings_openai_api_key_dialog_title">Enter OpenAI API Key</string>
+    <string name="settings_openai_api_key_not_set">Not set</string>
+    <string name="settings_openai_api_key_set">Saved</string>
+
+    <!-- Add Word: AI translation toggle -->
+    <string name="add_word_use_ai_toggle">use AI to generate translation</string>
+
     <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
     <string name="word_list_title">My Vocabulary</string>
     <string name="word_list_empty">No words added yet</string>

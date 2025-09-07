@@ -153,6 +153,9 @@
         <string name="word_list_title">Мой словарь</string>
         <string name="word_list_empty">Вы ещё не добавили слов</string>
 
+        <!-- Add Word: AI translation toggle -->
+        <string name="add_word_use_ai_toggle">использовать ИИ для генерации перевода</string>
+
 
         <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
         <string name="cd_add_word">Добавить слово</string>

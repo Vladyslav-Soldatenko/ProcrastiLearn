@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Checkbox
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -45,9 +47,11 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.procrastilearn.app.R
 import com.procrastilearn.app.ui.AddWordViewModel
+import androidx.compose.ui.tooling.preview.Preview
+import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.delay
 
-@Suppress("MagicNumber", "LongMethod")
+@Suppress("MagicNumber")
 @Composable
 fun AddWordScreen(
     viewModel: AddWordViewModel = hiltViewModel(),
@@ -64,9 +68,48 @@ fun AddWordScreen(
         }
     }
 
+    AddWordContent(
+        onNavigateToList = onNavigateToList,
+        word = uiState.word,
+        translation = uiState.translation,
+        wordError = uiState.wordError,
+        translationError = uiState.translationError,
+        isLoading = uiState.isLoading,
+        errorMessage = uiState.errorMessage,
+        isSuccess = uiState.isSuccess,
+        successMessage = uiState.successMessage,
+        openAiAvailable = uiState.openAiAvailable,
+        useAiForTranslation = uiState.useAiForTranslation,
+        onWordChange = viewModel::onWordChange,
+        onTranslationChange = viewModel::onTranslationChange,
+        onUseAiToggle = viewModel::onUseAiToggle,
+        onAddClick = viewModel::onAddClick,
+    )
+}
+
+@Suppress("LongParameterList", "LongMethod")
+@Composable
+private fun AddWordContent(
+    onNavigateToList: () -> Unit,
+    word: String,
+    translation: String,
+    wordError: String?,
+    translationError: String?,
+    isLoading: Boolean,
+    errorMessage: String?,
+    isSuccess: Boolean,
+    successMessage: String?,
+    modifier: Modifier = Modifier,
+    openAiAvailable: Boolean,
+    useAiForTranslation: Boolean,
+    onWordChange: (String) -> Unit,
+    onTranslationChange: (String) -> Unit,
+    onUseAiToggle: (Boolean) -> Unit,
+    onAddClick: () -> Unit,
+) {
     Box(
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .padding(16.dp),
     ) {
@@ -122,13 +165,29 @@ fun AddWordScreen(
                             .fillMaxWidth()
                             .padding(16.dp),
                 ) {
+                    if (openAiAvailable) {
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Checkbox(
+                                checked = useAiForTranslation,
+                                onCheckedChange = { onUseAiToggle(it) },
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = stringResource(R.string.add_word_use_ai_toggle),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.align(Alignment.CenterVertically),
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                     OutlinedTextField(
-                        value = uiState.word,
-                        onValueChange = viewModel::onWordChange,
+                        value = word,
+                        onValueChange = onWordChange,
                         label = { Text(stringResource(R.string.add_word_label_word)) },
                         placeholder = { Text(stringResource(R.string.add_word_placeholder_word)) },
-                        isError = uiState.wordError != null,
-                        supportingText = uiState.wordError?.let { { Text(it) } },
+                        isError = wordError != null,
+                        supportingText = wordError?.let { { Text(it) } },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         colors =
@@ -142,45 +201,47 @@ fun AddWordScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Translation Input Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                    ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            ) {
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
+            // Translation Input Card (hidden when AI is used and key is present)
+            if (!useAiForTranslation || !openAiAvailable) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors =
+                        CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                        ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                 ) {
-                    OutlinedTextField(
-                        value = uiState.translation,
-                        onValueChange = viewModel::onTranslationChange,
-                        label = { Text(stringResource(R.string.add_word_label_translation)) },
-                        placeholder = { Text(stringResource(R.string.add_word_placeholder_translation)) },
-                        isError = uiState.translationError != null,
-                        supportingText = uiState.translationError?.let { { Text(it) } },
+                    Column(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .heightIn(min = 120.dp, max = 240.dp),
-                        singleLine = false,
-                        minLines = 4,
-                        maxLines = 8,
-                        keyboardOptions =
-                            KeyboardOptions(
-                                capitalization = KeyboardCapitalization.Sentences,
-                            ),
-                        colors =
-                            OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                            ),
-                    )
+                                .padding(16.dp),
+                    ) {
+                        OutlinedTextField(
+                            value = translation,
+                            onValueChange = onTranslationChange,
+                            label = { Text(stringResource(R.string.add_word_label_translation)) },
+                            placeholder = { Text(stringResource(R.string.add_word_placeholder_translation)) },
+                            isError = translationError != null,
+                            supportingText = translationError?.let { { Text(it) } },
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = 120.dp, max = 240.dp),
+                            singleLine = false,
+                            minLines = 4,
+                            maxLines = 8,
+                            keyboardOptions =
+                                KeyboardOptions(
+                                    capitalization = KeyboardCapitalization.Sentences,
+                                ),
+                            colors =
+                                OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                ),
+                        )
+                    }
                 }
             }
 
@@ -188,12 +249,12 @@ fun AddWordScreen(
 
             // Add Button
             Button(
-                onClick = viewModel::onAddClick,
+                onClick = onAddClick,
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                enabled = !uiState.isLoading,
+                enabled = !isLoading,
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
@@ -204,7 +265,7 @@ fun AddWordScreen(
                         pressedElevation = 8.dp,
                     ),
             ) {
-                if (uiState.isLoading) {
+                if (isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
                         color = MaterialTheme.colorScheme.onPrimary,
@@ -225,7 +286,7 @@ fun AddWordScreen(
 
             // Error Message
             AnimatedVisibility(
-                visible = uiState.errorMessage != null,
+                visible = errorMessage != null,
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
@@ -240,7 +301,7 @@ fun AddWordScreen(
                         ),
                 ) {
                     Text(
-                        text = uiState.errorMessage ?: "",
+                        text = errorMessage ?: "",
                         modifier = Modifier.padding(16.dp),
                         color = MaterialTheme.colorScheme.onErrorContainer,
                         textAlign = TextAlign.Center,
@@ -251,7 +312,7 @@ fun AddWordScreen(
 
         // Success Message Overlay
         AnimatedVisibility(
-            visible = uiState.isSuccess,
+            visible = isSuccess,
             enter = fadeIn(),
             exit = fadeOut(),
             modifier = Modifier.align(Alignment.Center),
@@ -274,12 +335,36 @@ fun AddWordScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = uiState.successMessage ?: stringResource(R.string.add_word_success_default),
+                        text = successMessage ?: stringResource(R.string.add_word_success_default),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AddWordContentPreview() {
+    MyApplicationTheme {
+        AddWordContent(
+            onNavigateToList = {},
+            word = "example",
+            translation = "приклад\nнаочний\nзразок",
+            wordError = null,
+            translationError = null,
+            isLoading = false,
+            errorMessage = null,
+            isSuccess = false,
+            successMessage = "Word added successfully!",
+            openAiAvailable = true,
+            useAiForTranslation = false,
+            onWordChange = {},
+            onTranslationChange = {},
+            onUseAiToggle = {},
+            onAddClick = {},
+        )
     }
 }
