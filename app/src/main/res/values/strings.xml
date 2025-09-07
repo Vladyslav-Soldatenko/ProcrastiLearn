@@ -160,6 +160,12 @@
     <string name="settings_about_us_privacy">Privacy Policy</string>
     <string name="settings_privacy_policy_url" translatable="false">https://gist.github.com/Vladyslav-Soldatenko/adb5953ce000b9e8515d3dcd87773aef</string>
 
+    <!-- Export -->
+    <string name="settings_export_row">Export</string>
+    <string name="settings_export_row_desc">Export all vocabulary to a JSON file</string>
+    <string name="settings_export_success">Export completed</string>
+    <string name="settings_export_failure">Export failed</string>
+
     <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
     <string name="word_list_title">My Vocabulary</string>
     <string name="word_list_empty">No words added yet</string>

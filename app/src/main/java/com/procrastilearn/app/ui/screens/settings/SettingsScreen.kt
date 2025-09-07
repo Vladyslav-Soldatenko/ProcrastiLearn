@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +34,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.ui.SettingsViewModel
@@ -45,10 +49,13 @@ import com.procrastilearn.app.ui.screens.settings.components.NumberInputDialog
 import com.procrastilearn.app.ui.screens.settings.components.OverlayPermissionItem
 import com.procrastilearn.app.ui.screens.settings.components.ReviewPerDaySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ShowOverlayIntervalSettingsItem
+import com.procrastilearn.app.ui.screens.settings.components.ExportSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.openAccessibilitySettings
 import com.procrastilearn.app.ui.screens.settings.components.openOverlaySettings
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import com.procrastilearn.app.utils.isPermissionsGranted
+import android.widget.Toast
+import java.time.LocalDate
 
 sealed interface DialogState {
     object None : DialogState
@@ -70,6 +77,21 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val ctx = LocalContext.current
     val permissionStates = rememberPermissionStates(ctx)
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val exportLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.CreateDocument("application/json"),
+        ) { uri ->
+            if (uri != null) {
+                viewModel.exportVocabularyToUri(ctx, uri) { ok ->
+                    Toast.makeText(
+                        ctx,
+                        if (ok) ctx.getString(R.string.settings_export_success) else ctx.getString(R.string.settings_export_failure),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }
+            }
+        }
     Scaffold(
         topBar = { SettingsTopBar() },
     ) { innerPadding ->
@@ -87,6 +109,10 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             onNewPerDayChange = viewModel::onNewPerDayChange,
             onReviewPerDayChange = viewModel::onReviewPerDayChange,
             onOverlayIntervalChange = viewModel::onOverlayIntervalChange,
+            onExportClick = {
+                val name = "vocabulary-export-${LocalDate.now()}.json"
+                exportLauncher.launch(name)
+            },
         )
     }
 }
@@ -115,6 +141,7 @@ private fun SettingsContent(
     onNewPerDayChange: (Int) -> Unit,
     onReviewPerDayChange: (Int) -> Unit,
     onOverlayIntervalChange: (Int) -> Unit,
+    onExportClick: () -> Unit,
 ) {
     var dialogState by remember { mutableStateOf<DialogState>(DialogState.None) }
 
@@ -126,7 +153,8 @@ private fun SettingsContent(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .padding(vertical = 8.dp)
+                    .verticalScroll(rememberScrollState()),
         ) {
             MixModeSettingsItem(
                 mixMode = mixMode,
@@ -173,6 +201,10 @@ private fun SettingsContent(
             AboutUsSettingsItem(
                 onClick = { dialogState = DialogState.AboutUs },
             )
+
+            Spacer(Modifier.height(4.dp))
+
+            ExportSettingsItem(onClick = onExportClick)
         }
     }
 
@@ -278,6 +310,7 @@ fun SettingsScreenPreview_AllGranted() {
             onNewPerDayChange = {},
             onReviewPerDayChange = {},
             onOverlayIntervalChange = {},
+            onExportClick = {},
         )
     }
 }
