@@ -12,6 +12,7 @@ Block input why ai is loading
 add practice mode (fully like anki, to practice without opening apps. Maybe also add "random words" mode there)
 add confirmation before deletion of a word
 add search of already added words
+add in-app screen to practice words one by one as in anki
 
 long roadmap:
 add cloud sync
