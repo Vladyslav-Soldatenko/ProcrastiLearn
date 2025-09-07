@@ -3,8 +3,8 @@ package com.procrastilearn.app.data.local.prefs
 import android.content.Context
 import androidx.datastore.dataStoreFile
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.procrastilearn.app.data.counter.DayCounters
@@ -112,16 +112,14 @@ class DayCountersStore @Inject constructor(
     }
 
     // ── OpenAI API key ─────────────────────────────────────────────
-    fun readOpenAiApiKey(): Flow<String?> =
-        ds.data.map { p -> p[K.OPENAI_API_KEY] }
+    fun readOpenAiApiKey(): Flow<String?> = ds.data.map { p -> p[K.OPENAI_API_KEY] }
 
     suspend fun setOpenAiApiKey(value: String) {
         ds.edit { it[K.OPENAI_API_KEY] = value }
     }
 
     // ── Use AI to generate translation flag ───────────────────────
-    fun readUseAiForTranslation(): Flow<Boolean> =
-        ds.data.map { p -> p[K.USE_AI_TRANSLATION] ?: false }
+    fun readUseAiForTranslation(): Flow<Boolean> = ds.data.map { p -> p[K.USE_AI_TRANSLATION] ?: false }
 
     suspend fun setUseAiForTranslation(value: Boolean) {
         ds.edit { it[K.USE_AI_TRANSLATION] = value }

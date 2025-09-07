@@ -21,8 +21,11 @@ fun OpenAiApiKeySettingsItem(
     onClick: () -> Unit,
 ) {
     val supporting =
-        if (apiKey.isNullOrBlank()) stringResource(R.string.settings_openai_api_key_not_set)
-        else stringResource(R.string.settings_openai_api_key_set)
+        if (apiKey.isNullOrBlank()) {
+            stringResource(R.string.settings_openai_api_key_not_set)
+        } else {
+            stringResource(R.string.settings_openai_api_key_set)
+        }
 
     ListItem(
         headlineContent = { Text(stringResource(R.string.settings_openai_api_key_title)) },
@@ -46,4 +49,3 @@ fun OpenAiApiKeySettingsItem(
                 .fillMaxWidth(),
     )
 }
-

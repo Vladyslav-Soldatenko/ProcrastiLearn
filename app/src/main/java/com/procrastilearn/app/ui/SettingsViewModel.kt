@@ -12,7 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,18 +33,19 @@ class SettingsViewModel @Inject constructor(
     private val vocabularyDao: VocabularyDao,
 ) : ViewModel() {
     val uiState: StateFlow<SettingsUiState> =
-        kotlinx.coroutines.flow.combine(
-            store.readPolicy(),
-            store.readOpenAiApiKey(),
-        ) { policy, apiKey ->
-            SettingsUiState(
-                mixMode = policy.mixMode,
-                newPerDay = policy.newPerDay,
-                reviewPerDay = policy.reviewPerDay,
-                overlayInterval = policy.overlayInterval,
-                openAiApiKey = apiKey,
-            )
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
+        kotlinx.coroutines.flow
+            .combine(
+                store.readPolicy(),
+                store.readOpenAiApiKey(),
+            ) { policy, apiKey ->
+                SettingsUiState(
+                    mixMode = policy.mixMode,
+                    newPerDay = policy.newPerDay,
+                    reviewPerDay = policy.reviewPerDay,
+                    overlayInterval = policy.overlayInterval,
+                    openAiApiKey = apiKey,
+                )
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
     fun onMixModeChange(mode: MixMode) {
         viewModelScope.launch { store.setMixMode(mode) }
@@ -77,36 +77,44 @@ class SettingsViewModel @Inject constructor(
         onComplete: (Boolean) -> Unit,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val ok = try {
-                val list = vocabularyDao.getAllVocabulary().first()
-                val json = JSONArray().apply {
-                    list.forEach { e ->
-                        put(
-                            JSONObject().apply {
-                                put("id", e.id)
-                                put("word", e.word)
-                                put("translation", e.translation)
-                                put("createdAt", e.createdAt)
-                                if (e.lastShownAt == null) put("lastShownAt", JSONObject.NULL) else put("lastShownAt", e.lastShownAt)
-                                put("correctCount", e.correctCount)
-                                put("incorrectCount", e.incorrectCount)
-                                put("fsrsCardJson", e.fsrsCardJson)
-                                put("fsrsDueAt", e.fsrsDueAt)
-                            },
-                        )
-                    }
-                }
+            val ok =
+                try {
+                    val list = vocabularyDao.getAllVocabulary().first()
+                    val json =
+                        JSONArray().apply {
+                            list.forEach { e ->
+                                put(
+                                    JSONObject().apply {
+                                        put("id", e.id)
+                                        put("word", e.word)
+                                        put("translation", e.translation)
+                                        put("createdAt", e.createdAt)
+                                        if (e.lastShownAt ==
+                                            null
+                                        ) {
+                                            put("lastShownAt", JSONObject.NULL)
+                                        } else {
+                                            put("lastShownAt", e.lastShownAt)
+                                        }
+                                        put("correctCount", e.correctCount)
+                                        put("incorrectCount", e.incorrectCount)
+                                        put("fsrsCardJson", e.fsrsCardJson)
+                                        put("fsrsDueAt", e.fsrsDueAt)
+                                    },
+                                )
+                            }
+                        }
 
-                context.contentResolver.openOutputStream(uri)?.use { out ->
-                    out.writer(Charsets.UTF_8).use { writer ->
-                        writer.write(json.toString())
-                        writer.flush()
-                    }
-                } ?: false
-                true
-            } catch (t: Throwable) {
-                false
-            }
+                    context.contentResolver.openOutputStream(uri)?.use { out ->
+                        out.writer(Charsets.UTF_8).use { writer ->
+                            writer.write(json.toString())
+                            writer.flush()
+                        }
+                    } ?: false
+                    true
+                } catch (t: Throwable) {
+                    false
+                }
 
             withContext(Dispatchers.Main) { onComplete(ok) }
         }

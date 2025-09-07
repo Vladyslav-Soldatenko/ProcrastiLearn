@@ -39,4 +39,3 @@ fun ExportSettingsItem(onClick: () -> Unit) {
                 .fillMaxWidth(),
     )
 }
-

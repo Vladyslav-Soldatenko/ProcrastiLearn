@@ -71,7 +71,11 @@ dependencies {
   // implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
   // ksp("androidx.hilt:hilt-compiler:1.2.0")
 
-  implementation(libs.openai.java)
+  implementation(libs.openai.java) {
+    exclude(group = "org.apache.httpcomponents.client5", module = "httpclient5")
+    exclude(group = "org.apache.httpcomponents.core5", module = "httpcore5")
+    exclude(group = "org.apache.httpcomponents.core5", module = "httpcore5-h2")
+  }
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.lifecycle.runtime.ktx)
   implementation(libs.androidx.activity.compose)

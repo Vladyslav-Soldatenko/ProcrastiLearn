@@ -2,6 +2,9 @@ package com.procrastilearn.app.ui.screens.settings
 
 import android.content.Context
 import android.provider.Settings
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -34,14 +37,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.ui.SettingsViewModel
 import com.procrastilearn.app.ui.screens.settings.components.AboutUsDialog
 import com.procrastilearn.app.ui.screens.settings.components.AboutUsSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.AccessibilityPermissionItem
+import com.procrastilearn.app.ui.screens.settings.components.ExportSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.MixModeDialog
 import com.procrastilearn.app.ui.screens.settings.components.MixModeSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NewPerDaySettingsItem
@@ -51,12 +53,10 @@ import com.procrastilearn.app.ui.screens.settings.components.OverlayPermissionIt
 import com.procrastilearn.app.ui.screens.settings.components.ReviewPerDaySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ShowOverlayIntervalSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.StringInputDialog
-import com.procrastilearn.app.ui.screens.settings.components.ExportSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.openAccessibilitySettings
 import com.procrastilearn.app.ui.screens.settings.components.openOverlaySettings
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import com.procrastilearn.app.utils.isPermissionsGranted
-import android.widget.Toast
 import java.time.LocalDate
 
 sealed interface DialogState {
@@ -88,11 +88,18 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         ) { uri ->
             if (uri != null) {
                 viewModel.exportVocabularyToUri(ctx, uri) { ok ->
-                    Toast.makeText(
-                        ctx,
-                        if (ok) ctx.getString(R.string.settings_export_success) else ctx.getString(R.string.settings_export_failure),
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                    Toast
+                        .makeText(
+                            ctx,
+                            if (ok) {
+                                ctx.getString(
+                                    R.string.settings_export_success,
+                                )
+                            } else {
+                                ctx.getString(R.string.settings_export_failure)
+                            },
+                            Toast.LENGTH_SHORT,
+                        ).show()
                 }
             }
         }
@@ -293,7 +300,6 @@ private fun SettingsContent(
         DialogState.None -> { /* No dialog shown */ }
     }
 }
-
 
 @Composable
 private fun rememberPermissionStates(context: Context): PermissionStates {
