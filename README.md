@@ -14,3 +14,4 @@ long roadmap:
 add cloud sync
 add import (from anki at least)
 add decks
+add tests
