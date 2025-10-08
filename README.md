@@ -9,6 +9,7 @@ Add search of added words
 Add scroll bar to added words
 Confirm on delete (if not already) 
 Block input why ai is loading
+add practice mode (fully like anki, to practice without opening apps. Maybe also add "random words" mode there)
 
 long roadmap:
 add cloud sync
