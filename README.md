@@ -6,8 +6,6 @@ add cloud backup if possible
 Останавливать видео
 allow customization of gpt model and prompt
 Add search of added words
-Add scroll bar to added words
-Confirm on delete (if not already)
 Block input why ai is loading
 add practice mode (fully like anki, to practice without opening apps. Maybe also add "random words" mode there)
 add confirmation before deletion of a word
