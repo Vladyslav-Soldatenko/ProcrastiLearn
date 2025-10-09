@@ -66,6 +66,7 @@ dependencies {
   implementation(libs.hilt.android)
   ksp(libs.hilt.compiler)
   implementation(libs.androidx.hilt.navigation.compose)
+  implementation(libs.fastscroller.material3)
   // (Optional but common) AndroidX Hilt extensions:
   // If you use hiltViewModel(), WorkManager with Hilt, etc., add:
   // implementation("androidx.hilt:hilt-navigation-compose:1.2.0")

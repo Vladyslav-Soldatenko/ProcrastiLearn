@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -44,6 +46,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.ui.WordListViewModel
+import io.github.oikvpqya.compose.fastscroller.VerticalScrollbar
+import io.github.oikvpqya.compose.fastscroller.material3.defaultMaterialScrollbarStyle
+import io.github.oikvpqya.compose.fastscroller.rememberScrollbarAdapter
+
 
 @Composable
 fun WordListScreen(viewModel: WordListViewModel = hiltViewModel()) {
@@ -87,19 +93,42 @@ fun WordListScreen(viewModel: WordListViewModel = hiltViewModel()) {
                 }
             }
         } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+            // Remember list state so both list & scrollbar share it
+            val listState = rememberLazyListState()
+
+            // Take the remaining height under the header and overlay the scrollbar
+            Box(
+                modifier = Modifier
+                    .weight(1f)          // occupy remaining height in the Column
+                    .fillMaxWidth()
             ) {
-                items(
-                    items = words,
-                    key = { "${it.word}_${it.translation}" },
-                ) { item ->
-                    WordListItem(
-                        item = item,
-                        onDelete = { viewModel.deleteWord(item) },
-                        onEdit = { editedItem -> viewModel.updateWord(editedItem) },
-                    )
+                LazyColumn(
+                    state = listState,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(
+                        items = words,
+                        key = { "${it.word}_${it.translation}" },
+                    ) { item ->
+                        WordListItem(
+                            item = item,
+                            onDelete = { viewModel.deleteWord(item) },
+                            onEdit = { editedItem -> viewModel.updateWord(editedItem) },
+                        )
+                    }
                 }
+
+                // Draggable + pressable scrollbar on the right edge
+                VerticalScrollbar(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .fillMaxHeight()
+                        .padding(end = 2.dp), // tiny inset from the edge
+                    adapter = rememberScrollbarAdapter(scrollState = listState),
+                    style = defaultMaterialScrollbarStyle(),     // matches M3 theme
+                    enablePressToScroll = true                   // tap track to jump/scroll
+                )
             }
         }
     }
