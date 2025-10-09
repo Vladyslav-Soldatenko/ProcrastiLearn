@@ -178,6 +178,10 @@
     <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
     <string name="word_list_title">My Vocabulary</string>
     <string name="word_list_empty">No words added yet</string>
+    <string name="word_list_delete_confirm_title">Delete word</string>
+    <string name="word_list_delete_confirm_message">
+        Delete <xliff:g id="word_name">%1$s</xliff:g> from your list?
+    </string>
 
     <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
     <string name="cd_add_word">Add word</string>

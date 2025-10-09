@@ -142,6 +142,7 @@ fun WordListItem(
     onEdit: (VocabularyItem) -> Unit,
 ) {
     var showEditDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -188,7 +189,7 @@ fun WordListItem(
                 }
 
                 IconButton(
-                    onClick = onDelete,
+                    onClick = { showDeleteDialog = true },
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
@@ -207,6 +208,17 @@ fun WordListItem(
             onConfirm = { editedItem ->
                 onEdit(editedItem)
                 showEditDialog = false
+            },
+        )
+    }
+
+    if (showDeleteDialog) {
+        DeleteWordDialog(
+            item = item,
+            onDismiss = { showDeleteDialog = false },
+            onConfirm = {
+                onDelete()
+                showDeleteDialog = false
             },
         )
     }
@@ -275,6 +287,33 @@ private fun EditWordDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text("Cancel")
+            }
+        },
+    )
+}
+
+@Composable
+private fun DeleteWordDialog(
+    item: VocabularyItem,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = stringResource(R.string.word_list_delete_confirm_title))
+        },
+        text = {
+            Text(text = stringResource(R.string.word_list_delete_confirm_message, item.word))
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(text = stringResource(R.string.action_delete))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.action_cancel))
             }
         },
     )
