@@ -36,4 +36,10 @@ class WordListViewModel
                 repository.updateVocabularyItem(item)
             }
         }
+
+        fun resetWordProgress(item: VocabularyItem) {
+            viewModelScope.launch {
+                repository.resetVocabularyProgress(item)
+            }
+        }
     }

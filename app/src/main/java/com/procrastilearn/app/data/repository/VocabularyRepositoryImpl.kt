@@ -72,6 +72,24 @@ class VocabularyRepositoryImpl
                 vocabularyDao.deleteVocabulary(item.toEntity())
             }
 
+        override suspend fun resetVocabularyProgress(item: VocabularyItem): Unit =
+            withContext(io) {
+                val existingEntity = vocabularyDao.getVocabularyById(item.id) ?: return@withContext
+                val resetCardJson = Card.builder().build().toJson()
+                val resetEntity =
+                    existingEntity.copy(
+                        lastShownAt = null,
+                        correctCount = 0,
+                        incorrectCount = 0,
+                        fsrsCardJson = resetCardJson,
+                        fsrsDueAt = 0L,
+                    )
+                vocabularyDao.updateVocabulary(resetEntity)
+                if (currentItem.value?.id == item.id) {
+                    currentItem.value = resetEntity.toDomain()
+                }
+            }
+
         override fun observeCurrentItem(): Flow<VocabularyItem> = currentItem.asStateFlow().filterNotNull()
 
         override fun getAllVocabulary(): Flow<List<VocabularyItem>> =

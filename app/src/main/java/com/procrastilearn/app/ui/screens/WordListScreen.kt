@@ -21,10 +21,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -68,6 +72,7 @@ fun WordListScreen(viewModel: WordListViewModel = hiltViewModel()) {
         onSearchQueryChange = { searchQuery = it },
         onDelete = viewModel::deleteWord,
         onEdit = viewModel::updateWord,
+        onReset = viewModel::resetWordProgress,
     )
 }
 
@@ -79,6 +84,7 @@ private fun WordListContent(
     onSearchQueryChange: (String) -> Unit,
     onDelete: (VocabularyItem) -> Unit,
     onEdit: (VocabularyItem) -> Unit,
+    onReset: (VocabularyItem) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val normalizedQuery = searchQuery.trim()
@@ -186,6 +192,7 @@ private fun WordListContent(
                                 item = item,
                                 onDelete = { onDelete(item) },
                                 onEdit = { editedItem -> onEdit(editedItem) },
+                                onReset = { onReset(item) },
                             )
                         }
                     }
@@ -212,9 +219,12 @@ fun WordListItem(
     item: VocabularyItem,
     onDelete: () -> Unit,
     onEdit: (VocabularyItem) -> Unit,
+    onReset: () -> Unit,
 ) {
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showResetDialog by remember { mutableStateOf(false) }
+    var showMenu by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -249,24 +259,62 @@ fun WordListItem(
                 )
             }
 
-            Row {
+            Box {
                 IconButton(
-                    onClick = { showEditDialog = true },
+                    onClick = { showMenu = true },
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = stringResource(R.string.action_edit),
-                        tint = MaterialTheme.colorScheme.primary,
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = stringResource(R.string.word_list_more_actions),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
 
-                IconButton(
-                    onClick = { showDeleteDialog = true },
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false },
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = stringResource(R.string.word_list_delete),
-                        tint = MaterialTheme.colorScheme.error,
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.action_edit)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        },
+                        onClick = {
+                            showMenu = false
+                            showEditDialog = true
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.action_reset)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.Refresh,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.secondary,
+                            )
+                        },
+                        onClick = {
+                            showMenu = false
+                            showResetDialog = true
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.action_delete)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error,
+                            )
+                        },
+                        onClick = {
+                            showMenu = false
+                            showDeleteDialog = true
+                        },
                     )
                 }
             }
@@ -280,6 +328,17 @@ fun WordListItem(
             onConfirm = { editedItem ->
                 onEdit(editedItem)
                 showEditDialog = false
+            },
+        )
+    }
+
+    if (showResetDialog) {
+        ResetWordDialog(
+            item = item,
+            onDismiss = { showResetDialog = false },
+            onConfirm = {
+                onReset()
+                showResetDialog = false
             },
         )
     }
@@ -365,6 +424,33 @@ private fun EditWordDialog(
 }
 
 @Composable
+private fun ResetWordDialog(
+    item: VocabularyItem,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = stringResource(R.string.word_list_reset_confirm_title))
+        },
+        text = {
+            Text(text = stringResource(R.string.word_list_reset_confirm_message, item.word))
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(text = stringResource(R.string.action_reset))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.action_cancel))
+            }
+        },
+    )
+}
+
+@Composable
 private fun DeleteWordDialog(
     item: VocabularyItem,
     onDismiss: () -> Unit,
@@ -406,6 +492,7 @@ private fun WordListContentNoSearchPreview() {
             onSearchQueryChange = {},
             onDelete = {},
             onEdit = {},
+            onReset = {},
         )
     }
 }
@@ -425,6 +512,7 @@ private fun WordListContentFilteredPreview() {
             onSearchQueryChange = {},
             onDelete = {},
             onEdit = {},
+            onReset = {},
         )
     }
 }
@@ -444,6 +532,7 @@ private fun WordListContentNoMatchesPreview() {
             onSearchQueryChange = {},
             onDelete = {},
             onEdit = {},
+            onReset = {},
         )
     }
 }

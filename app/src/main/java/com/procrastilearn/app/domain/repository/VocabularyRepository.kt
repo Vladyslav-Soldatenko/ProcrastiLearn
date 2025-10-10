@@ -17,6 +17,8 @@ interface VocabularyRepository {
 
     suspend fun deleteVocabularyItem(item: VocabularyItem)
 
+    suspend fun resetVocabularyProgress(item: VocabularyItem)
+
     suspend fun hasAvailableItems(): Boolean
 
     suspend fun reviewVocabularyItem(
