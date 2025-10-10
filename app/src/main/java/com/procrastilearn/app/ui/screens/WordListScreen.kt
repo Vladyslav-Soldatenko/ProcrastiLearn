@@ -15,11 +15,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -35,14 +37,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.VocabularyItem
@@ -56,9 +60,12 @@ import io.github.oikvpqya.compose.fastscroller.rememberScrollbarAdapter
 @Composable
 fun WordListScreen(viewModel: WordListViewModel = hiltViewModel()) {
     val words by viewModel.words.collectAsState()
+    var searchQuery by rememberSaveable { mutableStateOf("") }
 
     WordListContent(
         words = words,
+        searchQuery = searchQuery,
+        onSearchQueryChange = { searchQuery = it },
         onDelete = viewModel::deleteWord,
         onEdit = viewModel::updateWord,
     )
@@ -68,10 +75,20 @@ fun WordListScreen(viewModel: WordListViewModel = hiltViewModel()) {
 @Suppress("LongMethod")
 private fun WordListContent(
     words: List<VocabularyItem>,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
     onDelete: (VocabularyItem) -> Unit,
     onEdit: (VocabularyItem) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val normalizedQuery = searchQuery.trim()
+    val displayedWords =
+        if (normalizedQuery.isBlank()) {
+            words
+        } else {
+            words.filter { it.word.contains(normalizedQuery, ignoreCase = true) }
+        }
+
     Column(
         modifier =
             modifier
@@ -87,65 +104,103 @@ private fun WordListContent(
             modifier = Modifier.padding(bottom = 16.dp),
         )
 
-        if (words.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = onSearchQueryChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            label = { Text(text = stringResource(R.string.word_list_search_label)) },
+            placeholder = { Text(text = stringResource(R.string.word_list_search_placeholder)) },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                )
+            },
+            singleLine = true,
+            shape = RoundedCornerShape(16.dp),
+            keyboardOptions =
+                KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words,
+                    imeAction = ImeAction.Search,
+                ),
+        )
+
+        when {
+            words.isEmpty() -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.List,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.List,
+                            contentDescription = null,
+                            modifier = Modifier.size(64.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = stringResource(R.string.word_list_empty),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+            displayedWords.isEmpty() -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
                     Text(
-                        text = stringResource(R.string.word_list_empty),
+                        text = stringResource(R.string.word_list_search_no_results),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
-        } else {
-            // Remember list state so both list & scrollbar share it
-            val listState = rememberLazyListState()
+            else -> {
+                // Remember list state so both list & scrollbar share it
+                val listState = rememberLazyListState()
 
-            // Take the remaining height under the header and overlay the scrollbar
-            Box(
-                modifier = Modifier
-                    .weight(1f)          // occupy remaining height in the Column
-                    .fillMaxWidth()
-            ) {
-                LazyColumn(
-                    state = listState,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(
-                        items = words,
-                        key = { "${it.word}_${it.translation}" },
-                    ) { item ->
-                        WordListItem(
-                            item = item,
-                            onDelete = { onDelete(item) },
-                            onEdit = { editedItem -> onEdit(editedItem) },
-                        )
-                    }
-                }
-
-                // Draggable + pressable scrollbar on the right edge
-                VerticalScrollbar(
+                // Take the remaining height under the header and overlay the scrollbar
+                Box(
                     modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .fillMaxHeight()
-                        .padding(end = 2.dp), // tiny inset from the edge
-                    adapter = rememberScrollbarAdapter(scrollState = listState),
-                    style = defaultMaterialScrollbarStyle(),     // matches M3 theme
-                    enablePressToScroll = true                   // tap track to jump/scroll
-                )
+                        .weight(1f)          // occupy remaining height in the Column
+                        .fillMaxWidth()
+                ) {
+                    LazyColumn(
+                        state = listState,
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(
+                            items = displayedWords,
+                            key = { "${it.word}_${it.translation}" },
+                        ) { item ->
+                            WordListItem(
+                                item = item,
+                                onDelete = { onDelete(item) },
+                                onEdit = { editedItem -> onEdit(editedItem) },
+                            )
+                        }
+                    }
+
+                    // Draggable + pressable scrollbar on the right edge
+                    VerticalScrollbar(
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .fillMaxHeight()
+                            .padding(end = 2.dp), // tiny inset from the edge
+                        adapter = rememberScrollbarAdapter(scrollState = listState),
+                        style = defaultMaterialScrollbarStyle(),     // matches M3 theme
+                        enablePressToScroll = true                   // tap track to jump/scroll
+                    )
+                }
             }
         }
     }
@@ -338,7 +393,7 @@ private fun DeleteWordDialog(
 
 @Preview(showBackground = true)
 @Composable
-private fun WordListContentPreview() {
+private fun WordListContentNoSearchPreview() {
     MyApplicationTheme {
         WordListContent(
             words =
@@ -347,6 +402,46 @@ private fun WordListContentPreview() {
                     VocabularyItem(id = 2, word = "Ephemeral", translation = "Lasting for a very short time", isNew = false),
                     VocabularyItem(id = 3, word = "Peregrinate", translation = "To travel or wander around", isNew = false),
                 ),
+            searchQuery = "",
+            onSearchQueryChange = {},
+            onDelete = {},
+            onEdit = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun WordListContentFilteredPreview() {
+    MyApplicationTheme {
+        WordListContent(
+            words =
+                listOf(
+                    VocabularyItem(id = 1, word = "Serendipity", translation = "Happy accident; pleasant surprise", isNew = true),
+                    VocabularyItem(id = 2, word = "Ephemeral", translation = "Lasting for a very short time", isNew = false),
+                    VocabularyItem(id = 3, word = "Peregrinate", translation = "To travel or wander around", isNew = false),
+                ),
+            searchQuery = "pe",
+            onSearchQueryChange = {},
+            onDelete = {},
+            onEdit = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun WordListContentNoMatchesPreview() {
+    MyApplicationTheme {
+        WordListContent(
+            words =
+                listOf(
+                    VocabularyItem(id = 1, word = "Serendipity", translation = "Happy accident; pleasant surprise", isNew = true),
+                    VocabularyItem(id = 2, word = "Ephemeral", translation = "Lasting for a very short time", isNew = false),
+                    VocabularyItem(id = 3, word = "Peregrinate", translation = "To travel or wander around", isNew = false),
+                ),
+            searchQuery = "xyz",
+            onSearchQueryChange = {},
             onDelete = {},
             onEdit = {},
         )

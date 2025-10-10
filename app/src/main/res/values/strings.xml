@@ -186,6 +186,9 @@
     <string name="word_list_delete_confirm_message">
         Delete <xliff:g id="word_name">%1$s</xliff:g> from your list?
     </string>
+    <string name="word_list_search_label">Search</string>
+    <string name="word_list_search_placeholder">Search words</string>
+    <string name="word_list_search_no_results">No matches found</string>
 
     <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
     <string name="cd_add_word">Add word</string>

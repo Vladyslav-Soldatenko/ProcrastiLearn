@@ -162,6 +162,9 @@
         <string name="word_list_empty">Вы ещё не добавили слов</string>
         <string name="word_list_delete_confirm_title">Удалить слово</string>
         <string name="word_list_delete_confirm_message">Удалить %1$s из списка?</string>
+        <string name="word_list_search_label">Поиск</string>
+        <string name="word_list_search_placeholder">Поиск слов</string>
+        <string name="word_list_search_no_results">Совпадений не найдено</string>
 
         <!-- Add Word: AI translation toggle -->
         <string name="add_word_use_ai_toggle">использовать ИИ для генерации перевода</string>
