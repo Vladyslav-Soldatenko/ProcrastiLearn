@@ -27,6 +27,7 @@ class AppsViewModel
             val selected: Set<String> = emptySet(),
             val isLoading: Boolean = true,
             val error: String? = null,
+            val isEnabled: Boolean = true,
         )
 
         private val _state = MutableStateFlow(UiState())
@@ -34,6 +35,7 @@ class AppsViewModel
 
         init {
             observeSelectedApps()
+            observeProcrastilearnEnabled()
             refresh()
         }
 
@@ -42,6 +44,14 @@ class AppsViewModel
                 .getBlockedApps()
                 .onEach { selectedApps ->
                     _state.update { it.copy(selected = selectedApps) }
+                }.launchIn(viewModelScope)
+        }
+
+        private fun observeProcrastilearnEnabled() {
+            appPreferencesRepository
+                .isProcrastilearnEnabled()
+                .onEach { enabled ->
+                    _state.update { it.copy(isEnabled = enabled) }
                 }.launchIn(viewModelScope)
         }
 
@@ -70,6 +80,12 @@ class AppsViewModel
             val key = app.packageName
             viewModelScope.launch {
                 appPreferencesRepository.toggleApp(key)
+            }
+        }
+
+        fun setEnabled(enabled: Boolean) {
+            viewModelScope.launch {
+                appPreferencesRepository.setProcrastilearnEnabled(enabled)
             }
         }
     }

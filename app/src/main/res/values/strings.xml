@@ -197,6 +197,10 @@
     <string name="word_list_search_placeholder">Search words</string>
     <string name="word_list_search_no_results">No matches found</string>
 
+    <!-- ─── Apps list ──────────────────────────────────────────────────────── -->
+    <string name="apps_list_enable_procrastilearn_title">Enable procrastilearn</string>
+    <string name="apps_list_error_message">Error: <xliff:g id="error_message">%1$s</xliff:g></string>
+
     <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
     <string name="cd_add_word">Add word</string>
     <string name="cd_delete_word">Delete word</string>

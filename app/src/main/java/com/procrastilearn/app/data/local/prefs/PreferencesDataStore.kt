@@ -3,6 +3,7 @@ package com.procrastilearn.app.data.local.prefs
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -27,6 +28,7 @@ class PreferencesDataStore
         companion object {
             // Keys for stored values - like localStorage keys
             val BLOCKED_APPS_KEY = stringSetPreferencesKey("blocked_apps")
+            val PROCRASTILEARN_ENABLED_KEY = booleanPreferencesKey("procrastilearn_enabled")
         }
 
         // Observe blocked apps
@@ -34,6 +36,12 @@ class PreferencesDataStore
             dataStore.data
                 .map { preferences ->
                     preferences[BLOCKED_APPS_KEY] ?: emptySet()
+                }
+
+        val isProcrastilearnEnabled: Flow<Boolean> =
+            dataStore.data
+                .map { preferences ->
+                    preferences[PROCRASTILEARN_ENABLED_KEY] ?: true
                 }
 
         // Save blocked apps
@@ -68,6 +76,12 @@ class PreferencesDataStore
                     } else {
                         current + appKey
                     }
+            }
+        }
+
+        suspend fun setProcrastilearnEnabled(enabled: Boolean) {
+            dataStore.edit { preferences ->
+                preferences[PROCRASTILEARN_ENABLED_KEY] = enabled
             }
         }
     }

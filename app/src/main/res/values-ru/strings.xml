@@ -166,6 +166,10 @@
         <string name="word_list_search_placeholder">Поиск слов</string>
         <string name="word_list_search_no_results">Совпадений не найдено</string>
 
+        <!-- ─── Apps list ──────────────────────────────────────────────────────── -->
+        <string name="apps_list_enable_procrastilearn_title">включить ProcrastiLearn</string>
+        <string name="apps_list_error_message">Ошибка: %1$s</string>
+
         <!-- Add Word: AI translation toggle -->
         <string name="add_word_use_ai_toggle">использовать ИИ для генерации перевода</string>
 
