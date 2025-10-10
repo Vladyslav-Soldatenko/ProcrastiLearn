@@ -121,6 +121,14 @@
         <!-- Overlay interval -->
         <string name="settings_overlay_interval_title">Показывать оверлей каждые X минут</string>
         <string name="settings_overlay_interval_headline">Показывать оверлей каждые X минут, пока открыто заблокированное приложение</string>
+        <string name="settings_openai_api_key_title">Ключ OpenAI API</string>
+        <string name="settings_openai_api_key_dialog_title">Введите ключ OpenAI API</string>
+        <string name="settings_openai_api_key_not_set">Не задан</string>
+        <string name="settings_openai_api_key_set">Сохранён</string>
+        <string name="settings_openai_prompt_title">Промпт для перевода</string>
+        <string name="settings_openai_prompt_dialog_title">Измените промпт для перевода</string>
+        <string name="settings_openai_prompt_default">Используется промпт по умолчанию</string>
+        <string name="settings_openai_prompt_custom">Пользовательский промпт сохранён</string>
 
         <string name="settings_overlay_headline">Разрешение на оверлей</string>
         <string name="settings_overlay_support">

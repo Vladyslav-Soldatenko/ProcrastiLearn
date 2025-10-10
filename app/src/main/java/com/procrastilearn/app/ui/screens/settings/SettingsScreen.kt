@@ -49,6 +49,7 @@ import com.procrastilearn.app.ui.screens.settings.components.MixModeSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NewPerDaySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NumberInputDialog
 import com.procrastilearn.app.ui.screens.settings.components.OpenAiApiKeySettingsItem
+import com.procrastilearn.app.ui.screens.settings.components.OpenAiPromptSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.OverlayPermissionItem
 import com.procrastilearn.app.ui.screens.settings.components.ReviewPerDaySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ShowOverlayIntervalSettingsItem
@@ -73,6 +74,8 @@ sealed interface DialogState {
     object AboutUs : DialogState
 
     object OpenAiApiKey : DialogState
+
+    object OpenAiPrompt : DialogState
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -115,6 +118,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             reviewPerDay = state.reviewPerDay,
             overlayInterval = state.overlayInterval,
             openAiApiKey = state.openAiApiKey,
+            openAiPrompt = state.openAiPrompt,
             onOverlayClick = { openOverlaySettings(ctx) },
             onA11yClick = { openAccessibilitySettings(ctx) },
             onMixModeChange = viewModel::onMixModeChange,
@@ -122,6 +126,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             onReviewPerDayChange = viewModel::onReviewPerDayChange,
             onOverlayIntervalChange = viewModel::onOverlayIntervalChange,
             onOpenAiApiKeyChange = viewModel::onOpenAiApiKeyChange,
+            onOpenAiPromptChange = viewModel::onOpenAiPromptChange,
             onExportClick = {
                 val name = "vocabulary-export-${LocalDate.now()}.json"
                 exportLauncher.launch(name)
@@ -149,6 +154,7 @@ private fun SettingsContent(
     reviewPerDay: Int,
     overlayInterval: Int,
     openAiApiKey: String?,
+    openAiPrompt: String,
     onOverlayClick: () -> Unit,
     onA11yClick: () -> Unit,
     onMixModeChange: (MixMode) -> Unit,
@@ -156,6 +162,7 @@ private fun SettingsContent(
     onReviewPerDayChange: (Int) -> Unit,
     onOverlayIntervalChange: (Int) -> Unit,
     onOpenAiApiKeyChange: (String) -> Unit,
+    onOpenAiPromptChange: (String) -> Unit,
     onExportClick: () -> Unit,
 ) {
     var dialogState by remember { mutableStateOf<DialogState>(DialogState.None) }
@@ -199,6 +206,10 @@ private fun SettingsContent(
             OpenAiApiKeySettingsItem(
                 apiKey = openAiApiKey,
                 onClick = { dialogState = DialogState.OpenAiApiKey },
+            )
+            OpenAiPromptSettingsItem(
+                prompt = openAiPrompt,
+                onClick = { dialogState = DialogState.OpenAiPrompt },
             )
             Divider(
                 modifier = Modifier.padding(vertical = 8.dp),
@@ -296,6 +307,20 @@ private fun SettingsContent(
                 isPassword = true,
             )
         }
+        DialogState.OpenAiPrompt -> {
+            StringInputDialog(
+                title = stringResource(R.string.settings_openai_prompt_dialog_title),
+                currentValue = openAiPrompt,
+                onValueConfirm = {
+                    onOpenAiPromptChange(it)
+                    dialogState = DialogState.None
+                },
+                onDismiss = { dialogState = DialogState.None },
+                isPassword = false,
+                singleLine = false,
+                maxLines = 12,
+            )
+        }
 
         DialogState.None -> { /* No dialog shown */ }
     }
@@ -339,6 +364,7 @@ fun SettingsScreenPreview_AllGranted() {
             reviewPerDay = 200,
             overlayInterval = 6,
             openAiApiKey = null,
+            openAiPrompt = "Prompt",
             onOverlayClick = {},
             onA11yClick = {},
             onMixModeChange = {},
@@ -346,6 +372,7 @@ fun SettingsScreenPreview_AllGranted() {
             onReviewPerDayChange = {},
             onOverlayIntervalChange = {},
             onOpenAiApiKeyChange = {},
+            onOpenAiPromptChange = {},
             onExportClick = {},
         )
     }

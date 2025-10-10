@@ -4,13 +4,13 @@ add cloud backup if possible
 Принимать перевод с русского и добавлять уже англ слово
 Удалять слово после долгого хорошего стрика
 Останавливать видео
-allow customization of gpt model and prompt
+allow customization of gpt model
+Update prompt to take into account language pairs, avoid hardcoding eng-rus
 Add search of added words
-Block input why ai is loading
 add practice mode (fully like anki, to practice without opening apps. Maybe also add "random words" mode there)
 add confirmation before deletion of a word
 add search of already added words
-add in-app screen to practice words one by one as in anki
+avoid words duplicates (maybe reset word progress if user tries to add the same word)
 
 long roadmap:
 add cloud sync

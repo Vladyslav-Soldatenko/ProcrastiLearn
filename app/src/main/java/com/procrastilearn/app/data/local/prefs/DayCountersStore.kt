@@ -38,6 +38,7 @@ class DayCountersStore @Inject constructor(
         val OVERLAY_INTERVAL_TIME = intPreferencesKey("overlay_interval_time")
         val OPENAI_API_KEY = stringPreferencesKey("openai_api_key")
         val USE_AI_TRANSLATION = booleanPreferencesKey("use_ai_translation")
+        val OPENAI_PROMPT = stringPreferencesKey("openai_prompt")
     }
 
     private companion object {
@@ -116,6 +117,19 @@ class DayCountersStore @Inject constructor(
 
     suspend fun setOpenAiApiKey(value: String) {
         ds.edit { it[K.OPENAI_API_KEY] = value }
+    }
+
+    fun readOpenAiPrompt(): Flow<String> = ds.data.map { p -> p[K.OPENAI_PROMPT] ?: OpenAiPromptDefaults.translationPrompt }
+
+    suspend fun setOpenAiPrompt(value: String) {
+        ds.edit { prefs ->
+            val trimmed = value.trim()
+            if (trimmed.isEmpty() || trimmed == OpenAiPromptDefaults.translationPrompt) {
+                prefs.remove(K.OPENAI_PROMPT)
+            } else {
+                prefs[K.OPENAI_PROMPT] = trimmed
+            }
+        }
     }
 
     // ── Use AI to generate translation flag ───────────────────────

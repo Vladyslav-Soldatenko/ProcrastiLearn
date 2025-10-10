@@ -16,7 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import com.procrastilearn.app.R
+import kotlin.math.min
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,6 +28,8 @@ fun StringInputDialog(
     onValueConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
     isPassword: Boolean = true,
+    singleLine: Boolean = true,
+    maxLines: Int = if (singleLine) 1 else 4,
 ) {
     var textValue by remember { mutableStateOf(currentValue) }
 
@@ -33,17 +37,28 @@ fun StringInputDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
+            val keyboardOptions =
+                if (isPassword) {
+                    KeyboardOptions(keyboardType = KeyboardType.Password)
+                } else {
+                    KeyboardOptions.Default
+                }
+            val visualTransformation =
+                if (isPassword) {
+                    PasswordVisualTransformation()
+                } else {
+                    VisualTransformation.None
+                }
             OutlinedTextField(
                 value = textValue,
                 onValueChange = { newValue ->
                     textValue = newValue
                 },
-                keyboardOptions =
-                    KeyboardOptions(
-                        keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Text,
-                    ),
-                singleLine = true,
-                visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
+                keyboardOptions = keyboardOptions,
+                singleLine = singleLine,
+                minLines = if (singleLine) 1 else min(4, maxLines),
+                maxLines = maxLines,
+                visualTransformation = visualTransformation,
                 modifier = Modifier.fillMaxWidth(),
             )
         },

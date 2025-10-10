@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
 import com.procrastilearn.app.domain.model.MixMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +26,7 @@ data class SettingsUiState(
     val reviewPerDay: Int = 100,
     val overlayInterval: Int = 6,
     val openAiApiKey: String? = null,
+    val openAiPrompt: String = OpenAiPromptDefaults.translationPrompt,
 )
 
 @HiltViewModel
@@ -37,13 +39,15 @@ class SettingsViewModel @Inject constructor(
             .combine(
                 store.readPolicy(),
                 store.readOpenAiApiKey(),
-            ) { policy, apiKey ->
+                store.readOpenAiPrompt(),
+            ) { policy, apiKey, prompt ->
                 SettingsUiState(
                     mixMode = policy.mixMode,
                     newPerDay = policy.newPerDay,
                     reviewPerDay = policy.reviewPerDay,
                     overlayInterval = policy.overlayInterval,
                     openAiApiKey = apiKey,
+                    openAiPrompt = prompt,
                 )
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -65,6 +69,10 @@ class SettingsViewModel @Inject constructor(
 
     fun onOpenAiApiKeyChange(value: String) {
         viewModelScope.launch { store.setOpenAiApiKey(value) }
+    }
+
+    fun onOpenAiPromptChange(value: String) {
+        viewModelScope.launch { store.setOpenAiPrompt(value) }
     }
 
     /**
