@@ -6,10 +6,7 @@ add cloud backup if possible
 Останавливать видео
 allow customization of gpt model
 Update prompt to take into account language pairs, avoid hardcoding eng-rus
-Add search of added words
 add practice mode (fully like anki, to practice without opening apps. Maybe also add "random words" mode there)
-add confirmation before deletion of a word
-add search of already added words
 avoid words duplicates (maybe reset word progress if user tries to add the same word)
 
 long roadmap:

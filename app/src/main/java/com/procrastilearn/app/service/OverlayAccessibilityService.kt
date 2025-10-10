@@ -50,6 +50,7 @@ class OverlayAccessibilityService : AccessibilityService() {
 
     private var intervalTimerJob: Job? = null
     private var overlayIntervalMinutes: Int = 0
+    private var isProcrastilearnEnabled: Boolean = true
 
     private val serviceEntryPoint: ServiceEntryPoint by lazy {
         EntryPointAccessors.fromApplication(
@@ -103,6 +104,22 @@ class OverlayAccessibilityService : AccessibilityService() {
         }
 
         serviceScope.launch {
+            appPreferencesRepository.isProcrastilearnEnabled().collect { enabled ->
+                if (!enabled && isProcrastilearnEnabled) {
+                    Log.d("OverlayService", "ProcrastiLearn disabled – ending active gate session if any")
+                    if (gateActive) {
+                        endGateSession()
+                    } else {
+                        hideOverlay()
+                    }
+                }
+
+                isProcrastilearnEnabled = enabled
+                Log.d("OverlayService", "ProcrastiLearn enabled updated: $isProcrastilearnEnabled")
+            }
+        }
+
+        serviceScope.launch {
             dayCountersStore.readPolicy().collect { config ->
                 overlayIntervalMinutes = config.overlayInterval
                 Log.d("OverlayService", "Overlay interval updated: $overlayIntervalMinutes minutes")
@@ -128,6 +145,15 @@ class OverlayAccessibilityService : AccessibilityService() {
         val topPackage = pkg // CHANGED: Use event package directly
 
         Log.d("OverlayService", "Event from package: $topPackage")
+
+        if (!isProcrastilearnEnabled) {
+            if (gateActive) {
+                Log.d("OverlayService", "ProcrastiLearn disabled. Ending gate session for $topPackage")
+                endGateSession()
+            }
+            lastTopPackage = topPackage
+            return
+        }
 
         // Check if this is a blocked app
         if (topPackage in blockedPackages) {
@@ -193,6 +219,10 @@ class OverlayAccessibilityService : AccessibilityService() {
         }
 
     private fun startGateSession(pkg: String) {
+        if (!isProcrastilearnEnabled) {
+            Log.d("OverlayService", "ProcrastiLearn disabled, not starting gate session for $pkg")
+            return
+        }
         if (gateActive && gatedPackage == pkg && overlayView != null) {
             Log.d("OverlayService", "Gate session already active for $pkg with overlay showing")
             return
@@ -215,7 +245,11 @@ class OverlayAccessibilityService : AccessibilityService() {
     }
 
     private fun startIntervalTimer() {
-        // Cancel any existing timer
+        if (!isProcrastilearnEnabled) {
+            Log.d("OverlayService", "ProcrastiLearn disabled, skipping interval timer start")
+            return
+        }
+
         intervalTimerJob?.cancel()
         Log.d(
             "OverlayService",
@@ -245,7 +279,7 @@ class OverlayAccessibilityService : AccessibilityService() {
 
                 // If we're still in an active gate session, show the overlay
                 // Trust the gateActive state rather than re-querying the current package
-                if (gateActive && gatedPackage != null) {
+                if (isProcrastilearnEnabled && gateActive && gatedPackage != null) {
                     Log.d("OverlayService", "Still in gate session for $gatedPackage, showing overlay again")
                     // Check if vocabulary is still available
                     val hasItems = checkVocabularyAvailabilityUseCase()
@@ -285,6 +319,10 @@ class OverlayAccessibilityService : AccessibilityService() {
     private fun isIgnorableSystem(pkg: String): Boolean = pkg in ignoredPackages
 
     private fun showOverlay() {
+        if (!isProcrastilearnEnabled) {
+            Log.d("OverlayService", "ProcrastiLearn disabled, not showing overlay")
+            return
+        }
         if (overlayView != null) {
             Log.d("OverlayService", "Overlay already showing, not creating new one")
             return
