@@ -42,10 +42,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.ui.WordListViewModel
+import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import io.github.oikvpqya.compose.fastscroller.VerticalScrollbar
 import io.github.oikvpqya.compose.fastscroller.material3.defaultMaterialScrollbarStyle
 import io.github.oikvpqya.compose.fastscroller.rememberScrollbarAdapter
@@ -55,9 +57,24 @@ import io.github.oikvpqya.compose.fastscroller.rememberScrollbarAdapter
 fun WordListScreen(viewModel: WordListViewModel = hiltViewModel()) {
     val words by viewModel.words.collectAsState()
 
+    WordListContent(
+        words = words,
+        onDelete = viewModel::deleteWord,
+        onEdit = viewModel::updateWord,
+    )
+}
+
+@Composable
+@Suppress("LongMethod")
+private fun WordListContent(
+    words: List<VocabularyItem>,
+    onDelete: (VocabularyItem) -> Unit,
+    onEdit: (VocabularyItem) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .padding(16.dp),
     ) {
@@ -113,8 +130,8 @@ fun WordListScreen(viewModel: WordListViewModel = hiltViewModel()) {
                     ) { item ->
                         WordListItem(
                             item = item,
-                            onDelete = { viewModel.deleteWord(item) },
-                            onEdit = { editedItem -> viewModel.updateWord(editedItem) },
+                            onDelete = { onDelete(item) },
+                            onEdit = { editedItem -> onEdit(editedItem) },
                         )
                     }
                 }
@@ -317,4 +334,21 @@ private fun DeleteWordDialog(
             }
         },
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun WordListContentPreview() {
+    MyApplicationTheme {
+        WordListContent(
+            words =
+                listOf(
+                    VocabularyItem(id = 1, word = "Serendipity", translation = "Happy accident; pleasant surprise", isNew = true),
+                    VocabularyItem(id = 2, word = "Ephemeral", translation = "Lasting for a very short time", isNew = false),
+                    VocabularyItem(id = 3, word = "Peregrinate", translation = "To travel or wander around", isNew = false),
+                ),
+            onDelete = {},
+            onEdit = {},
+        )
+    }
 }
