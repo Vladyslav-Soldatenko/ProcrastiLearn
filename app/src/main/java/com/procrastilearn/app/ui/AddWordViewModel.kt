@@ -168,7 +168,7 @@ class AddWordViewModel @Inject
                 val params =
                     ChatCompletionCreateParams
                         .builder()
-                        .model(ChatModel.CHATGPT_4O_LATEST)
+                        .model(ChatModel.GPT_5)
                         .addSystemMessage(systemPrompt)
                         .addUserMessage(userPrompt)
                         .temperature(0.5)
