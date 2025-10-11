@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.openai.client.OpenAIClient
 import com.openai.client.okhttp.OpenAIOkHttpClient
 import com.openai.models.ChatModel
+import com.openai.models.ReasoningEffort
 import com.openai.models.chat.completions.ChatCompletionCreateParams
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
@@ -168,11 +169,11 @@ class AddWordViewModel @Inject
                 val params =
                     ChatCompletionCreateParams
                         .builder()
-                        .model(ChatModel.GPT_5)
+                        .model(ChatModel.GPT_5_MINI)
+                        .reasoningEffort(ReasoningEffort.MINIMAL)
                         .addSystemMessage(systemPrompt)
                         .addUserMessage(userPrompt)
-                        .temperature(0.5)
-                        .maxCompletionTokens(1000)
+                        .maxCompletionTokens(1500)
                         .build()
 
                 val completion = client.chat().completions().create(params)
