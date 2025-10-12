@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -70,7 +71,9 @@ fun AppsList(
                                 .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.Center,
                     ) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(
+                            modifier = Modifier.testTag("apps_list_loading_indicator"),
+                        )
                     }
                 }
             }
@@ -87,6 +90,7 @@ fun AppsList(
                             text = stringResource(R.string.apps_list_error_message, errorMessage),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.testTag("apps_list_error_text"),
                         )
                     }
                 }
@@ -137,6 +141,7 @@ private fun EnableProcrastilearnRow(
         modifier =
             Modifier
                 .fillMaxWidth()
+                .testTag("apps_list_enable_toggle")
                 .clickable { onEnabledChange(!enabled) },
         color = backgroundColor,
         contentColor = contentColor,
@@ -160,6 +165,7 @@ private fun EnableProcrastilearnRow(
                 Checkbox(
                     checked = enabled,
                     onCheckedChange = onEnabledChange,
+                    modifier = Modifier.testTag("apps_list_enable_checkbox"),
                     colors =
                         CheckboxDefaults.colors(
                             checkedColor = colorScheme.onSecondaryContainer,
@@ -187,6 +193,7 @@ private fun AppRow(
         modifier =
             Modifier
                 .fillMaxWidth()
+                .testTag("app_row_${app.packageName}")
                 .clickable(enabled = enabled) { onCheckedChange(!checked) },
         color =
             when {
@@ -227,6 +234,7 @@ private fun AppRow(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = enabled,
+                modifier = Modifier.testTag("app_checkbox_${app.packageName}"),
                 colors =
                     CheckboxDefaults.colors(
                         checkedColor = MaterialTheme.colorScheme.primary,
