@@ -2,15 +2,12 @@ package com.procrastilearn.app.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.openai.client.OpenAIClient
-import com.openai.client.okhttp.OpenAIOkHttpClient
-import com.openai.models.ChatModel
-import com.openai.models.ReasoningEffort
-import com.openai.models.chat.completions.ChatCompletionCreateParams
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.translation.AiTranslationProvider
+import com.procrastilearn.app.data.translation.AiTranslationRequest
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +23,8 @@ class AddWordViewModel @Inject
     constructor(
         private val addVocabularyItemUseCase: AddVocabularyItemUseCase,
         private val prefs: DayCountersStore,
+        private val aiTranslationProvider: AiTranslationProvider,
+        private val ioDispatcher: CoroutineDispatcher,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(AddWordUiState())
         val uiState: StateFlow<AddWordUiState> = _uiState.asStateFlow()
@@ -148,15 +147,9 @@ class AddWordViewModel @Inject
 
 
         private suspend fun requestAiTranslation(word: String): String =
-            withContext(Dispatchers.IO) {
+            withContext(ioDispatcher) {
                 val apiKey: String = prefs.readOpenAiApiKey().first().orEmpty()
                 require(apiKey.isNotBlank()) { "Missing OpenAI API key" }
-
-                val client: OpenAIClient =
-                    OpenAIOkHttpClient
-                        .builder()
-                        .apiKey(apiKey)
-                        .build()
 
                 val systemPrompt = prefs.readOpenAiPrompt().first()
                 val userPrompt =
@@ -164,31 +157,15 @@ class AddWordViewModel @Inject
             HEADWORD: "$word"
 
             Produce ONLY the entry for this headword, in the exact frame and rules above. No extra text.
-            """.trimIndent()
+                    """.trimIndent()
 
-                val params =
-                    ChatCompletionCreateParams
-                        .builder()
-                        .model(ChatModel.GPT_5_MINI)
-                        .reasoningEffort(ReasoningEffort.MINIMAL)
-                        .addSystemMessage(systemPrompt)
-                        .addUserMessage(userPrompt)
-                        .maxCompletionTokens(1500)
-                        .build()
-
-                val completion = client.chat().completions().create(params)
-                val text =
-                    completion
-                        .choices()
-                        .firstOrNull()
-                        ?.message()
-                        ?.content()
-                        ?.orElse("")
-                        ?.trim()
-                        .orEmpty()
-
-                if (text.isBlank()) error("OpenAI returned an empty response")
-                text
+                aiTranslationProvider.translate(
+                    AiTranslationRequest(
+                        apiKey = apiKey,
+                        systemPrompt = systemPrompt,
+                        userPrompt = userPrompt,
+                    ),
+                )
             }
     }
 
