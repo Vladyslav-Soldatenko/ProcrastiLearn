@@ -145,7 +145,6 @@ class AddWordViewModel @Inject
             _uiState.value = _uiState.value.copy(useAiForTranslation = checked)
         }
 
-
         private suspend fun requestAiTranslation(word: String): String =
             withContext(ioDispatcher) {
                 val apiKey: String = prefs.readOpenAiApiKey().first().orEmpty()
@@ -154,9 +153,9 @@ class AddWordViewModel @Inject
                 val systemPrompt = prefs.readOpenAiPrompt().first()
                 val userPrompt =
                     """
-            HEADWORD: "$word"
+                    HEADWORD: "$word"
 
-            Produce ONLY the entry for this headword, in the exact frame and rules above. No extra text.
+                    Produce ONLY the entry for this headword, in the exact frame and rules above. No extra text.
                     """.trimIndent()
 
                 aiTranslationProvider.translate(

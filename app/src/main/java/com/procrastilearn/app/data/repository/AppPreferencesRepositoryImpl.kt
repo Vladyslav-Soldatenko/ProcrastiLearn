@@ -15,8 +15,7 @@ class AppPreferencesRepositoryImpl
     ) : AppPreferencesRepository {
         override fun getBlockedApps(): Flow<Set<String>> = preferencesDataStore.blockedApps
 
-        override fun isProcrastilearnEnabled(): Flow<Boolean> =
-            preferencesDataStore.isProcrastilearnEnabled
+        override fun isProcrastilearnEnabled(): Flow<Boolean> = preferencesDataStore.isProcrastilearnEnabled
 
         override suspend fun addBlockedApp(packageName: String) {
             preferencesDataStore.addBlockedApp(packageName)

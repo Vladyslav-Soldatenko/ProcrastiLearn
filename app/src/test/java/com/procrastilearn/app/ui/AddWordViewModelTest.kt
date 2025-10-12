@@ -170,7 +170,8 @@ class AddWordViewModelTest {
     @Test
     fun `onAddClick failure posts error message`() =
         runTest(mainDispatcherRule.testDispatcher) {
-            coEvery { addVocabularyItemUseCase.invoke(any(), any()) } returns Result.failure(IllegalStateException("boom"))
+            coEvery { addVocabularyItemUseCase.invoke(any(), any()) } returns
+                Result.failure(IllegalStateException("boom"))
             val viewModel = buildViewModel()
             viewModel.onWordChange("Haus")
             viewModel.onTranslationChange("House")

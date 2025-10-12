@@ -54,6 +54,5 @@ object OpenAiPromptDefaults {
         1. The biopsy confirmed a benign tumor.
         2. They enjoyed the region’s benign climate.
         3. She gave him a benign smile.
-    """
-.trimIndent()
+        """.trimIndent()
 }

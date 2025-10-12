@@ -60,7 +60,6 @@ import io.github.oikvpqya.compose.fastscroller.VerticalScrollbar
 import io.github.oikvpqya.compose.fastscroller.material3.defaultMaterialScrollbarStyle
 import io.github.oikvpqya.compose.fastscroller.rememberScrollbarAdapter
 
-
 @Composable
 fun WordListScreen(viewModel: WordListViewModel = hiltViewModel()) {
     val words by viewModel.words.collectAsState()
@@ -113,9 +112,10 @@ private fun WordListContent(
         OutlinedTextField(
             value = searchQuery,
             onValueChange = onSearchQueryChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
             label = { Text(text = stringResource(R.string.word_list_search_label)) },
             placeholder = { Text(text = stringResource(R.string.word_list_search_placeholder)) },
             leadingIcon = {
@@ -175,14 +175,15 @@ private fun WordListContent(
 
                 // Take the remaining height under the header and overlay the scrollbar
                 Box(
-                    modifier = Modifier
-                        .weight(1f)          // occupy remaining height in the Column
-                        .fillMaxWidth()
+                    modifier =
+                        Modifier
+                            .weight(1f) // occupy remaining height in the Column
+                            .fillMaxWidth(),
                 ) {
                     LazyColumn(
                         state = listState,
                         verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
                     ) {
                         items(
                             items = displayedWords,
@@ -199,13 +200,15 @@ private fun WordListContent(
 
                     // Draggable + pressable scrollbar on the right edge
                     VerticalScrollbar(
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .fillMaxHeight()
-                            .padding(end = 2.dp), // tiny inset from the edge
+                        modifier =
+                            Modifier
+                                .align(Alignment.CenterEnd)
+                                .fillMaxHeight()
+                                .padding(end = 2.dp),
+                        // tiny inset from the edge
                         adapter = rememberScrollbarAdapter(scrollState = listState),
-                        style = defaultMaterialScrollbarStyle(),     // matches M3 theme
-                        enablePressToScroll = true                   // tap track to jump/scroll
+                        style = defaultMaterialScrollbarStyle(), // matches M3 theme
+                        enablePressToScroll = true, // tap track to jump/scroll
                     )
                 }
             }
@@ -484,9 +487,24 @@ private fun WordListContentNoSearchPreview() {
         WordListContent(
             words =
                 listOf(
-                    VocabularyItem(id = 1, word = "Serendipity", translation = "Happy accident; pleasant surprise", isNew = true),
-                    VocabularyItem(id = 2, word = "Ephemeral", translation = "Lasting for a very short time", isNew = false),
-                    VocabularyItem(id = 3, word = "Peregrinate", translation = "To travel or wander around", isNew = false),
+                    VocabularyItem(
+                        id = 1,
+                        word = "Serendipity",
+                        translation = "Happy accident; pleasant surprise",
+                        isNew = true,
+                    ),
+                    VocabularyItem(
+                        id = 2,
+                        word = "Ephemeral",
+                        translation = "Lasting for a very short time",
+                        isNew = false,
+                    ),
+                    VocabularyItem(
+                        id = 3,
+                        word = "Peregrinate",
+                        translation = "To travel or wander around",
+                        isNew = false,
+                    ),
                 ),
             searchQuery = "",
             onSearchQueryChange = {},
@@ -504,9 +522,24 @@ private fun WordListContentFilteredPreview() {
         WordListContent(
             words =
                 listOf(
-                    VocabularyItem(id = 1, word = "Serendipity", translation = "Happy accident; pleasant surprise", isNew = true),
-                    VocabularyItem(id = 2, word = "Ephemeral", translation = "Lasting for a very short time", isNew = false),
-                    VocabularyItem(id = 3, word = "Peregrinate", translation = "To travel or wander around", isNew = false),
+                    VocabularyItem(
+                        id = 1,
+                        word = "Serendipity",
+                        translation = "Happy accident; pleasant surprise",
+                        isNew = true,
+                    ),
+                    VocabularyItem(
+                        id = 2,
+                        word = "Ephemeral",
+                        translation = "Lasting for a very short time",
+                        isNew = false,
+                    ),
+                    VocabularyItem(
+                        id = 3,
+                        word = "Peregrinate",
+                        translation = "To travel or wander around",
+                        isNew = false,
+                    ),
                 ),
             searchQuery = "pe",
             onSearchQueryChange = {},
@@ -524,9 +557,24 @@ private fun WordListContentNoMatchesPreview() {
         WordListContent(
             words =
                 listOf(
-                    VocabularyItem(id = 1, word = "Serendipity", translation = "Happy accident; pleasant surprise", isNew = true),
-                    VocabularyItem(id = 2, word = "Ephemeral", translation = "Lasting for a very short time", isNew = false),
-                    VocabularyItem(id = 3, word = "Peregrinate", translation = "To travel or wander around", isNew = false),
+                    VocabularyItem(
+                        id = 1,
+                        word = "Serendipity",
+                        translation = "Happy accident; pleasant surprise",
+                        isNew = true,
+                    ),
+                    VocabularyItem(
+                        id = 2,
+                        word = "Ephemeral",
+                        translation = "Lasting for a very short time",
+                        isNew = false,
+                    ),
+                    VocabularyItem(
+                        id = 3,
+                        word = "Peregrinate",
+                        translation = "To travel or wander around",
+                        isNew = false,
+                    ),
                 ),
             searchQuery = "xyz",
             onSearchQueryChange = {},

@@ -177,27 +177,27 @@ private fun AddWordContent(
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.align(Alignment.CenterVertically),
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            val disableWordInput = isLoading && openAiAvailable && useAiForTranslation
-            OutlinedTextField(
-                value = word,
-                onValueChange = onWordChange,
-                label = { Text(stringResource(R.string.add_word_label_word)) },
-                placeholder = { Text(stringResource(R.string.add_word_placeholder_word)) },
-                isError = wordError != null,
-                supportingText = wordError?.let { { Text(it) } },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                enabled = !disableWordInput,
-                readOnly = disableWordInput,
-                colors =
-                    OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                    ),
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    val disableWordInput = isLoading && openAiAvailable && useAiForTranslation
+                    OutlinedTextField(
+                        value = word,
+                        onValueChange = onWordChange,
+                        label = { Text(stringResource(R.string.add_word_label_word)) },
+                        placeholder = { Text(stringResource(R.string.add_word_placeholder_word)) },
+                        isError = wordError != null,
+                        supportingText = wordError?.let { { Text(it) } },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        enabled = !disableWordInput,
+                        readOnly = disableWordInput,
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            ),
                     )
                 }
             }

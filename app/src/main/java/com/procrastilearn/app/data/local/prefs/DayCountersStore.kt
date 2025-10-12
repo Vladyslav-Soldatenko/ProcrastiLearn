@@ -119,7 +119,11 @@ class DayCountersStore @Inject constructor(
         ds.edit { it[K.OPENAI_API_KEY] = value }
     }
 
-    fun readOpenAiPrompt(): Flow<String> = ds.data.map { p -> p[K.OPENAI_PROMPT] ?: OpenAiPromptDefaults.translationPrompt }
+    fun readOpenAiPrompt(): Flow<String> =
+        ds.data.map { p ->
+            p[K.OPENAI_PROMPT]
+                ?: OpenAiPromptDefaults.translationPrompt
+        }
 
     suspend fun setOpenAiPrompt(value: String) {
         ds.edit { prefs ->

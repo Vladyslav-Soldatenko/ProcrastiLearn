@@ -38,7 +38,11 @@ class AccessibilityUtilsTest {
 
     @Test
     fun `returns false when accessibility toggle is off`() {
-        Settings.Secure.putString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES, expectedComponent)
+        Settings.Secure.putString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+            expectedComponent,
+        )
         Settings.Secure.putInt(context.contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED, 0)
 
         val result = isPermissionsGranted(context)
@@ -49,7 +53,11 @@ class AccessibilityUtilsTest {
     @Test
     fun `returns true when service is enabled`() {
         Settings.Secure.putInt(context.contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED, 1)
-        Settings.Secure.putString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES, expectedComponent)
+        Settings.Secure.putString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+            expectedComponent,
+        )
 
         val result = isPermissionsGranted(context)
 
