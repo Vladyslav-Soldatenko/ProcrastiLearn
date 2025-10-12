@@ -21,7 +21,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class AppsListTest {
-
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -131,9 +130,10 @@ class AppsListTest {
             }
         }
 
-        composeTestRule.onNodeWithText(
-            composeTestRule.activity.getString(R.string.apps_list_enable_procrastilearn_title),
-        ).assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(
+                composeTestRule.activity.getString(R.string.apps_list_enable_procrastilearn_title),
+            ).assertIsDisplayed()
         composeTestRule.onNodeWithText("Alpha App").assertIsDisplayed()
         composeTestRule.onNodeWithText("Beta App").assertIsDisplayed()
         composeTestRule.onNodeWithTag(appCheckboxTag("com.example.alpha")).assertIsOn()
@@ -211,6 +211,7 @@ class AppsListTest {
         const val ERROR_TEXT_TAG = "apps_list_error_text"
 
         fun appRowTag(packageName: String) = "app_row_$packageName"
+
         fun appCheckboxTag(packageName: String) = "app_checkbox_$packageName"
     }
 }

@@ -1,3 +1,4 @@
+package com.procrastilearn.app.ui.views
 
 import android.graphics.drawable.ColorDrawable
 import androidx.compose.ui.test.assertCountEquals
@@ -16,48 +17,55 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import com.procrastilearn.app.domain.model.AppInfo
-import com.procrastilearn.app.ui.views.AppsList
+import com.procrastilearn.app.testing.ComponentActivityRegistrationRule
 import io.mockk.called
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
 
 @RunWith(RobolectricTestRunner::class)
 @Config(
     sdk = [33],
     manifest = Config.NONE,
-    qualifiers = "xlarge"  // Add this
+    qualifiers = "xlarge",
 )
 class AppsListTest {
+    private val composeTestRule = createComposeRule()
+
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rules: TestRule =
+        RuleChain
+            .outerRule(ComponentActivityRegistrationRule())
+            .around(composeTestRule)
 
     private lateinit var mockOnToggleEnabled: (Boolean) -> Unit
     private lateinit var mockOnToggle: (AppInfo) -> Unit
 
-    private val testApps = listOf(
-        AppInfo(
-            packageName = "com.app1",
-            label = "App 1",
-            icon = ColorDrawable(android.graphics.Color.RED)
-        ),
-        AppInfo(
-            packageName = "com.app2",
-            label = "App 2",
-            icon = ColorDrawable(android.graphics.Color.BLUE)
-        ),
-        AppInfo(
-            packageName = "com.app3",
-            label = "App 3 with very long name that should be truncated",
-            icon = null
+    private val testApps =
+        listOf(
+            AppInfo(
+                packageName = "com.app1",
+                label = "App 1",
+                icon = ColorDrawable(android.graphics.Color.RED),
+            ),
+            AppInfo(
+                packageName = "com.app2",
+                label = "App 2",
+                icon = ColorDrawable(android.graphics.Color.BLUE),
+            ),
+            AppInfo(
+                packageName = "com.app3",
+                label = "App 3 with very long name that should be truncated",
+                icon = null,
+            ),
         )
-    )
 
     @Before
     fun setup() {
@@ -75,7 +83,7 @@ class AppsListTest {
                 isLoading = true,
                 errorMessage = null,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 
@@ -96,7 +104,7 @@ class AppsListTest {
                 isLoading = false,
                 errorMessage = errorMessage,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 
@@ -116,7 +124,7 @@ class AppsListTest {
                 isLoading = false,
                 errorMessage = null,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 
@@ -141,7 +149,7 @@ class AppsListTest {
                 isLoading = false,
                 errorMessage = null,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 
@@ -163,7 +171,7 @@ class AppsListTest {
                 isLoading = false,
                 errorMessage = null,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 
@@ -182,7 +190,7 @@ class AppsListTest {
                 isLoading = false,
                 errorMessage = null,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 
@@ -201,7 +209,7 @@ class AppsListTest {
                 isLoading = false,
                 errorMessage = null,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 
@@ -224,7 +232,7 @@ class AppsListTest {
                 isLoading = false,
                 errorMessage = null,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 
@@ -251,7 +259,7 @@ class AppsListTest {
                 isLoading = false,
                 errorMessage = null,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 
@@ -272,7 +280,7 @@ class AppsListTest {
                 isLoading = false,
                 errorMessage = null,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 
@@ -293,7 +301,7 @@ class AppsListTest {
                 isLoading = false,
                 errorMessage = null,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 
@@ -314,7 +322,7 @@ class AppsListTest {
                 isLoading = false,
                 errorMessage = null,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 
@@ -335,7 +343,7 @@ class AppsListTest {
                 isLoading = false,
                 errorMessage = null,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 
@@ -356,7 +364,7 @@ class AppsListTest {
                 isLoading = false,
                 errorMessage = null,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 
@@ -381,7 +389,7 @@ class AppsListTest {
                 isLoading = false,
                 errorMessage = null,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 
@@ -396,13 +404,14 @@ class AppsListTest {
 
     @Test
     fun `scrolling works with many apps`() {
-        val manyApps = List(50) { index ->
-            AppInfo(
-                packageName = "com.app$index",
-                label = "App $index",
-                icon = null
-            )
-        }
+        val manyApps =
+            List(50) { index ->
+                AppInfo(
+                    packageName = "com.app$index",
+                    label = "App $index",
+                    icon = null,
+                )
+            }
 
         composeTestRule.setContent {
             AppsList(
@@ -412,7 +421,7 @@ class AppsListTest {
                 isLoading = false,
                 errorMessage = null,
                 onToggleEnabled = mockOnToggleEnabled,
-                onToggle = mockOnToggle
+                onToggle = mockOnToggle,
             )
         }
 

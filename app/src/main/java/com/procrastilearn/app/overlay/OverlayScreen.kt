@@ -1,6 +1,7 @@
 package com.procrastilearn.app.overlay
 
 import android.content.res.Configuration
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,8 +43,9 @@ fun OverlayScreen(
 }
 
 @Suppress("MagicNumber")
+@VisibleForTesting
 @Composable
-private fun OverlayScreen(
+internal fun OverlayScreen(
     uiState: OverlayUiState,
     onToggleShowAnswer: () -> Unit,
     onDifficultySelected: (Rating) -> Unit,
