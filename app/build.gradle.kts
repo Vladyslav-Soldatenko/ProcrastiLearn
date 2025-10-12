@@ -88,6 +88,8 @@ dependencies {
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.junit)
   androidTestImplementation(libs.androidx.espresso.core)
+  testImplementation(platform(libs.androidx.compose.bom))
+  testImplementation(libs.androidx.ui.test.junit4)
   androidTestImplementation(platform(libs.androidx.compose.bom))
   androidTestImplementation(libs.androidx.ui.test.junit4)
   debugImplementation(libs.androidx.ui.tooling)
@@ -124,4 +126,9 @@ detekt {
   allRules = false // don’t enable every experimental rule
   config.setFrom(files("$rootDir/detekt.yml"))
   ignoreFailures = false
+}
+android {
+  testOptions {
+    unitTests.isIncludeAndroidResources = true
+  }
 }
