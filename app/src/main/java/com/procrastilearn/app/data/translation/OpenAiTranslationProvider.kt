@@ -7,13 +7,11 @@ import com.openai.models.ReasoningEffort
 import com.openai.models.chat.completions.ChatCompletionCreateParams
 import javax.inject.Inject
 
-class OpenAiTranslationProvider @Inject constructor() : AiTranslationProvider {
+class OpenAiTranslationProvider @Inject constructor(
+    private val clientFactory: OpenAiClientFactory,
+) : AiTranslationProvider {
     override suspend fun translate(request: AiTranslationRequest): String {
-        val client: OpenAIClient =
-            OpenAIOkHttpClient
-                .builder()
-                .apiKey(request.apiKey)
-                .build()
+        val client: OpenAIClient = clientFactory.create(request.apiKey)
 
         val params =
             ChatCompletionCreateParams
@@ -39,4 +37,12 @@ class OpenAiTranslationProvider @Inject constructor() : AiTranslationProvider {
         if (text.isBlank()) error("OpenAI returned an empty response")
         return text
     }
+}
+
+class OpenAiClientFactory @Inject constructor() {
+    fun create(apiKey: String): OpenAIClient =
+        OpenAIOkHttpClient
+            .builder()
+            .apiKey(apiKey)
+            .build()
 }
