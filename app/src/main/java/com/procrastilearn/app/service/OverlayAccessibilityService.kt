@@ -3,6 +3,9 @@ package com.procrastilearn.app.service
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.graphics.PixelFormat
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
@@ -31,6 +34,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+
 class OverlayAccessibilityService : AccessibilityService() {
     private companion object {
         const val SECONDS_PER_MINUTE = 60
@@ -51,6 +55,8 @@ class OverlayAccessibilityService : AccessibilityService() {
     private var intervalTimerJob: Job? = null
     private var overlayIntervalMinutes: Int = 0
     private var isProcrastilearnEnabled: Boolean = true
+    private var audioManager: AudioManager? = null
+    private var focusRequest: AudioFocusRequest? = null
 
     private val serviceEntryPoint: ServiceEntryPoint by lazy {
         EntryPointAccessors.fromApplication(
@@ -360,6 +366,7 @@ class OverlayAccessibilityService : AccessibilityService() {
 
         windowManager?.addView(overlayView, params)
         Log.d("OverlayService", "Overlay added to window manager")
+        requestAudioFocus()
     }
 
     private fun hideOverlay() {
@@ -373,6 +380,7 @@ class OverlayAccessibilityService : AccessibilityService() {
                 Log.w("OverlayService", "Overlay remove called on a non-attached view", e)
             }
         }
+        releaseAudioFocus()
         overlayView = null
         lifecycleOwner?.onDestroy()
         lifecycleOwner = null
@@ -393,6 +401,36 @@ class OverlayAccessibilityService : AccessibilityService() {
 
     @Suppress("EmptyFunctionBlock")
     override fun onInterrupt() {}
+
+    private fun requestAudioFocus() {
+        if (focusRequest != null) return
+
+        val manager = audioManager ?: (getSystemService(AUDIO_SERVICE) as? AudioManager)
+        audioManager = manager ?: return
+
+        val focusRequest =
+            AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                .setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_UNKNOWN)
+                        .build()
+                )
+                .build()
+
+        val result = manager.requestAudioFocus(focusRequest)
+        Log.i("OverlayService", "Audio focus request result: $result")
+        this.focusRequest = focusRequest
+    }
+
+    private fun releaseAudioFocus() {
+        focusRequest?.let { request ->
+            audioManager?.abandonAudioFocusRequest(request)
+            Log.i("OverlayService", "Audio focus abandoned")
+        }
+        focusRequest = null
+        audioManager = null
+    }
 
     override fun onDestroy() {
         Log.d("OverlayService", "Service destroying")
