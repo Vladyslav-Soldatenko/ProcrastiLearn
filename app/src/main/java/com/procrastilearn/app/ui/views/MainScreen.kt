@@ -25,7 +25,7 @@ fun MainScreen() {
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Apps.route,
+            startDestination = Screen.AddWord.route,
             modifier = Modifier.padding(paddingValues),
         ) {
             composable(Screen.Apps.route) {
