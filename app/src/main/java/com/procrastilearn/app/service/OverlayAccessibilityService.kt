@@ -34,7 +34,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
 class OverlayAccessibilityService : AccessibilityService() {
     private companion object {
         const val SECONDS_PER_MINUTE = 60
@@ -409,14 +408,15 @@ class OverlayAccessibilityService : AccessibilityService() {
         audioManager = manager ?: return
 
         val focusRequest =
-            AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+            AudioFocusRequest
+                .Builder(AudioManager.AUDIOFOCUS_GAIN)
                 .setAudioAttributes(
-                    AudioAttributes.Builder()
+                    AudioAttributes
+                        .Builder()
                         .setUsage(AudioAttributes.USAGE_MEDIA)
                         .setContentType(AudioAttributes.CONTENT_TYPE_UNKNOWN)
-                        .build()
-                )
-                .build()
+                        .build(),
+                ).build()
 
         val result = manager.requestAudioFocus(focusRequest)
         Log.i("OverlayService", "Audio focus request result: $result")
