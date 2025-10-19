@@ -9,6 +9,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -30,6 +36,18 @@ fun PermissionSettingsItem(
             Checkbox(
                 checked = isChecked,
                 onCheckedChange = null,
+                modifier =
+                    Modifier
+                        .testTag("permission_settings_checkbox")
+                        .semantics {
+                            role = Role.Checkbox
+                            this[SemanticsProperties.ToggleableState] =
+                                if (isChecked) {
+                                    ToggleableState.On
+                                } else {
+                                    ToggleableState.Off
+                                }
+                        },
             )
         },
         modifier =
