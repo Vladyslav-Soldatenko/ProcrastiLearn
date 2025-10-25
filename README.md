@@ -9,6 +9,7 @@ allow customization of gpt model (or even better - provider customization (via l
 Update prompt to take into account language pairs, avoid hardcoding eng-rus
 add practice mode (fully like anki, to practice without opening apps. Maybe also add "random words" mode there)
 avoid words duplicates (maybe reset word progress if user tries to add the same word)
+add kebab menu to overlay screen to delete/edit word right from there
 
 long roadmap:
 add cloud sync
