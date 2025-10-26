@@ -13,7 +13,7 @@ add kebab menu to overlay screen to delete/edit word right from there
 
 long roadmap:
 add cloud sync
-add import (from anki at least)
+add imports and improve existing (support more formats, improve anki support, etc)
 add decks
 add tests
 add "add word" option to selection popup (when word is selected in some other app)

@@ -26,6 +26,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,11 +41,15 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import com.procrastilearn.app.ui.SettingsViewModel
+import com.procrastilearn.app.ui.VocabularyImportFailureReason
+import com.procrastilearn.app.ui.VocabularyImportResult
 import com.procrastilearn.app.ui.screens.settings.components.AboutUsDialog
 import com.procrastilearn.app.ui.screens.settings.components.AboutUsSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.AccessibilityPermissionItem
 import com.procrastilearn.app.ui.screens.settings.components.ExportSettingsItem
+import com.procrastilearn.app.ui.screens.settings.components.ImportSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.MixModeDialog
 import com.procrastilearn.app.ui.screens.settings.components.MixModeSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NewPerDaySettingsItem
@@ -85,6 +90,8 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val ctx = LocalContext.current
     val permissionStates = rememberPermissionStates(ctx)
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val importOptions = viewModel.importOptions
+    var pendingImportOptionId by rememberSaveable { mutableStateOf<String?>(null) }
 
     val exportLauncher =
         rememberLauncherForActivityResult(
@@ -106,6 +113,32 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                         ).show()
                 }
             }
+        }
+
+    val importLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocument(),
+        ) { uri ->
+            val optionId = pendingImportOptionId
+            if (uri != null && optionId != null) {
+                viewModel.importVocabularyFromUri(ctx, optionId, uri) { result ->
+                    val message =
+                        when (result) {
+                            is VocabularyImportResult.Success ->
+                                ctx.getString(R.string.settings_import_success, result.importedCount)
+                            is VocabularyImportResult.Failure ->
+                                when (result.reason) {
+                                    VocabularyImportFailureReason.UNSUPPORTED_FORMAT ->
+                                        ctx.getString(R.string.settings_import_failure_format)
+                                    VocabularyImportFailureReason.FILE_ERROR,
+                                    VocabularyImportFailureReason.PARSE_ERROR,
+                                    -> ctx.getString(R.string.settings_import_failure_generic)
+                                }
+                        }
+                    Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show()
+                }
+            }
+            pendingImportOptionId = null
         }
     Scaffold(
         topBar = { SettingsTopBar() },
@@ -131,6 +164,14 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             onExportClick = {
                 val name = "vocabulary-export-${LocalDate.now()}.json"
                 exportLauncher.launch(name)
+            },
+            importOptions = importOptions,
+            onImportOptionSelected = { option ->
+                pendingImportOptionId = option.id
+                val mimeTypes =
+                    option.mimeTypes.takeIf { it.isNotEmpty() }
+                        ?: listOf("*/*")
+                importLauncher.launch(mimeTypes.toTypedArray())
             },
         )
     }
@@ -166,6 +207,8 @@ internal fun SettingsContent(
     onOpenAiApiKeyChange: (String) -> Unit,
     onOpenAiPromptChange: (String) -> Unit,
     onExportClick: () -> Unit,
+    importOptions: List<VocabularyImportOption> = emptyList(),
+    onImportOptionSelected: (VocabularyImportOption) -> Unit = {},
 ) {
     var dialogState by remember { mutableStateOf<DialogState>(DialogState.None) }
 
@@ -238,6 +281,15 @@ internal fun SettingsContent(
             )
 
             Spacer(Modifier.height(4.dp))
+
+            if (importOptions.isNotEmpty()) {
+                ImportSettingsItem(
+                    options = importOptions,
+                    onOptionSelected = onImportOptionSelected,
+                )
+
+                Spacer(Modifier.height(4.dp))
+            }
 
             ExportSettingsItem(onClick = onExportClick)
         }
@@ -376,6 +428,17 @@ fun SettingsScreenPreview_AllGranted() {
             onOpenAiApiKeyChange = {},
             onOpenAiPromptChange = {},
             onExportClick = {},
+            importOptions =
+                listOf(
+                    VocabularyImportOption(
+                        id = "apkg",
+                        titleResId = R.string.settings_import_option_anki_apkg,
+                        descriptionResId = R.string.settings_import_option_anki_apkg_desc,
+                        mimeTypes = listOf("application/apkg"),
+                        extensions = setOf("apkg"),
+                    ),
+                ),
+            onImportOptionSelected = {},
         )
     }
 }

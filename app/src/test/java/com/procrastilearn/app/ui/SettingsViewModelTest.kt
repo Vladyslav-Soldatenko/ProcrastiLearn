@@ -5,12 +5,16 @@ import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
+import com.procrastilearn.app.R
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.VocabularyItem
+import com.procrastilearn.app.domain.parser.VocabularyParser
+import com.procrastilearn.app.domain.repository.VocabularyRepository
 import com.procrastilearn.app.utils.MainDispatcherRule
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -30,6 +34,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -40,15 +45,27 @@ class SettingsViewModelTest {
     private lateinit var appContext: Context
     private lateinit var store: DayCountersStore
     private lateinit var vocabularyDao: VocabularyDao
+    private lateinit var vocabularyRepository: VocabularyRepository
     private lateinit var policyFlow: MutableStateFlow<LearningPreferencesConfig>
     private lateinit var apiKeyFlow: MutableStateFlow<String?>
     private lateinit var promptFlow: MutableStateFlow<String>
+    private val defaultParser: VocabularyParser =
+        object : VocabularyParser {
+            override val id: String = "apkg"
+            override val titleResId: Int = R.string.settings_import_option_anki_apkg
+            override val descriptionResId: Int? = R.string.settings_import_option_anki_apkg_desc
+            override val supportedExtensions: Set<String> = setOf("apkg")
+            override val mimeTypes: List<String> = listOf("application/apkg")
+
+            override fun parse(file: File): List<VocabularyItem> = emptyList()
+        }
 
     @Before
     fun setUp() {
         appContext = ApplicationProvider.getApplicationContext()
         store = mockk(relaxed = true)
         vocabularyDao = mockk()
+        vocabularyRepository = mockk(relaxed = true)
         policyFlow =
             MutableStateFlow(
                 LearningPreferencesConfig(
@@ -72,7 +89,27 @@ class SettingsViewModelTest {
         clearAllMocks()
     }
 
-    private fun buildViewModel(): SettingsViewModel = SettingsViewModel(store, vocabularyDao)
+    private fun buildViewModel(parsers: Set<VocabularyParser> = setOf(defaultParser)): SettingsViewModel =
+        SettingsViewModel(
+            store = store,
+            vocabularyDao = vocabularyDao,
+            vocabularyRepository = vocabularyRepository,
+            parsers = parsers,
+            ioDispatcher = mainDispatcherRule.testDispatcher,
+        )
+
+    @Test
+    fun `import options surface parser metadata`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+
+            val options = viewModel.importOptions
+
+            assertThat(options).hasSize(1)
+            val option = options.first()
+            assertThat(option.id).isEqualTo("apkg")
+            assertThat(option.mimeTypes).contains("application/apkg")
+        }
 
     @Test
     fun `uiState reflects values from store flows`() =
@@ -234,5 +271,88 @@ class SettingsViewModelTest {
 
             assertThat(completion.await()).isFalse()
             assertThat(tempFile.readText()).isEmpty()
+        }
+
+    @Test
+    fun `importVocabularyFromUri delegates parsed items to repository`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val parsedItem = VocabularyItem(id = 0, word = "Hallo", translation = "Hello", isNew = true)
+            val parser =
+                object : VocabularyParser {
+                    override val id: String = "apkg"
+                    override val titleResId: Int = R.string.settings_import_option_anki_apkg
+                    override val descriptionResId: Int? = R.string.settings_import_option_anki_apkg_desc
+                    override val supportedExtensions: Set<String> = setOf("apkg")
+                    override val mimeTypes: List<String> = listOf("application/apkg")
+
+                    override fun parse(file: File): List<VocabularyItem> = listOf(parsedItem)
+                }
+            coEvery { vocabularyRepository.addVocabularyItem(any()) } returns Unit
+            val viewModel = buildViewModel(parsers = setOf(parser))
+            val tempFile =
+                kotlin.io.path
+                    .createTempFile(prefix = "deck", suffix = ".apkg")
+                    .toFile()
+            tempFile.writeText("placeholder")
+            val uri = Uri.fromFile(tempFile)
+
+            var result: VocabularyImportResult? = null
+            viewModel.importVocabularyFromUri(appContext, parser.id, uri) { result = it }
+            advanceUntilIdle()
+
+            assertThat(result).isEqualTo(VocabularyImportResult.Success(importedCount = 1))
+            coVerify { vocabularyRepository.addVocabularyItem(parsedItem) }
+        }
+
+    @Test
+    fun `importVocabularyFromUri reports unsupported format`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel(parsers = emptySet())
+            val tempFile =
+                kotlin.io.path
+                    .createTempFile(prefix = "deck", suffix = ".apkg")
+                    .toFile()
+            tempFile.writeText("placeholder")
+            val uri = Uri.fromFile(tempFile)
+
+            var result: VocabularyImportResult? = null
+            viewModel.importVocabularyFromUri(appContext, "unknown", uri) { result = it }
+            advanceUntilIdle()
+
+            assertThat(result).isEqualTo(
+                VocabularyImportResult.Failure(VocabularyImportFailureReason.UNSUPPORTED_FORMAT),
+            )
+            coVerify(exactly = 0) { vocabularyRepository.addVocabularyItem(any()) }
+        }
+
+    @Test
+    fun `importVocabularyFromUri reports parser errors`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val parser =
+                object : VocabularyParser {
+                    override val id: String = "apkg"
+                    override val titleResId: Int = R.string.settings_import_option_anki_apkg
+                    override val descriptionResId: Int? = R.string.settings_import_option_anki_apkg_desc
+                    override val supportedExtensions: Set<String> = setOf("apkg")
+                    override val mimeTypes: List<String> = listOf("application/apkg")
+
+                    override fun parse(file: File): List<VocabularyItem> = throw IllegalArgumentException("bad")
+                }
+            val viewModel = buildViewModel(parsers = setOf(parser))
+            val tempFile =
+                kotlin.io.path
+                    .createTempFile(prefix = "deck", suffix = ".apkg")
+                    .toFile()
+            tempFile.writeText("placeholder")
+            val uri = Uri.fromFile(tempFile)
+
+            var result: VocabularyImportResult? = null
+            viewModel.importVocabularyFromUri(appContext, parser.id, uri) { result = it }
+            advanceUntilIdle()
+
+            assertThat(result).isEqualTo(
+                VocabularyImportResult.Failure(VocabularyImportFailureReason.PARSE_ERROR),
+            )
+            coVerify(exactly = 0) { vocabularyRepository.addVocabularyItem(any()) }
         }
 }

@@ -12,6 +12,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import com.procrastilearn.app.testing.ComponentActivityRegistrationRule
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import org.junit.Before
@@ -39,6 +40,14 @@ class SettingsContentTest {
             .around(composeTestRule)
 
     private lateinit var context: Context
+    private val defaultImportOption =
+        VocabularyImportOption(
+            id = "apkg",
+            titleResId = R.string.settings_import_option_anki_apkg,
+            descriptionResId = R.string.settings_import_option_anki_apkg_desc,
+            mimeTypes = listOf("application/apkg"),
+            extensions = setOf("apkg"),
+        )
 
     @Before
     fun setup() {
@@ -54,6 +63,18 @@ class SettingsContentTest {
         composeTestRule.onNodeWithText(string(R.string.settings_reviews_per_day_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_overlay_headline)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_about_us_row)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.settings_import_row)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `import option selection triggers callback`() {
+        var selectedOptionId: String? = null
+        setContent(onImportOptionSelected = { selectedOptionId = it.id })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_import_row)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.settings_import_option_anki_apkg)).performClick()
+
+        assertThat(selectedOptionId).isEqualTo("apkg")
     }
 
     @Test
@@ -127,6 +148,8 @@ class SettingsContentTest {
         onOpenAiApiKeyChange: (String) -> Unit = {},
         onOpenAiPromptChange: (String) -> Unit = {},
         onExportClick: () -> Unit = {},
+        importOptions: List<VocabularyImportOption> = listOf(defaultImportOption),
+        onImportOptionSelected: (VocabularyImportOption) -> Unit = {},
     ) {
         composeTestRule.setContent {
             MyApplicationTheme {
@@ -148,6 +171,8 @@ class SettingsContentTest {
                     onOpenAiApiKeyChange = onOpenAiApiKeyChange,
                     onOpenAiPromptChange = onOpenAiPromptChange,
                     onExportClick = onExportClick,
+                    importOptions = importOptions,
+                    onImportOptionSelected = onImportOptionSelected,
                 )
             }
         }
