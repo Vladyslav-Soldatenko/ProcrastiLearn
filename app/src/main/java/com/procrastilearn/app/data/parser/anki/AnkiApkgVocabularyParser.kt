@@ -1,6 +1,7 @@
 package com.procrastilearn.app.data.parser.anki
 
 import android.database.sqlite.SQLiteDatabase
+import android.util.Log
 import androidx.core.text.HtmlCompat
 import com.github.luben.zstd.ZstdInputStream
 import com.procrastilearn.app.R
@@ -59,12 +60,23 @@ class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
                     when (entry.name) {
                         "collection.anki21b" -> {
                             val compressedBytes = zipStream.readBytes()
-                            extractedDb =
-                                File(tempDir, "collection.anki2").also { target ->
-                                    decompressZstd(ByteArrayInputStream(compressedBytes), target)
-                                }
-                            // Newer Anki exports include a zstd-compressed sqlite DB; prefer this version.
-                            extractedFromModernArchive = true
+                            val target = File(tempDir, "collection.anki2")
+                            val decompressed =
+                                runCatching { decompressZstd(ByteArrayInputStream(compressedBytes), target) }
+                                    .onSuccess {
+                                        extractedDb = target
+                                        extractedFromModernArchive = true
+                                    }.onFailure { throwable ->
+                                        target.delete()
+                                        Log.w(
+                                            "AnkiApkgVocabularyParser",
+                                            "Failed to decompress collection.anki21b, will fall back to legacy DB",
+                                            throwable,
+                                        )
+                                    }.isSuccess
+                            if (!decompressed) {
+                                extractedFromModernArchive = false
+                            }
                         }
 
                         "collection.anki21" -> {
@@ -117,6 +129,11 @@ class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
                         parseVocabularyItem(rawFields)?.let(::add)
                     }
                 }
+            }.also { items ->
+                Log.d(
+                    "AnkiApkgVocabularyParser",
+                    "Parsed ${items.size} vocabulary items from ${databaseFile.name}",
+                )
             }
         }
     }

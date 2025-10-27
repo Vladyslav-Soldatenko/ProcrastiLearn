@@ -17,3 +17,4 @@ add imports and improve existing (support more formats, improve anki support, et
 add decks
 add tests
 add "add word" option to selection popup (when word is selected in some other app)
+add integration with gemini assistant (to add words via voice)
