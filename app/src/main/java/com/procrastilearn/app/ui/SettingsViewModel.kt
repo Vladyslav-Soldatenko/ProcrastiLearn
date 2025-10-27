@@ -2,6 +2,7 @@ package com.procrastilearn.app.ui
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.local.dao.VocabularyDao
@@ -175,8 +176,13 @@ class SettingsViewModel
                     try {
                         val inputStream = context.contentResolver.openInputStream(uri)
                         if (inputStream == null) {
+                            Log.w(
+                                "SettingsViewModel",
+                                "openInputStream returned null for uri=$uri with resolver=${context.contentResolver}",
+                            )
                             VocabularyImportResult.Failure(VocabularyImportFailureReason.FILE_ERROR)
                         } else {
+                            Log.d("SettingsViewModel", "openInputStream succeeded for uri=$uri")
                             inputStream.use { input ->
                                 tempFile.outputStream().use { output -> input.copyTo(output) }
                             }
@@ -185,13 +191,27 @@ class SettingsViewModel
                             VocabularyImportResult.Success(items.size)
                         }
                     } catch (exception: IllegalArgumentException) {
+                        Log.e(
+                            "SettingsViewModel",
+                            "Failed to parse imported vocabulary from uri=$uri",
+                            exception,
+                        )
                         VocabularyImportResult.Failure(VocabularyImportFailureReason.PARSE_ERROR)
                     } catch (throwable: Throwable) {
+                        Log.e(
+                            "SettingsViewModel",
+                            "Failed to import vocabulary from uri=$uri",
+                            throwable,
+                        )
                         VocabularyImportResult.Failure(VocabularyImportFailureReason.FILE_ERROR)
                     } finally {
                         tempFile.delete()
                     }
 
+                Log.d(
+                    "SettingsViewModel",
+                    "importVocabularyFromUri optionId=$optionId uri=$uri result=$result",
+                )
                 withContext(Dispatchers.Main) {
                     onComplete(result)
                 }
