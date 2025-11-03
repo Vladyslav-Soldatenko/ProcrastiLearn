@@ -225,6 +225,144 @@ class AddWordViewModelTest {
         }
 
     @Test
+    fun `onPreviewClick requires non blank word`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val viewModel = buildViewModel()
+
+            advanceUntilIdle()
+
+            viewModel.onPreviewClick()
+
+            assertThat(viewModel.uiState.value.wordError).isEqualTo("Please enter a word")
+            assertThat(viewModel.uiState.value.isPreviewVisible).isFalse()
+        }
+
+    @Test
+    fun `onPreviewClick loads AI translation and shows dialog`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            aiTranslationProvider.nextTranslation = "House"
+            val viewModel = buildViewModel()
+
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isPreviewVisible).isTrue()
+            assertThat(state.previewContent).isNotNull()
+            assertThat(state.previewContent?.word).isEqualTo("Haus")
+            assertThat(state.previewContent?.translation).isEqualTo("House")
+            assertThat(state.translation).isEqualTo("House")
+            assertThat(state.isLoading).isFalse()
+            assertThat(state.loadingAction).isNull()
+        }
+
+    @Test
+    fun `onPreviewClick failure posts error`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            aiTranslationProvider.nextError = IllegalStateException("nope")
+            val viewModel = buildViewModel()
+
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.errorMessage).isEqualTo("nope")
+            assertThat(state.isPreviewVisible).isFalse()
+            assertThat(state.previewContent).isNull()
+            assertThat(state.isLoading).isFalse()
+            assertThat(state.loadingAction).isNull()
+        }
+
+    @Test
+    fun `onPreviewCancel clears fields and hides dialog`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            aiTranslationProvider.nextTranslation = "House"
+            val viewModel = buildViewModel()
+
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            viewModel.onPreviewCancel()
+
+            val state = viewModel.uiState.value
+            assertThat(state.word).isEmpty()
+            assertThat(state.translation).isEmpty()
+            assertThat(state.previewContent).isNull()
+            assertThat(state.isPreviewVisible).isFalse()
+            assertThat(state.successMessage).isNull()
+        }
+
+    @Test
+    fun `onPreviewConfirmAdd adds word and clears preview`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            coEvery { addVocabularyItemUseCase.invoke(any(), any()) } returns Result.success(Unit)
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            aiTranslationProvider.nextTranslation = "House"
+            val viewModel = buildViewModel()
+
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            viewModel.onPreviewConfirmAdd()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isPreviewVisible).isFalse()
+            assertThat(state.previewContent).isNull()
+            assertThat(state.word).isEmpty()
+            assertThat(state.translation).isEmpty()
+            assertThat(state.isSuccess).isTrue()
+            coVerify { addVocabularyItemUseCase.invoke("Haus", "House") }
+        }
+
+    @Test
+    fun `onPreviewConfirmAdd failure keeps preview visible and posts error`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            coEvery { addVocabularyItemUseCase.invoke(any(), any()) } returns
+                Result.failure(IllegalStateException("boom"))
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            aiTranslationProvider.nextTranslation = "House"
+            val viewModel = buildViewModel()
+
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            viewModel.onPreviewConfirmAdd()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.errorMessage).isEqualTo("boom")
+            assertThat(state.isPreviewVisible).isTrue()
+            assertThat(state.previewContent).isNotNull()
+            coVerify { addVocabularyItemUseCase.invoke("Haus", "House") }
+        }
+
+    @Test
     fun `onAddClick uses AI translation when available`() =
         runTest(mainDispatcherRule.testDispatcher) {
             openAiKeyFlow.value = "abc"

@@ -179,6 +179,10 @@
 
     <!-- Add Word: AI translation toggle -->
     <string name="add_word_use_ai_toggle">use AI to generate translation</string>
+    <string name="add_word_button_preview">Preview</string>
+    <string name="add_word_preview_title">AI preview</string>
+    <string name="add_word_preview_cancel">@string/action_cancel</string>
+    <string name="add_word_preview_confirm">@string/action_add</string>
 
     <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
     <string name="word_list_title">My Vocabulary</string>
