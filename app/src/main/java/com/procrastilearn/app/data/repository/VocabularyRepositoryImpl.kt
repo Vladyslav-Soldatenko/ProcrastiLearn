@@ -45,6 +45,11 @@ class VocabularyRepositoryImpl
         private val io = Dispatchers.IO
         private var lastShownId: Long? = null
 
+        override suspend fun getVocabularyItemByWord(word: String): VocabularyItem? =
+            withContext(io) {
+                vocabularyDao.getVocabularyByWord(word.trim())?.toDomain()
+            }
+
         override suspend fun addVocabularyItem(item: VocabularyItem): Unit =
             withContext(io) {
                 // New items should not be counted as reviews due.

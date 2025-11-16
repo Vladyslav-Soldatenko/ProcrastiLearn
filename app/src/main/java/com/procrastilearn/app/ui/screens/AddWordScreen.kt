@@ -17,10 +17,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
@@ -51,8 +51,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.procrastilearn.app.R
 import com.procrastilearn.app.overlay.theme.OverlayTheme
@@ -94,6 +94,9 @@ fun AddWordScreen(
         useAiForTranslation = uiState.useAiForTranslation,
         previewContent = uiState.previewContent,
         isPreviewVisible = uiState.isPreviewVisible,
+        isExistingWordDialogVisible = uiState.isExistingWordDialogVisible,
+        existingWordDialogWord = uiState.existingWordDialogWord,
+        isExistingWordDialogLoading = uiState.isExistingWordDialogLoading,
         loadingAction = uiState.loadingAction,
         onWordChange = viewModel::onWordChange,
         onTranslationChange = viewModel::onTranslationChange,
@@ -102,6 +105,8 @@ fun AddWordScreen(
         onPreviewCancel = viewModel::onPreviewCancel,
         onPreviewConfirmAdd = viewModel::onPreviewConfirmAdd,
         onAddClick = viewModel::onAddClick,
+        onExistingWordDialogCancel = viewModel::onExistingWordDialogCancel,
+        onExistingWordDialogProceed = viewModel::onExistingWordDialogProceed,
     )
 }
 
@@ -127,6 +132,9 @@ private fun AddWordContentPreviewAiEnabled() {
                     translation = "House\nHome\nBuilding",
                 ),
             isPreviewVisible = false,
+            isExistingWordDialogVisible = false,
+            existingWordDialogWord = null,
+            isExistingWordDialogLoading = false,
             loadingAction = null,
             onWordChange = {},
             onTranslationChange = {},
@@ -135,6 +143,8 @@ private fun AddWordContentPreviewAiEnabled() {
             onPreviewCancel = {},
             onPreviewConfirmAdd = {},
             onAddClick = {},
+            onExistingWordDialogCancel = {},
+            onExistingWordDialogProceed = {},
         )
     }
 }
@@ -173,6 +183,9 @@ private fun AddWordContent(
     useAiForTranslation: Boolean,
     previewContent: AddWordPreviewContent?,
     isPreviewVisible: Boolean,
+    isExistingWordDialogVisible: Boolean,
+    existingWordDialogWord: String?,
+    isExistingWordDialogLoading: Boolean,
     loadingAction: AddWordLoadingAction?,
     onWordChange: (String) -> Unit,
     onTranslationChange: (String) -> Unit,
@@ -181,6 +194,8 @@ private fun AddWordContent(
     onPreviewCancel: () -> Unit,
     onPreviewConfirmAdd: () -> Unit,
     onAddClick: () -> Unit,
+    onExistingWordDialogCancel: () -> Unit,
+    onExistingWordDialogProceed: () -> Unit,
 ) {
     Box(
         modifier =
@@ -476,6 +491,15 @@ private fun AddWordContent(
                 }
             }
         }
+
+        if (isExistingWordDialogVisible) {
+            ExistingWordDialog(
+                word = existingWordDialogWord,
+                isLoading = isExistingWordDialogLoading,
+                onProceed = onExistingWordDialogProceed,
+                onCancel = onExistingWordDialogCancel,
+            )
+        }
     }
 }
 
@@ -598,6 +622,113 @@ private fun AddWordPreviewDialogContent(
     }
 }
 
+@Composable
+private fun ExistingWordDialog(
+    word: String?,
+    isLoading: Boolean,
+    onProceed: () -> Unit,
+    onCancel: () -> Unit,
+) {
+    Dialog(onDismissRequest = onCancel) {
+        ExistingWordDialogContent(
+            word = word,
+            isLoading = isLoading,
+            onProceed = onProceed,
+            onCancel = onCancel,
+        )
+    }
+}
+
+@Composable
+private fun ExistingWordDialogContent(
+    word: String?,
+    isLoading: Boolean,
+    onProceed: () -> Unit,
+    onCancel: () -> Unit,
+) {
+    OverlayTheme {
+        Surface(
+            modifier = Modifier.widthIn(min = 320.dp, max = 420.dp),
+            shape = RoundedCornerShape(24.dp),
+            color = OverlayThemeTokens.colors.cardContainer,
+            tonalElevation = 12.dp,
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 28.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = stringResource(R.string.add_word_existing_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = OverlayThemeTokens.colors.titleColor,
+                    textAlign = TextAlign.Center,
+                )
+                word?.takeIf { it.isNotBlank() }?.let {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = OverlayThemeTokens.colors.titleColor,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = stringResource(R.string.add_word_existing_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = OverlayThemeTokens.colors.helpText,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    OutlinedButton(
+                        onClick = onCancel,
+                        modifier = Modifier.weight(1f),
+                        enabled = !isLoading,
+                    ) {
+                        Text(text = stringResource(R.string.add_word_existing_cancel))
+                    }
+                    Button(
+                        onClick = onProceed,
+                        modifier = Modifier.weight(1f),
+                        enabled = !isLoading,
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                            ),
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                            )
+                        } else {
+                            Text(text = stringResource(R.string.add_word_existing_proceed))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Existing Word Dialog")
+@Composable
+private fun ExistingWordDialogPreview() {
+    MyApplicationTheme {
+        ExistingWordDialogContent(
+            word = "Haus",
+            isLoading = false,
+            onProceed = {},
+            onCancel = {},
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun AddWordContentPreview() {
@@ -616,6 +747,9 @@ private fun AddWordContentPreview() {
             useAiForTranslation = false,
             previewContent = null,
             isPreviewVisible = false,
+            isExistingWordDialogVisible = false,
+            existingWordDialogWord = null,
+            isExistingWordDialogLoading = false,
             loadingAction = null,
             onWordChange = {},
             onTranslationChange = {},
@@ -624,6 +758,8 @@ private fun AddWordContentPreview() {
             onPreviewCancel = {},
             onPreviewConfirmAdd = {},
             onAddClick = {},
+            onExistingWordDialogCancel = {},
+            onExistingWordDialogProceed = {},
         )
     }
 }

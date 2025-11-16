@@ -11,6 +11,8 @@ interface VocabularyRepository {
 
     fun getAllVocabulary(): Flow<List<VocabularyItem>>
 
+    suspend fun getVocabularyItemByWord(word: String): VocabularyItem?
+
     suspend fun addVocabularyItem(item: VocabularyItem)
 
     suspend fun updateVocabularyItem(item: VocabularyItem)

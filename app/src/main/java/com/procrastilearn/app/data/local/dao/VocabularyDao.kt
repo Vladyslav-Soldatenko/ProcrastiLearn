@@ -22,6 +22,15 @@ interface VocabularyDao {
     @Query("SELECT * FROM vocabulary WHERE id = :id")
     suspend fun getVocabularyById(id: Long): VocabularyEntity?
 
+    @Query(
+        """
+        SELECT * FROM vocabulary
+        WHERE word = :word COLLATE NOCASE
+        LIMIT 1
+        """,
+    )
+    suspend fun getVocabularyByWord(word: String): VocabularyEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertVocabulary(item: VocabularyEntity): Long
 

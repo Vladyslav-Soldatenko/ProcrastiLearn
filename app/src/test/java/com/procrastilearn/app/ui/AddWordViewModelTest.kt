@@ -4,7 +4,10 @@ import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
+import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
+import com.procrastilearn.app.domain.usecase.GetVocabularyItemByWordUseCase
+import com.procrastilearn.app.domain.usecase.OverrideVocabularyItemUseCase
 import com.procrastilearn.app.utils.MainDispatcherRule
 import io.mockk.Runs
 import io.mockk.clearAllMocks
@@ -28,6 +31,8 @@ class AddWordViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var addVocabularyItemUseCase: AddVocabularyItemUseCase
+    private lateinit var getVocabularyItemByWordUseCase: GetVocabularyItemByWordUseCase
+    private lateinit var overrideVocabularyItemUseCase: OverrideVocabularyItemUseCase
     private lateinit var prefs: DayCountersStore
     private lateinit var openAiKeyFlow: MutableStateFlow<String?>
     private lateinit var useAiFlow: MutableStateFlow<Boolean>
@@ -37,6 +42,8 @@ class AddWordViewModelTest {
     @Before
     fun setUp() {
         addVocabularyItemUseCase = mockk()
+        getVocabularyItemByWordUseCase = mockk()
+        overrideVocabularyItemUseCase = mockk()
         prefs = mockk(relaxed = true)
         openAiKeyFlow = MutableStateFlow(null)
         useAiFlow = MutableStateFlow(false)
@@ -47,6 +54,8 @@ class AddWordViewModelTest {
         every { prefs.readUseAiForTranslation() } returns useAiFlow
         every { prefs.readOpenAiPrompt() } returns promptFlow
         coEvery { prefs.setUseAiForTranslation(any()) } just Runs
+        coEvery { getVocabularyItemByWordUseCase.invoke(any()) } returns null
+        coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
     }
 
     @After
@@ -57,6 +66,8 @@ class AddWordViewModelTest {
     private fun buildViewModel(): AddWordViewModel =
         AddWordViewModel(
             addVocabularyItemUseCase,
+            getVocabularyItemByWordUseCase,
+            overrideVocabularyItemUseCase,
             prefs,
             aiTranslationProvider,
             mainDispatcherRule.testDispatcher,
@@ -421,6 +432,113 @@ class AddWordViewModelTest {
             coVerify(exactly = 0) { addVocabularyItemUseCase.invoke(any(), any()) }
             assertThat(aiTranslationProvider.requests).hasSize(1)
             assertThat(aiTranslationProvider.requests.single().userPrompt).contains("Haus")
+        }
+
+    @Test
+    fun `onAddClick shows duplicate dialog when word exists`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val existing =
+                VocabularyItem(
+                    id = 1,
+                    word = "Haus",
+                    translation = "House",
+                    isNew = false,
+                )
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            val viewModel = buildViewModel()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onTranslationChange("Дом")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isExistingWordDialogVisible).isTrue()
+            assertThat(state.existingWordDialogWord).isEqualTo("Haus")
+            assertThat(state.isLoading).isFalse()
+            coVerify(exactly = 0) { addVocabularyItemUseCase.invoke(any(), any()) }
+        }
+
+    @Test
+    fun `existing word dialog cancel hides dialog`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val existing =
+                VocabularyItem(
+                    id = 3,
+                    word = "Haus",
+                    translation = "House",
+                    isNew = false,
+                )
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            val viewModel = buildViewModel()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onTranslationChange("Дом")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+            viewModel.onExistingWordDialogCancel()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isExistingWordDialogVisible).isFalse()
+            assertThat(state.existingWordDialogWord).isNull()
+        }
+
+    @Test
+    fun `existing word dialog proceed overrides and clears state`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val existing =
+                VocabularyItem(
+                    id = 7,
+                    word = "Haus",
+                    translation = "House",
+                    isNew = false,
+                )
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
+            val viewModel = buildViewModel()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onTranslationChange("Дом")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+            viewModel.onExistingWordDialogProceed()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isExistingWordDialogVisible).isFalse()
+            assertThat(state.word).isEmpty()
+            assertThat(state.translation).isEmpty()
+            assertThat(state.isSuccess).isTrue()
+            assertThat(state.successMessage).isEqualTo("Word updated and progress reset!")
+            coVerify { overrideVocabularyItemUseCase.invoke(existing, "Haus", "Дом") }
+        }
+
+    @Test
+    fun `existing word dialog proceed failure posts error`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val existing =
+                VocabularyItem(
+                    id = 8,
+                    word = "Haus",
+                    translation = "House",
+                    isNew = false,
+                )
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns
+                Result.failure(IllegalStateException("override failed"))
+            val viewModel = buildViewModel()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onTranslationChange("Дом")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+            viewModel.onExistingWordDialogProceed()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.errorMessage).isEqualTo("override failed")
+            assertThat(state.isExistingWordDialogVisible).isFalse()
+            coVerify { overrideVocabularyItemUseCase.invoke(existing, "Haus", "Дом") }
         }
 
     private class FakeAiTranslationProvider : AiTranslationProvider {
