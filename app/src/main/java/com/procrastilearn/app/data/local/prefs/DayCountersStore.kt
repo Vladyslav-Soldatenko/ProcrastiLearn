@@ -92,7 +92,6 @@ class DayCountersStore @Inject constructor(
                 reviewPerDay = p[K.REVIEW_PER_DAY_LIMIT] ?: DEFAULT_REVIEW_PER_DAY,
                 overlayInterval = p[K.OVERLAY_INTERVAL_TIME] ?: DEFAULT_OVERLAY_INTERVAL_TIME,
                 mixMode = runCatching { MixMode.valueOf(mixName) }.getOrDefault(MixMode.MIX),
-                buryImmediateRepeat = true,
             )
         }
 

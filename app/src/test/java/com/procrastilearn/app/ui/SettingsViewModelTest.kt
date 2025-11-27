@@ -56,7 +56,6 @@ class SettingsViewModelTest {
                     reviewPerDay = 150,
                     overlayInterval = 10,
                     mixMode = MixMode.MIX,
-                    buryImmediateRepeat = true,
                 ),
             )
         apiKeyFlow = MutableStateFlow(null)

@@ -43,7 +43,6 @@ class VocabularyRepositoryImpl
     ) : VocabularyRepository {
         private val currentItem = MutableStateFlow<VocabularyItem?>(null)
         private val io = Dispatchers.IO
-        private var lastShownId: Long? = null
 
         override suspend fun getVocabularyItemByWord(word: String): VocabularyItem? =
             withContext(io) {
@@ -203,13 +202,6 @@ class VocabularyRepositoryImpl
 
                 val chosenId = pickId ?: throw NoAvailableItemsException()
 
-                // Avoid immediate repeat if policy says so
-                if (policy.buryImmediateRepeat && lastShownId != null && chosenId == lastShownId) {
-                    vocabularyDao.pickRandomAnyId(lastShownId)?.let { alternate ->
-                        return@withContext finalizePick(alternate)
-                    }
-                }
-
                 return@withContext finalizePick(chosenId)
             }
 
@@ -242,7 +234,6 @@ class VocabularyRepositoryImpl
 
             val item = entity.ensureFsrs().toDomain()
             currentItem.value = item
-            lastShownId = item.id
             return item
         }
 

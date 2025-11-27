@@ -49,7 +49,6 @@ class DayCountersStoreTest {
             assertThat(policy.reviewPerDay).isEqualTo(99)
             assertThat(policy.overlayInterval).isEqualTo(0)
             assertThat(policy.mixMode).isEqualTo(MixMode.MIX)
-            assertThat(policy.buryImmediateRepeat).isTrue()
 
             assertThat(store.readOpenAiApiKey().first()).isNull()
             assertThat(store.readOpenAiPrompt().first()).isEqualTo(OpenAiPromptDefaults.translationPrompt)

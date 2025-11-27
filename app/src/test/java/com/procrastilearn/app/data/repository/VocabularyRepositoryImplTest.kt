@@ -197,7 +197,6 @@ class VocabularyRepositoryImplTest {
                         reviewPerDay = 10,
                         overlayInterval = 5,
                         mixMode = MixMode.NEW_FIRST,
-                        buryImmediateRepeat = true,
                     ),
                 )
             coEvery { dayCountersStore.read() } returns
@@ -233,7 +232,6 @@ class VocabularyRepositoryImplTest {
                         reviewPerDay = 10,
                         overlayInterval = 5,
                         mixMode = MixMode.NEW_FIRST,
-                        buryImmediateRepeat = true,
                     ),
                 )
             coEvery { dayCountersStore.read() } returns
@@ -350,7 +348,6 @@ class VocabularyRepositoryImplTest {
                         reviewPerDay = 20,
                         overlayInterval = 6,
                         mixMode = MixMode.MIX,
-                        buryImmediateRepeat = true,
                     ),
                 )
 
@@ -380,7 +377,6 @@ class VocabularyRepositoryImplTest {
                         reviewPerDay = 5,
                         overlayInterval = 6,
                         mixMode = MixMode.MIX,
-                        buryImmediateRepeat = true,
                     ),
                 )
 
@@ -408,7 +404,6 @@ class VocabularyRepositoryImplTest {
                         reviewPerDay = 10,
                         overlayInterval = 6,
                         mixMode = MixMode.MIX,
-                        buryImmediateRepeat = true,
                     ),
                 )
 
@@ -458,7 +453,6 @@ class VocabularyRepositoryImplTest {
                         reviewPerDay = 99,
                         overlayInterval = 6,
                         mixMode = MixMode.MIX,
-                        buryImmediateRepeat = true,
                     ),
                 )
 
@@ -482,7 +476,6 @@ class VocabularyRepositoryImplTest {
                         reviewPerDay = 99,
                         overlayInterval = 6,
                         mixMode = MixMode.REVIEWS_FIRST,
-                        buryImmediateRepeat = true,
                     ),
                 )
 
@@ -516,7 +509,6 @@ class VocabularyRepositoryImplTest {
                         reviewPerDay = 99,
                         overlayInterval = 6,
                         mixMode = MixMode.MIX,
-                        buryImmediateRepeat = true,
                     ),
                 )
 
@@ -569,7 +561,6 @@ class VocabularyRepositoryImplTest {
                         reviewPerDay = 99,
                         overlayInterval = 6,
                         mixMode = MixMode.NEW_FIRST,
-                        buryImmediateRepeat = true,
                     ),
                 )
 
@@ -602,33 +593,45 @@ class VocabularyRepositoryImplTest {
             assertThat(result.word).isEqualTo("new")
         }
 
-//
-//    // Test 6: Bury immediate repeat functionality
-//    @Test
-    fun `getNextVocabularyItem avoids immediate repeat when buryImmediateRepeat is true`() =
+    @Test
+    fun `getNextVocabularyItem does not bypass new limit when repeating last shown`() =
         runTest {
-            // Setup - insert two items
-            insertTestVocabulary("word1", "trans1")
-            insertTestVocabulary("word2", "trans2")
+            val now = System.currentTimeMillis()
+            val reviewId =
+                insertTestVocabulary(
+                    word = "review",
+                    translation = "rev",
+                    fsrsCardJson = Card.builder().build().toJson(),
+                    fsrsDueAt = now - 1_000L,
+                    correctCount = 1,
+                    incorrectCount = 0,
+                )
+            insertTestVocabulary("brand new", "nuevo")
 
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 1,
+                        reviewPerDay = 10,
+                        overlayInterval = 6,
+                        mixMode = MixMode.REVIEWS_FIRST,
+                    ),
+                )
             coEvery { dayCountersStore.read() } returns
                 flowOf(
                     DayCounters(
                         yyyymmdd = todayStamp(),
-                        newShown = 0,
+                        newShown = 1, // hit new limit
                         reviewShown = 0,
                         reviewsSinceLastNew = 0,
                     ),
                 )
 
-            // Get first item
             val first = repository.getNextVocabularyItem()
-
-            // Get second item - should be different
             val second = repository.getNextVocabularyItem()
 
-            // Verify they're different
-            assertThat(first.id).isNotEqualTo(second.id)
+            assertThat(first.id).isEqualTo(reviewId)
+            assertThat(second.id).isEqualTo(reviewId) // should not surface the new card
         }
 
 //    // Test 7: MIX mode interleaving logic
@@ -644,7 +647,6 @@ class VocabularyRepositoryImplTest {
                         reviewPerDay = 99,
                         overlayInterval = 6,
                         mixMode = MixMode.MIX,
-                        buryImmediateRepeat = true,
                     ),
                 )
 
@@ -734,7 +736,6 @@ class VocabularyRepositoryImplTest {
                         reviewPerDay = 99,
                         overlayInterval = 6,
                         mixMode = MixMode.NEW_FIRST,
-                        buryImmediateRepeat = true,
                     ),
                 )
 
@@ -776,7 +777,6 @@ class VocabularyRepositoryImplTest {
                         reviewPerDay = 99,
                         overlayInterval = 6,
                         mixMode = MixMode.REVIEWS_FIRST,
-                        buryImmediateRepeat = true,
                     ),
                 )
 
@@ -824,7 +824,6 @@ class VocabularyRepositoryImplTest {
                         reviewPerDay = 99,
                         overlayInterval = 6,
                         mixMode = MixMode.REVIEWS_FIRST,
-                        buryImmediateRepeat = true,
                     ),
                 )
 
