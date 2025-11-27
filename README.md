@@ -11,7 +11,9 @@ Add properties for analytics of progress + add analytics (charts, etc)
 
 long roadmap:
 add user accounts and cloud backup
-add import (from anki at least)
+add imports and improve existing (support more formats, improve anki support, etc)
 add decks
 add tests
 add "add word" option to selection popup (when word is selected in some other app)
+add integration with gemini assistant (to add words via voice)
+Support rich formatting

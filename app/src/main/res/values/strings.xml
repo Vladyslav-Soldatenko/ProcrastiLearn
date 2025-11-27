@@ -162,6 +162,15 @@
     <string name="settings_about_us_privacy">Privacy Policy</string>
     <string name="settings_privacy_policy_url" translatable="false">https://gist.github.com/Vladyslav-Soldatenko/adb5953ce000b9e8515d3dcd87773aef</string>
 
+    <!-- Import -->
+    <string name="settings_import_row">Import</string>
+    <string name="settings_import_row_desc">Add vocabulary from another app</string>
+    <string name="settings_import_option_anki_apkg">Anki deck (.apkg)</string>
+    <string name="settings_import_option_anki_apkg_desc">Parse cards exported from Anki</string>
+    <string name="settings_import_success">Imported %1$d cards</string>
+    <string name="settings_import_failure_generic">Import failed</string>
+    <string name="settings_import_failure_format">That format isn’t supported yet</string>
+
     <!-- Export -->
     <string name="settings_export_row">Export</string>
     <string name="settings_export_row_desc">Export all vocabulary to a JSON file</string>
