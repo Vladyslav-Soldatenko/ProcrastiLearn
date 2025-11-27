@@ -19,10 +19,10 @@ object FsrsModule {
         // Library uses UTC internally. :contentReference[oaicite:1]{index=1}
         return Scheduler
             .builder()
-            .desiredRetention(0.9)
+            .desiredRetention(0.93)
             .learningSteps(arrayOf(Duration.ofMinutes(1), Duration.ofMinutes(10)))
             .relearningSteps(arrayOf(Duration.ofMinutes(10)))
-            .maximumInterval(36500) // ~100 years cap; safe default.
+            .maximumInterval(180) // ~100 years cap; safe default.
             .enableFuzzing(true)
             .build()
     }
