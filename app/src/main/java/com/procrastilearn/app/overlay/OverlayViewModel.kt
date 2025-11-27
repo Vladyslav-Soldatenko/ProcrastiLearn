@@ -27,9 +27,9 @@ class OverlayViewModel
 
         fun onOverlayOpened() {
             // Call this when overlay is opened/shown
-            if (!_uiState.value.unlocked) {
-                loadNewWord()
-            }
+            val state = _uiState.value
+            if (state.unlocked || state.isLoading || state.vocabularyItem != null) return
+            loadNewWord()
         }
 
         fun onToggleShowAnswer() {

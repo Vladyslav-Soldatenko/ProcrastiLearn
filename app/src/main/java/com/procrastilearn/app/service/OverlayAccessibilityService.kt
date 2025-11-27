@@ -15,9 +15,9 @@ import android.view.accessibility.AccessibilityEvent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
@@ -189,25 +189,27 @@ class OverlayAccessibilityService : AccessibilityService() {
         }
     }
 
-    private fun createComposeOverlay(onUnlock: () -> Unit): View =
+    private fun createComposeOverlay(
+        owner: ServiceLifecycleOwner,
+        onUnlock: () -> Unit,
+    ): View =
         ComposeView(this).apply {
-            lifecycleOwner?.let { owner ->
-                setViewTreeLifecycleOwner(owner)
-                setViewTreeViewModelStoreOwner(owner)
-                setViewTreeSavedStateRegistryOwner(owner)
-            }
+            setViewTreeLifecycleOwner(owner)
+            setViewTreeViewModelStoreOwner(owner)
+            setViewTreeSavedStateRegistryOwner(owner)
+
+            val viewModel =
+                ViewModelProvider(
+                    owner,
+                    ServiceViewModelFactory(
+                        getNextVocabularyItemUseCase,
+                        getSaveDifficultyRatingUseCase,
+                    ),
+                ).get(OverlayViewModel::class.java)
+            viewModel.onOverlayOpened() // Kick off loading immediately, before any user interaction
 
             setContent {
                 MaterialTheme(colorScheme = darkColorScheme()) {
-                    val viewModel: OverlayViewModel =
-                        viewModel(
-                            factory =
-                                ServiceViewModelFactory(
-                                    getNextVocabularyItemUseCase,
-                                    getSaveDifficultyRatingUseCase,
-                                ),
-                        )
-
                     OverlayScreen(
                         onUnlock = {
                             Log.d("OverlayService", "User unlocked overlay")
@@ -334,9 +336,11 @@ class OverlayAccessibilityService : AccessibilityService() {
         }
 
         Log.d("OverlayService", "Creating and showing overlay")
-        lifecycleOwner = ServiceLifecycleOwner()
+        val owner = ServiceLifecycleOwner()
+        lifecycleOwner = owner
         overlayView =
             createComposeOverlay(
+                owner = owner,
                 onUnlock = {
                     // Mark this app as unlocked for current session
                     gatedPackage?.let { pkg ->
