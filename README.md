@@ -1,19 +1,29 @@
-roadmap:
-UI improvements (color scheme, etc)
-Accept a word in one language (e.g. native language of a user, configured) and add a word in target language (can be added as a separate mode or page) for cases when user want to learn how to say X in target language.
-Auto delete a word after good streak
-Stop tiktok media playing (other apps are mostly supported)
-allow customization of gpt model (or even better - provider customization (via langchain for example))
-Update AI prompt to take into account language pairs, avoid hardcoding eng-rus
-add practice mode (fully like anki, to practice without opening apps. Maybe also add "random words" mode there)
-add kebab menu to overlay screen to delete/edit word right from there
-Add properties for analytics of progress + add analytics (charts, etc)
+# ProcrastiLearn
 
-long roadmap:
-add user accounts and cloud backup
-add imports and improve existing (support more formats, improve anki support, etc)
-add decks
-add tests
-add "add word" option to selection popup (when word is selected in some other app)
-add integration with gemini assistant (to add words via voice)
-Support rich formatting
+ProcrastiLearn is an Android (Kotlin + Jetpack Compose) app that turns distracting moments into spaced‑repetition reps. Pick the apps you tend to open mindlessly; whenever you launch them, a full‑screen overlay blocks access until you learn/review a word. Optional OpenAI-powered translations (API key required) make adding new words fast.
+
+## How It Works
+- Select gated apps: choose which packages to guard in `Apps`. A gate session starts whenever one of them is opened.
+- Learn before you scroll: the overlay shows a card over the target app. Reveal the translation, rate it, and the app you opened comes back to the front.
+- In-app timer: optionally re-show the overlay every X minutes while you stay inside a gated app.
+- Smart scheduling: FSRS (Again/Hard/Good/Easy) with daily limits for new/review cards and mix modes (mixed, reviews-first, new-first).
+- All local: vocabulary, preferences, and progress stay fully on-device (opt-in possibility for cloud sync may be added later). For now - no external traffic except optional OpenAI calls you initiate (API key required).
+
+## Features
+- 📱 Overlay gate on chosen apps using Accessibility + overlay permissions.
+- 🧠 Spaced repetition via FSRS with daily caps.
+- ➕ Add words manually or let AI draft translations (prompt is editable). Currently GPT-5-mini is used, which means that you can add hundreds of words for a few cents.
+- 📂 Import Anki `.apkg` decks.
+- 📋 Word list with search, edit, delete, and “reset progress”.
+- ⚙️ Configurable overlay interval, OpenAI key/prompt, and enable/disable switch for gating.
+
+## User Setup
+1) Permissions: grant overlay (“draw over other apps”) and Accessibility when prompted on first launch. Accessibility permission is needed only to check what app is currently in foreground.
+2) Pick apps to gate: `Apps` tab → toggle the packages you want blocked. Use the master switch to pause/enable ProcrastiLearn.  
+3) Add vocabulary: `Add Word` tab → type word/translation or toggle “use AI to generate translation” (first supply your OpenAI API key in Settings). Preview the AI output before saving if you want.  
+4) Practice flow: open a gated app → overlay appears → → try to remember what the presented word means → tap “Show translation” → rate. If daily limits are reached, the overlay won’t appear.  
+
+## Privacy
+All data (blocked apps, vocabulary, progress, and preferences) is stored locally (opt-in possibility for cloud sync may be added later). No analytics or ads. OpenAI calls use your key directly.
+
+## Roadmap
