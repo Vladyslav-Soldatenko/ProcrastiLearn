@@ -19,11 +19,33 @@ ProcrastiLearn is an Android (Kotlin + Jetpack Compose) app that turns distracti
 
 ## User Setup
 1) Permissions: grant overlay (“draw over other apps”) and Accessibility when prompted on first launch. Accessibility permission is needed only to check what app is currently in foreground.
-2) Pick apps to gate: `Apps` tab → toggle the packages you want blocked. Use the master switch to pause/enable ProcrastiLearn.  
-3) Add vocabulary: `Add Word` tab → type word/translation or toggle “use AI to generate translation” (first supply your OpenAI API key in Settings). Preview the AI output before saving if you want.  
-4) Practice flow: open a gated app → overlay appears → → try to remember what the presented word means → tap “Show translation” → rate. If daily limits are reached, the overlay won’t appear.  
+2) Pick apps to gate: `Apps` tab → toggle the packages you want blocked. Use the master switch to pause/enable ProcrastiLearn.
+3) Add vocabulary: `Add Word` tab → type word/translation or toggle “use AI to generate translation” (first supply your OpenAI API key in Settings). Preview the AI output before saving if you want.
+4) Practice flow: open a gated app → overlay appears → → try to remember what the presented word means → tap “Show translation” → rate. If daily limits are reached, the overlay won’t appear.
 
 ## Privacy
 All data (blocked apps, vocabulary, progress, and preferences) is stored locally (opt-in possibility for cloud sync may be added later). No analytics or ads. OpenAI calls use your key directly.
 
 ## Roadmap
+- UI polish, improve color scheme and UX where needed.
+- Add a mode to enter a native-language word and save it in the target language (AI).
+- Auto-delete a word after a good streak.
+- Stop TikTok media playback during gating; other apps mostly work.
+- Let users choose GPT model or provider (e.g., via LangChain).
+- Add/Update AI prompt to respect language pairs instead of hardcoded EN-RU.
+- Add an in-app Anki-style practice mode.
+- Add a kebab menu to the overlay to delete/edit the current word.
+- Track progress properties and show analytics charts.
+- Use AI to analyze existing words, estimate level and suggest new vocabulary based on that info.
+- Fix intermittent "No word loaded" screen that clears after a click.
+- On export, ask to keep progress for transfer or reset it for sharing the dack.
+- Add import for custom JSON format.
+
+### Long Term
+- Add user accounts with cloud backup.
+- Expand import options and improve Anki support.
+- Add support for different decks so that user can choose words of which deck they want to study now.
+- Add tests.
+- Add an "add word" option to the OS text selection popup.
+- Integrate with Gemini Assistant to add words by voice.
+- Support rich text formatting for word/translation.
