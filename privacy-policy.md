@@ -9,7 +9,7 @@ ProcrastiLearn ("the App", "we", "our", or "us") values your privacy. This Priva
 ## 1. Data Collection
 
 * The App does **not collect, store, or transmit any personal information**.
-* The App does **not make any internet connections** and does not communicate with external servers.
+* The App does **not make any internet connections** and does not communicate with external servers (unless you provide your own API key for OpenAI).
 * All information (such as your selected blocked apps, vocabulary items, and learning progress) is stored **locally on your device only**.
 
 ---
