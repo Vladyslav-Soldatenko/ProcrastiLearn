@@ -49,3 +49,9 @@ All data (blocked apps, vocabulary, progress, and preferences) is stored locally
 - Add an "add word" option to the OS text selection popup.
 - Integrate with Gemini Assistant to add words by voice.
 - Support rich text formatting for word/translation.
+
+### Installation
+For now you have several options to choose:
+1) Download the source code and build the app yourself
+2) Download already built APK from github releases
+3) Take part in google play's closed testing: visit either [this (Google Play)](https://play.google.com/store/apps/details?id=com.procrastilearn.app) or [this (test invitation)](https://play.google.com/apps/testing/com.procrastilearn.app) links and install app from there. I don't have 12 close friends to ask to install my app, so it's hard for me to pass closed testing phase. After >12 people use my app for 14 days, I'll be able to properly publish the app to production stage.
