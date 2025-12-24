@@ -2,6 +2,7 @@ package com.procrastilearn.app.data.local.mapper
 
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
+import com.procrastilearn.app.domain.model.VocabularyExportItem
 import com.procrastilearn.app.domain.model.VocabularyItem
 import org.junit.Test
 
@@ -72,5 +73,33 @@ class VocabularyMapperTest {
 
         assertThat(result.fsrsCardJson).isEqualTo("json")
         assertThat(result.fsrsDueAt).isEqualTo(123L)
+    }
+
+    @Test
+    fun `export item maps all fields to entity`() {
+        val item =
+            VocabularyExportItem(
+                id = 7,
+                word = "gehen",
+                translation = "go",
+                createdAt = 111L,
+                lastShownAt = 222L,
+                correctCount = 3,
+                incorrectCount = 4,
+                fsrsCardJson = "{\"card\":1}",
+                fsrsDueAt = 333L,
+            )
+
+        val result = item.toEntity()
+
+        assertThat(result.id).isEqualTo(7)
+        assertThat(result.word).isEqualTo("gehen")
+        assertThat(result.translation).isEqualTo("go")
+        assertThat(result.createdAt).isEqualTo(111L)
+        assertThat(result.lastShownAt).isEqualTo(222L)
+        assertThat(result.correctCount).isEqualTo(3)
+        assertThat(result.incorrectCount).isEqualTo(4)
+        assertThat(result.fsrsCardJson).isEqualTo("{\"card\":1}")
+        assertThat(result.fsrsDueAt).isEqualTo(333L)
     }
 }

@@ -6,10 +6,13 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.local.dao.VocabularyDao
+import com.procrastilearn.app.data.local.mapper.toEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.VocabularyExportItem
 import com.procrastilearn.app.domain.model.VocabularyItem
+import com.procrastilearn.app.domain.parser.VocabularyExportParser
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import com.procrastilearn.app.domain.parser.VocabularyParser
 import com.procrastilearn.app.domain.repository.VocabularyRepository
@@ -193,9 +196,17 @@ class SettingsViewModel
                             inputStream.use { input ->
                                 tempFile.outputStream().use { output -> input.copyTo(output) }
                             }
-                            val items = parser.parse(tempFile)
-                            importItems(items)
-                            VocabularyImportResult.Success(items.size)
+                            val result =
+                                if (parser is VocabularyExportParser) {
+                                    val items = parser.parseExport(tempFile)
+                                    importExportItems(items)
+                                    VocabularyImportResult.Success(items.size)
+                                } else {
+                                    val items = parser.parse(tempFile)
+                                    importItems(items)
+                                    VocabularyImportResult.Success(items.size)
+                                }
+                            result
                         }
                     } catch (exception: IllegalArgumentException) {
                         Log.e(
@@ -229,6 +240,11 @@ class SettingsViewModel
             items.forEach { item ->
                 vocabularyRepository.addVocabularyItem(item)
             }
+        }
+
+        private suspend fun importExportItems(items: List<VocabularyExportItem>) {
+            if (items.isEmpty()) return
+            vocabularyDao.insertAllVocabulary(items.map { it.toEntity() })
         }
 
         private fun findParser(optionId: String): VocabularyParser? =

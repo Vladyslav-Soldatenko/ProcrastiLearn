@@ -1,6 +1,7 @@
 package com.procrastilearn.app.data.local.mapper
 
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
+import com.procrastilearn.app.domain.model.VocabularyExportItem
 import com.procrastilearn.app.domain.model.VocabularyItem
 
 fun VocabularyEntity.toDomain(): VocabularyItem =
@@ -20,6 +21,19 @@ fun VocabularyItem.toEntity(
         id = id,
         word = word,
         translation = translation,
+        fsrsCardJson = fsrsCardJson,
+        fsrsDueAt = fsrsDueAt,
+    )
+
+fun VocabularyExportItem.toEntity(): VocabularyEntity =
+    VocabularyEntity(
+        id = id,
+        word = word,
+        translation = translation,
+        createdAt = createdAt,
+        lastShownAt = lastShownAt,
+        correctCount = correctCount,
+        incorrectCount = incorrectCount,
         fsrsCardJson = fsrsCardJson,
         fsrsDueAt = fsrsDueAt,
     )

@@ -166,6 +166,8 @@
         <string name="settings_import_row_desc">Добавьте слова из другого приложения</string>
         <string name="settings_import_option_anki_apkg">Колода Anki (.apkg)</string>
         <string name="settings_import_option_anki_apkg_desc">Импорт карточек, экспортированных из Anki</string>
+        <string name="settings_import_option_json">Экспорт JSON (.json)</string>
+        <string name="settings_import_option_json_desc">Импорт полного экспорта ProcrastiLearn</string>
         <string name="settings_import_success">Импортировано %1$d карточек</string>
         <string name="settings_import_failure_generic">Не удалось импортировать</string>
         <string name="settings_import_failure_format">Этот формат пока не поддерживается</string>

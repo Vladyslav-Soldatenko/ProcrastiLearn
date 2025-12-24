@@ -12,7 +12,9 @@ import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.VocabularyExportItem
 import com.procrastilearn.app.domain.model.VocabularyItem
+import com.procrastilearn.app.domain.parser.VocabularyExportParser
 import com.procrastilearn.app.domain.parser.VocabularyParser
 import com.procrastilearn.app.domain.repository.VocabularyRepository
 import com.procrastilearn.app.utils.MainDispatcherRule
@@ -21,6 +23,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -267,7 +270,16 @@ class SettingsViewModelTest {
             viewModel.exportVocabularyToUri(context, uri) { completion.complete(it) }
 
             assertThat(completion.await()).isTrue()
-            assertThat(tempFile.readText()).contains("\"word\":\"Haus\"")
+            val payload = tempFile.readText()
+            assertThat(payload).contains("\"id\":1")
+            assertThat(payload).contains("\"word\":\"Haus\"")
+            assertThat(payload).contains("\"translation\":\"House\"")
+            assertThat(payload).contains("\"createdAt\":123")
+            assertThat(payload).contains("\"lastShownAt\":null")
+            assertThat(payload).contains("\"correctCount\":2")
+            assertThat(payload).contains("\"incorrectCount\":1")
+            assertThat(payload).contains("\"fsrsCardJson\":\"{\\\"c\\\":1}\"")
+            assertThat(payload).contains("\"fsrsDueAt\":456")
         }
 
     @Test
@@ -319,6 +331,92 @@ class SettingsViewModelTest {
 
             assertThat(result).isEqualTo(VocabularyImportResult.Success(importedCount = 1))
             coVerify { vocabularyRepository.addVocabularyItem(parsedItem) }
+        }
+
+    @Test
+    fun `importVocabularyFromUri uses export parser to insert full entities`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val exportItem =
+                VocabularyExportItem(
+                    id = 4,
+                    word = "Wort",
+                    translation = "Word",
+                    createdAt = 10L,
+                    lastShownAt = 20L,
+                    correctCount = 1,
+                    incorrectCount = 0,
+                    fsrsCardJson = "{\"card\":1}",
+                    fsrsDueAt = 30L,
+                )
+            val parser =
+                object : VocabularyParser, VocabularyExportParser {
+                    override val id: String = "json"
+                    override val titleResId: Int = R.string.settings_import_option_json
+                    override val descriptionResId: Int? = R.string.settings_import_option_json_desc
+                    override val supportedExtensions: Set<String> = setOf("json")
+                    override val mimeTypes: List<String> = listOf("application/json")
+
+                    override fun parse(file: File): List<VocabularyItem> = emptyList()
+
+                    override fun parseExport(file: File): List<VocabularyExportItem> = listOf(exportItem)
+                }
+            coEvery { vocabularyDao.insertAllVocabulary(any()) } returns Unit
+            val viewModel = buildViewModel(parsers = setOf(parser))
+            val tempFile =
+                kotlin.io.path
+                    .createTempFile(prefix = "deck", suffix = ".json")
+                    .toFile()
+            tempFile.writeText("placeholder")
+            val uri = Uri.fromFile(tempFile)
+
+            var result: VocabularyImportResult? = null
+            viewModel.importVocabularyFromUri(appContext, parser.id, uri) { result = it }
+            advanceUntilIdle()
+
+            assertThat(result).isEqualTo(VocabularyImportResult.Success(importedCount = 1))
+            coVerify { vocabularyDao.insertAllVocabulary(any()) }
+            coVerify(exactly = 0) { vocabularyRepository.addVocabularyItem(any()) }
+        }
+
+    @Test
+    fun `export then import json preserves all entity fields`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val parser = com.procrastilearn.app.data.parser.json.JsonVocabularyParser()
+            val viewModel = buildViewModel(parsers = setOf(parser))
+            val entity =
+                VocabularyEntity(
+                    id = 9,
+                    word = "schule",
+                    translation = "school",
+                    createdAt = 111L,
+                    lastShownAt = 222L,
+                    correctCount = 3,
+                    incorrectCount = 4,
+                    fsrsCardJson = "{\"card\":2}",
+                    fsrsDueAt = 333L,
+                )
+            every { vocabularyDao.getAllVocabulary() } returns flowOf(listOf(entity))
+            coEvery { vocabularyDao.insertAllVocabulary(any()) } returns Unit
+
+            val tempFile =
+                kotlin.io.path
+                    .createTempFile(prefix = "export", suffix = ".json")
+                    .toFile()
+            val uri = Uri.fromFile(tempFile)
+            val exported = CompletableDeferred<Boolean>()
+
+            viewModel.exportVocabularyToUri(appContext, uri) { exported.complete(it) }
+
+            assertThat(exported.await()).isTrue()
+
+            var importResult: VocabularyImportResult? = null
+            viewModel.importVocabularyFromUri(appContext, parser.id, uri) { importResult = it }
+            advanceUntilIdle()
+
+            assertThat(importResult).isEqualTo(VocabularyImportResult.Success(importedCount = 1))
+            val inserted = slot<List<VocabularyEntity>>()
+            coVerify { vocabularyDao.insertAllVocabulary(capture(inserted)) }
+            assertThat(inserted.captured).containsExactly(entity)
         }
 
     @Test

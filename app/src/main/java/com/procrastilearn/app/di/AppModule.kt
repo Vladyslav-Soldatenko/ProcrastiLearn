@@ -3,6 +3,7 @@ package com.procrastilearn.app.di
 import com.procrastilearn.app.data.AppRepository
 import com.procrastilearn.app.data.AppRepositoryImpl
 import com.procrastilearn.app.data.parser.anki.AnkiApkgVocabularyParser
+import com.procrastilearn.app.data.parser.json.JsonVocabularyParser
 import com.procrastilearn.app.data.repository.AppPreferencesRepositoryImpl
 import com.procrastilearn.app.data.repository.VocabularyRepositoryImpl
 import com.procrastilearn.app.data.translation.AiTranslationProvider
@@ -42,6 +43,10 @@ abstract class AppModule {
     @Binds
     @IntoSet
     abstract fun bindAnkiApkgParser(impl: AnkiApkgVocabularyParser): VocabularyParser
+
+    @Binds
+    @IntoSet
+    abstract fun bindJsonParser(impl: JsonVocabularyParser): VocabularyParser
 
     companion object {
         @Provides
