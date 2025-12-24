@@ -28,7 +28,7 @@ All data (blocked apps, vocabulary, progress, and preferences) is stored locally
 
 ## Roadmap
 - UI polish, improve color scheme and UX where needed.
-- Add a mode to enter a native-language word and save it in the target language (AI).
+- Add a mode to enter a native-language word and save it in the target language (AI) (mostly done)
 - Auto-delete a word after a good streak.
 - Stop TikTok media playback during gating; other apps mostly work.
 - Let users choose GPT model or provider (e.g., via LangChain).
@@ -39,7 +39,6 @@ All data (blocked apps, vocabulary, progress, and preferences) is stored locally
 - Use AI to analyze existing words, estimate level and suggest new vocabulary based on that info.
 - Fix intermittent "No word loaded" screen that clears after a click.
 - On export, ask to keep progress for transfer or reset it for sharing the dack.
-- Add import for custom JSON format.
 
 ### Long Term
 - Add user accounts with cloud backup.
