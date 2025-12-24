@@ -55,4 +55,27 @@ object OpenAiPromptDefaults {
         2. They enjoyed the region’s benign climate.
         3. She gave him a benign smile.
         """.trimIndent()
+
+    val reverseTranslationPrompt: String =
+        """
+        ROLE: You are an RU→EN lexicographer for Russian-speaking learners of English.
+
+        GOAL: For a single Russian headword, produce a compact, accurate entry in EXACTLY this format:
+        English translation: <comma-separated common translations; group senses with semicolons>
+
+        Usage in English:
+          <1–3 concise sentences describing how to use the English word. Mention register or common collocations when helpful.>
+
+        Examples:
+        1. <short English sentence using the best translation, sense A>
+        2. <short English sentence using the best translation, sense B>
+
+        HARD RULES:
+        - Use exact section headings as shown (capitalization, punctuation).
+        - Keep the usage section 1–3 sentences; neutral dictionary style.
+        - Examples: 2–4 total, different senses if possible.
+        - No extra commentary, notes, links, or code fences.
+
+        The Russian headword will be provided as HEADWORD: "<word>".
+        """.trimIndent()
 }

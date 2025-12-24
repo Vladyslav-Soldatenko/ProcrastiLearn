@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
+import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.GetVocabularyItemByWordUseCase
@@ -41,13 +42,15 @@ class AddWordViewModel @Inject
                 combine(
                     prefs.readOpenAiApiKey(),
                     prefs.readUseAiForTranslation(),
-                ) { key: String?, useAi: Boolean ->
-                    Pair(!key.isNullOrBlank(), useAi)
-                }.collectLatest { (hasKey, useAi) ->
+                    prefs.readAiTranslationDirection(),
+                ) { key: String?, useAi: Boolean, direction: AiTranslationDirection ->
+                    Triple(!key.isNullOrBlank(), useAi, direction)
+                }.collectLatest { (hasKey, useAi, direction) ->
                     _uiState.value =
                         _uiState.value.copy(
                             openAiAvailable = hasKey,
                             useAiForTranslation = useAi,
+                            translationDirection = direction,
                         )
                 }
             }
@@ -95,7 +98,12 @@ class AddWordViewModel @Inject
 
                 val aiTranslation: String? =
                     if (currentState.openAiAvailable && currentState.useAiForTranslation) {
-                        runCatching { requestAiTranslation(currentState.word) }
+                        runCatching {
+                            requestAiTranslation(
+                                currentState.word,
+                                currentState.translationDirection,
+                            )
+                        }
                             .getOrNull()
                     } else {
                         null
@@ -141,15 +149,41 @@ class AddWordViewModel @Inject
                 )
         }
 
-        fun onUseAiToggle(checked: Boolean) {
-            viewModelScope.launch { prefs.setUseAiForTranslation(checked) }
-            _uiState.value =
-                _uiState.value.copy(
-                    useAiForTranslation = checked,
-                    previewContent = null,
-                    isPreviewVisible = false,
-                )
+    fun onUseAiToggle(checked: Boolean) {
+        if (!checked && _uiState.value.translationDirection == AiTranslationDirection.RU_TO_EN) {
+            return
         }
+        viewModelScope.launch { prefs.setUseAiForTranslation(checked) }
+        _uiState.value =
+            _uiState.value.copy(
+                useAiForTranslation = checked,
+                previewContent = null,
+                isPreviewVisible = false,
+            )
+    }
+
+    fun onTranslationDirectionToggle() {
+        val current = _uiState.value.translationDirection
+        val next =
+            if (current == AiTranslationDirection.EN_TO_RU) {
+                AiTranslationDirection.RU_TO_EN
+            } else {
+                AiTranslationDirection.EN_TO_RU
+            }
+        viewModelScope.launch {
+            prefs.setAiTranslationDirection(next)
+            if (next == AiTranslationDirection.RU_TO_EN) {
+                prefs.setUseAiForTranslation(true)
+            }
+        }
+        _uiState.value =
+            _uiState.value.copy(
+                translationDirection = next,
+                useAiForTranslation = next == AiTranslationDirection.RU_TO_EN || _uiState.value.useAiForTranslation,
+                previewContent = null,
+                isPreviewVisible = false,
+            )
+    }
 
         fun onPreviewClick() {
             val currentState = _uiState.value
@@ -172,7 +206,10 @@ class AddWordViewModel @Inject
                     )
 
                 runCatching {
-                    requestAiTranslation(currentState.word.trim())
+                    requestAiTranslation(
+                        currentState.word.trim(),
+                        currentState.translationDirection,
+                    )
                 }.fold(
                     onSuccess = { translation ->
                         val sanitizedTranslation = translation.trim()
@@ -394,18 +431,30 @@ class AddWordViewModel @Inject
             }
         }
 
-        private suspend fun requestAiTranslation(word: String): String =
+        private suspend fun requestAiTranslation(
+            word: String,
+            direction: AiTranslationDirection,
+        ): String =
             withContext(ioDispatcher) {
                 val apiKey: String = prefs.readOpenAiApiKey().first().orEmpty()
                 require(apiKey.isNotBlank()) { "Missing OpenAI API key" }
 
-                val systemPrompt = prefs.readOpenAiPrompt().first()
+                val systemPrompt =
+                    when (direction) {
+                        AiTranslationDirection.EN_TO_RU -> prefs.readOpenAiPrompt().first()
+                        AiTranslationDirection.RU_TO_EN -> prefs.readOpenAiReversePrompt().first()
+                    }
                 val userPrompt =
-                    """
-                    HEADWORD: "$word"
+                    when (direction) {
+                        AiTranslationDirection.EN_TO_RU,
+                        AiTranslationDirection.RU_TO_EN -> {
+                            """
+                            HEADWORD: "$word"
 
-                    Produce ONLY the entry for this headword, in the exact frame and rules above. No extra text.
-                    """.trimIndent()
+                            Produce ONLY the entry for this headword, in the exact frame and rules above. No extra text.
+                            """.trimIndent()
+                        }
+                    }
 
                 aiTranslationProvider.translate(
                     AiTranslationRequest(
@@ -428,6 +477,7 @@ data class AddWordUiState(
     val successMessage: String? = null,
     val openAiAvailable: Boolean = false,
     val useAiForTranslation: Boolean = false,
+    val translationDirection: AiTranslationDirection = AiTranslationDirection.EN_TO_RU,
     val previewContent: AddWordPreviewContent? = null,
     val isPreviewVisible: Boolean = false,
     val isExistingWordDialogVisible: Boolean = false,

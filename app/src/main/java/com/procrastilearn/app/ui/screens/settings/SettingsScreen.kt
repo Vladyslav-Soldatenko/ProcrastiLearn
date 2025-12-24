@@ -56,6 +56,7 @@ import com.procrastilearn.app.ui.screens.settings.components.NewPerDaySettingsIt
 import com.procrastilearn.app.ui.screens.settings.components.NumberInputDialog
 import com.procrastilearn.app.ui.screens.settings.components.OpenAiApiKeySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.OpenAiPromptSettingsItem
+import com.procrastilearn.app.ui.screens.settings.components.OpenAiReversePromptSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.OverlayPermissionItem
 import com.procrastilearn.app.ui.screens.settings.components.ReviewPerDaySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ShowOverlayIntervalSettingsItem
@@ -82,6 +83,8 @@ sealed interface DialogState {
     object OpenAiApiKey : DialogState
 
     object OpenAiPrompt : DialogState
+
+    object OpenAiReversePrompt : DialogState
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -153,6 +156,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             overlayInterval = state.overlayInterval,
             openAiApiKey = state.openAiApiKey,
             openAiPrompt = state.openAiPrompt,
+            openAiReversePrompt = state.openAiReversePrompt,
             onOverlayClick = { openOverlaySettings(ctx) },
             onA11yClick = { openAccessibilitySettings(ctx) },
             onMixModeChange = viewModel::onMixModeChange,
@@ -161,6 +165,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             onOverlayIntervalChange = viewModel::onOverlayIntervalChange,
             onOpenAiApiKeyChange = viewModel::onOpenAiApiKeyChange,
             onOpenAiPromptChange = viewModel::onOpenAiPromptChange,
+            onOpenAiReversePromptChange = viewModel::onOpenAiReversePromptChange,
             onExportClick = {
                 val name = "vocabulary-export-${LocalDate.now()}.json"
                 exportLauncher.launch(name)
@@ -198,6 +203,7 @@ internal fun SettingsContent(
     overlayInterval: Int,
     openAiApiKey: String?,
     openAiPrompt: String,
+    openAiReversePrompt: String,
     onOverlayClick: () -> Unit,
     onA11yClick: () -> Unit,
     onMixModeChange: (MixMode) -> Unit,
@@ -206,6 +212,7 @@ internal fun SettingsContent(
     onOverlayIntervalChange: (Int) -> Unit,
     onOpenAiApiKeyChange: (String) -> Unit,
     onOpenAiPromptChange: (String) -> Unit,
+    onOpenAiReversePromptChange: (String) -> Unit,
     onExportClick: () -> Unit,
     importOptions: List<VocabularyImportOption> = emptyList(),
     onImportOptionSelected: (VocabularyImportOption) -> Unit = {},
@@ -255,6 +262,10 @@ internal fun SettingsContent(
             OpenAiPromptSettingsItem(
                 prompt = openAiPrompt,
                 onClick = { dialogState = DialogState.OpenAiPrompt },
+            )
+            OpenAiReversePromptSettingsItem(
+                prompt = openAiReversePrompt,
+                onClick = { dialogState = DialogState.OpenAiReversePrompt },
             )
             Divider(
                 modifier = Modifier.padding(vertical = 8.dp),
@@ -375,6 +386,20 @@ internal fun SettingsContent(
                 maxLines = 12,
             )
         }
+        DialogState.OpenAiReversePrompt -> {
+            StringInputDialog(
+                title = stringResource(R.string.settings_openai_reverse_prompt_dialog_title),
+                currentValue = openAiReversePrompt,
+                onValueConfirm = {
+                    onOpenAiReversePromptChange(it)
+                    dialogState = DialogState.None
+                },
+                onDismiss = { dialogState = DialogState.None },
+                isPassword = false,
+                singleLine = false,
+                maxLines = 12,
+            )
+        }
 
         DialogState.None -> { /* No dialog shown */ }
     }
@@ -419,6 +444,7 @@ fun SettingsScreenPreview_AllGranted() {
             overlayInterval = 6,
             openAiApiKey = null,
             openAiPrompt = "Prompt",
+            openAiReversePrompt = "Reverse prompt",
             onOverlayClick = {},
             onA11yClick = {},
             onMixModeChange = {},
@@ -427,6 +453,7 @@ fun SettingsScreenPreview_AllGranted() {
             onOverlayIntervalChange = {},
             onOpenAiApiKeyChange = {},
             onOpenAiPromptChange = {},
+            onOpenAiReversePromptChange = {},
             onExportClick = {},
             importOptions =
                 listOf(

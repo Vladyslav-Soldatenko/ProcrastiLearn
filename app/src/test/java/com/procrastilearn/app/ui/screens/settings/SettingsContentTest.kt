@@ -6,6 +6,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
@@ -63,7 +64,7 @@ class SettingsContentTest {
         composeTestRule.onNodeWithText(string(R.string.settings_reviews_per_day_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_overlay_headline)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_about_us_row)).assertIsDisplayed()
-        composeTestRule.onNodeWithText(string(R.string.settings_import_row)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.settings_import_row)).performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -71,7 +72,7 @@ class SettingsContentTest {
         var selectedOptionId: String? = null
         setContent(onImportOptionSelected = { selectedOptionId = it.id })
 
-        composeTestRule.onNodeWithText(string(R.string.settings_import_row)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.settings_import_row)).performScrollTo().performClick()
         composeTestRule.onNodeWithText(string(R.string.settings_import_option_anki_apkg)).performClick()
 
         assertThat(selectedOptionId).isEqualTo("apkg")
@@ -137,6 +138,7 @@ class SettingsContentTest {
         overlayInterval: Int = 5,
         openAiApiKey: String? = null,
         openAiPrompt: String = "Prompt",
+        openAiReversePrompt: String = "Reverse prompt",
         overlayGranted: Boolean = false,
         a11yEnabled: Boolean = false,
         onOverlayClick: () -> Unit = {},
@@ -147,6 +149,7 @@ class SettingsContentTest {
         onOverlayIntervalChange: (Int) -> Unit = {},
         onOpenAiApiKeyChange: (String) -> Unit = {},
         onOpenAiPromptChange: (String) -> Unit = {},
+        onOpenAiReversePromptChange: (String) -> Unit = {},
         onExportClick: () -> Unit = {},
         importOptions: List<VocabularyImportOption> = listOf(defaultImportOption),
         onImportOptionSelected: (VocabularyImportOption) -> Unit = {},
@@ -162,6 +165,7 @@ class SettingsContentTest {
                     overlayInterval = overlayInterval,
                     openAiApiKey = openAiApiKey,
                     openAiPrompt = openAiPrompt,
+                    openAiReversePrompt = openAiReversePrompt,
                     onOverlayClick = onOverlayClick,
                     onA11yClick = onA11yClick,
                     onMixModeChange = onMixModeChange,
@@ -170,6 +174,7 @@ class SettingsContentTest {
                     onOverlayIntervalChange = onOverlayIntervalChange,
                     onOpenAiApiKeyChange = onOpenAiApiKeyChange,
                     onOpenAiPromptChange = onOpenAiPromptChange,
+                    onOpenAiReversePromptChange = onOpenAiReversePromptChange,
                     onExportClick = onExportClick,
                     importOptions = importOptions,
                     onImportOptionSelected = onImportOptionSelected,

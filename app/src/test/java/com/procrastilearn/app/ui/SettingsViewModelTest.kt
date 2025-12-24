@@ -49,6 +49,7 @@ class SettingsViewModelTest {
     private lateinit var policyFlow: MutableStateFlow<LearningPreferencesConfig>
     private lateinit var apiKeyFlow: MutableStateFlow<String?>
     private lateinit var promptFlow: MutableStateFlow<String>
+    private lateinit var reversePromptFlow: MutableStateFlow<String>
     private val defaultParser: VocabularyParser =
         object : VocabularyParser {
             override val id: String = "apkg"
@@ -77,10 +78,12 @@ class SettingsViewModelTest {
             )
         apiKeyFlow = MutableStateFlow(null)
         promptFlow = MutableStateFlow(OpenAiPromptDefaults.translationPrompt)
+        reversePromptFlow = MutableStateFlow(OpenAiPromptDefaults.reverseTranslationPrompt)
 
         every { store.readPolicy() } returns policyFlow
         every { store.readOpenAiApiKey() } returns apiKeyFlow
         every { store.readOpenAiPrompt() } returns promptFlow
+        every { store.readOpenAiReversePrompt() } returns reversePromptFlow
     }
 
     @After
@@ -126,6 +129,7 @@ class SettingsViewModelTest {
                 assertThat(hydrated.overlayInterval).isEqualTo(10)
                 assertThat(hydrated.openAiApiKey).isNull()
                 assertThat(hydrated.openAiPrompt).isEqualTo(OpenAiPromptDefaults.translationPrompt)
+                assertThat(hydrated.openAiReversePrompt).isEqualTo(OpenAiPromptDefaults.reverseTranslationPrompt)
 
                 policyFlow.value =
                     policyFlow.value.copy(
@@ -136,6 +140,7 @@ class SettingsViewModelTest {
                     )
                 apiKeyFlow.value = "abc"
                 promptFlow.value = "custom prompt"
+                reversePromptFlow.value = "custom reverse prompt"
 
                 val updated = awaitItem()
                 assertThat(updated.mixMode).isEqualTo(MixMode.NEW_FIRST)
@@ -144,6 +149,7 @@ class SettingsViewModelTest {
                 assertThat(updated.overlayInterval).isEqualTo(3)
                 assertThat(updated.openAiApiKey).isEqualTo("abc")
                 assertThat(updated.openAiPrompt).isEqualTo("custom prompt")
+                assertThat(updated.openAiReversePrompt).isEqualTo("custom reverse prompt")
                 cancelAndIgnoreRemainingEvents()
             }
         }
@@ -218,6 +224,18 @@ class SettingsViewModelTest {
             advanceUntilIdle()
 
             coVerify { store.setOpenAiPrompt("prompt") }
+        }
+
+    @Test
+    fun `onOpenAiReversePromptChange delegates to store`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            coEvery { store.setOpenAiReversePrompt(any()) } returns Unit
+
+            viewModel.onOpenAiReversePromptChange("prompt")
+            advanceUntilIdle()
+
+            coVerify { store.setOpenAiReversePrompt("prompt") }
         }
 
     @Test

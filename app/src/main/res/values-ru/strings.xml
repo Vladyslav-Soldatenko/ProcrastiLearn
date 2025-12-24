@@ -125,10 +125,14 @@
         <string name="settings_openai_api_key_dialog_title">Введите ключ OpenAI API</string>
         <string name="settings_openai_api_key_not_set">Не задан</string>
         <string name="settings_openai_api_key_set">Сохранён</string>
-        <string name="settings_openai_prompt_title">Промпт для перевода</string>
-        <string name="settings_openai_prompt_dialog_title">Измените промпт для перевода</string>
-        <string name="settings_openai_prompt_default">Используется промпт по умолчанию</string>
-        <string name="settings_openai_prompt_custom">Пользовательский промпт сохранён</string>
+        <string name="settings_openai_prompt_title">Промпт AI EN-&gt;RU</string>
+        <string name="settings_openai_prompt_dialog_title">Измените промпт AI EN-&gt;RU</string>
+        <string name="settings_openai_prompt_default">Используется промпт EN-&gt;RU по умолчанию</string>
+        <string name="settings_openai_prompt_custom">Пользовательский промпт EN-&gt;RU сохранён</string>
+        <string name="settings_openai_reverse_prompt_title">Промпт AI RU-&gt;EN</string>
+        <string name="settings_openai_reverse_prompt_dialog_title">Измените промпт AI RU-&gt;EN</string>
+        <string name="settings_openai_reverse_prompt_default">Используется промпт RU-&gt;EN по умолчанию</string>
+        <string name="settings_openai_reverse_prompt_custom">Пользовательский промпт RU-&gt;EN сохранён</string>
 
         <string name="settings_overlay_headline">Разрешение на оверлей</string>
         <string name="settings_overlay_support">
@@ -181,6 +185,9 @@
 
         <!-- Add Word: AI translation toggle -->
         <string name="add_word_use_ai_toggle">использовать ИИ для генерации перевода</string>
+        <string name="add_word_toggle_direction">Переключить направление перевода</string>
+        <string name="add_word_direction_en">EN</string>
+        <string name="add_word_direction_ru">RU</string>
 
 
         <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->

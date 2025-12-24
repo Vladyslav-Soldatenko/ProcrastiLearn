@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.procrastilearn.app.data.counter.DayCounters
+import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -39,6 +40,8 @@ class DayCountersStore @Inject constructor(
         val OPENAI_API_KEY = stringPreferencesKey("openai_api_key")
         val USE_AI_TRANSLATION = booleanPreferencesKey("use_ai_translation")
         val OPENAI_PROMPT = stringPreferencesKey("openai_prompt")
+        val OPENAI_REVERSE_PROMPT = stringPreferencesKey("openai_reverse_prompt")
+        val AI_TRANSLATION_DIRECTION = stringPreferencesKey("ai_translation_direction")
     }
 
     private companion object {
@@ -133,6 +136,33 @@ class DayCountersStore @Inject constructor(
                 prefs[K.OPENAI_PROMPT] = trimmed
             }
         }
+    }
+
+    fun readOpenAiReversePrompt(): Flow<String> =
+        ds.data.map { p ->
+            p[K.OPENAI_REVERSE_PROMPT]
+                ?: OpenAiPromptDefaults.reverseTranslationPrompt
+        }
+
+    suspend fun setOpenAiReversePrompt(value: String) {
+        ds.edit { prefs ->
+            val trimmed = value.trim()
+            if (trimmed.isEmpty() || trimmed == OpenAiPromptDefaults.reverseTranslationPrompt) {
+                prefs.remove(K.OPENAI_REVERSE_PROMPT)
+            } else {
+                prefs[K.OPENAI_REVERSE_PROMPT] = trimmed
+            }
+        }
+    }
+
+    fun readAiTranslationDirection(): Flow<AiTranslationDirection> =
+        ds.data.map { p ->
+            val stored = p[K.AI_TRANSLATION_DIRECTION] ?: AiTranslationDirection.EN_TO_RU.name
+            runCatching { AiTranslationDirection.valueOf(stored) }.getOrDefault(AiTranslationDirection.EN_TO_RU)
+        }
+
+    suspend fun setAiTranslationDirection(value: AiTranslationDirection) {
+        ds.edit { it[K.AI_TRANSLATION_DIRECTION] = value.name }
     }
 
     // ── Use AI to generate translation flag ───────────────────────

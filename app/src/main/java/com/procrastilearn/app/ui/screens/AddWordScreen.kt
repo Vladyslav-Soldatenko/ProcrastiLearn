@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -60,6 +61,7 @@ import com.procrastilearn.app.overlay.theme.OverlayThemeTokens
 import com.procrastilearn.app.ui.AddWordLoadingAction
 import com.procrastilearn.app.ui.AddWordPreviewContent
 import com.procrastilearn.app.ui.AddWordViewModel
+import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.delay
 
@@ -92,6 +94,7 @@ fun AddWordScreen(
         successMessage = uiState.successMessage,
         openAiAvailable = uiState.openAiAvailable,
         useAiForTranslation = uiState.useAiForTranslation,
+        translationDirection = uiState.translationDirection,
         previewContent = uiState.previewContent,
         isPreviewVisible = uiState.isPreviewVisible,
         isExistingWordDialogVisible = uiState.isExistingWordDialogVisible,
@@ -101,6 +104,7 @@ fun AddWordScreen(
         onWordChange = viewModel::onWordChange,
         onTranslationChange = viewModel::onTranslationChange,
         onUseAiToggle = viewModel::onUseAiToggle,
+        onTranslationDirectionToggle = viewModel::onTranslationDirectionToggle,
         onPreviewClick = viewModel::onPreviewClick,
         onPreviewCancel = viewModel::onPreviewCancel,
         onPreviewConfirmAdd = viewModel::onPreviewConfirmAdd,
@@ -126,6 +130,7 @@ private fun AddWordContentPreviewAiEnabled() {
             successMessage = null,
             openAiAvailable = true,
             useAiForTranslation = true,
+            translationDirection = AiTranslationDirection.EN_TO_RU,
             previewContent =
                 AddWordPreviewContent(
                     word = "Haus",
@@ -139,6 +144,7 @@ private fun AddWordContentPreviewAiEnabled() {
             onWordChange = {},
             onTranslationChange = {},
             onUseAiToggle = {},
+            onTranslationDirectionToggle = {},
             onPreviewClick = {},
             onPreviewCancel = {},
             onPreviewConfirmAdd = {},
@@ -181,6 +187,7 @@ private fun AddWordContent(
     modifier: Modifier = Modifier,
     openAiAvailable: Boolean,
     useAiForTranslation: Boolean,
+    translationDirection: AiTranslationDirection,
     previewContent: AddWordPreviewContent?,
     isPreviewVisible: Boolean,
     isExistingWordDialogVisible: Boolean,
@@ -190,6 +197,7 @@ private fun AddWordContent(
     onWordChange: (String) -> Unit,
     onTranslationChange: (String) -> Unit,
     onUseAiToggle: (Boolean) -> Unit,
+    onTranslationDirectionToggle: () -> Unit,
     onPreviewClick: () -> Unit,
     onPreviewCancel: () -> Unit,
     onPreviewConfirmAdd: () -> Unit,
@@ -256,10 +264,25 @@ private fun AddWordContent(
                             .padding(16.dp),
                 ) {
                     if (openAiAvailable) {
+                        val isAiToggleLocked = translationDirection == AiTranslationDirection.RU_TO_EN
+                        if (useAiForTranslation) {
+                            TranslationDirectionRow(
+                                direction = translationDirection,
+                                onToggle = onTranslationDirectionToggle,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
                         Row(modifier = Modifier.fillMaxWidth()) {
                             Checkbox(
                                 checked = useAiForTranslation,
-                                onCheckedChange = { onUseAiToggle(it) },
+                                onCheckedChange =
+                                    if (isAiToggleLocked) {
+                                        null
+                                    } else {
+                                        { onUseAiToggle(it) }
+                                    },
+                                enabled = !isAiToggleLocked,
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
@@ -500,6 +523,64 @@ private fun AddWordContent(
                 onCancel = onExistingWordDialogCancel,
             )
         }
+    }
+}
+
+@Composable
+private fun TranslationDirectionRow(
+    direction: AiTranslationDirection,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val isEnToRu = direction == AiTranslationDirection.EN_TO_RU
+    val startLabel = if (isEnToRu) R.string.add_word_direction_en else R.string.add_word_direction_ru
+    val endLabel = if (isEnToRu) R.string.add_word_direction_ru else R.string.add_word_direction_en
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(startLabel),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        IconButton(onClick = onToggle) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                contentDescription = stringResource(R.string.add_word_toggle_direction),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = stringResource(endLabel),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Translation Direction • EN->RU")
+@Composable
+private fun TranslationDirectionRowPreviewEnRu() {
+    MyApplicationTheme {
+        TranslationDirectionRow(
+            direction = AiTranslationDirection.EN_TO_RU,
+            onToggle = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Translation Direction • RU->EN")
+@Composable
+private fun TranslationDirectionRowPreviewRuEn() {
+    MyApplicationTheme {
+        TranslationDirectionRow(
+            direction = AiTranslationDirection.RU_TO_EN,
+            onToggle = {},
+        )
     }
 }
 
@@ -745,6 +826,7 @@ private fun AddWordContentPreview() {
             successMessage = "Word added successfully!",
             openAiAvailable = true,
             useAiForTranslation = false,
+            translationDirection = AiTranslationDirection.EN_TO_RU,
             previewContent = null,
             isPreviewVisible = false,
             isExistingWordDialogVisible = false,
@@ -754,6 +836,7 @@ private fun AddWordContentPreview() {
             onWordChange = {},
             onTranslationChange = {},
             onUseAiToggle = {},
+            onTranslationDirectionToggle = {},
             onPreviewClick = {},
             onPreviewCancel = {},
             onPreviewConfirmAdd = {},

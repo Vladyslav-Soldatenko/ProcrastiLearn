@@ -34,6 +34,7 @@ data class SettingsUiState(
     val overlayInterval: Int = 6,
     val openAiApiKey: String? = null,
     val openAiPrompt: String = OpenAiPromptDefaults.translationPrompt,
+    val openAiReversePrompt: String = OpenAiPromptDefaults.reverseTranslationPrompt,
 )
 
 @HiltViewModel
@@ -52,7 +53,8 @@ class SettingsViewModel
                     store.readPolicy(),
                     store.readOpenAiApiKey(),
                     store.readOpenAiPrompt(),
-                ) { policy, apiKey, prompt ->
+                    store.readOpenAiReversePrompt(),
+                ) { policy, apiKey, prompt, reversePrompt ->
                     SettingsUiState(
                         mixMode = policy.mixMode,
                         newPerDay = policy.newPerDay,
@@ -60,6 +62,7 @@ class SettingsViewModel
                         overlayInterval = policy.overlayInterval,
                         openAiApiKey = apiKey,
                         openAiPrompt = prompt,
+                        openAiReversePrompt = reversePrompt,
                     )
                 }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -97,6 +100,10 @@ class SettingsViewModel
 
         fun onOpenAiPromptChange(value: String) {
             viewModelScope.launch { store.setOpenAiPrompt(value) }
+        }
+
+        fun onOpenAiReversePromptChange(value: String) {
+            viewModelScope.launch { store.setOpenAiReversePrompt(value) }
         }
 
         /**

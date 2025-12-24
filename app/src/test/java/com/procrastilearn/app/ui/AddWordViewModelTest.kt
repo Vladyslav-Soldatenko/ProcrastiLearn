@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
+import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.GetVocabularyItemByWordUseCase
@@ -37,6 +38,8 @@ class AddWordViewModelTest {
     private lateinit var openAiKeyFlow: MutableStateFlow<String?>
     private lateinit var useAiFlow: MutableStateFlow<Boolean>
     private lateinit var promptFlow: MutableStateFlow<String>
+    private lateinit var reversePromptFlow: MutableStateFlow<String>
+    private lateinit var directionFlow: MutableStateFlow<AiTranslationDirection>
     private lateinit var aiTranslationProvider: FakeAiTranslationProvider
 
     @Before
@@ -48,12 +51,17 @@ class AddWordViewModelTest {
         openAiKeyFlow = MutableStateFlow(null)
         useAiFlow = MutableStateFlow(false)
         promptFlow = MutableStateFlow("system prompt")
+        reversePromptFlow = MutableStateFlow("reverse system prompt")
+        directionFlow = MutableStateFlow(AiTranslationDirection.EN_TO_RU)
         aiTranslationProvider = FakeAiTranslationProvider()
 
         every { prefs.readOpenAiApiKey() } returns openAiKeyFlow
         every { prefs.readUseAiForTranslation() } returns useAiFlow
         every { prefs.readOpenAiPrompt() } returns promptFlow
+        every { prefs.readOpenAiReversePrompt() } returns reversePromptFlow
+        every { prefs.readAiTranslationDirection() } returns directionFlow
         coEvery { prefs.setUseAiForTranslation(any()) } just Runs
+        coEvery { prefs.setAiTranslationDirection(any()) } just Runs
         coEvery { getVocabularyItemByWordUseCase.invoke(any()) } returns null
         coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
     }
@@ -78,6 +86,7 @@ class AddWordViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             openAiKeyFlow.value = "abc123"
             useAiFlow.value = true
+            directionFlow.value = AiTranslationDirection.RU_TO_EN
 
             val viewModel = buildViewModel()
 
@@ -86,6 +95,7 @@ class AddWordViewModelTest {
             val state = viewModel.uiState.value
             assertThat(state.openAiAvailable).isTrue()
             assertThat(state.useAiForTranslation).isTrue()
+            assertThat(state.translationDirection).isEqualTo(AiTranslationDirection.RU_TO_EN)
         }
 
     @Test
@@ -108,6 +118,10 @@ class AddWordViewModelTest {
             useAiFlow.value = true
             advanceUntilIdle()
             assertThat(viewModel.uiState.value.useAiForTranslation).isTrue()
+
+            directionFlow.value = AiTranslationDirection.RU_TO_EN
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.translationDirection).isEqualTo(AiTranslationDirection.RU_TO_EN)
         }
 
     @Test
@@ -232,6 +246,41 @@ class AddWordViewModelTest {
             advanceUntilIdle()
 
             assertThat(viewModel.uiState.value.useAiForTranslation).isTrue()
+            coVerify { prefs.setUseAiForTranslation(true) }
+        }
+
+    @Test
+    fun `onUseAiToggle ignores disable when direction is RU to EN`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            directionFlow.value = AiTranslationDirection.RU_TO_EN
+            useAiFlow.value = true
+            val viewModel = buildViewModel()
+
+            advanceUntilIdle()
+
+            viewModel.onUseAiToggle(false)
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.useAiForTranslation).isTrue()
+            coVerify(exactly = 0) { prefs.setUseAiForTranslation(false) }
+        }
+
+    @Test
+    fun `onTranslationDirectionToggle flips direction and forces AI on`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            useAiFlow.value = false
+            directionFlow.value = AiTranslationDirection.EN_TO_RU
+            val viewModel = buildViewModel()
+
+            advanceUntilIdle()
+
+            viewModel.onTranslationDirectionToggle()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.translationDirection).isEqualTo(AiTranslationDirection.RU_TO_EN)
+            assertThat(state.useAiForTranslation).isTrue()
+            coVerify { prefs.setAiTranslationDirection(AiTranslationDirection.RU_TO_EN) }
             coVerify { prefs.setUseAiForTranslation(true) }
         }
 
@@ -407,6 +456,31 @@ class AddWordViewModelTest {
                 Produce ONLY the entry for this headword, in the exact frame and rules above. No extra text.
                 """.trimIndent(),
             )
+        }
+
+    @Test
+    fun `onAddClick uses reverse prompt when direction is RU to EN`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            directionFlow.value = AiTranslationDirection.RU_TO_EN
+            reversePromptFlow.value = "reverse prompt"
+            coEvery { addVocabularyItemUseCase.invoke(any(), any()) } returns Result.success(Unit)
+
+            aiTranslationProvider.nextTranslation = "House"
+            val viewModel = buildViewModel()
+
+            advanceUntilIdle()
+
+            viewModel.onWordChange("дом")
+            viewModel.onTranslationChange("")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            assertThat(aiTranslationProvider.requests).hasSize(1)
+            val request = aiTranslationProvider.requests.single()
+            assertThat(request.systemPrompt).isEqualTo("reverse prompt")
+            assertThat(request.userPrompt).contains("HEADWORD: \"дом\"")
         }
 
     @Test
