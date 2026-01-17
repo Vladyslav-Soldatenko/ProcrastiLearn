@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.procrastilearn.app.navigation.BottomNavigationBar
 import com.procrastilearn.app.navigation.Screen
+import com.procrastilearn.app.ui.dojo.DojoScreen
 import com.procrastilearn.app.ui.screens.AddWordScreen
 import com.procrastilearn.app.ui.screens.AppsListScreen
 import com.procrastilearn.app.ui.screens.WordListScreen
@@ -36,6 +37,9 @@ fun MainScreen() {
             }
             composable(Screen.WordList.route) {
                 WordListScreen()
+            }
+            composable(Screen.Dojo.route) {
+                DojoScreen()
             }
             composable(Screen.Settings.route) {
                 SettingsScreen()

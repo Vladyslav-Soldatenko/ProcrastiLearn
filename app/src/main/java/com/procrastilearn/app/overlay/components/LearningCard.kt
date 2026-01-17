@@ -54,6 +54,8 @@ fun LearningCard(
     state: OverlayUiState,
     onToggleShowAnswer: () -> Unit,
     onDifficultySelected: (Rating) -> Unit,
+    showTranslationButtonHeight: androidx.compose.ui.unit.Dp = 52.dp,
+    addNavigationBarsPadding: Boolean = true,
 ) {
     val titleAnnotated =
         buildAnnotatedString {
@@ -149,13 +151,20 @@ fun LearningCard(
             // Footer swaps content in-place:
             if (!state.showAnswer) {
                 // Bottom: Show translation button
-                OutlinedButton(
-                    onClick = onToggleShowAnswer,
-                    modifier =
+                val buttonModifier =
+                    if (addNavigationBarsPadding) {
                         Modifier
                             .fillMaxWidth()
-                            .height(52.dp)
-                            .navigationBarsPadding(),
+                            .height(showTranslationButtonHeight)
+                            .navigationBarsPadding()
+                    } else {
+                        Modifier
+                            .fillMaxWidth()
+                            .height(showTranslationButtonHeight)
+                    }
+                OutlinedButton(
+                    onClick = onToggleShowAnswer,
+                    modifier = buttonModifier,
                     shape = RoundedCornerShape(14.dp),
                     colors =
                         ButtonDefaults.outlinedButtonColors(

@@ -9,5 +9,7 @@ sealed class Screen(
 
     object WordList : Screen("word_list")
 
+    data object Dojo : Screen("dojo")
+
     data object Settings : Screen("settings")
 }

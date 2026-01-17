@@ -3,6 +3,7 @@ package com.procrastilearn.app.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -34,6 +35,11 @@ private val bottomNavItems =
             screen = Screen.AddWord,
             icon = Icons.Default.Add,
             label = "nav_add_word",
+        ),
+        BottomNavItem(
+            screen = Screen.Dojo,
+            icon = Icons.Default.List,
+            label = "nav_dojo",
         ),
         BottomNavItem(
             screen = Screen.Settings,
@@ -70,6 +76,7 @@ fun BottomNavigationBar(navController: NavController) {
                                     when (item.label) {
                                         "nav_apps" -> R.string.nav_apps
                                         "nav_add_word" -> R.string.nav_add_word
+                                        "nav_dojo" -> R.string.nav_dojo
                                         "nav_settings" -> R.string.nav_settings
                                         else -> R.string.nav_apps
                                     },
@@ -84,6 +91,7 @@ fun BottomNavigationBar(navController: NavController) {
                                     when (item.label) {
                                         "nav_apps" -> R.string.nav_apps
                                         "nav_add_word" -> R.string.nav_add_word
+                                        "nav_dojo" -> R.string.nav_dojo
                                         "nav_settings" -> R.string.nav_settings
                                         else -> R.string.nav_apps
                                     },

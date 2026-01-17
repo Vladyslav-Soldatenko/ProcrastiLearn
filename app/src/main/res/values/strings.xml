@@ -29,6 +29,7 @@
     <!-- ─── Navigation ──────────────────────────────────────────────────────── -->
     <string name="nav_apps">Apps</string>
     <string name="nav_add_word">Add Word</string>
+    <string name="nav_dojo">Dojo</string>
     <string name="nav_settings">Settings</string>
 
     <!-- ─── Learning flow ───────────────────────────────────────────────────── -->
@@ -42,6 +43,12 @@
     <string name="rating_hard">Hard</string>
     <string name="rating_good">Good</string>
     <string name="rating_easy">Easy</string>
+
+    <!-- ─── Dojo (practice screen) ──────────────────────────────────────────── -->
+    <string name="dojo_stats_new_remaining">new</string>
+    <string name="dojo_stats_reviews_due">due</string>
+    <string name="dojo_empty_title">All done for now!</string>
+    <string name="dojo_empty_message">You\'ve completed all available words for today. Come back later or adjust your daily limits in Settings.</string>
 
     <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
     <string name="overlay_permission_title">Allow overlay display</string>
