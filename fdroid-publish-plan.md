@@ -87,12 +87,12 @@ F-Droid detects new versions via git tags. The tag system must be consistent.
 - [x] Decide on a tag naming scheme and stick to it — recommended: `v1.0.0` (semver with `v` prefix)
 - [x] Ensure `versionCode` in `app/build.gradle.kts` is an integer that increases with every release (current: `2`)
 - [x] Ensure `versionName` in `app/build.gradle.kts` matches the tag (e.g., tag `v1.0.0` → `versionName = "1.0.0"`)
-- [ ] Create and push the release tag for the version you want F-Droid to build first:
+- [x] Create and push the release tag for the version you want F-Droid to build first:
   ```bash
   git tag v1.0.0
   git push origin v1.0.0
   ```
-- [ ] Verify the tag is visible on GitHub at `https://github.com/Vladyslav-Soldatenko/ProcrastiLearn/tags`
+- [x] Verify the tag is visible on GitHub at `https://github.com/Vladyslav-Soldatenko/ProcrastiLearn/tags`
 - [ ] **Invariant to maintain forever:** every time you release, bump `versionCode`, update `versionName`, commit, tag, push tag. F-Droid will auto-detect it within 1–2 build cycles (currently ~daily).
 
 ---
@@ -120,7 +120,7 @@ F-Droid reads your app description, screenshots, and changelogs directly from yo
                       ├── 1.png
                       └── 2.png      ← add more as needed
   ```
-- [ ] Commit and push the entire `fastlane/` directory
+- [x] Commit and push the entire `fastlane/` directory
 
 ### 3.2 Write `short_description.txt`
 
@@ -139,14 +139,13 @@ F-Droid reads your app description, screenshots, and changelogs directly from yo
 - [x] Created `fastlane/metadata/android/en-US/changelogs/2.txt` (197 chars, limit 500)
 - [x] For each future release, create a new file named after the new `versionCode`
 
-### 3.5 Add Images — **TODO (not done)**
+### 3.5 Add Images
 
-- [ ] **`icon.png`**: 512×512 px PNG — place at `fastlane/metadata/android/en-US/images/icon.png` (use your launcher icon)
-- [ ] **`featureGraphic.png`**: 1024×500 px PNG — place at `fastlane/metadata/android/en-US/images/featureGraphic.png`
-- [ ] **`phoneScreenshots/1.png`**: At least one screenshot from a real device or emulator
-- [ ] Screenshots can be any reasonable resolution; no strict enforcement, but 1080p is standard
-- [ ] EXIF data is automatically stripped by F-Droid — no need to pre-strip
-- [ ] After adding images: commit and push the entire `fastlane/` directory
+- [x] **`icon.png`**: 512×512 px PNG — place at `fastlane/metadata/android/en-US/images/icon.png` (use your launcher icon)
+- [x] **`featureGraphic.png`**: 1024×500 px PNG — place at `fastlane/metadata/android/en-US/images/featureGraphic.png`
+- [x] **`phoneScreenshots/1.png`**, **`2.png`**, **`3.png`**: 1080×2400 px screenshots
+- [x] EXIF data is automatically stripped by F-Droid — no need to pre-strip
+- [x] After adding images: commit and push the entire `fastlane/` directory
 
 ---
 
