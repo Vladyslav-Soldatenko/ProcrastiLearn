@@ -1,0 +1,37 @@
+ProcrastiLearn turns mindless app-opening into vocabulary practice. Choose which apps you tend to open out of habit — social media, browsers, games — and whenever you launch one, a full-screen flashcard overlay appears. Reveal the translation, rate how well you remembered it, and the app you wanted opens immediately. No subscription, no ads, no accounts.
+
+
+HOW IT WORKS
+
+Pick the apps you want to gate in the Apps tab. From that point on, opening any of those apps shows a flashcard first. You rate your answer (Again / Hard / Good / Easy) and the FSRS spaced-repetition algorithm schedules the next review automatically. Daily caps prevent you from being overwhelmed.
+
+If you tend to lose track of time once you're inside a gated app, the optional recurring reminder has you covered: set an interval (e.g. every 10 minutes) and the overlay reappears as long as you stay in that app, turning each lingering session into extra review reps.
+
+
+VOCABULARY
+
+Add words manually or use the optional AI translation feature: paste a word, tap Generate, and the app drafts a translation using OpenAI. The AI prompt is fully editable so you can control tone, context, or target language.
+
+You can also import existing Anki decks (.apkg files) to get started immediately with a vocabulary set you already trust.
+
+
+LANGUAGE SUPPORT
+
+The app currently works best with English-Russian vocabulary (that pair is the default in the AI prompt), but any language pair works — just edit the prompt in Settings to match your target language. Support for additional language pairs with dedicated UI will be added in future releases, especially based on user requests in github issues or via email.
+
+
+PRIVACY
+
+All data — vocabulary, blocked apps list, review history, and settings — is stored entirely on your device. There are no analytics, no crash reporters, and no advertising SDKs. The only outbound network traffic is the optional OpenAI API call you initiate by tapping Generate, using your own API key entered in Settings.
+
+
+PERMISSIONS
+
+Accessibility Service: used solely to detect which app is currently in the foreground so ProcrastiLearn knows when to show the overlay. The service does not read screen content, keystrokes, or any other input.
+
+Display Over Other Apps: required to draw the flashcard overlay on top of the gated app.
+
+
+OPEN SOURCE
+
+ProcrastiLearn is free and open-source software (Apache 2.0 license). Source code and issue tracker are on GitHub.

@@ -1,0 +1,1 @@
+Initial release. Flashcard overlay gate for chosen apps, FSRS spaced repetition, Anki .apkg import, optional OpenAI AI-generated translations, in-app practice mode, and JSON vocabulary import/export.
