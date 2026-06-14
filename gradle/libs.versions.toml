@@ -1,26 +1,30 @@
 [versions]
 agp = "8.12.0"
+appfunctions = "1.0.0-alpha09"
 datastorePreferences = "1.1.7"
 fastscrollerMaterial3 = "0.3.2"
 fsrs = "1.0.0"
-hiltCompiler = "2.56.2"
+hiltCompiler = "2.59.2"
 hiltNavigationCompose = "1.2.0"
 kotlin = "2.0.21"
 coreKtx = "1.10.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
-espressoCore = "3.5.1"
+espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
-composeBom = "2024.09.00"
+composeBom = "2025.05.01"
 openaiJava = "3.4.1"
-roomCompiler = "2.6.1"
-roomKtx = "2.6.1"
-roomRuntime = "2.6.1"
-roomTesting = "2.6.1"
+roomCompiler = "2.8.4"
+roomKtx = "2.8.4"
+roomRuntime = "2.8.4"
+roomTesting = "2.8.4"
 uiAutomator = "2.3.0"
 
 [libraries]
+androidx-appfunctions = { group = "androidx.appfunctions", name = "appfunctions", version.ref = "appfunctions" }
+androidx-appfunctions-service = { group = "androidx.appfunctions", name = "appfunctions-service", version.ref = "appfunctions" }
+androidx-appfunctions-compiler = { group = "androidx.appfunctions", name = "appfunctions-compiler", version.ref = "appfunctions" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }

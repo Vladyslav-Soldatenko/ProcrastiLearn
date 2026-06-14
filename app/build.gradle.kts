@@ -1,6 +1,5 @@
 plugins {
   id("com.android.application")
-  id("org.jetbrains.kotlin.android")
   id("org.jetbrains.kotlin.plugin.compose")
   id("com.google.devtools.ksp")
   id("com.google.dagger.hilt.android")
@@ -10,7 +9,7 @@ plugins {
 
 android {
   namespace = "com.procrastilearn.app"
-  compileSdk = 36
+  compileSdk = 37
 
   defaultConfig {
     applicationId = "com.procrastilearn.app"
@@ -25,9 +24,10 @@ android {
     arg("room.schemaLocation", "$projectDir/schemas")
     arg("room.incremental", "true")
     arg("room.generateKotlin", "true")
+    arg("appfunctions:aggregateAppFunctions", "true")
   }
   sourceSets {
-    getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    getByName("androidTest").assets.setSrcDirs(listOf("$projectDir/schemas"))
   }
 
   buildTypes {
@@ -47,9 +47,7 @@ android {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
   }
-  kotlinOptions {
-    jvmTarget = "17"
-  }
+
   buildFeatures {
     compose = true
   }
@@ -60,6 +58,10 @@ android {
 }
 
 dependencies {
+  implementation(libs.androidx.appfunctions)
+  implementation(libs.androidx.appfunctions.service)
+  ksp(libs.androidx.appfunctions.compiler)
+
   implementation(libs.fsrs)
   implementation(libs.androidx.room.runtime)
   implementation(libs.androidx.room.ktx)
