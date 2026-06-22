@@ -1,0 +1,2 @@
+Update and improve prompts for AI translation generation (both EN-RU and RU-EN)
+prepare for App functions integrations with phone assistants
