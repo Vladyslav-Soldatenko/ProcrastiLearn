@@ -20,6 +20,8 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.repository.NoAvailableItemsException
+import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
 import com.procrastilearn.app.domain.repository.VocabularyRepository
 import com.procrastilearn.app.overlay.OverlayScreen
@@ -78,10 +80,6 @@ class OverlayAccessibilityService : AccessibilityService() {
     private val getSaveDifficultyRatingUseCase by lazy {
         serviceEntryPoint.getSaveDifficultyRatingUseCase()
     }
-    private val checkVocabularyAvailabilityUseCase by lazy {
-        serviceEntryPoint.checkVocabularyAvailabilityUseCase()
-    }
-
     private val dayCountersStore: DayCountersStore by lazy {
         serviceEntryPoint.dayCountersStore()
     }
@@ -191,6 +189,7 @@ class OverlayAccessibilityService : AccessibilityService() {
 
     private fun createComposeOverlay(
         owner: ServiceLifecycleOwner,
+        initialItem: VocabularyItem,
         onUnlock: () -> Unit,
     ): View =
         ComposeView(this).apply {
@@ -206,7 +205,9 @@ class OverlayAccessibilityService : AccessibilityService() {
                         getSaveDifficultyRatingUseCase,
                     ),
                 ).get(OverlayViewModel::class.java)
-            viewModel.onOverlayOpened() // Kick off loading immediately, before any user interaction
+            // Seed the already-loaded word so the first composition renders it immediately,
+            // instead of drawing an empty frame and waiting on an async update.
+            viewModel.seedInitialWord(initialItem)
 
             setContent {
                 MaterialTheme(colorScheme = darkColorScheme()) {
@@ -236,18 +237,25 @@ class OverlayAccessibilityService : AccessibilityService() {
         }
 
         serviceScope.launch {
-            val hasItems = checkVocabularyAvailabilityUseCase()
-            Log.d("OverlayService", "Checking vocabulary availability: hasItems=$hasItems")
-
-            if (hasItems) {
-                gateActive = true
-                gatedPackage = pkg
-                showOverlay()
-                // Don't start timer here - it will be started after unlock
-                Log.d("OverlayService", "Gate session started for $pkg, overlay shown")
-            } else {
-                Log.i("OverlayService", "No vocabulary items available (limits reached), not showing overlay")
-            }
+            // Load the word *before* attaching the overlay so the first frame already shows it.
+            getNextVocabularyItemUseCase()
+                .onSuccess { item ->
+                    gateActive = true
+                    gatedPackage = pkg
+                    showOverlay(item)
+                    // Don't start timer here - it will be started after unlock
+                    Log.d("OverlayService", "Gate session started for $pkg, overlay shown")
+                }.onFailure { error ->
+                    when (error) {
+                        is NoAvailableItemsException ->
+                            Log.i(
+                                "OverlayService",
+                                "No vocabulary items available (limits reached), not showing overlay",
+                            )
+                        else ->
+                            Log.e("OverlayService", "Failed to load first word, not showing overlay", error)
+                    }
+                }
         }
     }
 
@@ -288,13 +296,12 @@ class OverlayAccessibilityService : AccessibilityService() {
                 // Trust the gateActive state rather than re-querying the current package
                 if (isProcrastilearnEnabled && gateActive && gatedPackage != null) {
                     Log.d("OverlayService", "Still in gate session for $gatedPackage, showing overlay again")
-                    // Check if vocabulary is still available
-                    val hasItems = checkVocabularyAvailabilityUseCase()
-                    if (hasItems) {
-                        showOverlay()
-                    } else {
-                        Log.d("OverlayService", "No vocabulary items available, not showing overlay")
-                    }
+                    // Load the next word before re-showing so the first frame already has it.
+                    getNextVocabularyItemUseCase()
+                        .onSuccess { item -> showOverlay(item) }
+                        .onFailure {
+                            Log.d("OverlayService", "No vocabulary items available, not showing overlay")
+                        }
                 } else {
                     Log.d("OverlayService", "Gate not active or no gated package, not showing overlay")
                 }
@@ -325,7 +332,7 @@ class OverlayAccessibilityService : AccessibilityService() {
 
     private fun isIgnorableSystem(pkg: String): Boolean = pkg in ignoredPackages
 
-    private fun showOverlay() {
+    private fun showOverlay(initialItem: VocabularyItem) {
         if (!isProcrastilearnEnabled) {
             Log.d("OverlayService", "ProcrastiLearn disabled, not showing overlay")
             return
@@ -341,6 +348,7 @@ class OverlayAccessibilityService : AccessibilityService() {
         overlayView =
             createComposeOverlay(
                 owner = owner,
+                initialItem = initialItem,
                 onUnlock = {
                     // Mark this app as unlocked for current session
                     gatedPackage?.let { pkg ->

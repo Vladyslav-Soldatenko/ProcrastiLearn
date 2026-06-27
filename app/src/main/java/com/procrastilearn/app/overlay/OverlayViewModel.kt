@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
+import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +31,25 @@ class OverlayViewModel
             val state = _uiState.value
             if (state.unlocked || state.isLoading || state.vocabularyItem != null) return
             loadNewWord()
+        }
+
+        /**
+         * Seed the first word synchronously, before the overlay's first composition.
+         *
+         * The word is loaded by the service *before* the ComposeView is attached to the
+         * window, so the very first frame already shows it. This avoids drawing an empty
+         * "No word loaded" frame and relying on a later async update to repaint — which,
+         * in a Service-hosted ComposeView, would not flush to screen until a touch event.
+         */
+        fun seedInitialWord(item: VocabularyItem) {
+            _uiState.update {
+                it.copy(
+                    vocabularyItem = item,
+                    isLoading = false,
+                    showAnswer = false,
+                    unlocked = false,
+                )
+            }
         }
 
         fun onToggleShowAnswer() {
