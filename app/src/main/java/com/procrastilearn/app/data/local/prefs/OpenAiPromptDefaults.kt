@@ -9,6 +9,7 @@ object OpenAiPromptDefaults {
 
             SINGLE-MEANING FORMAT (default):
             Transcription: /.../
+            Irregular forms: <ONLY if the headword is an irregular verb — its 3 principal forms, e.g. "do – did – done". Omit this line entirely for regular verbs and non-verbs.>
 
             Russian translation: <comma-separated common synonyms; group senses with semicolons. For proverbs/sayings, see the special format in HARD RULES>
 
@@ -27,6 +28,7 @@ object OpenAiPromptDefaults {
 
             MULTI-MEANING FORMAT (only when the MULTI-MEANING SPLIT trigger in HARD RULES applies):
             Transcription: /.../  [include this top-level line ONLY if pronunciation is identical across all meanings; otherwise omit it entirely]
+            Irregular forms: <ONLY if the headword is an irregular verb — its 3 principal forms, e.g. "do – did – done". Omit for regular verbs and non-verbs.>
 
             MEANING 1 — <short label for this sense, e.g. "physical: slope, tilt">
             Transcription: /.../  [include here ONLY if this meaning's pronunciation differs from the others — otherwise omit]
@@ -52,6 +54,7 @@ object OpenAiPromptDefaults {
             HARD RULES:
             - Use exact section headings as shown (capitalization, punctuation).
             - IPA only between slashes; no brackets or respelling (e.g., /bɪˈnaɪn/).
+            - If the headword (or a derived verb sense in a MULTI-MEANING entry) is an irregular verb, add an "Irregular forms:" line directly under the relevant Transcription line giving its 3 principal forms (base – past simple – past participle), e.g. "do – did – done". Omit this line entirely for regular verbs and non-verbs.
             - Russian: no transliteration; give common synonyms, comma-separated; separate sense groups with semicolons.
             - Examples: 8–11 total, different senses when possible. In the MULTI-MEANING FORMAT, each MEANING block independently has its own 8–11 examples — this is NOT a combined total across blocks.
             - Explanation in English: 5–8 sentences, neutral dictionary style. In the MULTI-MEANING FORMAT, each MEANING block independently has its own 5–8 sentences — this is NOT a combined total across blocks.
@@ -199,6 +202,7 @@ object OpenAiPromptDefaults {
             English translation: <word/phrase>
 
             Transcription: /.../
+            Irregular forms: <ONLY if the translation is an irregular verb — its 3 principal forms, e.g. "do – did – done". Omit this line entirely for regular verbs and non-verbs.>
 
             Explanation in English:
               <5–8 concise sentences: meaning, typical usage, and any notable register or connotation>
@@ -219,6 +223,7 @@ object OpenAiPromptDefaults {
 
             OPTION 1 — <word1>
             Transcription: /.../
+            Irregular forms: <ONLY if this option is an irregular verb — its 3 principal forms, e.g. "do – did – done". Omit this line entirely for regular verbs and non-verbs.>
 
             Explanation in English:
               <5–8 sentences: meaning, and WHEN/WHY to choose this option — register, region, connotation, typical collocations>
@@ -241,6 +246,7 @@ object OpenAiPromptDefaults {
             HARD RULES:
             - CULTURAL EQUIVALENTS over literal translations: for idioms, proverbs, and other fixed expressions, give the natural English equivalent rather than a word-for-word translation (e.g., «когда рак на горе свистнет» → *when pigs fly*, not "when a crayfish whistles on the mountain"). If no close equivalent exists, give the closest natural expression and add a literal gloss in parentheses, labeled "literally: ...".
             - IPA transcription in slashes for every English headword, including each OPTION in FORMAT B; no brackets or respelling.
+            - If the English translation (or an OPTION in FORMAT B) is an irregular verb, add an "Irregular forms:" line directly under its Transcription line giving its 3 principal forms (base – past simple – past participle), e.g. "do – did – done". Omit this line entirely for regular verbs and non-verbs.
             - In FORMAT B, each option's Explanation must state WHEN and WHY to choose it relative to the others, including formality (formal/neutral/informal/slang), region (BrE/AmE) if relevant, and connotation.
             - Explanation in English: 5–8 sentences (FORMAT A — total; FORMAT B — per option).
             - Examples: 8–11 (FORMAT A — total; FORMAT B — per option). Use short, natural sentences that show typical collocations, not isolated words.
