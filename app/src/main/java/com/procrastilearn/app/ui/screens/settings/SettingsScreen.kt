@@ -322,6 +322,7 @@ internal fun SettingsContent(
             NumberInputDialog(
                 title = stringResource(R.string.settings_new_cards_per_day_title),
                 currentValue = newPerDay,
+                minValue = 0,
                 onValueConfirm = {
                     onNewPerDayChange(it)
                     dialogState = DialogState.None
@@ -333,6 +334,7 @@ internal fun SettingsContent(
             NumberInputDialog(
                 title = stringResource(R.string.settings_reviews_per_day_title),
                 currentValue = reviewPerDay,
+                minValue = 0,
                 onValueConfirm = {
                     onReviewPerDayChange(it)
                     dialogState = DialogState.None

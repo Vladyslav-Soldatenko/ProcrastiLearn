@@ -24,7 +24,7 @@ fun NumberInputDialog(
     currentValue: Int,
     onValueConfirm: (Int) -> Unit,
     onDismiss: () -> Unit,
-    minValue: Int = 1,
+    minValue: Int = 0,
 ) {
     var textValue by remember { mutableStateOf(currentValue.toString()) }
 
