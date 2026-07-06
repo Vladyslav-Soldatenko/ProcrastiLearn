@@ -39,15 +39,18 @@ All data (blocked apps, vocabulary, progress, and preferences) is stored locally
 - Use AI to analyze existing words, estimate level and suggest new vocabulary based on that info.
 - Fix intermittent "No word loaded" screen that clears after a click.
 - On export, ask to keep progress for transfer or reset it for sharing the dack.
+- Possibility to "buy" time beforehand in dojo.
 
 ### Long Term
-- Add user accounts with cloud backup.
+- Add user accounts with cloud backup (maybe even scheduled).
 - Expand import options and improve Anki support.
 - Add support for different decks so that user can choose words of which deck they want to study now.
 - Add tests.
 - Add an "add word" option to the OS text selection popup.
 - Integrate with Gemini Assistant to add words by voice.
 - Support rich text formatting for word/translation.
+- Add pronunciation (TTS)
+- Add some charts to view data of progress
 
 ### Installation
 For now you have several options to choose:
