@@ -33,12 +33,18 @@ tasks.register("bumpVersion") {
           lines[i] = "VERSION_CODE=$newVersionCode"
         }
         line.startsWith("VERSION_NAME=") -> {
-          val (major, minor, patch) = line.substringAfter("=").trim().split(".").map { it.toInt() }
-          newVersionName = when (bumpType) {
-            "major" -> "${major + 1}.0.0"
-            "minor" -> "$major.${minor + 1}.0"
-            else -> "$major.$minor.${patch + 1}"
-          }
+          val (major, minor, patch) =
+            line
+              .substringAfter("=")
+              .trim()
+              .split(".")
+              .map { it.toInt() }
+          newVersionName =
+            when (bumpType) {
+              "major" -> "${major + 1}.0.0"
+              "minor" -> "$major.${minor + 1}.0"
+              else -> "$major.$minor.${patch + 1}"
+            }
           lines[i] = "VERSION_NAME=$newVersionName"
         }
       }
@@ -50,9 +56,10 @@ tasks.register("bumpVersion") {
 
     propsFile.writeText(lines.joinToString(separator = "\n", postfix = "\n"))
 
-    val changelogFile = rootProject.file(
-      "fastlane/metadata/android/en-US/changelogs/$newVersionCode.txt",
-    )
+    val changelogFile =
+      rootProject.file(
+        "fastlane/metadata/android/en-US/changelogs/$newVersionCode.txt",
+      )
     changelogFile.writeText("Some minor tweaks and improvements")
 
     logger.lifecycle(

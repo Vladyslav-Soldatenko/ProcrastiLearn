@@ -219,6 +219,11 @@
     <string name="add_word_existing_cancel">@string/action_cancel</string>
     <string name="add_word_existing_proceed">@string/action_proceed</string>
 
+    <!-- Add Word: offline AI queueing -->
+    <string name="add_word_button_add_later">Add later</string>
+    <string name="add_word_pending_title">Pending translations</string>
+    <string name="add_word_pending_delete">Remove pending word</string>
+
     <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
     <string name="word_list_title">My Vocabulary</string>
     <string name="word_list_empty">No words added yet</string>

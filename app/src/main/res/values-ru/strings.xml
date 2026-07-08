@@ -1,5 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
+<string name="app_function_description">Добавляйте слова с переводами, сгенерированными ИИ, для обучения с интервальным повторением</string>
+
 <string name="app_name" translatable="false">ProcrastiLearn</string>
 
         <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
@@ -12,8 +14,10 @@
         <string name="action_edit">Редактировать</string>
         <string name="action_ok">ОК</string>
         <string name="action_cancel">Отмена</string>
+        <string name="action_proceed">Продолжить</string>
 
     <string name="action_delete">Удалить</string>
+    <string name="action_reset">Сбросить</string>
 
         <!-- Back-compat aliases (so existing code keeps working) -->
         <string name="overlay_permission_open_settings">@string/action_open_settings</string>
@@ -25,6 +29,7 @@
         <!-- ─── Navigation ──────────────────────────────────────────────────────── -->
         <string name="nav_apps">Приложения</string>
         <string name="nav_add_word">Добавить слово</string>
+        <string name="nav_dojo">Додзё</string>
         <string name="nav_settings">Настройки</string>
 
         <!-- ─── Learning flow ───────────────────────────────────────────────────── -->
@@ -38,6 +43,12 @@
         <string name="rating_hard">Сложно</string>
         <string name="rating_good">Хорошо</string>
         <string name="rating_easy">Легко</string>
+
+        <!-- ─── Dojo (practice screen) ──────────────────────────────────────────── -->
+        <string name="dojo_stats_new_remaining">новых</string>
+        <string name="dojo_stats_reviews_due">к повторению</string>
+        <string name="dojo_empty_title">На сегодня всё готово!</string>
+        <string name="dojo_empty_message">Вы прошли все доступные слова на сегодня. Возвращайтесь позже или измените дневные лимиты в настройках.</string>
 
         <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
         <string name="overlay_permission_title">Разрешить отображение поверх других окон</string>
@@ -172,11 +183,21 @@
         <string name="settings_import_failure_generic">Не удалось импортировать</string>
         <string name="settings_import_failure_format">Этот формат пока не поддерживается</string>
 
+        <!-- Export -->
+        <string name="settings_export_row">Экспорт</string>
+        <string name="settings_export_row_desc">Экспортировать весь словарь в файл JSON</string>
+        <string name="settings_export_success">Экспорт завершён</string>
+        <string name="settings_export_failure">Не удалось экспортировать</string>
+
         <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
         <string name="word_list_title">Мой словарь</string>
         <string name="word_list_empty">Вы ещё не добавили слов</string>
         <string name="word_list_delete_confirm_title">Удалить слово</string>
         <string name="word_list_delete_confirm_message">Удалить %1$s из списка?</string>
+        <string name="word_list_reset">Сбросить прогресс</string>
+        <string name="word_list_reset_confirm_title">Сбросить прогресс</string>
+        <string name="word_list_reset_confirm_message">Сбросить прогресс изучения для %1$s?</string>
+        <string name="word_list_more_actions">Дополнительные действия</string>
         <string name="word_list_search_label">Поиск</string>
         <string name="word_list_search_placeholder">Поиск слов</string>
         <string name="word_list_search_no_results">Совпадений не найдено</string>
@@ -190,7 +211,21 @@
         <string name="add_word_toggle_direction">Переключить направление перевода</string>
         <string name="add_word_direction_en">EN</string>
         <string name="add_word_direction_ru">RU</string>
+        <string name="add_word_button_preview">Предпросмотр</string>
+        <string name="add_word_preview_title">Предпросмотр ИИ</string>
+        <string name="add_word_preview_cancel">@string/action_cancel</string>
+        <string name="add_word_preview_confirm">@string/action_add</string>
+        <string name="add_word_existing_title">Слово уже существует</string>
+        <string name="add_word_existing_message">
+    У вас уже есть это слово. Если вы продолжите, прогресс слова будет сброшен, а новый перевод сохранён. Если вы просто хотите отредактировать его — сделайте это из списка слов
+</string>
+        <string name="add_word_existing_cancel">@string/action_cancel</string>
+        <string name="add_word_existing_proceed">@string/action_proceed</string>
 
+        <!-- Add Word: offline AI queueing -->
+        <string name="add_word_button_add_later">Добавить позже</string>
+        <string name="add_word_pending_title">Ожидающие переводы</string>
+        <string name="add_word_pending_delete">Удалить ожидающее слово</string>
 
         <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
         <string name="cd_add_word">Добавить слово</string>

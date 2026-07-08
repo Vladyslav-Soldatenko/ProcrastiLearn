@@ -25,12 +25,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -61,6 +63,7 @@ import com.procrastilearn.app.overlay.theme.OverlayThemeTokens
 import com.procrastilearn.app.ui.AddWordLoadingAction
 import com.procrastilearn.app.ui.AddWordPreviewContent
 import com.procrastilearn.app.ui.AddWordViewModel
+import com.procrastilearn.app.ui.PendingWordUi
 import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.delay
@@ -101,6 +104,10 @@ fun AddWordScreen(
         existingWordDialogWord = uiState.existingWordDialogWord,
         isExistingWordDialogLoading = uiState.isExistingWordDialogLoading,
         loadingAction = uiState.loadingAction,
+        isOnline = uiState.isOnline,
+        isAddLaterMode = uiState.isAddLaterMode,
+        pendingWords = uiState.pendingWords,
+        onDeletePendingWord = viewModel::onDeletePendingWord,
         onWordChange = viewModel::onWordChange,
         onTranslationChange = viewModel::onTranslationChange,
         onUseAiToggle = viewModel::onUseAiToggle,
@@ -141,6 +148,56 @@ private fun AddWordContentPreviewAiEnabled() {
             existingWordDialogWord = null,
             isExistingWordDialogLoading = false,
             loadingAction = null,
+            isOnline = true,
+            isAddLaterMode = false,
+            pendingWords = emptyList(),
+            onDeletePendingWord = {},
+            onWordChange = {},
+            onTranslationChange = {},
+            onUseAiToggle = {},
+            onTranslationDirectionToggle = {},
+            onPreviewClick = {},
+            onPreviewCancel = {},
+            onPreviewConfirmAdd = {},
+            onAddClick = {},
+            onExistingWordDialogCancel = {},
+            onExistingWordDialogProceed = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Add Word • Offline (Add later)")
+@Composable
+private fun AddWordContentPreviewOffline() {
+    MyApplicationTheme {
+        AddWordContent(
+            onNavigateToList = {},
+            word = "Baum",
+            translation = "",
+            wordError = null,
+            translationError = null,
+            isLoading = false,
+            errorMessage = null,
+            isSuccess = false,
+            successMessage = null,
+            openAiAvailable = true,
+            useAiForTranslation = true,
+            translationDirection = AiTranslationDirection.EN_TO_RU,
+            previewContent = null,
+            isPreviewVisible = false,
+            isExistingWordDialogVisible = false,
+            existingWordDialogWord = null,
+            isExistingWordDialogLoading = false,
+            loadingAction = null,
+            isOnline = false,
+            isAddLaterMode = true,
+            pendingWords =
+                listOf(
+                    PendingWordUi(id = 1, word = "Haus"),
+                    PendingWordUi(id = 2, word = "Auto"),
+                    PendingWordUi(id = 3, word = "Fenster"),
+                ),
+            onDeletePendingWord = {},
             onWordChange = {},
             onTranslationChange = {},
             onUseAiToggle = {},
@@ -194,6 +251,10 @@ private fun AddWordContent(
     existingWordDialogWord: String?,
     isExistingWordDialogLoading: Boolean,
     loadingAction: AddWordLoadingAction?,
+    isOnline: Boolean,
+    isAddLaterMode: Boolean,
+    pendingWords: List<PendingWordUi>,
+    onDeletePendingWord: (Long) -> Unit,
     onWordChange: (String) -> Unit,
     onTranslationChange: (String) -> Unit,
     onUseAiToggle: (Boolean) -> Unit,
@@ -376,7 +437,7 @@ private fun AddWordContent(
                             Modifier
                                 .weight(1f)
                                 .height(56.dp),
-                        enabled = !isLoading,
+                        enabled = !isLoading && isOnline,
                         colors =
                             ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -440,11 +501,31 @@ private fun AddWordContent(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = stringResource(R.string.add_word_button_add),
+                            text =
+                                stringResource(
+                                    if (isAddLaterMode) {
+                                        R.string.add_word_button_add_later
+                                    } else {
+                                        R.string.add_word_button_add
+                                    },
+                                ),
                             style = MaterialTheme.typography.titleMedium,
                         )
                     }
                 }
+            }
+
+            // Pending translations (queued while offline)
+            AnimatedVisibility(
+                visible = pendingWords.isNotEmpty(),
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
+                PendingWordsSection(
+                    pendingWords = pendingWords,
+                    onDeletePendingWord = onDeletePendingWord,
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                )
             }
 
             // Error Message
@@ -523,6 +604,73 @@ private fun AddWordContent(
                 onCancel = onExistingWordDialogCancel,
             )
         }
+    }
+}
+
+@Composable
+private fun PendingWordsSection(
+    pendingWords: List<PendingWordUi>,
+    onDeletePendingWord: (Long) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(R.string.add_word_pending_title),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                pendingWords.forEachIndexed { index, pendingWord ->
+                    Row(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = pendingWord.word,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f),
+                        )
+                        IconButton(onClick = { onDeletePendingWord(pendingWord.id) }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = stringResource(R.string.add_word_pending_delete),
+                                tint = MaterialTheme.colorScheme.error,
+                            )
+                        }
+                    }
+                    if (index != pendingWords.lastIndex) {
+                        HorizontalDivider()
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Pending Words Section")
+@Composable
+private fun PendingWordsSectionPreview() {
+    MyApplicationTheme {
+        PendingWordsSection(
+            pendingWords =
+                listOf(
+                    PendingWordUi(id = 1, word = "Haus"),
+                    PendingWordUi(id = 2, word = "Auto"),
+                ),
+            onDeletePendingWord = {},
+        )
     }
 }
 
@@ -833,6 +981,10 @@ private fun AddWordContentPreview() {
             existingWordDialogWord = null,
             isExistingWordDialogLoading = false,
             loadingAction = null,
+            isOnline = true,
+            isAddLaterMode = false,
+            pendingWords = emptyList(),
+            onDeletePendingWord = {},
             onWordChange = {},
             onTranslationChange = {},
             onUseAiToggle = {},

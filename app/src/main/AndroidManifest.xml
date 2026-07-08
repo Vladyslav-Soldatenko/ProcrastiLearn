@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <!-- To make requests to AI API to generate translations, examples and so on. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- To detect when the device is offline so
+         AI-translated word additions can be queued and retried once connectivity returns. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />

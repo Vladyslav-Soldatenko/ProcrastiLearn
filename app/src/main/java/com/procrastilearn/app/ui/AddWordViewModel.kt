@@ -2,24 +2,24 @@ package com.procrastilearn.app.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
-import com.procrastilearn.app.data.translation.AiTranslationProvider
-import com.procrastilearn.app.data.translation.AiTranslationRequest
 import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
+import com.procrastilearn.app.domain.usecase.DeletePendingWordUseCase
+import com.procrastilearn.app.domain.usecase.GenerateAiTranslationUseCase
 import com.procrastilearn.app.domain.usecase.GetVocabularyItemByWordUseCase
+import com.procrastilearn.app.domain.usecase.ObservePendingWordsUseCase
 import com.procrastilearn.app.domain.usecase.OverrideVocabularyItemUseCase
+import com.procrastilearn.app.domain.usecase.QueuePendingWordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,8 +29,11 @@ class AddWordViewModel @Inject
         private val getVocabularyItemByWordUseCase: GetVocabularyItemByWordUseCase,
         private val overrideVocabularyItemUseCase: OverrideVocabularyItemUseCase,
         private val prefs: DayCountersStore,
-        private val aiTranslationProvider: AiTranslationProvider,
-        private val ioDispatcher: CoroutineDispatcher,
+        private val generateAiTranslationUseCase: GenerateAiTranslationUseCase,
+        private val queuePendingWordUseCase: QueuePendingWordUseCase,
+        private val observePendingWordsUseCase: ObservePendingWordsUseCase,
+        private val deletePendingWordUseCase: DeletePendingWordUseCase,
+        private val connectivityObserver: NetworkConnectivityObserver,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(AddWordUiState())
         private var pendingOverride: PendingOverrideSubmission? = null
@@ -51,6 +54,21 @@ class AddWordViewModel @Inject
                             openAiAvailable = hasKey,
                             useAiForTranslation = useAi,
                             translationDirection = direction,
+                        )
+                }
+            }
+
+            viewModelScope.launch {
+                connectivityObserver.observe().collectLatest { online ->
+                    _uiState.value = _uiState.value.copy(isOnline = online)
+                }
+            }
+
+            viewModelScope.launch {
+                observePendingWordsUseCase().collectLatest { pendingWords ->
+                    _uiState.value =
+                        _uiState.value.copy(
+                            pendingWords = pendingWords.map { PendingWordUi(id = it.id, word = it.word) },
                         )
                 }
             }
@@ -83,6 +101,12 @@ class AddWordViewModel @Inject
                 return
             }
 
+            if (currentState.isAddLaterMode) {
+                queuePendingWord(currentState.word.trim(), currentState.translationDirection)
+                return
+            }
+            val aiModeActive = currentState.aiModeActive
+
             viewModelScope.launch {
                 _uiState.value =
                     _uiState.value.copy(
@@ -97,9 +121,9 @@ class AddWordViewModel @Inject
                     )
 
                 val aiTranslation: String? =
-                    if (currentState.openAiAvailable && currentState.useAiForTranslation) {
+                    if (aiModeActive) {
                         runCatching {
-                            requestAiTranslation(
+                            generateAiTranslationUseCase(
                                 currentState.word,
                                 currentState.translationDirection,
                             )
@@ -136,6 +160,31 @@ class AddWordViewModel @Inject
                     fromPreview = false,
                 )
             }
+        }
+
+        private fun queuePendingWord(
+            word: String,
+            direction: AiTranslationDirection,
+        ) {
+            viewModelScope.launch {
+                queuePendingWordUseCase(word, direction)
+                _uiState.value =
+                    _uiState.value.copy(
+                        word = "",
+                        translation = "",
+                        wordError = null,
+                        translationError = null,
+                        errorMessage = null,
+                        isLoading = false,
+                        loadingAction = null,
+                        isSuccess = true,
+                        successMessage = PENDING_QUEUED_MESSAGE,
+                    )
+            }
+        }
+
+        fun onDeletePendingWord(id: Long) {
+            viewModelScope.launch { deletePendingWordUseCase(id) }
         }
 
         fun resetSuccess() {
@@ -191,7 +240,8 @@ class AddWordViewModel @Inject
                 _uiState.value = _uiState.value.copy(wordError = "Please enter a word")
                 return
             }
-            if (!currentState.openAiAvailable || !currentState.useAiForTranslation) return
+            if (!currentState.aiModeActive) return
+            if (!currentState.isOnline) return
 
             viewModelScope.launch {
                 _uiState.value =
@@ -206,7 +256,7 @@ class AddWordViewModel @Inject
                     )
 
                 runCatching {
-                    requestAiTranslation(
+                    generateAiTranslationUseCase(
                         currentState.word.trim(),
                         currentState.translationDirection,
                     )
@@ -408,6 +458,7 @@ class AddWordViewModel @Inject
         companion object {
             private const val DEFAULT_ADD_SUCCESS_MESSAGE = "Word added successfully!"
             private const val OVERRIDE_SUCCESS_MESSAGE = "Word updated and progress reset!"
+            private const val PENDING_QUEUED_MESSAGE = "Saved. Translation will be generated once you're back online."
         }
 
         fun onPreviewConfirmAdd() {
@@ -430,40 +481,6 @@ class AddWordViewModel @Inject
                 )
             }
         }
-
-        private suspend fun requestAiTranslation(
-            word: String,
-            direction: AiTranslationDirection,
-        ): String =
-            withContext(ioDispatcher) {
-                val apiKey: String = prefs.readOpenAiApiKey().first().orEmpty()
-                require(apiKey.isNotBlank()) { "Missing OpenAI API key" }
-
-                val systemPrompt =
-                    when (direction) {
-                        AiTranslationDirection.EN_TO_RU -> prefs.readOpenAiPrompt().first()
-                        AiTranslationDirection.RU_TO_EN -> prefs.readOpenAiReversePrompt().first()
-                    }
-                val userPrompt =
-                    when (direction) {
-                        AiTranslationDirection.EN_TO_RU,
-                        AiTranslationDirection.RU_TO_EN -> {
-                            """
-                            HEADWORD: "$word"
-
-                            Produce ONLY the entry for this headword, in the exact frame and rules above. No extra text.
-                            """.trimIndent()
-                        }
-                    }
-
-                aiTranslationProvider.translate(
-                    AiTranslationRequest(
-                        apiKey = apiKey,
-                        systemPrompt = systemPrompt,
-                        userPrompt = userPrompt,
-                    ),
-                )
-            }
     }
 
 data class AddWordUiState(
@@ -484,11 +501,21 @@ data class AddWordUiState(
     val existingWordDialogWord: String? = null,
     val isExistingWordDialogLoading: Boolean = false,
     val loadingAction: AddWordLoadingAction? = null,
-)
+    val isOnline: Boolean = true,
+    val pendingWords: List<PendingWordUi> = emptyList(),
+) {
+    val aiModeActive: Boolean get() = openAiAvailable && useAiForTranslation
+    val isAddLaterMode: Boolean get() = aiModeActive && !isOnline
+}
 
 data class AddWordPreviewContent(
     val word: String,
     val translation: String,
+)
+
+data class PendingWordUi(
+    val id: Long,
+    val word: String,
 )
 
 enum class AddWordLoadingAction {

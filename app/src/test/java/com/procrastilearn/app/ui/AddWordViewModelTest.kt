@@ -1,14 +1,20 @@
 package com.procrastilearn.app.ui
 
 import com.google.common.truth.Truth.assertThat
+import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
 import com.procrastilearn.app.domain.model.AiTranslationDirection
+import com.procrastilearn.app.domain.model.PendingWord
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
+import com.procrastilearn.app.domain.usecase.DeletePendingWordUseCase
+import com.procrastilearn.app.domain.usecase.GenerateAiTranslationUseCase
 import com.procrastilearn.app.domain.usecase.GetVocabularyItemByWordUseCase
+import com.procrastilearn.app.domain.usecase.ObservePendingWordsUseCase
 import com.procrastilearn.app.domain.usecase.OverrideVocabularyItemUseCase
+import com.procrastilearn.app.domain.usecase.QueuePendingWordUseCase
 import com.procrastilearn.app.utils.MainDispatcherRule
 import io.mockk.Runs
 import io.mockk.clearAllMocks
@@ -34,12 +40,19 @@ class AddWordViewModelTest {
     private lateinit var addVocabularyItemUseCase: AddVocabularyItemUseCase
     private lateinit var getVocabularyItemByWordUseCase: GetVocabularyItemByWordUseCase
     private lateinit var overrideVocabularyItemUseCase: OverrideVocabularyItemUseCase
+    private lateinit var queuePendingWordUseCase: QueuePendingWordUseCase
+    private lateinit var observePendingWordsUseCase: ObservePendingWordsUseCase
+    private lateinit var deletePendingWordUseCase: DeletePendingWordUseCase
+    private lateinit var connectivityObserver: NetworkConnectivityObserver
     private lateinit var prefs: DayCountersStore
+    private lateinit var generateAiTranslationUseCase: GenerateAiTranslationUseCase
     private lateinit var openAiKeyFlow: MutableStateFlow<String?>
     private lateinit var useAiFlow: MutableStateFlow<Boolean>
     private lateinit var promptFlow: MutableStateFlow<String>
     private lateinit var reversePromptFlow: MutableStateFlow<String>
     private lateinit var directionFlow: MutableStateFlow<AiTranslationDirection>
+    private lateinit var onlineFlow: MutableStateFlow<Boolean>
+    private lateinit var pendingWordsFlow: MutableStateFlow<List<PendingWord>>
     private lateinit var aiTranslationProvider: FakeAiTranslationProvider
 
     @Before
@@ -47,13 +60,21 @@ class AddWordViewModelTest {
         addVocabularyItemUseCase = mockk()
         getVocabularyItemByWordUseCase = mockk()
         overrideVocabularyItemUseCase = mockk()
+        queuePendingWordUseCase = mockk()
+        observePendingWordsUseCase = mockk()
+        deletePendingWordUseCase = mockk()
+        connectivityObserver = mockk()
         prefs = mockk(relaxed = true)
         openAiKeyFlow = MutableStateFlow(null)
         useAiFlow = MutableStateFlow(false)
         promptFlow = MutableStateFlow("system prompt")
         reversePromptFlow = MutableStateFlow("reverse system prompt")
         directionFlow = MutableStateFlow(AiTranslationDirection.EN_TO_RU)
+        onlineFlow = MutableStateFlow(true)
+        pendingWordsFlow = MutableStateFlow(emptyList())
         aiTranslationProvider = FakeAiTranslationProvider()
+        generateAiTranslationUseCase =
+            GenerateAiTranslationUseCase(aiTranslationProvider, prefs, mainDispatcherRule.testDispatcher)
 
         every { prefs.readOpenAiApiKey() } returns openAiKeyFlow
         every { prefs.readUseAiForTranslation() } returns useAiFlow
@@ -64,6 +85,10 @@ class AddWordViewModelTest {
         coEvery { prefs.setAiTranslationDirection(any()) } just Runs
         coEvery { getVocabularyItemByWordUseCase.invoke(any()) } returns null
         coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
+        every { connectivityObserver.observe() } returns onlineFlow
+        every { observePendingWordsUseCase.invoke() } returns pendingWordsFlow
+        coEvery { queuePendingWordUseCase.invoke(any(), any()) } just Runs
+        coEvery { deletePendingWordUseCase.invoke(any()) } just Runs
     }
 
     @After
@@ -77,8 +102,11 @@ class AddWordViewModelTest {
             getVocabularyItemByWordUseCase,
             overrideVocabularyItemUseCase,
             prefs,
-            aiTranslationProvider,
-            mainDispatcherRule.testDispatcher,
+            generateAiTranslationUseCase,
+            queuePendingWordUseCase,
+            observePendingWordsUseCase,
+            deletePendingWordUseCase,
+            connectivityObserver,
         )
 
     @Test
@@ -122,6 +150,51 @@ class AddWordViewModelTest {
             directionFlow.value = AiTranslationDirection.RU_TO_EN
             advanceUntilIdle()
             assertThat(viewModel.uiState.value.translationDirection).isEqualTo(AiTranslationDirection.RU_TO_EN)
+        }
+
+    @Test
+    fun `isOnline reflects connectivity observer emissions`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.isOnline).isTrue()
+
+            onlineFlow.value = false
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.isOnline).isFalse()
+
+            onlineFlow.value = true
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.isOnline).isTrue()
+        }
+
+    @Test
+    fun `pendingWords reflects use case emissions`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.pendingWords).isEmpty()
+
+            pendingWordsFlow.value =
+                listOf(PendingWord(id = 5, word = "Haus", direction = AiTranslationDirection.EN_TO_RU))
+            advanceUntilIdle()
+
+            val pendingWords = viewModel.uiState.value.pendingWords
+            assertThat(pendingWords).hasSize(1)
+            assertThat(pendingWords.single().id).isEqualTo(5L)
+            assertThat(pendingWords.single().word).isEqualTo("Haus")
+        }
+
+    @Test
+    fun `onDeletePendingWord delegates to use case`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onDeletePendingWord(9L)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { deletePendingWordUseCase.invoke(9L) }
         }
 
     @Test
@@ -208,6 +281,50 @@ class AddWordViewModelTest {
             assertThat(state.errorMessage).isEqualTo("boom")
             assertThat(state.isSuccess).isFalse()
             coVerify { addVocabularyItemUseCase.invoke("Haus", "House") }
+        }
+
+    @Test
+    fun `onAddClick adds directly when offline but AI mode is not active`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            onlineFlow.value = false
+            coEvery { addVocabularyItemUseCase.invoke(any(), any()) } returns Result.success(Unit)
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onTranslationChange("House")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isSuccess).isTrue()
+            assertThat(state.successMessage).isEqualTo("Word added successfully!")
+            coVerify { addVocabularyItemUseCase.invoke("Haus", "House") }
+            coVerify(exactly = 0) { queuePendingWordUseCase.invoke(any(), any()) }
+        }
+
+    @Test
+    fun `onAddClick queues pending word when offline in AI mode`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            onlineFlow.value = false
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.word).isEmpty()
+            assertThat(state.translation).isEmpty()
+            assertThat(state.isSuccess).isTrue()
+            assertThat(state.successMessage).contains("back online")
+            assertThat(state.loadingAction).isNull()
+            coVerify(exactly = 1) { queuePendingWordUseCase.invoke("Haus", AiTranslationDirection.EN_TO_RU) }
+            coVerify(exactly = 0) { addVocabularyItemUseCase.invoke(any(), any()) }
+            assertThat(aiTranslationProvider.requests).isEmpty()
         }
 
     @Test
@@ -343,6 +460,27 @@ class AddWordViewModelTest {
             assertThat(state.previewContent).isNull()
             assertThat(state.isLoading).isFalse()
             assertThat(state.loadingAction).isNull()
+        }
+
+    @Test
+    fun `onPreviewClick does nothing when offline`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            onlineFlow.value = false
+            val viewModel = buildViewModel()
+
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isPreviewVisible).isFalse()
+            assertThat(state.previewContent).isNull()
+            assertThat(state.isLoading).isFalse()
+            assertThat(aiTranslationProvider.requests).isEmpty()
         }
 
     @Test

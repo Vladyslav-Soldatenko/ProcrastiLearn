@@ -5,11 +5,13 @@ import com.procrastilearn.app.data.AppRepositoryImpl
 import com.procrastilearn.app.data.parser.anki.AnkiApkgVocabularyParser
 import com.procrastilearn.app.data.parser.json.JsonVocabularyParser
 import com.procrastilearn.app.data.repository.AppPreferencesRepositoryImpl
+import com.procrastilearn.app.data.repository.PendingWordRepositoryImpl
 import com.procrastilearn.app.data.repository.VocabularyRepositoryImpl
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.OpenAiTranslationProvider
 import com.procrastilearn.app.domain.parser.VocabularyParser
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
+import com.procrastilearn.app.domain.repository.PendingWordRepository
 import com.procrastilearn.app.domain.repository.VocabularyRepository
 import dagger.Binds
 import dagger.Module
@@ -39,6 +41,10 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindAiTranslationProvider(impl: OpenAiTranslationProvider): AiTranslationProvider
+
+    @Binds
+    @Singleton
+    abstract fun bindPendingWordRepository(impl: PendingWordRepositoryImpl): PendingWordRepository
 
     @Binds
     @IntoSet

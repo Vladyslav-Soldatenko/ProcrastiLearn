@@ -2,8 +2,10 @@ package com.procrastilearn.app.di
 
 import android.content.Context
 import androidx.room.Room
+import com.procrastilearn.app.data.local.dao.PendingWordDao
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.database.AppDatabase
+import com.procrastilearn.app.data.local.database.MIGRATION_1_2
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,9 +26,14 @@ object DatabaseModule {
                 context,
                 AppDatabase::class.java,
                 "app_database",
-            ).build()
+            ).addMigrations(MIGRATION_1_2)
+            .build()
 
     @Provides
     @Singleton
     fun provideVocabularyDao(database: AppDatabase): VocabularyDao = database.vocabularyDao()
+
+    @Provides
+    @Singleton
+    fun providePendingWordDao(database: AppDatabase): PendingWordDao = database.pendingWordDao()
 }
