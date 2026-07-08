@@ -46,66 +46,77 @@ class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
         }
     }
 
+    private class ExtractionState {
+        var extractedDb: File? = null
+        var extractedFromModernArchive = false
+    }
+
     private fun extractCollectionDatabase(
         source: File,
         tempDir: File,
     ): File {
-        var extractedDb: File? = null
-        var extractedFromModernArchive = false
+        val state = ExtractionState()
 
         ZipInputStream(BufferedInputStream(source.inputStream())).use { zipStream ->
             var entry = zipStream.nextEntry
             while (entry != null) {
                 if (!entry.isDirectory) {
-                    when (entry.name) {
-                        "collection.anki21b" -> {
-                            val compressedBytes = zipStream.readBytes()
-                            val target = File(tempDir, "collection.anki2")
-                            val decompressed =
-                                runCatching { decompressZstd(ByteArrayInputStream(compressedBytes), target) }
-                                    .onSuccess {
-                                        extractedDb = target
-                                        extractedFromModernArchive = true
-                                    }.onFailure { throwable ->
-                                        target.delete()
-                                        Log.w(
-                                            "AnkiApkgVocabularyParser",
-                                            "Failed to decompress collection.anki21b, will fall back to legacy DB",
-                                            throwable,
-                                        )
-                                    }.isSuccess
-                            if (!decompressed) {
-                                extractedFromModernArchive = false
-                            }
-                        }
-
-                        "collection.anki21" -> {
-                            if (!extractedFromModernArchive) {
-                                extractedDb =
-                                    File(tempDir, "collection.anki2").also { target ->
-                                        target.outputStream().use { output -> zipStream.copyTo(output) }
-                                    }
-                            }
-                        }
-
-                        "collection.anki2" -> {
-                            if (!extractedFromModernArchive) {
-                                extractedDb =
-                                    File(tempDir, "collection.anki2").also { target ->
-                                        target.outputStream().use { output -> zipStream.copyTo(output) }
-                                    }
-                            }
-                        }
-                    }
+                    extractZipEntry(entry.name, zipStream, tempDir, state)
                 }
                 zipStream.closeEntry()
                 entry = zipStream.nextEntry
             }
         }
 
-        return requireNotNull(extractedDb) {
+        return requireNotNull(state.extractedDb) {
             "The provided apkg archive does not contain a supported Anki collection database."
         }
+    }
+
+    private fun extractZipEntry(
+        entryName: String,
+        zipStream: ZipInputStream,
+        tempDir: File,
+        state: ExtractionState,
+    ) {
+        when (entryName) {
+            "collection.anki21b" -> extractModernDatabase(zipStream, tempDir, state)
+            "collection.anki21", "collection.anki2" -> extractLegacyDatabase(zipStream, tempDir, state)
+        }
+    }
+
+    private fun extractModernDatabase(
+        zipStream: ZipInputStream,
+        tempDir: File,
+        state: ExtractionState,
+    ) {
+        val compressedBytes = zipStream.readBytes()
+        val target = File(tempDir, "collection.anki2")
+        val decompressed = runCatching { decompressZstd(ByteArrayInputStream(compressedBytes), target) }
+        decompressed.onFailure { throwable ->
+            target.delete()
+            Log.w(
+                "AnkiApkgVocabularyParser",
+                "Failed to decompress collection.anki21b, will fall back to legacy DB",
+                throwable,
+            )
+        }
+        if (decompressed.isSuccess) {
+            state.extractedDb = target
+            state.extractedFromModernArchive = true
+        }
+    }
+
+    private fun extractLegacyDatabase(
+        zipStream: ZipInputStream,
+        tempDir: File,
+        state: ExtractionState,
+    ) {
+        if (state.extractedFromModernArchive) return
+        state.extractedDb =
+            File(tempDir, "collection.anki2").also { target ->
+                target.outputStream().use { output -> zipStream.copyTo(output) }
+            }
     }
 
     private fun decompressZstd(

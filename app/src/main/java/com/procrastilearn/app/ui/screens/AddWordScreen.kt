@@ -15,11 +15,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -36,10 +33,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,21 +46,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.procrastilearn.app.R
-import com.procrastilearn.app.overlay.theme.OverlayTheme
-import com.procrastilearn.app.overlay.theme.OverlayThemeTokens
 import com.procrastilearn.app.ui.AddWordLoadingAction
 import com.procrastilearn.app.ui.AddWordPreviewContent
 import com.procrastilearn.app.ui.AddWordViewModel
 import com.procrastilearn.app.ui.PendingWordUi
 import com.procrastilearn.app.domain.model.AiTranslationDirection
-import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.delay
 
 @Suppress("MagicNumber")
@@ -121,117 +110,9 @@ fun AddWordScreen(
     )
 }
 
-@Preview(showBackground = true, name = "Add Word • AI Enabled")
+@Suppress("LongParameterList")
 @Composable
-private fun AddWordContentPreviewAiEnabled() {
-    MyApplicationTheme {
-        AddWordContent(
-            onNavigateToList = {},
-            word = "Haus",
-            translation = "",
-            wordError = null,
-            translationError = null,
-            isLoading = false,
-            errorMessage = null,
-            isSuccess = false,
-            successMessage = null,
-            openAiAvailable = true,
-            useAiForTranslation = true,
-            translationDirection = AiTranslationDirection.EN_TO_RU,
-            previewContent =
-                AddWordPreviewContent(
-                    word = "Haus",
-                    translation = "House\nHome\nBuilding",
-                ),
-            isPreviewVisible = false,
-            isExistingWordDialogVisible = false,
-            existingWordDialogWord = null,
-            isExistingWordDialogLoading = false,
-            loadingAction = null,
-            isOnline = true,
-            isAddLaterMode = false,
-            pendingWords = emptyList(),
-            onDeletePendingWord = {},
-            onWordChange = {},
-            onTranslationChange = {},
-            onUseAiToggle = {},
-            onTranslationDirectionToggle = {},
-            onPreviewClick = {},
-            onPreviewCancel = {},
-            onPreviewConfirmAdd = {},
-            onAddClick = {},
-            onExistingWordDialogCancel = {},
-            onExistingWordDialogProceed = {},
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Add Word • Offline (Add later)")
-@Composable
-private fun AddWordContentPreviewOffline() {
-    MyApplicationTheme {
-        AddWordContent(
-            onNavigateToList = {},
-            word = "Baum",
-            translation = "",
-            wordError = null,
-            translationError = null,
-            isLoading = false,
-            errorMessage = null,
-            isSuccess = false,
-            successMessage = null,
-            openAiAvailable = true,
-            useAiForTranslation = true,
-            translationDirection = AiTranslationDirection.EN_TO_RU,
-            previewContent = null,
-            isPreviewVisible = false,
-            isExistingWordDialogVisible = false,
-            existingWordDialogWord = null,
-            isExistingWordDialogLoading = false,
-            loadingAction = null,
-            isOnline = false,
-            isAddLaterMode = true,
-            pendingWords =
-                listOf(
-                    PendingWordUi(id = 1, word = "Haus"),
-                    PendingWordUi(id = 2, word = "Auto"),
-                    PendingWordUi(id = 3, word = "Fenster"),
-                ),
-            onDeletePendingWord = {},
-            onWordChange = {},
-            onTranslationChange = {},
-            onUseAiToggle = {},
-            onTranslationDirectionToggle = {},
-            onPreviewClick = {},
-            onPreviewCancel = {},
-            onPreviewConfirmAdd = {},
-            onAddClick = {},
-            onExistingWordDialogCancel = {},
-            onExistingWordDialogProceed = {},
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Add Word • Preview Dialog")
-@Composable
-private fun AddWordPreviewDialogContentPreview() {
-    MyApplicationTheme {
-        AddWordPreviewDialogContent(
-            previewContent =
-                AddWordPreviewContent(
-                    word = "Haus",
-                    translation = "House\nHome\nA building serving as human habitation.",
-                ),
-            isConfirmLoading = false,
-            onCancel = {},
-            onConfirm = {},
-        )
-    }
-}
-
-@Suppress("LongParameterList", "LongMethod")
-@Composable
-private fun AddWordContent(
+internal fun AddWordContent(
     onNavigateToList: () -> Unit,
     word: String,
     translation: String,
@@ -309,211 +190,40 @@ private fun AddWordContent(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Word Input Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                    ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            ) {
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                ) {
-                    if (openAiAvailable) {
-                        val isAiToggleLocked = translationDirection == AiTranslationDirection.RU_TO_EN
-                        if (useAiForTranslation) {
-                            TranslationDirectionRow(
-                                direction = translationDirection,
-                                onToggle = onTranslationDirectionToggle,
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            Checkbox(
-                                checked = useAiForTranslation,
-                                onCheckedChange =
-                                    if (isAiToggleLocked) {
-                                        null
-                                    } else {
-                                        { onUseAiToggle(it) }
-                                    },
-                                enabled = !isAiToggleLocked,
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = stringResource(R.string.add_word_use_ai_toggle),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.align(Alignment.CenterVertically),
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                    val disableWordInput = isLoading && openAiAvailable && useAiForTranslation
-                    OutlinedTextField(
-                        value = word,
-                        onValueChange = onWordChange,
-                        label = { Text(stringResource(R.string.add_word_label_word)) },
-                        placeholder = { Text(stringResource(R.string.add_word_placeholder_word)) },
-                        isError = wordError != null,
-                        supportingText = wordError?.let { { Text(it) } },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        enabled = !disableWordInput,
-                        readOnly = disableWordInput,
-                        colors =
-                            OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                            ),
-                    )
-                }
-            }
+            WordInputCard(
+                word = word,
+                wordError = wordError,
+                isLoading = isLoading,
+                openAiAvailable = openAiAvailable,
+                useAiForTranslation = useAiForTranslation,
+                translationDirection = translationDirection,
+                onWordChange = onWordChange,
+                onUseAiToggle = onUseAiToggle,
+                onTranslationDirectionToggle = onTranslationDirectionToggle,
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Translation Input Card (hidden when AI is used and key is present)
-            if (!useAiForTranslation || !openAiAvailable) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                        ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                ) {
-                    Column(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                    ) {
-                        OutlinedTextField(
-                            value = translation,
-                            onValueChange = onTranslationChange,
-                            label = { Text(stringResource(R.string.add_word_label_translation)) },
-                            placeholder = { Text(stringResource(R.string.add_word_placeholder_translation)) },
-                            isError = translationError != null,
-                            supportingText = translationError?.let { { Text(it) } },
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .heightIn(min = 120.dp, max = 240.dp),
-                            singleLine = false,
-                            minLines = 4,
-                            maxLines = 8,
-                            keyboardOptions =
-                                KeyboardOptions(
-                                    capitalization = KeyboardCapitalization.Sentences,
-                                ),
-                            colors =
-                                OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                                ),
-                        )
-                    }
-                }
-            }
+            TranslationInputCard(
+                translation = translation,
+                translationError = translationError,
+                useAiForTranslation = useAiForTranslation,
+                openAiAvailable = openAiAvailable,
+                onTranslationChange = onTranslationChange,
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Action Buttons
-            val showPreviewButton = openAiAvailable && useAiForTranslation
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = if (showPreviewButton) Arrangement.spacedBy(12.dp) else Arrangement.Start,
-            ) {
-                if (showPreviewButton) {
-                    Button(
-                        onClick = onPreviewClick,
-                        modifier =
-                            Modifier
-                                .weight(1f)
-                                .height(56.dp),
-                        enabled = !isLoading && isOnline,
-                        colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            ),
-                        elevation =
-                            ButtonDefaults.buttonElevation(
-                                defaultElevation = 2.dp,
-                                pressedElevation = 4.dp,
-                            ),
-                    ) {
-                        if (isLoading && loadingAction == AddWordLoadingAction.PREVIEW) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            )
-                        } else {
-                            Text(
-                                text = stringResource(R.string.add_word_button_preview),
-                                style = MaterialTheme.typography.titleMedium,
-                            )
-                        }
-                    }
-                }
-
-                val addModifier =
-                    if (showPreviewButton) {
-                        Modifier
-                            .weight(1f)
-                            .height(56.dp)
-                    } else {
-                        Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                    }
-
-                Button(
-                    onClick = onAddClick,
-                    modifier = addModifier,
-                    enabled = !isLoading,
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                        ),
-                    elevation =
-                        ButtonDefaults.buttonElevation(
-                            defaultElevation = 4.dp,
-                            pressedElevation = 8.dp,
-                        ),
-                ) {
-                    if (isLoading && loadingAction == AddWordLoadingAction.ADD) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = stringResource(R.string.add_word_icon_add),
-                            modifier = Modifier.size(24.dp),
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text =
-                                stringResource(
-                                    if (isAddLaterMode) {
-                                        R.string.add_word_button_add_later
-                                    } else {
-                                        R.string.add_word_button_add
-                                    },
-                                ),
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                    }
-                }
-            }
+            ActionButtonsRow(
+                openAiAvailable = openAiAvailable,
+                useAiForTranslation = useAiForTranslation,
+                isLoading = isLoading,
+                isOnline = isOnline,
+                loadingAction = loadingAction,
+                isAddLaterMode = isAddLaterMode,
+                onPreviewClick = onPreviewClick,
+                onAddClick = onAddClick,
+            )
 
             // Pending translations (queued while offline)
             AnimatedVisibility(
@@ -534,23 +244,7 @@ private fun AddWordContent(
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
-                Card(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp),
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                        ),
-                ) {
-                    Text(
-                        text = errorMessage ?: "",
-                        modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                        textAlign = TextAlign.Center,
-                    )
-                }
+                ErrorMessageCard(errorMessage = errorMessage)
             }
         }
 
@@ -570,30 +264,7 @@ private fun AddWordContent(
             exit = fadeOut(),
             modifier = Modifier.align(Alignment.Center),
         ) {
-            Card(
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-            ) {
-                Column(
-                    modifier = Modifier.padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = "✓",
-                        style = MaterialTheme.typography.displayMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = successMessage ?: stringResource(R.string.add_word_success_default),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
-                }
-            }
+            SuccessOverlayCard(successMessage = successMessage)
         }
 
         if (isExistingWordDialogVisible) {
@@ -608,7 +279,305 @@ private fun AddWordContent(
 }
 
 @Composable
-private fun PendingWordsSection(
+private fun WordInputCard(
+    word: String,
+    wordError: String?,
+    isLoading: Boolean,
+    openAiAvailable: Boolean,
+    useAiForTranslation: Boolean,
+    translationDirection: AiTranslationDirection,
+    onWordChange: (String) -> Unit,
+    onUseAiToggle: (Boolean) -> Unit,
+    onTranslationDirectionToggle: () -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+        ) {
+            if (openAiAvailable) {
+                AiToggleRow(
+                    useAiForTranslation = useAiForTranslation,
+                    translationDirection = translationDirection,
+                    onUseAiToggle = onUseAiToggle,
+                    onTranslationDirectionToggle = onTranslationDirectionToggle,
+                )
+            }
+            val disableWordInput = isLoading && openAiAvailable && useAiForTranslation
+            OutlinedTextField(
+                value = word,
+                onValueChange = onWordChange,
+                label = { Text(stringResource(R.string.add_word_label_word)) },
+                placeholder = { Text(stringResource(R.string.add_word_placeholder_word)) },
+                isError = wordError != null,
+                supportingText = wordError?.let { { Text(it) } },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                enabled = !disableWordInput,
+                readOnly = disableWordInput,
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    ),
+            )
+        }
+    }
+}
+
+@Composable
+private fun AiToggleRow(
+    useAiForTranslation: Boolean,
+    translationDirection: AiTranslationDirection,
+    onUseAiToggle: (Boolean) -> Unit,
+    onTranslationDirectionToggle: () -> Unit,
+) {
+    val isAiToggleLocked = translationDirection == AiTranslationDirection.RU_TO_EN
+    if (useAiForTranslation) {
+        TranslationDirectionRow(
+            direction = translationDirection,
+            onToggle = onTranslationDirectionToggle,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+    }
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Checkbox(
+            checked = useAiForTranslation,
+            onCheckedChange =
+                if (isAiToggleLocked) {
+                    null
+                } else {
+                    { onUseAiToggle(it) }
+                },
+            enabled = !isAiToggleLocked,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = stringResource(R.string.add_word_use_ai_toggle),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.align(Alignment.CenterVertically),
+        )
+    }
+    Spacer(modifier = Modifier.height(8.dp))
+}
+
+@Composable
+private fun TranslationInputCard(
+    translation: String,
+    translationError: String?,
+    useAiForTranslation: Boolean,
+    openAiAvailable: Boolean,
+    onTranslationChange: (String) -> Unit,
+) {
+    // Hidden when AI is used and key is present
+    if (useAiForTranslation && openAiAvailable) return
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+        ) {
+            OutlinedTextField(
+                value = translation,
+                onValueChange = onTranslationChange,
+                label = { Text(stringResource(R.string.add_word_label_translation)) },
+                placeholder = { Text(stringResource(R.string.add_word_placeholder_translation)) },
+                isError = translationError != null,
+                supportingText = translationError?.let { { Text(it) } },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 120.dp, max = 240.dp),
+                singleLine = false,
+                minLines = 4,
+                maxLines = 8,
+                keyboardOptions =
+                    KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                    ),
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    ),
+            )
+        }
+    }
+}
+
+@Composable
+private fun ActionButtonsRow(
+    openAiAvailable: Boolean,
+    useAiForTranslation: Boolean,
+    isLoading: Boolean,
+    isOnline: Boolean,
+    loadingAction: AddWordLoadingAction?,
+    isAddLaterMode: Boolean,
+    onPreviewClick: () -> Unit,
+    onAddClick: () -> Unit,
+) {
+    val showPreviewButton = openAiAvailable && useAiForTranslation
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = if (showPreviewButton) Arrangement.spacedBy(12.dp) else Arrangement.Start,
+    ) {
+        if (showPreviewButton) {
+            Button(
+                onClick = onPreviewClick,
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                enabled = !isLoading && isOnline,
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    ),
+                elevation =
+                    ButtonDefaults.buttonElevation(
+                        defaultElevation = 2.dp,
+                        pressedElevation = 4.dp,
+                    ),
+            ) {
+                if (isLoading && loadingAction == AddWordLoadingAction.PREVIEW) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.add_word_button_preview),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                }
+            }
+        }
+
+        val addModifier =
+            if (showPreviewButton) {
+                Modifier
+                    .weight(1f)
+                    .height(56.dp)
+            } else {
+                Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            }
+
+        Button(
+            onClick = onAddClick,
+            modifier = addModifier,
+            enabled = !isLoading,
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                ),
+            elevation =
+                ButtonDefaults.buttonElevation(
+                    defaultElevation = 4.dp,
+                    pressedElevation = 8.dp,
+                ),
+        ) {
+            if (isLoading && loadingAction == AddWordLoadingAction.ADD) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.add_word_icon_add),
+                    modifier = Modifier.size(24.dp),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text =
+                        stringResource(
+                            if (isAddLaterMode) {
+                                R.string.add_word_button_add_later
+                            } else {
+                                R.string.add_word_button_add
+                            },
+                        ),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SuccessOverlayCard(successMessage: String?) {
+    Card(
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "✓",
+                style = MaterialTheme.typography.displayMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = successMessage ?: stringResource(R.string.add_word_success_default),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ErrorMessageCard(errorMessage: String?) {
+    Card(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+            ),
+    ) {
+        Text(
+            text = errorMessage ?: "",
+            modifier = Modifier.padding(16.dp),
+            color = MaterialTheme.colorScheme.onErrorContainer,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Composable
+internal fun PendingWordsSection(
     pendingWords: List<PendingWordUi>,
     onDeletePendingWord: (Long) -> Unit,
     modifier: Modifier = Modifier,
@@ -659,23 +628,8 @@ private fun PendingWordsSection(
     }
 }
 
-@Preview(showBackground = true, name = "Pending Words Section")
 @Composable
-private fun PendingWordsSectionPreview() {
-    MyApplicationTheme {
-        PendingWordsSection(
-            pendingWords =
-                listOf(
-                    PendingWordUi(id = 1, word = "Haus"),
-                    PendingWordUi(id = 2, word = "Auto"),
-                ),
-            onDeletePendingWord = {},
-        )
-    }
-}
-
-@Composable
-private fun TranslationDirectionRow(
+internal fun TranslationDirectionRow(
     direction: AiTranslationDirection,
     onToggle: () -> Unit,
     modifier: Modifier = Modifier,
@@ -706,295 +660,6 @@ private fun TranslationDirectionRow(
             text = stringResource(endLabel),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurface,
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Translation Direction • EN->RU")
-@Composable
-private fun TranslationDirectionRowPreviewEnRu() {
-    MyApplicationTheme {
-        TranslationDirectionRow(
-            direction = AiTranslationDirection.EN_TO_RU,
-            onToggle = {},
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Translation Direction • RU->EN")
-@Composable
-private fun TranslationDirectionRowPreviewRuEn() {
-    MyApplicationTheme {
-        TranslationDirectionRow(
-            direction = AiTranslationDirection.RU_TO_EN,
-            onToggle = {},
-        )
-    }
-}
-
-@Composable
-private fun AddWordPreviewDialog(
-    previewContent: AddWordPreviewContent,
-    isConfirmLoading: Boolean,
-    onCancel: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-    Dialog(onDismissRequest = onCancel) {
-        AddWordPreviewDialogContent(
-            previewContent = previewContent,
-            isConfirmLoading = isConfirmLoading,
-            onCancel = onCancel,
-            onConfirm = onConfirm,
-        )
-    }
-}
-
-@Composable
-private fun AddWordPreviewDialogContent(
-    previewContent: AddWordPreviewContent,
-    isConfirmLoading: Boolean,
-    onCancel: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-    OverlayTheme {
-        Surface(
-            modifier =
-                Modifier
-                    .widthIn(min = 320.dp, max = 420.dp),
-            shape = RoundedCornerShape(24.dp),
-            color = OverlayThemeTokens.colors.cardContainer,
-            tonalElevation = 12.dp,
-        ) {
-            Column(
-                modifier =
-                    Modifier
-                        .padding(horizontal = 24.dp, vertical = 28.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = stringResource(R.string.add_word_preview_title),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = OverlayThemeTokens.colors.helpText,
-                    modifier =
-                        Modifier
-                            .fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = previewContent.word,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = OverlayThemeTokens.colors.titleColor,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-                val scrollState = rememberScrollState()
-                Surface(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 140.dp, max = 280.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    color = OverlayThemeTokens.colors.innerCardContainer,
-                ) {
-                    SelectionContainer {
-                        Column(
-                            modifier =
-                                Modifier
-                                    .verticalScroll(scrollState)
-                                    .padding(16.dp),
-                        ) {
-                            Text(
-                                text = previewContent.translation,
-                                color = OverlayThemeTokens.colors.translationText,
-                                fontSize = 18.sp,
-                                lineHeight = 24.sp,
-                            )
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    OutlinedButton(
-                        onClick = onCancel,
-                        modifier = Modifier.weight(1f),
-                        enabled = !isConfirmLoading,
-                    ) {
-                        Text(text = stringResource(R.string.add_word_preview_cancel))
-                    }
-                    Button(
-                        onClick = onConfirm,
-                        modifier = Modifier.weight(1f),
-                        enabled = !isConfirmLoading,
-                        colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                            ),
-                    ) {
-                        if (isConfirmLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                            )
-                        } else {
-                            Text(text = stringResource(R.string.add_word_preview_confirm))
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ExistingWordDialog(
-    word: String?,
-    isLoading: Boolean,
-    onProceed: () -> Unit,
-    onCancel: () -> Unit,
-) {
-    Dialog(onDismissRequest = onCancel) {
-        ExistingWordDialogContent(
-            word = word,
-            isLoading = isLoading,
-            onProceed = onProceed,
-            onCancel = onCancel,
-        )
-    }
-}
-
-@Composable
-private fun ExistingWordDialogContent(
-    word: String?,
-    isLoading: Boolean,
-    onProceed: () -> Unit,
-    onCancel: () -> Unit,
-) {
-    OverlayTheme {
-        Surface(
-            modifier = Modifier.widthIn(min = 320.dp, max = 420.dp),
-            shape = RoundedCornerShape(24.dp),
-            color = OverlayThemeTokens.colors.cardContainer,
-            tonalElevation = 12.dp,
-        ) {
-            Column(
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 28.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = stringResource(R.string.add_word_existing_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = OverlayThemeTokens.colors.titleColor,
-                    textAlign = TextAlign.Center,
-                )
-                word?.takeIf { it.isNotBlank() }?.let {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = OverlayThemeTokens.colors.titleColor,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(R.string.add_word_existing_message),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = OverlayThemeTokens.colors.helpText,
-                    textAlign = TextAlign.Center,
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    OutlinedButton(
-                        onClick = onCancel,
-                        modifier = Modifier.weight(1f),
-                        enabled = !isLoading,
-                    ) {
-                        Text(text = stringResource(R.string.add_word_existing_cancel))
-                    }
-                    Button(
-                        onClick = onProceed,
-                        modifier = Modifier.weight(1f),
-                        enabled = !isLoading,
-                        colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                            ),
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                            )
-                        } else {
-                            Text(text = stringResource(R.string.add_word_existing_proceed))
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "Existing Word Dialog")
-@Composable
-private fun ExistingWordDialogPreview() {
-    MyApplicationTheme {
-        ExistingWordDialogContent(
-            word = "Haus",
-            isLoading = false,
-            onProceed = {},
-            onCancel = {},
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun AddWordContentPreview() {
-    MyApplicationTheme {
-        AddWordContent(
-            onNavigateToList = {},
-            word = "example",
-            translation = "приклад\nнаочний\nзразок",
-            wordError = null,
-            translationError = null,
-            isLoading = false,
-            errorMessage = null,
-            isSuccess = false,
-            successMessage = "Word added successfully!",
-            openAiAvailable = true,
-            useAiForTranslation = false,
-            translationDirection = AiTranslationDirection.EN_TO_RU,
-            previewContent = null,
-            isPreviewVisible = false,
-            isExistingWordDialogVisible = false,
-            existingWordDialogWord = null,
-            isExistingWordDialogLoading = false,
-            loadingAction = null,
-            isOnline = true,
-            isAddLaterMode = false,
-            pendingWords = emptyList(),
-            onDeletePendingWord = {},
-            onWordChange = {},
-            onTranslationChange = {},
-            onUseAiToggle = {},
-            onTranslationDirectionToggle = {},
-            onPreviewClick = {},
-            onPreviewCancel = {},
-            onPreviewConfirmAdd = {},
-            onAddClick = {},
-            onExistingWordDialogCancel = {},
-            onExistingWordDialogProceed = {},
         )
     }
 }

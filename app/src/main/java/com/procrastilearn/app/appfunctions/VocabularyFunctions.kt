@@ -40,6 +40,7 @@ class VocabularyFunctions
          *   can be resolved. Configure an OpenAI API key in app settings or supply a manual translation.
          * @throws AppFunctionAppUnknownException on database or network failures.
          */
+        @Suppress("UnusedParameter")
         @AppFunction(isDescribedByKDoc = true)
         suspend fun addWord(
             appFunctionContext: AppFunctionContext,

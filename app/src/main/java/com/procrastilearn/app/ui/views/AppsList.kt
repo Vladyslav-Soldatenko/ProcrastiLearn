@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.dp
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.AppInfo
 
+private const val DISABLED_ROW_ALPHA = 0.6f
+
 @Composable
 fun AppsList(
     apps: List<AppInfo>,
@@ -207,7 +209,7 @@ private fun AppRow(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .alpha(if (enabled) 1f else 0.6f),
+                    .alpha(if (enabled) 1f else DISABLED_ROW_ALPHA),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {

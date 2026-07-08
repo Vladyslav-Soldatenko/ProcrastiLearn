@@ -50,7 +50,7 @@ class PendingWordSyncManager
             }
         }
 
-        @Suppress("TooGenericExceptionCaught")
+        @Suppress("TooGenericExceptionCaught", "SwallowedException")
         private suspend fun processPendingWord(item: PendingWord) {
             try {
                 val existing = getVocabularyItemByWordUseCase(item.word)

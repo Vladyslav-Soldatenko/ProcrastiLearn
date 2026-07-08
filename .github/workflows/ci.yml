@@ -28,6 +28,9 @@ jobs:
       - name: ktlint
         run: ./gradlew ktlintCheck --no-daemon
 
+      - name: detekt
+        run: ./gradlew detekt --no-daemon
+
       - name: Unit tests
         run: ./gradlew testDebugUnitTest --no-daemon
 
@@ -37,3 +40,10 @@ jobs:
         with:
           name: test-reports
           path: app/build/reports/tests/
+
+      - name: Upload detekt report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: detekt-reports
+          path: app/build/reports/detekt/

@@ -28,6 +28,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.io.InputStream
 import javax.inject.Inject
 
 data class SettingsUiState(
@@ -113,6 +114,7 @@ class SettingsViewModel
          * Export all vocabulary rows (full DB fields) as a JSON array to the given [uri].
          * Calls [onComplete] on the main thread with success/failure.
          */
+        @Suppress("TooGenericExceptionCaught")
         fun exportVocabularyToUri(
             context: Context,
             uri: Uri,
@@ -155,6 +157,7 @@ class SettingsViewModel
                         } ?: false
                         true
                     } catch (t: Throwable) {
+                        Log.e("SettingsViewModel", "Failed to export vocabulary to uri=$uri", t)
                         false
                     }
 
@@ -184,44 +187,7 @@ class SettingsViewModel
 
                 val result =
                     try {
-                        val inputStream = context.contentResolver.openInputStream(uri)
-                        if (inputStream == null) {
-                            Log.w(
-                                "SettingsViewModel",
-                                "openInputStream returned null for uri=$uri with resolver=${context.contentResolver}",
-                            )
-                            VocabularyImportResult.Failure(VocabularyImportFailureReason.FILE_ERROR)
-                        } else {
-                            Log.d("SettingsViewModel", "openInputStream succeeded for uri=$uri")
-                            inputStream.use { input ->
-                                tempFile.outputStream().use { output -> input.copyTo(output) }
-                            }
-                            val result =
-                                if (parser is VocabularyExportParser) {
-                                    val items = parser.parseExport(tempFile)
-                                    importExportItems(items)
-                                    VocabularyImportResult.Success(items.size)
-                                } else {
-                                    val items = parser.parse(tempFile)
-                                    importItems(items)
-                                    VocabularyImportResult.Success(items.size)
-                                }
-                            result
-                        }
-                    } catch (exception: IllegalArgumentException) {
-                        Log.e(
-                            "SettingsViewModel",
-                            "Failed to parse imported vocabulary from uri=$uri",
-                            exception,
-                        )
-                        VocabularyImportResult.Failure(VocabularyImportFailureReason.PARSE_ERROR)
-                    } catch (throwable: Throwable) {
-                        Log.e(
-                            "SettingsViewModel",
-                            "Failed to import vocabulary from uri=$uri",
-                            throwable,
-                        )
-                        VocabularyImportResult.Failure(VocabularyImportFailureReason.FILE_ERROR)
+                        performImport(context, parser, uri, tempFile)
                     } finally {
                         tempFile.delete()
                     }
@@ -235,6 +201,73 @@ class SettingsViewModel
                 }
             }
         }
+
+        @Suppress("TooGenericExceptionCaught")
+        private suspend fun performImport(
+            context: Context,
+            parser: VocabularyParser,
+            uri: Uri,
+            tempFile: File,
+        ): VocabularyImportResult =
+            try {
+                importFromStream(context, parser, uri, tempFile)
+            } catch (exception: IllegalArgumentException) {
+                Log.e(
+                    "SettingsViewModel",
+                    "Failed to parse imported vocabulary from uri=$uri",
+                    exception,
+                )
+                VocabularyImportResult.Failure(VocabularyImportFailureReason.PARSE_ERROR)
+            } catch (throwable: Throwable) {
+                Log.e(
+                    "SettingsViewModel",
+                    "Failed to import vocabulary from uri=$uri",
+                    throwable,
+                )
+                VocabularyImportResult.Failure(VocabularyImportFailureReason.FILE_ERROR)
+            }
+
+        private suspend fun importFromStream(
+            context: Context,
+            parser: VocabularyParser,
+            uri: Uri,
+            tempFile: File,
+        ): VocabularyImportResult {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            if (inputStream == null) {
+                Log.w(
+                    "SettingsViewModel",
+                    "openInputStream returned null for uri=$uri with resolver=${context.contentResolver}",
+                )
+                return VocabularyImportResult.Failure(VocabularyImportFailureReason.FILE_ERROR)
+            }
+            Log.d("SettingsViewModel", "openInputStream succeeded for uri=$uri")
+            copyToTempFile(inputStream, tempFile)
+            return parseAndImport(parser, tempFile)
+        }
+
+        private fun copyToTempFile(
+            inputStream: InputStream,
+            tempFile: File,
+        ) {
+            inputStream.use { input ->
+                tempFile.outputStream().use { output -> input.copyTo(output) }
+            }
+        }
+
+        private suspend fun parseAndImport(
+            parser: VocabularyParser,
+            tempFile: File,
+        ): VocabularyImportResult =
+            if (parser is VocabularyExportParser) {
+                val items = parser.parseExport(tempFile)
+                importExportItems(items)
+                VocabularyImportResult.Success(items.size)
+            } else {
+                val items = parser.parse(tempFile)
+                importItems(items)
+                VocabularyImportResult.Success(items.size)
+            }
 
         private suspend fun importItems(items: List<VocabularyItem>) {
             items.forEach { item ->

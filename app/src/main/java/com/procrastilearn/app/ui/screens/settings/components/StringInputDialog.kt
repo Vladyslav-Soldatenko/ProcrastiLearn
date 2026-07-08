@@ -20,6 +20,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import com.procrastilearn.app.R
 import kotlin.math.min
 
+private const val SINGLE_LINE_COUNT = 1
+private const val MULTI_LINE_DEFAULT_COUNT = 4
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StringInputDialog(
@@ -29,7 +32,7 @@ fun StringInputDialog(
     onDismiss: () -> Unit,
     isPassword: Boolean = true,
     singleLine: Boolean = true,
-    maxLines: Int = if (singleLine) 1 else 4,
+    maxLines: Int = if (singleLine) SINGLE_LINE_COUNT else MULTI_LINE_DEFAULT_COUNT,
 ) {
     var textValue by remember { mutableStateOf(currentValue) }
 
@@ -56,7 +59,7 @@ fun StringInputDialog(
                 },
                 keyboardOptions = keyboardOptions,
                 singleLine = singleLine,
-                minLines = if (singleLine) 1 else min(4, maxLines),
+                minLines = if (singleLine) SINGLE_LINE_COUNT else min(MULTI_LINE_DEFAULT_COUNT, maxLines),
                 maxLines = maxLines,
                 visualTransformation = visualTransformation,
                 modifier = Modifier.fillMaxWidth(),

@@ -30,11 +30,6 @@ class AppRepositoryImplTest {
     private lateinit var configuration: Configuration
     private lateinit var repository: AppRepositoryImpl
 
-    private val mainIntent =
-        Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_LAUNCHER)
-        }
-
     @Before
     fun setUp() {
         packageManager = mockk(relaxed = true)
@@ -111,7 +106,7 @@ class AppRepositoryImplTest {
                         activityInfo = FakeResolveInfo.create("com.example.crash", "CrashActivity").activityInfo
                     }
 
-                    override fun loadLabel(pm: PackageManager): CharSequence = throw IllegalStateException("boom")
+                    override fun loadLabel(pm: PackageManager): CharSequence = error("boom")
                 }
             val safe = FakeResolveInfo.create("com.example.safe", "SafeActivity", label = "Safe")
 
