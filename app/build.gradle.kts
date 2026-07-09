@@ -15,8 +15,8 @@ android {
     applicationId = "com.procrastilearn.app"
     minSdk = 26
     targetSdk = 36
-    versionCode = providers.gradleProperty("VERSION_CODE").get().toInt()
-    versionName = providers.gradleProperty("VERSION_NAME").get()
+    versionCode = 3
+    versionName = "1.1.0"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
