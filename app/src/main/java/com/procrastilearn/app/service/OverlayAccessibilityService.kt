@@ -24,6 +24,8 @@ import com.procrastilearn.app.data.repository.NoAvailableItemsException
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
 import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
+import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
 import com.procrastilearn.app.overlay.OverlayScreen
 import com.procrastilearn.app.overlay.OverlayViewModel
 import com.procrastilearn.app.utils.ServiceLifecycleOwner
@@ -42,7 +44,7 @@ class OverlayAccessibilityService : AccessibilityService() {
         const val MILLIS_PER_SECOND = 1000L
     }
 
-    private var windowManager: WindowManager? = null
+    internal var windowManager: WindowManager? = null
     private var overlayView: View? = null
     private var lifecycleOwner: ServiceLifecycleOwner? = null
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -66,22 +68,28 @@ class OverlayAccessibilityService : AccessibilityService() {
         )
     }
 
-    private val appPreferencesRepository: AppPreferencesRepository by lazy {
-        serviceEntryPoint.appPreferencesRepository()
-    }
+    internal lateinit var appPreferencesRepository: AppPreferencesRepository
+    internal lateinit var vocabularyRepository: VocabularyRepository
+    internal lateinit var getNextVocabularyItemUseCase: GetNextVocabularyItemUseCase
+    internal lateinit var getSaveDifficultyRatingUseCase: SaveDifficultyRatingUseCase
+    internal lateinit var dayCountersStore: DayCountersStore
 
-    private val vocabularyRepository: VocabularyRepository by lazy {
-        serviceEntryPoint.vocabularyRepository()
-    }
-
-    private val getNextVocabularyItemUseCase by lazy {
-        serviceEntryPoint.getNextVocabularyItemUseCase()
-    }
-    private val getSaveDifficultyRatingUseCase by lazy {
-        serviceEntryPoint.getSaveDifficultyRatingUseCase()
-    }
-    private val dayCountersStore: DayCountersStore by lazy {
-        serviceEntryPoint.dayCountersStore()
+    private fun initializeDependenciesIfNeeded() {
+        if (!::appPreferencesRepository.isInitialized) {
+            appPreferencesRepository = serviceEntryPoint.appPreferencesRepository()
+        }
+        if (!::vocabularyRepository.isInitialized) {
+            vocabularyRepository = serviceEntryPoint.vocabularyRepository()
+        }
+        if (!::getNextVocabularyItemUseCase.isInitialized) {
+            getNextVocabularyItemUseCase = serviceEntryPoint.getNextVocabularyItemUseCase()
+        }
+        if (!::getSaveDifficultyRatingUseCase.isInitialized) {
+            getSaveDifficultyRatingUseCase = serviceEntryPoint.getSaveDifficultyRatingUseCase()
+        }
+        if (!::dayCountersStore.isInitialized) {
+            dayCountersStore = serviceEntryPoint.dayCountersStore()
+        }
     }
 
     private var blockedPackages: Set<String> = emptySet()
@@ -97,7 +105,10 @@ class OverlayAccessibilityService : AccessibilityService() {
         )
 
     override fun onServiceConnected() {
-        windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        if (windowManager == null) {
+            windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        }
+        initializeDependenciesIfNeeded()
 
         serviceScope.launch {
             appPreferencesRepository.getBlockedApps().collect { apps ->
@@ -259,7 +270,7 @@ class OverlayAccessibilityService : AccessibilityService() {
         }
     }
 
-    private fun startIntervalTimer() {
+    internal fun startIntervalTimer() {
         if (!isProcrastilearnEnabled) {
             Log.d("OverlayService", "ProcrastiLearn disabled, skipping interval timer start")
             return
