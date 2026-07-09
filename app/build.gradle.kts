@@ -15,8 +15,8 @@ android {
     applicationId = "com.procrastilearn.app"
     minSdk = 26
     targetSdk = 36
-    versionCode = 3
-    versionName = "1.1.0"
+    versionCode = 7
+    versionName = "1.2.2"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
