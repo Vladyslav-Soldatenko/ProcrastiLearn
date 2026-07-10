@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,14 +29,17 @@ class DojoViewModel
         private val dayCountersStore: DayCountersStore,
     ) : ViewModel() {
         private val flashcardState = MutableStateFlow(FlashcardState())
-        private val reviewCount = MutableStateFlow(0)
+
+        // Reactive: re-emits whenever the vocabulary table changes anywhere in the app
+        // (e.g. a review recorded from the blocking overlay), not just from this screen.
+        private val reviewsDueCount = vocabularyDao.observeReviewsDueCount(System.currentTimeMillis())
 
         val uiState: StateFlow<DojoUiState> =
             combine(
                 flashcardState,
                 dayCountersStore.read(),
                 dayCountersStore.readPolicy(),
-                reviewCount,
+                reviewsDueCount,
             ) { flashcard, counters, policy, pendingReviews ->
                 // Calculate stats reactively
                 val newQuotaRemaining = (policy.newPerDay - counters.newShown).coerceAtLeast(0)
@@ -55,7 +59,19 @@ class DojoViewModel
 
         init {
             loadNextWord()
-            updateReviewCount()
+            // The current flashcard is otherwise only refreshed from here and after a
+            // local rating. If a due-count/quota change happens for any other reason
+            // (a review from the overlay, a quota raised in Settings), re-fetch so the
+            // card shown here can't go stale or get stuck on an outdated empty state.
+            viewModelScope.launch {
+                combine(
+                    reviewsDueCount,
+                    dayCountersStore.read(),
+                    dayCountersStore.readPolicy(),
+                ) { due, counters, policy -> Triple(due, counters, policy) }
+                    .drop(1)
+                    .collect { loadNextWord() }
+            }
         }
 
         fun onToggleShowAnswer() {
@@ -72,16 +88,9 @@ class DojoViewModel
                 saveDifficultyRating(current.id, rating)
                 // Reset showAnswer for next card
                 flashcardState.value = flashcardState.value.copy(showAnswer = false)
-                // Load next word
+                // Load next word; reviewsDueCount/counters will also react to the write
+                // this rating just made, via the combine() in init{}.
                 loadNextWord()
-                // Update review count
-                updateReviewCount()
-            }
-        }
-
-        private fun updateReviewCount() {
-            viewModelScope.launch {
-                reviewCount.value = vocabularyDao.countReviewsDue(System.currentTimeMillis())
             }
         }
 

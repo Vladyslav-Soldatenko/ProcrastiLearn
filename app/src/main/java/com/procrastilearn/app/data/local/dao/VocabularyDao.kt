@@ -158,6 +158,18 @@ interface VocabularyDao {
     )
     suspend fun countReviewsDue(now: Long): Int
 
+    // Reactive twin of [countReviewsDue]: re-emits whenever the vocabulary table
+    // changes (e.g. a review recorded from the blocking overlay), so screens showing
+    // due-count-derived state can stay in sync without polling or manual refresh.
+    @Query(
+        """
+        SELECT COUNT(*) FROM vocabulary
+        WHERE fsrsDueAt > 0 AND fsrsDueAt <= :now
+          AND NOT (correctCount = 0 AND incorrectCount = 0)
+        """,
+    )
+    fun observeReviewsDueCount(now: Long): Flow<Int>
+
     @Query("SELECT COUNT(*) FROM vocabulary WHERE correctCount = 0 AND incorrectCount = 0")
     suspend fun countNewTotal(): Int
 

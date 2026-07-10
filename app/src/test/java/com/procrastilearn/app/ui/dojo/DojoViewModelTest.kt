@@ -38,6 +38,7 @@ class DojoViewModelTest {
 
     private lateinit var countersFlow: MutableStateFlow<DayCounters>
     private lateinit var policyFlow: MutableStateFlow<LearningPreferencesConfig>
+    private lateinit var dueCountFlow: MutableStateFlow<Int>
 
     @Before
     fun setUp() {
@@ -65,10 +66,12 @@ class DojoViewModelTest {
                     overlayInterval = 6,
                 ),
             )
+        dueCountFlow = MutableStateFlow(10)
 
         every { dayCountersStore.read() } returns countersFlow
         every { dayCountersStore.readPolicy() } returns policyFlow
         coEvery { vocabularyDao.countReviewsDue(any()) } returns 10
+        every { vocabularyDao.observeReviewsDueCount(any()) } returns dueCountFlow
     }
 
     @After
@@ -212,7 +215,6 @@ class DojoViewModelTest {
             val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = true)
             coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
             coEvery { saveDifficultyRating.invoke(any(), any()) } returns Result.success(Unit)
-            coEvery { vocabularyDao.countReviewsDue(any()) } returnsMany listOf(10, 15)
 
             val viewModel = buildViewModel()
             advanceUntilIdle()
@@ -223,8 +225,64 @@ class DojoViewModelTest {
             viewModel.onDifficultySelected(Rating.HARD)
             advanceUntilIdle()
 
+            // Simulate Room re-querying the due count after the underlying table write
+            dueCountFlow.value = 15
+            advanceUntilIdle()
+
             val statsAfter = viewModel.uiState.value.pendingReviewCount
             assertThat(statsAfter).isEqualTo(15)
+        }
+
+    @Test
+    fun `flashcard refreshes when vocabulary changes elsewhere (e_g_ reviewed via overlay)`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            // Regression test: Dojo used to cache the current flashcard and only ever
+            // reload it from init{} or after a local rating. If the same word was
+            // reviewed from the blocking overlay while Dojo was left showing it, Dojo
+            // had no way of finding out and kept showing the stale card indefinitely.
+            val stale = VocabularyItem(id = 1, word = "stale", translation = "старый", isNew = true)
+            val fresh = VocabularyItem(id = 2, word = "fresh", translation = "новый", isNew = true)
+            coEvery { getNextVocabularyItem.invoke() } returnsMany listOf(Result.success(stale), Result.success(fresh))
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(stale)
+
+            // Something else (the overlay, reviewing the same word) writes to the
+            // vocabulary table; Room would re-run any observed query on that table.
+            dueCountFlow.value = 20
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(fresh)
+            coVerify(exactly = 2) { getNextVocabularyItem.invoke() }
+        }
+
+    @Test
+    fun `empty state resolves once daily quota is raised elsewhere`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            // Regression test: raising newPerDay in Settings updates the header counter
+            // reactively (it's fed straight from DataStore), but Dojo never re-ran
+            // loadNextWord(), so it kept showing "no words" even though a word was
+            // now available.
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = true)
+            coEvery { getNextVocabularyItem.invoke() } returnsMany
+                listOf(Result.failure(NoAvailableItemsException()), Result.success(item))
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.hasNoWords).isTrue()
+
+            policyFlow.value =
+                LearningPreferencesConfig(
+                    newPerDay = 50,
+                    reviewPerDay = 100,
+                    mixMode = MixMode.MIX,
+                    overlayInterval = 6,
+                )
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.hasNoWords).isFalse()
+            assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(item)
         }
 
     @Test
