@@ -19,6 +19,7 @@ import com.procrastilearn.app.domain.repository.VocabularyRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -69,6 +70,15 @@ class SettingsViewModel
                         openAiReversePrompt = reversePrompt,
                     )
                 }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
+
+        private val _availableNewCount = MutableStateFlow(0)
+        val availableNewCount: StateFlow<Int> = _availableNewCount
+
+        fun loadAvailableNewCount() {
+            viewModelScope.launch {
+                _availableNewCount.value = vocabularyDao.countNewTotal()
+            }
+        }
 
         val importOptions: List<VocabularyImportOption> =
             parsers

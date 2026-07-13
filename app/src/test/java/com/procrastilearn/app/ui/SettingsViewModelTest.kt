@@ -158,6 +158,23 @@ class SettingsViewModelTest {
         }
 
     @Test
+    fun `loadAvailableNewCount queries dao and updates state`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            coEvery { vocabularyDao.countNewTotal() } returns 12
+
+            viewModel.availableNewCount.test {
+                assertThat(awaitItem()).isEqualTo(0)
+
+                viewModel.loadAvailableNewCount()
+
+                assertThat(awaitItem()).isEqualTo(12)
+                cancelAndIgnoreRemainingEvents()
+            }
+            coVerify { vocabularyDao.countNewTotal() }
+        }
+
+    @Test
     fun `onMixModeChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()

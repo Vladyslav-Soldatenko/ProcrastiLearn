@@ -110,6 +110,27 @@ class SettingsContentTest {
     }
 
     @Test
+    fun `new per day dialog title shows available new count`() {
+        setContent(availableNewCount = 17)
+
+        composeTestRule.onNodeWithText(string(R.string.settings_new_cards_per_day_title)).performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_new_cards_per_day_dialog_title, 17))
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `opening new per day dialog triggers on-demand count load`() {
+        var dialogOpenedCount = 0
+        setContent(onNewPerDayDialogOpen = { dialogOpenedCount++ })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_new_cards_per_day_title)).performClick()
+
+        assertThat(dialogOpenedCount).isEqualTo(1)
+    }
+
+    @Test
     fun `overlay permission click delegates to callback`() {
         var overlayClicks = 0
         setContent(onOverlayClick = { overlayClicks++ })
@@ -134,6 +155,7 @@ class SettingsContentTest {
     private fun setContent(
         mixMode: MixMode = MixMode.MIX,
         newPerDay: Int = 10,
+        availableNewCount: Int = 0,
         reviewPerDay: Int = 50,
         overlayInterval: Int = 5,
         openAiApiKey: String? = null,
@@ -144,6 +166,7 @@ class SettingsContentTest {
         onOverlayClick: () -> Unit = {},
         onA11yClick: () -> Unit = {},
         onMixModeChange: (MixMode) -> Unit = {},
+        onNewPerDayDialogOpen: () -> Unit = {},
         onNewPerDayChange: (Int) -> Unit = {},
         onReviewPerDayChange: (Int) -> Unit = {},
         onOverlayIntervalChange: (Int) -> Unit = {},
@@ -161,6 +184,7 @@ class SettingsContentTest {
                     a11yEnabled = a11yEnabled,
                     mixMode = mixMode,
                     newPerDay = newPerDay,
+                    availableNewCount = availableNewCount,
                     reviewPerDay = reviewPerDay,
                     overlayInterval = overlayInterval,
                     openAiApiKey = openAiApiKey,
@@ -169,6 +193,7 @@ class SettingsContentTest {
                     onOverlayClick = onOverlayClick,
                     onA11yClick = onA11yClick,
                     onMixModeChange = onMixModeChange,
+                    onNewPerDayDialogOpen = onNewPerDayDialogOpen,
                     onNewPerDayChange = onNewPerDayChange,
                     onReviewPerDayChange = onReviewPerDayChange,
                     onOverlayIntervalChange = onOverlayIntervalChange,

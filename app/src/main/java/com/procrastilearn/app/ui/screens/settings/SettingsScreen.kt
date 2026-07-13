@@ -93,6 +93,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val ctx = LocalContext.current
     val permissionStates = rememberPermissionStates(ctx)
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val availableNewCount by viewModel.availableNewCount.collectAsStateWithLifecycle()
     val importOptions = viewModel.importOptions
     var pendingImportOptionId by rememberSaveable { mutableStateOf<String?>(null) }
 
@@ -152,6 +153,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             a11yEnabled = permissionStates.a11yEnabled,
             mixMode = state.mixMode,
             newPerDay = state.newPerDay,
+            availableNewCount = availableNewCount,
             reviewPerDay = state.reviewPerDay,
             overlayInterval = state.overlayInterval,
             openAiApiKey = state.openAiApiKey,
@@ -160,6 +162,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             onOverlayClick = { openOverlaySettings(ctx) },
             onA11yClick = { openAccessibilitySettings(ctx) },
             onMixModeChange = viewModel::onMixModeChange,
+            onNewPerDayDialogOpen = viewModel::loadAvailableNewCount,
             onNewPerDayChange = viewModel::onNewPerDayChange,
             onReviewPerDayChange = viewModel::onReviewPerDayChange,
             onOverlayIntervalChange = viewModel::onOverlayIntervalChange,
@@ -199,6 +202,7 @@ internal fun SettingsContent(
     a11yEnabled: Boolean,
     mixMode: MixMode,
     newPerDay: Int,
+    availableNewCount: Int = 0,
     reviewPerDay: Int,
     overlayInterval: Int,
     openAiApiKey: String?,
@@ -207,6 +211,7 @@ internal fun SettingsContent(
     onOverlayClick: () -> Unit,
     onA11yClick: () -> Unit,
     onMixModeChange: (MixMode) -> Unit,
+    onNewPerDayDialogOpen: () -> Unit = {},
     onNewPerDayChange: (Int) -> Unit,
     onReviewPerDayChange: (Int) -> Unit,
     onOverlayIntervalChange: (Int) -> Unit,
@@ -239,7 +244,10 @@ internal fun SettingsContent(
 
             NewPerDaySettingsItem(
                 value = newPerDay,
-                onClick = { dialogState = DialogState.NewPerDay },
+                onClick = {
+                    onNewPerDayDialogOpen()
+                    dialogState = DialogState.NewPerDay
+                },
             )
 
             Spacer(Modifier.height(4.dp))
@@ -320,7 +328,7 @@ internal fun SettingsContent(
         }
         DialogState.NewPerDay -> {
             NumberInputDialog(
-                title = stringResource(R.string.settings_new_cards_per_day_title),
+                title = stringResource(R.string.settings_new_cards_per_day_dialog_title, availableNewCount),
                 currentValue = newPerDay,
                 minValue = 0,
                 onValueConfirm = {
