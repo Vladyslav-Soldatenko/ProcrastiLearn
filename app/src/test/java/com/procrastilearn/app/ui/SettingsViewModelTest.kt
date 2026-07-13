@@ -47,7 +47,7 @@ class SettingsViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var appContext: Context
-    private lateinit var store: DayCountersStore
+    private lateinit var dayCountersStore: DayCountersStore
     private lateinit var openAiStore: OpenAiPreferencesStore
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var vocabularyRepository: VocabularyRepository
@@ -69,7 +69,7 @@ class SettingsViewModelTest {
     @Before
     fun setUp() {
         appContext = ApplicationProvider.getApplicationContext()
-        store = mockk(relaxed = true)
+        dayCountersStore = mockk(relaxed = true)
         openAiStore = mockk(relaxed = true)
         vocabularyDao = mockk()
         vocabularyRepository = mockk(relaxed = true)
@@ -86,7 +86,7 @@ class SettingsViewModelTest {
         promptFlow = MutableStateFlow(OpenAiPromptDefaults.translationPrompt)
         reversePromptFlow = MutableStateFlow(OpenAiPromptDefaults.reverseTranslationPrompt)
 
-        every { store.readPolicy() } returns policyFlow
+        every { dayCountersStore.readPolicy() } returns policyFlow
         every { openAiStore.readOpenAiApiKey() } returns apiKeyFlow
         every { openAiStore.readOpenAiPrompt() } returns promptFlow
         every { openAiStore.readOpenAiReversePrompt() } returns reversePromptFlow
@@ -99,7 +99,7 @@ class SettingsViewModelTest {
 
     private fun buildViewModel(parsers: Set<VocabularyParser> = setOf(defaultParser)): SettingsViewModel =
         SettingsViewModel(
-            store = store,
+            dayCountersStore = dayCountersStore,
             openAiStore = openAiStore,
             vocabularyDao = vocabularyDao,
             vocabularyRepository = vocabularyRepository,
@@ -182,60 +182,60 @@ class SettingsViewModelTest {
     fun `onMixModeChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { store.setMixMode(any()) } returns Unit
+            coEvery { dayCountersStore.setMixMode(any()) } returns Unit
 
             viewModel.onMixModeChange(MixMode.NEW_FIRST)
             advanceUntilIdle()
 
-            coVerify { store.setMixMode(MixMode.NEW_FIRST) }
+            coVerify { dayCountersStore.setMixMode(MixMode.NEW_FIRST) }
         }
 
     @Test
     fun `onNewPerDayChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { store.setNewPerDay(any()) } returns Unit
+            coEvery { dayCountersStore.setNewPerDay(any()) } returns Unit
 
             viewModel.onNewPerDayChange(42)
             advanceUntilIdle()
 
-            coVerify { store.setNewPerDay(42) }
+            coVerify { dayCountersStore.setNewPerDay(42) }
         }
 
     @Test
     fun `onAddCardsForToday delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { store.addExtraNewToday(any()) } returns Unit
+            coEvery { dayCountersStore.addExtraNewToday(any()) } returns Unit
 
             viewModel.onAddCardsForToday(16)
             advanceUntilIdle()
 
-            coVerify { store.addExtraNewToday(16) }
+            coVerify { dayCountersStore.addExtraNewToday(16) }
         }
 
     @Test
     fun `onReviewPerDayChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { store.setReviewPerDay(any()) } returns Unit
+            coEvery { dayCountersStore.setReviewPerDay(any()) } returns Unit
 
             viewModel.onReviewPerDayChange(77)
             advanceUntilIdle()
 
-            coVerify { store.setReviewPerDay(77) }
+            coVerify { dayCountersStore.setReviewPerDay(77) }
         }
 
     @Test
     fun `onOverlayIntervalChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { store.setOverlayInterval(any()) } returns Unit
+            coEvery { dayCountersStore.setOverlayInterval(any()) } returns Unit
 
             viewModel.onOverlayIntervalChange(9)
             advanceUntilIdle()
 
-            coVerify { store.setOverlayInterval(9) }
+            coVerify { dayCountersStore.setOverlayInterval(9) }
         }
 
     @Test

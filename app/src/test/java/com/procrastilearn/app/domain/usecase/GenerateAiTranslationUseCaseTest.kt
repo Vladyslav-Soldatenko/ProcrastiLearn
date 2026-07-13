@@ -15,17 +15,17 @@ import org.junit.Before
 import org.junit.Test
 
 class GenerateAiTranslationUseCaseTest {
-    private val prefs: OpenAiPreferencesStore = mockk()
+    private val openAiStore: OpenAiPreferencesStore = mockk()
     private lateinit var provider: FakeAiTranslationProvider
     private lateinit var useCase: GenerateAiTranslationUseCase
 
     @Before
     fun setUp() {
         provider = FakeAiTranslationProvider()
-        every { prefs.readOpenAiApiKey() } returns flowOf("abc")
-        every { prefs.readOpenAiPrompt() } returns flowOf("forward prompt")
-        every { prefs.readOpenAiReversePrompt() } returns flowOf("reverse prompt")
-        useCase = GenerateAiTranslationUseCase(provider, prefs, UnconfinedTestDispatcher())
+        every { openAiStore.readOpenAiApiKey() } returns flowOf("abc")
+        every { openAiStore.readOpenAiPrompt() } returns flowOf("forward prompt")
+        every { openAiStore.readOpenAiReversePrompt() } returns flowOf("reverse prompt")
+        useCase = GenerateAiTranslationUseCase(provider, openAiStore, UnconfinedTestDispatcher())
     }
 
     @Test
@@ -56,7 +56,7 @@ class GenerateAiTranslationUseCaseTest {
 
     @Test
     fun `invoke throws when api key is missing`() {
-        every { prefs.readOpenAiApiKey() } returns flowOf(null)
+        every { openAiStore.readOpenAiApiKey() } returns flowOf(null)
 
         assertThrows(IllegalArgumentException::class.java) {
             kotlinx.coroutines.runBlocking { useCase("Haus", AiTranslationDirection.EN_TO_RU) }

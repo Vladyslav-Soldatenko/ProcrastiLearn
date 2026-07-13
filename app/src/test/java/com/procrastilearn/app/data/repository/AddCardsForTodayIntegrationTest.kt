@@ -30,11 +30,6 @@ import java.time.format.DateTimeFormatter
  * Room-backed [VocabularyRepositoryImpl] - no mocks - to exercise the exact
  * "Add Cards For Today" flow end-to-end: exhaust the permanent daily limit,
  * add extra cards for today, consume them, and roll over to the next day.
- *
- * Advancing the *actual* system clock isn't possible from a plain JVM test
- * since todayStamp() reads LocalDate.now() directly, so day rollover is
- * simulated the same way the app's own ensureDay() does it internally:
- * calling resetFor(nextDay) once the stamped day no longer matches today.
  */
 @ExperimentalCoroutinesApi
 @RunWith(RobolectricTestRunner::class)

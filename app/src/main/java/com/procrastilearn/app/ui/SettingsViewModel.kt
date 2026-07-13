@@ -47,7 +47,7 @@ data class SettingsUiState(
 class SettingsViewModel
     @Inject
     constructor(
-        private val store: DayCountersStore,
+        private val dayCountersStore: DayCountersStore,
         private val openAiStore: OpenAiPreferencesStore,
         private val vocabularyDao: VocabularyDao,
         private val vocabularyRepository: VocabularyRepository,
@@ -57,7 +57,7 @@ class SettingsViewModel
         val uiState: StateFlow<SettingsUiState> =
             kotlinx.coroutines.flow
                 .combine(
-                    store.readPolicy(),
+                    dayCountersStore.readPolicy(),
                     openAiStore.readOpenAiApiKey(),
                     openAiStore.readOpenAiPrompt(),
                     openAiStore.readOpenAiReversePrompt(),
@@ -95,23 +95,23 @@ class SettingsViewModel
                 }.sortedBy { it.titleResId }
 
         fun onMixModeChange(mode: MixMode) {
-            viewModelScope.launch { store.setMixMode(mode) }
+            viewModelScope.launch { dayCountersStore.setMixMode(mode) }
         }
 
         fun onNewPerDayChange(value: Int) {
-            viewModelScope.launch { store.setNewPerDay(value) }
+            viewModelScope.launch { dayCountersStore.setNewPerDay(value) }
         }
 
         fun onAddCardsForToday(amount: Int) {
-            viewModelScope.launch { store.addExtraNewToday(amount) }
+            viewModelScope.launch { dayCountersStore.addExtraNewToday(amount) }
         }
 
         fun onReviewPerDayChange(value: Int) {
-            viewModelScope.launch { store.setReviewPerDay(value) }
+            viewModelScope.launch { dayCountersStore.setReviewPerDay(value) }
         }
 
         fun onOverlayIntervalChange(value: Int) {
-            viewModelScope.launch { store.setOverlayInterval(value) }
+            viewModelScope.launch { dayCountersStore.setOverlayInterval(value) }
         }
 
         fun onOpenAiApiKeyChange(value: String) {

@@ -13,7 +13,7 @@ class GenerateAiTranslationUseCase
     @Inject
     constructor(
         private val aiTranslationProvider: AiTranslationProvider,
-        private val prefs: OpenAiPreferencesStore,
+        private val openAiStore: OpenAiPreferencesStore,
         private val ioDispatcher: CoroutineDispatcher,
     ) {
         suspend operator fun invoke(
@@ -21,13 +21,13 @@ class GenerateAiTranslationUseCase
             direction: AiTranslationDirection,
         ): String =
             withContext(ioDispatcher) {
-                val apiKey: String = prefs.readOpenAiApiKey().first().orEmpty()
+                val apiKey: String = openAiStore.readOpenAiApiKey().first().orEmpty()
                 require(apiKey.isNotBlank()) { "Missing OpenAI API key" }
 
                 val systemPrompt =
                     when (direction) {
-                        AiTranslationDirection.EN_TO_RU -> prefs.readOpenAiPrompt().first()
-                        AiTranslationDirection.RU_TO_EN -> prefs.readOpenAiReversePrompt().first()
+                        AiTranslationDirection.EN_TO_RU -> openAiStore.readOpenAiPrompt().first()
+                        AiTranslationDirection.RU_TO_EN -> openAiStore.readOpenAiReversePrompt().first()
                     }
                 val userPrompt =
                     """

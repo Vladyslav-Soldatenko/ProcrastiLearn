@@ -9,11 +9,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Owns the single DataStore<Preferences> instance backing "study_prefs.preferences_pb".
- * DataStore disallows multiple active instances for the same file, so any class reading
- * or writing these preferences must share this instance rather than creating its own.
- */
 @Singleton
 class StudyPreferencesDataStore
     @Inject
