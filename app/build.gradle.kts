@@ -13,7 +13,7 @@ android {
 
   defaultConfig {
     applicationId = "com.procrastilearn.app"
-    minSdk = 26
+    minSdk = 30
     targetSdk = 36
     versionCode = 7
     versionName = "1.2.2"
