@@ -127,6 +127,7 @@
 
         <!-- Daily limits -->
         <string name="settings_new_cards_per_day_title">Новых карточек в день</string>
+        <string name="settings_new_cards_per_day_dialog_title">Новых карточек в день (Доступно новых: %1$d)</string>
         <string name="settings_reviews_per_day_title">Повторений в день</string>
 
         <!-- Overlay interval -->

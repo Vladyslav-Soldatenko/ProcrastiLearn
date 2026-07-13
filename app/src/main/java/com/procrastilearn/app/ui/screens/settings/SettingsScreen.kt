@@ -152,6 +152,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             a11yEnabled = permissionStates.a11yEnabled,
             mixMode = state.mixMode,
             newPerDay = state.newPerDay,
+            availableNewCount = state.availableNewCount,
             reviewPerDay = state.reviewPerDay,
             overlayInterval = state.overlayInterval,
             openAiApiKey = state.openAiApiKey,
@@ -199,6 +200,7 @@ internal fun SettingsContent(
     a11yEnabled: Boolean,
     mixMode: MixMode,
     newPerDay: Int,
+    availableNewCount: Int = 0,
     reviewPerDay: Int,
     overlayInterval: Int,
     openAiApiKey: String?,
@@ -320,7 +322,7 @@ internal fun SettingsContent(
         }
         DialogState.NewPerDay -> {
             NumberInputDialog(
-                title = stringResource(R.string.settings_new_cards_per_day_title),
+                title = stringResource(R.string.settings_new_cards_per_day_dialog_title, availableNewCount),
                 currentValue = newPerDay,
                 minValue = 0,
                 onValueConfirm = {

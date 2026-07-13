@@ -39,6 +39,7 @@ data class SettingsUiState(
     val openAiApiKey: String? = null,
     val openAiPrompt: String = OpenAiPromptDefaults.translationPrompt,
     val openAiReversePrompt: String = OpenAiPromptDefaults.reverseTranslationPrompt,
+    val availableNewCount: Int = 0,
 )
 
 @HiltViewModel
@@ -58,7 +59,8 @@ class SettingsViewModel
                     store.readOpenAiApiKey(),
                     store.readOpenAiPrompt(),
                     store.readOpenAiReversePrompt(),
-                ) { policy, apiKey, prompt, reversePrompt ->
+                    vocabularyDao.observeNewCount(),
+                ) { policy, apiKey, prompt, reversePrompt, availableNewCount ->
                     SettingsUiState(
                         mixMode = policy.mixMode,
                         newPerDay = policy.newPerDay,
@@ -67,6 +69,7 @@ class SettingsViewModel
                         openAiApiKey = apiKey,
                         openAiPrompt = prompt,
                         openAiReversePrompt = reversePrompt,
+                        availableNewCount = availableNewCount,
                     )
                 }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
