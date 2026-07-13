@@ -28,20 +28,17 @@ All data (blocked apps, vocabulary, progress, and preferences) is stored locally
 
 ## Roadmap
 - UI polish, improve color scheme and UX where needed.
-- Add a mode to enter a native-language word and save it in the target language (AI) (mostly done)
 - Auto-delete a word after a good streak.
-- Stop TikTok media playback during gating; other apps mostly work.
+- Stop TikTok media playback (or mute it at least) during gating; other apps mostly work.
 - Let users choose GPT model or provider (e.g., via LangChain).
 - Add/Update AI prompt to respect language pairs instead of hardcoded EN-RU.
-- Add an in-app Anki-style practice mode.
 - Add a kebab menu to the overlay to delete/edit the current word.
 - Track progress properties and show analytics charts.
 - Use AI to analyze existing words, estimate level and suggest new vocabulary based on that info.
-- Fix intermittent "No word loaded" screen that clears after a click.
 - On export, ask to keep progress for transfer or reset it for sharing the dack.
 - Possibility to "buy" time beforehand in dojo.
 
-### Long Term
+### Long Term Roadmap
 - Add user accounts with cloud backup (maybe even scheduled).
 - Expand import options and improve Anki support.
 - Add support for different decks so that user can choose words of which deck they want to study now.
