@@ -74,8 +74,6 @@ class SettingsViewModel
         private val _availableNewCount = MutableStateFlow(0)
         val availableNewCount: StateFlow<Int> = _availableNewCount
 
-        // Queried on demand (dialog open) rather than observed, since it only needs
-        // to reflect the count at the moment the New Cards Per Day dialog is shown.
         fun loadAvailableNewCount() {
             viewModelScope.launch {
                 _availableNewCount.value = vocabularyDao.countNewTotal()
