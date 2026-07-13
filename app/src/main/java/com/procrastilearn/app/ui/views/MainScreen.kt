@@ -36,7 +36,7 @@ fun MainScreen() {
                 AddWordScreen(onNavigateToList = { navController.navigate(Screen.WordList.route) })
             }
             composable(Screen.WordList.route) {
-                WordListScreen()
+                WordListScreen(onNavigateBack = { navController.popBackStack() })
             }
             composable(Screen.Dojo.route) {
                 DojoScreen()

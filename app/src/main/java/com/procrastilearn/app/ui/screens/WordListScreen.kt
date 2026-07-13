@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -61,7 +62,10 @@ import io.github.oikvpqya.compose.fastscroller.material3.defaultMaterialScrollba
 import io.github.oikvpqya.compose.fastscroller.rememberScrollbarAdapter
 
 @Composable
-fun WordListScreen(viewModel: WordListViewModel = hiltViewModel()) {
+fun WordListScreen(
+    onNavigateBack: () -> Unit = {},
+    viewModel: WordListViewModel = hiltViewModel(),
+) {
     val words by viewModel.words.collectAsState()
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
@@ -72,12 +76,13 @@ fun WordListScreen(viewModel: WordListViewModel = hiltViewModel()) {
         onDelete = viewModel::deleteWord,
         onEdit = viewModel::updateWord,
         onReset = viewModel::resetWordProgress,
+        onNavigateBack = onNavigateBack,
     )
 }
 
 @Composable
 @Suppress("LongMethod")
-private fun WordListContent(
+internal fun WordListContent(
     words: List<VocabularyItem>,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
@@ -85,6 +90,7 @@ private fun WordListContent(
     onEdit: (VocabularyItem) -> Unit,
     onReset: (VocabularyItem) -> Unit,
     modifier: Modifier = Modifier,
+    onNavigateBack: () -> Unit = {},
 ) {
     val normalizedQuery = searchQuery.trim()
     val displayedWords =
@@ -101,13 +107,24 @@ private fun WordListContent(
                 .padding(16.dp),
     ) {
         // Header
-        Text(
-            text = stringResource(R.string.word_list_title),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(bottom = 16.dp),
-        )
+        ) {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.word_list_navigate_back),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+            Text(
+                text = stringResource(R.string.word_list_title),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
 
         OutlinedTextField(
             value = searchQuery,

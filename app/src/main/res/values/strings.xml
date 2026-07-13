@@ -229,6 +229,7 @@
 
     <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
     <string name="word_list_title">My Vocabulary</string>
+    <string name="word_list_navigate_back">Back to add word</string>
     <string name="word_list_empty">No words added yet</string>
     <string name="word_list_delete_confirm_title">Delete word</string>
     <string name="word_list_delete_confirm_message">
