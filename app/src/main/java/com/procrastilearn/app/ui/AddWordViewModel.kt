@@ -3,7 +3,7 @@ package com.procrastilearn.app.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
-import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
@@ -29,7 +29,7 @@ class AddWordViewModel @Inject
         private val addVocabularyItemUseCase: AddVocabularyItemUseCase,
         private val getVocabularyItemByWordUseCase: GetVocabularyItemByWordUseCase,
         private val overrideVocabularyItemUseCase: OverrideVocabularyItemUseCase,
-        private val prefs: DayCountersStore,
+        private val prefs: OpenAiPreferencesStore,
         private val generateAiTranslationUseCase: GenerateAiTranslationUseCase,
         private val queuePendingWordUseCase: QueuePendingWordUseCase,
         private val observePendingWordsUseCase: ObservePendingWordsUseCase,

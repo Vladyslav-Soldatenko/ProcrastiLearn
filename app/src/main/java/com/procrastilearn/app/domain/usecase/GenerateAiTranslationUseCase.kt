@@ -1,6 +1,6 @@
 package com.procrastilearn.app.domain.usecase
 
-import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
 import com.procrastilearn.app.domain.model.AiTranslationDirection
@@ -13,7 +13,7 @@ class GenerateAiTranslationUseCase
     @Inject
     constructor(
         private val aiTranslationProvider: AiTranslationProvider,
-        private val prefs: DayCountersStore,
+        private val prefs: OpenAiPreferencesStore,
         private val ioDispatcher: CoroutineDispatcher,
     ) {
         suspend operator fun invoke(

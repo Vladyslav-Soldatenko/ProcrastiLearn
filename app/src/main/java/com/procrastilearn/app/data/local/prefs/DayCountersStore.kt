@@ -1,184 +1,113 @@
 package com.procrastilearn.app.data.local.prefs
 
-import android.content.Context
-import androidx.datastore.dataStoreFile
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.procrastilearn.app.data.counter.DayCounters
-import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DayCountersStore @Inject constructor(
-    @ApplicationContext private val ctx: Context,
-) {
-    private val ds =
-        PreferenceDataStoreFactory.create(
-            produceFile = { ctx.dataStoreFile("study_prefs.preferences_pb") },
-        )
+class DayCountersStore
+    @Inject
+    constructor(
+        studyPreferences: StudyPreferencesDataStore,
+    ) {
+        private val ds = studyPreferences.ds
 
-    private object K {
-        // ── existing counters ────────────────────────────────
-        val DAY = intPreferencesKey("day")
-        val NEW_SHOWN = intPreferencesKey("new_shown")
-        val REVIEW_SHOWN = intPreferencesKey("review_shown")
-        val REVIEWS_SINCE_NEW = intPreferencesKey("reviews_since_new")
-        val EXTRA_NEW_TODAY = intPreferencesKey("extra_new_today")
+        private object K {
+            val DAY = intPreferencesKey("day")
+            val NEW_SHOWN = intPreferencesKey("new_shown")
+            val REVIEW_SHOWN = intPreferencesKey("review_shown")
+            val REVIEWS_SINCE_NEW = intPreferencesKey("reviews_since_new")
+            val EXTRA_NEW_TODAY = intPreferencesKey("extra_new_today")
 
-        val MIX_MODE = stringPreferencesKey("mix_mode")
-        val NEW_PER_DAY_LIMIT = intPreferencesKey("new_per_day_limit")
-        val REVIEW_PER_DAY_LIMIT = intPreferencesKey("review_per_day_limit")
-        val OVERLAY_INTERVAL_TIME = intPreferencesKey("overlay_interval_time")
-        val OPENAI_API_KEY = stringPreferencesKey("openai_api_key")
-        val USE_AI_TRANSLATION = booleanPreferencesKey("use_ai_translation")
-        val OPENAI_PROMPT = stringPreferencesKey("openai_prompt")
-        val OPENAI_REVERSE_PROMPT = stringPreferencesKey("openai_reverse_prompt")
-        val AI_TRANSLATION_DIRECTION = stringPreferencesKey("ai_translation_direction")
-    }
-
-    private companion object {
-        const val DEFAULT_NEW_PER_DAY = 15
-        const val DEFAULT_REVIEW_PER_DAY = 99
-        const val DEFAULT_OVERLAY_INTERVAL_TIME = 0
-        const val MIN_LIMIT = 0
-        const val MAX_NEW_PER_DAY = 200
-        const val MAX_REVIEW_PER_DAY = 2000
-        const val MAX_OVERLAY_INTERVAL_MINUTES = 2000
-    }
-
-    fun read(): Flow<DayCounters> =
-        ds.data.map { p ->
-            DayCounters(
-                yyyymmdd = p[K.DAY] ?: 0,
-                newShown = p[K.NEW_SHOWN] ?: 0,
-                reviewShown = p[K.REVIEW_SHOWN] ?: 0,
-                reviewsSinceLastNew = p[K.REVIEWS_SINCE_NEW] ?: 0,
-                extraNewToday = p[K.EXTRA_NEW_TODAY] ?: 0,
-            )
+            val MIX_MODE = stringPreferencesKey("mix_mode")
+            val NEW_PER_DAY_LIMIT = intPreferencesKey("new_per_day_limit")
+            val REVIEW_PER_DAY_LIMIT = intPreferencesKey("review_per_day_limit")
+            val OVERLAY_INTERVAL_TIME = intPreferencesKey("overlay_interval_time")
         }
 
-    suspend fun resetFor(day: Int) {
-        ds.edit { p ->
-            p[K.DAY] = day
-            p[K.NEW_SHOWN] = 0
-            p[K.REVIEW_SHOWN] = 0
-            p[K.REVIEWS_SINCE_NEW] = 0
-            p[K.EXTRA_NEW_TODAY] = 0
-        }
-    }
-
-    suspend fun markNewShown() {
-        ds.edit { p ->
-            p[K.NEW_SHOWN] = (p[K.NEW_SHOWN] ?: 0) + 1
-            p[K.REVIEWS_SINCE_NEW] = 0
-        }
-    }
-
-    suspend fun addExtraNewToday(amount: Int) {
-        if (amount <= 0) return
-        ds.edit { p ->
-            p[K.EXTRA_NEW_TODAY] = (p[K.EXTRA_NEW_TODAY] ?: 0) + amount
-        }
-    }
-
-    suspend fun markReviewShown() {
-        ds.edit { p ->
-            p[K.REVIEW_SHOWN] = (p[K.REVIEW_SHOWN] ?: 0) + 1
-            p[K.REVIEWS_SINCE_NEW] = (p[K.REVIEWS_SINCE_NEW] ?: 0) + 1
-        }
-    }
-
-    fun readPolicy(): Flow<LearningPreferencesConfig> =
-        ds.data.map { p ->
-            val mixName = p[K.MIX_MODE] ?: MixMode.MIX.name
-            LearningPreferencesConfig(
-                newPerDay = p[K.NEW_PER_DAY_LIMIT] ?: DEFAULT_NEW_PER_DAY,
-                reviewPerDay = p[K.REVIEW_PER_DAY_LIMIT] ?: DEFAULT_REVIEW_PER_DAY,
-                overlayInterval = p[K.OVERLAY_INTERVAL_TIME] ?: DEFAULT_OVERLAY_INTERVAL_TIME,
-                mixMode = runCatching { MixMode.valueOf(mixName) }.getOrDefault(MixMode.MIX),
-            )
+        private companion object {
+            const val DEFAULT_NEW_PER_DAY = 15
+            const val DEFAULT_REVIEW_PER_DAY = 99
+            const val DEFAULT_OVERLAY_INTERVAL_TIME = 0
+            const val MIN_LIMIT = 0
+            const val MAX_NEW_PER_DAY = 200
+            const val MAX_REVIEW_PER_DAY = 2000
+            const val MAX_OVERLAY_INTERVAL_MINUTES = 2000
         }
 
-    suspend fun setMixMode(mode: MixMode) {
-        ds.edit { it[K.MIX_MODE] = mode.name }
-    }
+        fun read(): Flow<DayCounters> =
+            ds.data.map { p ->
+                DayCounters(
+                    yyyymmdd = p[K.DAY] ?: 0,
+                    newShown = p[K.NEW_SHOWN] ?: 0,
+                    reviewShown = p[K.REVIEW_SHOWN] ?: 0,
+                    reviewsSinceLastNew = p[K.REVIEWS_SINCE_NEW] ?: 0,
+                    extraNewToday = p[K.EXTRA_NEW_TODAY] ?: 0,
+                )
+            }
 
-    suspend fun setNewPerDay(value: Int) {
-        ds.edit { it[K.NEW_PER_DAY_LIMIT] = value.coerceIn(MIN_LIMIT, MAX_NEW_PER_DAY) }
-    }
-
-    suspend fun setReviewPerDay(value: Int) {
-        ds.edit { it[K.REVIEW_PER_DAY_LIMIT] = value.coerceIn(MIN_LIMIT, MAX_REVIEW_PER_DAY) }
-    }
-
-    suspend fun setOverlayInterval(value: Int) {
-        ds.edit { it[K.OVERLAY_INTERVAL_TIME] = value.coerceIn(MIN_LIMIT, MAX_OVERLAY_INTERVAL_MINUTES) }
-    }
-
-    // ── OpenAI API key ─────────────────────────────────────────────
-    fun readOpenAiApiKey(): Flow<String?> = ds.data.map { p -> p[K.OPENAI_API_KEY] }
-
-    suspend fun setOpenAiApiKey(value: String) {
-        ds.edit { it[K.OPENAI_API_KEY] = value }
-    }
-
-    fun readOpenAiPrompt(): Flow<String> =
-        ds.data.map { p ->
-            p[K.OPENAI_PROMPT]
-                ?: OpenAiPromptDefaults.translationPrompt
-        }
-
-    suspend fun setOpenAiPrompt(value: String) {
-        ds.edit { prefs ->
-            val trimmed = value.trim()
-            if (trimmed.isEmpty() || trimmed == OpenAiPromptDefaults.translationPrompt) {
-                prefs.remove(K.OPENAI_PROMPT)
-            } else {
-                prefs[K.OPENAI_PROMPT] = trimmed
+        suspend fun resetFor(day: Int) {
+            ds.edit { p ->
+                p[K.DAY] = day
+                p[K.NEW_SHOWN] = 0
+                p[K.REVIEW_SHOWN] = 0
+                p[K.REVIEWS_SINCE_NEW] = 0
+                p[K.EXTRA_NEW_TODAY] = 0
             }
         }
-    }
 
-    fun readOpenAiReversePrompt(): Flow<String> =
-        ds.data.map { p ->
-            p[K.OPENAI_REVERSE_PROMPT]
-                ?: OpenAiPromptDefaults.reverseTranslationPrompt
-        }
-
-    suspend fun setOpenAiReversePrompt(value: String) {
-        ds.edit { prefs ->
-            val trimmed = value.trim()
-            if (trimmed.isEmpty() || trimmed == OpenAiPromptDefaults.reverseTranslationPrompt) {
-                prefs.remove(K.OPENAI_REVERSE_PROMPT)
-            } else {
-                prefs[K.OPENAI_REVERSE_PROMPT] = trimmed
+        suspend fun markNewShown() {
+            ds.edit { p ->
+                p[K.NEW_SHOWN] = (p[K.NEW_SHOWN] ?: 0) + 1
+                p[K.REVIEWS_SINCE_NEW] = 0
             }
         }
-    }
 
-    fun readAiTranslationDirection(): Flow<AiTranslationDirection> =
-        ds.data.map { p ->
-            val stored = p[K.AI_TRANSLATION_DIRECTION] ?: AiTranslationDirection.EN_TO_RU.name
-            runCatching { AiTranslationDirection.valueOf(stored) }.getOrDefault(AiTranslationDirection.EN_TO_RU)
+        suspend fun addExtraNewToday(amount: Int) {
+            if (amount <= 0) return
+            ds.edit { p ->
+                p[K.EXTRA_NEW_TODAY] = (p[K.EXTRA_NEW_TODAY] ?: 0) + amount
+            }
         }
 
-    suspend fun setAiTranslationDirection(value: AiTranslationDirection) {
-        ds.edit { it[K.AI_TRANSLATION_DIRECTION] = value.name }
-    }
+        suspend fun markReviewShown() {
+            ds.edit { p ->
+                p[K.REVIEW_SHOWN] = (p[K.REVIEW_SHOWN] ?: 0) + 1
+                p[K.REVIEWS_SINCE_NEW] = (p[K.REVIEWS_SINCE_NEW] ?: 0) + 1
+            }
+        }
 
-    // ── Use AI to generate translation flag ───────────────────────
-    fun readUseAiForTranslation(): Flow<Boolean> = ds.data.map { p -> p[K.USE_AI_TRANSLATION] ?: false }
+        fun readPolicy(): Flow<LearningPreferencesConfig> =
+            ds.data.map { p ->
+                val mixName = p[K.MIX_MODE] ?: MixMode.MIX.name
+                LearningPreferencesConfig(
+                    newPerDay = p[K.NEW_PER_DAY_LIMIT] ?: DEFAULT_NEW_PER_DAY,
+                    reviewPerDay = p[K.REVIEW_PER_DAY_LIMIT] ?: DEFAULT_REVIEW_PER_DAY,
+                    overlayInterval = p[K.OVERLAY_INTERVAL_TIME] ?: DEFAULT_OVERLAY_INTERVAL_TIME,
+                    mixMode = runCatching { MixMode.valueOf(mixName) }.getOrDefault(MixMode.MIX),
+                )
+            }
 
-    suspend fun setUseAiForTranslation(value: Boolean) {
-        ds.edit { it[K.USE_AI_TRANSLATION] = value }
+        suspend fun setMixMode(mode: MixMode) {
+            ds.edit { it[K.MIX_MODE] = mode.name }
+        }
+
+        suspend fun setNewPerDay(value: Int) {
+            ds.edit { it[K.NEW_PER_DAY_LIMIT] = value.coerceIn(MIN_LIMIT, MAX_NEW_PER_DAY) }
+        }
+
+        suspend fun setReviewPerDay(value: Int) {
+            ds.edit { it[K.REVIEW_PER_DAY_LIMIT] = value.coerceIn(MIN_LIMIT, MAX_REVIEW_PER_DAY) }
+        }
+
+        suspend fun setOverlayInterval(value: Int) {
+            ds.edit { it[K.OVERLAY_INTERVAL_TIME] = value.coerceIn(MIN_LIMIT, MAX_OVERLAY_INTERVAL_MINUTES) }
+        }
     }
-}

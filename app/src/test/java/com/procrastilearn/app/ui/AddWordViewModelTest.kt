@@ -2,7 +2,7 @@ package com.procrastilearn.app.ui
 
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
-import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
 import com.procrastilearn.app.domain.model.AiTranslationDirection
@@ -44,7 +44,7 @@ class AddWordViewModelTest {
     private lateinit var observePendingWordsUseCase: ObservePendingWordsUseCase
     private lateinit var deletePendingWordUseCase: DeletePendingWordUseCase
     private lateinit var connectivityObserver: NetworkConnectivityObserver
-    private lateinit var prefs: DayCountersStore
+    private lateinit var prefs: OpenAiPreferencesStore
     private lateinit var generateAiTranslationUseCase: GenerateAiTranslationUseCase
     private lateinit var openAiKeyFlow: MutableStateFlow<String?>
     private lateinit var useAiFlow: MutableStateFlow<Boolean>

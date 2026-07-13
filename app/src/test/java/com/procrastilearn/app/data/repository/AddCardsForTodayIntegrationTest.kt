@@ -8,6 +8,7 @@ import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.StudyPreferencesDataStore
 import io.github.openspacedrepetition.Rating
 import io.github.openspacedrepetition.Scheduler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -63,7 +64,7 @@ class AddCardsForTodayIntegrationTest {
 
                 override fun getApplicationContext(): Context = this
             }
-        dayCountersStore = DayCountersStore(dataStoreContext)
+        dayCountersStore = DayCountersStore(StudyPreferencesDataStore(dataStoreContext))
 
         repository =
             VocabularyRepositoryImpl(

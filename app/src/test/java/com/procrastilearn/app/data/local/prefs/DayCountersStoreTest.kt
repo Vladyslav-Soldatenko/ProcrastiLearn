@@ -5,7 +5,6 @@ import android.content.ContextWrapper
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.counter.DayCounters
-import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.MixMode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -36,7 +35,7 @@ class DayCountersStoreTest {
 
                 override fun getApplicationContext(): Context = this
             }
-        store = DayCountersStore(dataStoreContext)
+        store = DayCountersStore(StudyPreferencesDataStore(dataStoreContext))
     }
 
     @Test
@@ -50,12 +49,6 @@ class DayCountersStoreTest {
             assertThat(policy.reviewPerDay).isEqualTo(99)
             assertThat(policy.overlayInterval).isEqualTo(0)
             assertThat(policy.mixMode).isEqualTo(MixMode.MIX)
-
-            assertThat(store.readOpenAiApiKey().first()).isNull()
-            assertThat(store.readOpenAiPrompt().first()).isEqualTo(OpenAiPromptDefaults.translationPrompt)
-            assertThat(store.readOpenAiReversePrompt().first()).isEqualTo(OpenAiPromptDefaults.reverseTranslationPrompt)
-            assertThat(store.readUseAiForTranslation().first()).isFalse()
-            assertThat(store.readAiTranslationDirection().first()).isEqualTo(AiTranslationDirection.EN_TO_RU)
         }
 
     @Test
@@ -134,36 +127,5 @@ class DayCountersStoreTest {
             assertThat(policy.newPerDay).isEqualTo(0)
             assertThat(policy.reviewPerDay).isEqualTo(0)
             assertThat(policy.overlayInterval).isEqualTo(0)
-        }
-
-    @Test
-    fun openAiPreferencesPersistAndResetToDefaults() =
-        runTest {
-            store.setOpenAiApiKey("test-key")
-            assertThat(store.readOpenAiApiKey().first()).isEqualTo("test-key")
-
-            store.setOpenAiPrompt("  custom prompt  ")
-            assertThat(store.readOpenAiPrompt().first()).isEqualTo("custom prompt")
-
-            store.setOpenAiPrompt(OpenAiPromptDefaults.translationPrompt)
-            assertThat(store.readOpenAiPrompt().first()).isEqualTo(OpenAiPromptDefaults.translationPrompt)
-
-            store.setOpenAiPrompt("   ")
-            assertThat(store.readOpenAiPrompt().first()).isEqualTo(OpenAiPromptDefaults.translationPrompt)
-
-            store.setOpenAiReversePrompt("  custom reverse prompt  ")
-            assertThat(store.readOpenAiReversePrompt().first()).isEqualTo("custom reverse prompt")
-
-            store.setOpenAiReversePrompt(OpenAiPromptDefaults.reverseTranslationPrompt)
-            assertThat(store.readOpenAiReversePrompt().first()).isEqualTo(OpenAiPromptDefaults.reverseTranslationPrompt)
-
-            store.setOpenAiReversePrompt("   ")
-            assertThat(store.readOpenAiReversePrompt().first()).isEqualTo(OpenAiPromptDefaults.reverseTranslationPrompt)
-
-            store.setAiTranslationDirection(AiTranslationDirection.RU_TO_EN)
-            assertThat(store.readAiTranslationDirection().first()).isEqualTo(AiTranslationDirection.RU_TO_EN)
-
-            store.setUseAiForTranslation(true)
-            assertThat(store.readUseAiForTranslation().first()).isTrue()
         }
 }

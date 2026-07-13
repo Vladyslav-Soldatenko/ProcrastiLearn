@@ -1,7 +1,7 @@
 package com.procrastilearn.app.domain.usecase
 
 import com.google.common.truth.Truth.assertThat
-import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
 import com.procrastilearn.app.domain.model.AiTranslationDirection
@@ -15,7 +15,7 @@ import org.junit.Before
 import org.junit.Test
 
 class GenerateAiTranslationUseCaseTest {
-    private val prefs: DayCountersStore = mockk()
+    private val prefs: OpenAiPreferencesStore = mockk()
     private lateinit var provider: FakeAiTranslationProvider
     private lateinit var useCase: GenerateAiTranslationUseCase
 

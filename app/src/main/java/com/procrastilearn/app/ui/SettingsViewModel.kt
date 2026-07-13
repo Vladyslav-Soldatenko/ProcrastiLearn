@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.mapper.toEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.VocabularyExportItem
@@ -47,6 +48,7 @@ class SettingsViewModel
     @Inject
     constructor(
         private val store: DayCountersStore,
+        private val openAiStore: OpenAiPreferencesStore,
         private val vocabularyDao: VocabularyDao,
         private val vocabularyRepository: VocabularyRepository,
         private val parsers: Set<@JvmSuppressWildcards VocabularyParser>,
@@ -56,9 +58,9 @@ class SettingsViewModel
             kotlinx.coroutines.flow
                 .combine(
                     store.readPolicy(),
-                    store.readOpenAiApiKey(),
-                    store.readOpenAiPrompt(),
-                    store.readOpenAiReversePrompt(),
+                    openAiStore.readOpenAiApiKey(),
+                    openAiStore.readOpenAiPrompt(),
+                    openAiStore.readOpenAiReversePrompt(),
                 ) { policy, apiKey, prompt, reversePrompt ->
                     SettingsUiState(
                         mixMode = policy.mixMode,
@@ -113,15 +115,15 @@ class SettingsViewModel
         }
 
         fun onOpenAiApiKeyChange(value: String) {
-            viewModelScope.launch { store.setOpenAiApiKey(value) }
+            viewModelScope.launch { openAiStore.setOpenAiApiKey(value) }
         }
 
         fun onOpenAiPromptChange(value: String) {
-            viewModelScope.launch { store.setOpenAiPrompt(value) }
+            viewModelScope.launch { openAiStore.setOpenAiPrompt(value) }
         }
 
         fun onOpenAiReversePromptChange(value: String) {
-            viewModelScope.launch { store.setOpenAiReversePrompt(value) }
+            viewModelScope.launch { openAiStore.setOpenAiReversePrompt(value) }
         }
 
         /**

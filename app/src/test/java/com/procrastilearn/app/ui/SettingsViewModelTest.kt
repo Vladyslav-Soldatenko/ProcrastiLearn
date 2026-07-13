@@ -9,6 +9,7 @@ import com.procrastilearn.app.R
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
@@ -47,6 +48,7 @@ class SettingsViewModelTest {
 
     private lateinit var appContext: Context
     private lateinit var store: DayCountersStore
+    private lateinit var openAiStore: OpenAiPreferencesStore
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var vocabularyRepository: VocabularyRepository
     private lateinit var policyFlow: MutableStateFlow<LearningPreferencesConfig>
@@ -68,6 +70,7 @@ class SettingsViewModelTest {
     fun setUp() {
         appContext = ApplicationProvider.getApplicationContext()
         store = mockk(relaxed = true)
+        openAiStore = mockk(relaxed = true)
         vocabularyDao = mockk()
         vocabularyRepository = mockk(relaxed = true)
         policyFlow =
@@ -84,9 +87,9 @@ class SettingsViewModelTest {
         reversePromptFlow = MutableStateFlow(OpenAiPromptDefaults.reverseTranslationPrompt)
 
         every { store.readPolicy() } returns policyFlow
-        every { store.readOpenAiApiKey() } returns apiKeyFlow
-        every { store.readOpenAiPrompt() } returns promptFlow
-        every { store.readOpenAiReversePrompt() } returns reversePromptFlow
+        every { openAiStore.readOpenAiApiKey() } returns apiKeyFlow
+        every { openAiStore.readOpenAiPrompt() } returns promptFlow
+        every { openAiStore.readOpenAiReversePrompt() } returns reversePromptFlow
     }
 
     @After
@@ -97,6 +100,7 @@ class SettingsViewModelTest {
     private fun buildViewModel(parsers: Set<VocabularyParser> = setOf(defaultParser)): SettingsViewModel =
         SettingsViewModel(
             store = store,
+            openAiStore = openAiStore,
             vocabularyDao = vocabularyDao,
             vocabularyRepository = vocabularyRepository,
             parsers = parsers,
@@ -238,36 +242,36 @@ class SettingsViewModelTest {
     fun `onOpenAiApiKeyChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { store.setOpenAiApiKey(any()) } returns Unit
+            coEvery { openAiStore.setOpenAiApiKey(any()) } returns Unit
 
             viewModel.onOpenAiApiKeyChange("key")
             advanceUntilIdle()
 
-            coVerify { store.setOpenAiApiKey("key") }
+            coVerify { openAiStore.setOpenAiApiKey("key") }
         }
 
     @Test
     fun `onOpenAiPromptChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { store.setOpenAiPrompt(any()) } returns Unit
+            coEvery { openAiStore.setOpenAiPrompt(any()) } returns Unit
 
             viewModel.onOpenAiPromptChange("prompt")
             advanceUntilIdle()
 
-            coVerify { store.setOpenAiPrompt("prompt") }
+            coVerify { openAiStore.setOpenAiPrompt("prompt") }
         }
 
     @Test
     fun `onOpenAiReversePromptChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { store.setOpenAiReversePrompt(any()) } returns Unit
+            coEvery { openAiStore.setOpenAiReversePrompt(any()) } returns Unit
 
             viewModel.onOpenAiReversePromptChange("prompt")
             advanceUntilIdle()
 
-            coVerify { store.setOpenAiReversePrompt("prompt") }
+            coVerify { openAiStore.setOpenAiReversePrompt("prompt") }
         }
 
     @Test

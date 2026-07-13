@@ -479,7 +479,6 @@ class VocabularyRepositoryGetNextItemTest {
             assertThat(result.word).isEqualTo("future")
         }
 
-    // extraNewToday edge cases
     @Test
     fun `getNextVocabularyItem serves new item beyond newPerDay when extraNewToday granted after limit reached`() =
         runTest {

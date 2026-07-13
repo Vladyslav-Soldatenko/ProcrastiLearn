@@ -4,7 +4,7 @@ import androidx.appfunctions.AppFunctionAppUnknownException
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.service.AppFunction
-import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
 import com.procrastilearn.app.domain.model.AiTranslationDirection
@@ -22,7 +22,7 @@ class VocabularyFunctions
         private val addVocabularyItemUseCase: AddVocabularyItemUseCase,
         private val getVocabularyItemByWordUseCase: GetVocabularyItemByWordUseCase,
         private val overrideVocabularyItemUseCase: OverrideVocabularyItemUseCase,
-        private val prefs: DayCountersStore,
+        private val prefs: OpenAiPreferencesStore,
         private val aiTranslationProvider: AiTranslationProvider,
         private val ioDispatcher: CoroutineDispatcher,
     ) {
