@@ -194,6 +194,7 @@
 
         <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
         <string name="word_list_title">Мой словарь</string>
+        <string name="word_list_navigate_back">Назад к добавлению слова</string>
         <string name="word_list_empty">Вы ещё не добавили слов</string>
         <string name="word_list_delete_confirm_title">Удалить слово</string>
         <string name="word_list_delete_confirm_message">Удалить %1$s из списка?</string>
