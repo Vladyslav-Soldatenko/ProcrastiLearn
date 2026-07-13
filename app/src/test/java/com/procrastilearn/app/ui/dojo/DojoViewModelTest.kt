@@ -152,6 +152,91 @@ class DojoViewModelTest {
         }
 
     @Test
+    fun `newQuotaRemaining includes extraNewToday boost`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+
+            // newPerDay=20, newShown=3, extraNewToday=10 -> 20 + 10 - 3 = 27
+            countersFlow.value =
+                DayCounters(
+                    yyyymmdd = 20260117,
+                    newShown = 3,
+                    reviewShown = 5,
+                    reviewsSinceLastNew = 2,
+                    extraNewToday = 10,
+                )
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.newQuotaRemaining).isEqualTo(27)
+        }
+
+    @Test
+    fun `newQuotaRemaining reflects extraNewToday even after permanent quota fully consumed`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+
+            // newPerDay=20, newShown=20 (fully consumed), extraNewToday=5 -> 5 remaining
+            countersFlow.value =
+                DayCounters(
+                    yyyymmdd = 20260117,
+                    newShown = 20,
+                    reviewShown = 5,
+                    reviewsSinceLastNew = 2,
+                    extraNewToday = 5,
+                )
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.newQuotaRemaining).isEqualTo(5)
+        }
+
+    @Test
+    fun `newQuotaRemaining updates reactively when extraNewToday is added mid-session`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.newQuotaRemaining).isEqualTo(17) // 20 - 3
+
+            countersFlow.value = countersFlow.value.copy(extraNewToday = 8)
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.newQuotaRemaining).isEqualTo(25) // 20 + 8 - 3
+        }
+
+    @Test
+    fun `newQuotaRemaining coerced to 0 when negative even with extraNewToday`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+
+            // newPerDay=20, newShown=25, extraNewToday=3 -> 20 + 3 - 25 = -2 -> coerced to 0
+            countersFlow.value =
+                DayCounters(
+                    yyyymmdd = 20260117,
+                    newShown = 25,
+                    reviewShown = 5,
+                    reviewsSinceLastNew = 2,
+                    extraNewToday = 3,
+                )
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.newQuotaRemaining).isEqualTo(0)
+        }
+
+    @Test
     fun `toggle answer updates showAnswer flag`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)

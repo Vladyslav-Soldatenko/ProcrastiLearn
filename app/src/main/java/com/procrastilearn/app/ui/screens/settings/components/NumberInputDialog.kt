@@ -48,7 +48,9 @@ fun NumberInputDialog(
             )
         },
         confirmButton = {
+            val currentInput = textValue.toIntOrNull()
             TextButton(
+                enabled = currentInput != null && currentInput >= minValue,
                 onClick = {
                     textValue.toIntOrNull()?.let { value ->
                         if (value >= minValue) {

@@ -199,6 +199,18 @@ class SettingsViewModelTest {
         }
 
     @Test
+    fun `onAddCardsForToday delegates to store`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            coEvery { store.addExtraNewToday(any()) } returns Unit
+
+            viewModel.onAddCardsForToday(16)
+            advanceUntilIdle()
+
+            coVerify { store.addExtraNewToday(16) }
+        }
+
+    @Test
     fun `onReviewPerDayChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()

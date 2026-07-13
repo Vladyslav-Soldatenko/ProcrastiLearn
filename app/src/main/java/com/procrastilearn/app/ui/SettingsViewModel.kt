@@ -100,6 +100,10 @@ class SettingsViewModel
             viewModelScope.launch { store.setNewPerDay(value) }
         }
 
+        fun onAddCardsForToday(amount: Int) {
+            viewModelScope.launch { store.addExtraNewToday(amount) }
+        }
+
         fun onReviewPerDayChange(value: Int) {
             viewModelScope.launch { store.setReviewPerDay(value) }
         }

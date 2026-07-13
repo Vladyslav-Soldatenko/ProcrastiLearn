@@ -32,6 +32,7 @@ class DayCountersStore @Inject constructor(
         val NEW_SHOWN = intPreferencesKey("new_shown")
         val REVIEW_SHOWN = intPreferencesKey("review_shown")
         val REVIEWS_SINCE_NEW = intPreferencesKey("reviews_since_new")
+        val EXTRA_NEW_TODAY = intPreferencesKey("extra_new_today")
 
         val MIX_MODE = stringPreferencesKey("mix_mode")
         val NEW_PER_DAY_LIMIT = intPreferencesKey("new_per_day_limit")
@@ -61,6 +62,7 @@ class DayCountersStore @Inject constructor(
                 newShown = p[K.NEW_SHOWN] ?: 0,
                 reviewShown = p[K.REVIEW_SHOWN] ?: 0,
                 reviewsSinceLastNew = p[K.REVIEWS_SINCE_NEW] ?: 0,
+                extraNewToday = p[K.EXTRA_NEW_TODAY] ?: 0,
             )
         }
 
@@ -70,6 +72,7 @@ class DayCountersStore @Inject constructor(
             p[K.NEW_SHOWN] = 0
             p[K.REVIEW_SHOWN] = 0
             p[K.REVIEWS_SINCE_NEW] = 0
+            p[K.EXTRA_NEW_TODAY] = 0
         }
     }
 
@@ -77,6 +80,13 @@ class DayCountersStore @Inject constructor(
         ds.edit { p ->
             p[K.NEW_SHOWN] = (p[K.NEW_SHOWN] ?: 0) + 1
             p[K.REVIEWS_SINCE_NEW] = 0
+        }
+    }
+
+    suspend fun addExtraNewToday(amount: Int) {
+        if (amount <= 0) return
+        ds.edit { p ->
+            p[K.EXTRA_NEW_TODAY] = (p[K.EXTRA_NEW_TODAY] ?: 0) + amount
         }
     }
 

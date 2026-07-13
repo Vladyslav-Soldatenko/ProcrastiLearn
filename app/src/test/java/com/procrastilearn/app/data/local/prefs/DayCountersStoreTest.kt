@@ -43,7 +43,7 @@ class DayCountersStoreTest {
     fun readFlowsEmitDefaultsWhenPreferencesMissing() =
         runTest {
             val counters = store.read().first()
-            assertThat(counters).isEqualTo(DayCounters(0, 0, 0, 0))
+            assertThat(counters).isEqualTo(DayCounters(0, 0, 0, 0, 0))
 
             val policy = store.readPolicy().first()
             assertThat(policy.newPerDay).isEqualTo(15)
@@ -72,6 +72,44 @@ class DayCountersStoreTest {
             assertThat(counters.newShown).isEqualTo(1)
             assertThat(counters.reviewShown).isEqualTo(3)
             assertThat(counters.reviewsSinceLastNew).isEqualTo(1)
+            assertThat(counters.extraNewToday).isEqualTo(0)
+        }
+
+    @Test
+    fun addExtraNewTodayAccumulatesAcrossCalls() =
+        runTest {
+            store.resetFor(20240131)
+            store.addExtraNewToday(5)
+            store.addExtraNewToday(3)
+
+            val counters = store.read().first()
+            assertThat(counters.extraNewToday).isEqualTo(8)
+        }
+
+    @Test
+    fun addExtraNewTodayIgnoresZeroAndNegativeAmounts() =
+        runTest {
+            store.resetFor(20240131)
+            store.addExtraNewToday(10)
+            store.addExtraNewToday(0)
+            store.addExtraNewToday(-5)
+
+            val counters = store.read().first()
+            assertThat(counters.extraNewToday).isEqualTo(10)
+        }
+
+    @Test
+    fun resetForClearsExtraNewToday() =
+        runTest {
+            store.resetFor(20240131)
+            store.addExtraNewToday(10)
+            assertThat(store.read().first().extraNewToday).isEqualTo(10)
+
+            store.resetFor(20240201)
+
+            val counters = store.read().first()
+            assertThat(counters.yyyymmdd).isEqualTo(20240201)
+            assertThat(counters.extraNewToday).isEqualTo(0)
         }
 
     @Test

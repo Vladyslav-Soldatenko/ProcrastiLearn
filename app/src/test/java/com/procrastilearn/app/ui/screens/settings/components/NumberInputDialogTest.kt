@@ -2,6 +2,8 @@ package com.procrastilearn.app.ui.screens.settings.components
 
 import android.content.Context
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -113,6 +115,25 @@ class NumberInputDialogTest {
     }
 
     @Test
+    fun `OK is enabled when value equals minimum boundary`() {
+        setContent(
+            title = "Boundary",
+            currentValue = 0,
+            minValue = 1,
+        )
+
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("1")
+
+        val okButton = composeTestRule.onNodeWithText(string(R.string.action_ok))
+        okButton.assertIsEnabled()
+        okButton.performClick()
+
+        verify(exactly = 1) { onValueConfirm.invoke(1) }
+    }
+
+    @Test
     fun `confirm ignores values below minimum`() {
         setContent(
             title = "Min value",
@@ -124,11 +145,11 @@ class NumberInputDialogTest {
         field.performTextClearance()
         field.performTextInput("4")
 
-        composeTestRule
-            .onNodeWithText(string(R.string.action_ok))
-            .performClick()
+        val okButton = composeTestRule.onNodeWithText(string(R.string.action_ok))
+        okButton.assertIsNotEnabled()
+        okButton.performClick()
 
-        verify { onValueConfirm wasNot called }
+        verify(exactly = 0) { onValueConfirm(any()) }
     }
 
     @Test
@@ -141,11 +162,11 @@ class NumberInputDialogTest {
         val field = composeTestRule.onNode(hasSetTextAction())
         field.performTextClearance()
 
-        composeTestRule
-            .onNodeWithText(string(R.string.action_ok))
-            .performClick()
+        val okButton = composeTestRule.onNodeWithText(string(R.string.action_ok))
+        okButton.assertIsNotEnabled()
+        okButton.performClick()
 
-        verify { onValueConfirm wasNot called }
+        verify(exactly = 0) { onValueConfirm(any()) }
     }
 
     @Test

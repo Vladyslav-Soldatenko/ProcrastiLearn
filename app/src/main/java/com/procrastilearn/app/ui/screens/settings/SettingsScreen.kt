@@ -48,6 +48,7 @@ import com.procrastilearn.app.ui.VocabularyImportResult
 import com.procrastilearn.app.ui.screens.settings.components.AboutUsDialog
 import com.procrastilearn.app.ui.screens.settings.components.AboutUsSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.AccessibilityPermissionItem
+import com.procrastilearn.app.ui.screens.settings.components.AddCardsForTodaySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ExportSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ImportSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.MixModeDialog
@@ -71,6 +72,8 @@ sealed interface DialogState {
     object None : DialogState
 
     object MixMode : DialogState
+
+    object AddCardsForToday : DialogState
 
     object NewPerDay : DialogState
 
@@ -164,6 +167,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             onMixModeChange = viewModel::onMixModeChange,
             onNewPerDayDialogOpen = viewModel::loadAvailableNewCount,
             onNewPerDayChange = viewModel::onNewPerDayChange,
+            onAddCardsForToday = viewModel::onAddCardsForToday,
             onReviewPerDayChange = viewModel::onReviewPerDayChange,
             onOverlayIntervalChange = viewModel::onOverlayIntervalChange,
             onOpenAiApiKeyChange = viewModel::onOpenAiApiKeyChange,
@@ -213,6 +217,7 @@ internal fun SettingsContent(
     onMixModeChange: (MixMode) -> Unit,
     onNewPerDayDialogOpen: () -> Unit = {},
     onNewPerDayChange: (Int) -> Unit,
+    onAddCardsForToday: (Int) -> Unit = {},
     onReviewPerDayChange: (Int) -> Unit,
     onOverlayIntervalChange: (Int) -> Unit,
     onOpenAiApiKeyChange: (String) -> Unit,
@@ -238,6 +243,15 @@ internal fun SettingsContent(
             MixModeSettingsItem(
                 mixMode = mixMode,
                 onClick = { dialogState = DialogState.MixMode },
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            AddCardsForTodaySettingsItem(
+                onClick = {
+                    onNewPerDayDialogOpen()
+                    dialogState = DialogState.AddCardsForToday
+                },
             )
 
             Spacer(Modifier.height(4.dp))
@@ -321,6 +335,18 @@ internal fun SettingsContent(
                 currentMode = mixMode,
                 onModeSelected = {
                     onMixModeChange(it)
+                    dialogState = DialogState.None
+                },
+                onDismiss = { dialogState = DialogState.None },
+            )
+        }
+        DialogState.AddCardsForToday -> {
+            NumberInputDialog(
+                title = stringResource(R.string.settings_add_cards_for_today_dialog_title, availableNewCount),
+                currentValue = 0,
+                minValue = 1,
+                onValueConfirm = {
+                    onAddCardsForToday(it)
                     dialogState = DialogState.None
                 },
                 onDismiss = { dialogState = DialogState.None },

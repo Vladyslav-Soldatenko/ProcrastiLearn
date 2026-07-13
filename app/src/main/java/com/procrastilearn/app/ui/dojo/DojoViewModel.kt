@@ -42,7 +42,8 @@ class DojoViewModel
                 reviewsDueCount,
             ) { flashcard, counters, policy, pendingReviews ->
                 // Calculate stats reactively
-                val newQuotaRemaining = (policy.newPerDay - counters.newShown).coerceAtLeast(0)
+                val newQuotaRemaining =
+                    (policy.newPerDay + counters.extraNewToday - counters.newShown).coerceAtLeast(0)
 
                 // Only show pending reviews if review quota available
                 val reviewQuotaRemaining = (policy.reviewPerDay - counters.reviewShown).coerceAtLeast(0)

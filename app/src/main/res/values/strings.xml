@@ -132,6 +132,8 @@
     <string name="settings_study_mode_new_first_desc">Show new cards before reviews</string>
 
     <!-- Daily limits -->
+    <string name="settings_add_cards_for_today_title">Add Cards For Today</string>
+    <string name="settings_add_cards_for_today_dialog_title">Add Cards For Today (Available New: %1$d)</string>
     <string name="settings_new_cards_per_day_title">New Cards Per Day</string>
     <string name="settings_new_cards_per_day_dialog_title">New Cards Per Day (Available New: %1$d)</string>
     <string name="settings_reviews_per_day_title">Reviews Per Day</string>
