@@ -480,6 +480,226 @@ class VocabularyRepositoryGetNextItemTest {
         }
 
     @Test
+    fun `getNextVocabularyItem serves new item beyond newPerDay when extraNewToday granted after limit reached`() =
+        runTest {
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 15,
+                        reviewPerDay = 99,
+                        overlayInterval = 6,
+                        mixMode = MixMode.NEW_FIRST,
+                    ),
+                )
+            insertTestVocabulary("bonus", "bono")
+
+            // Already studied all 15 permanent new cards today, but +10 extra granted.
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(
+                        yyyymmdd = todayStamp(),
+                        newShown = 15,
+                        reviewShown = 0,
+                        reviewsSinceLastNew = 0,
+                        extraNewToday = 10,
+                    ),
+                )
+
+            val result = repository.getNextVocabularyItem()
+
+            assertThat(result.word).isEqualTo("bonus")
+        }
+
+    @Test(expected = NoAvailableItemsException::class)
+    fun `getNextVocabularyItem still respects limit when extraNewToday is zero and limit reached`() =
+        runTest {
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 15,
+                        reviewPerDay = 99,
+                        overlayInterval = 6,
+                        mixMode = MixMode.NEW_FIRST,
+                    ),
+                )
+            insertTestVocabulary("bonus", "bono")
+
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(
+                        yyyymmdd = todayStamp(),
+                        newShown = 15,
+                        reviewShown = 0,
+                        reviewsSinceLastNew = 0,
+                        extraNewToday = 0,
+                    ),
+                )
+
+            repository.getNextVocabularyItem()
+        }
+
+    @Test(expected = NoAvailableItemsException::class)
+    fun `getNextVocabularyItem throws when extraNewToday granted but no new words exist in deck`() =
+        runTest {
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 15,
+                        reviewPerDay = 99,
+                        overlayInterval = 6,
+                        mixMode = MixMode.NEW_FIRST,
+                    ),
+                )
+            // No vocabulary inserted at all - extra allowance can't manufacture new cards.
+
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(
+                        yyyymmdd = todayStamp(),
+                        newShown = 15,
+                        reviewShown = 0,
+                        reviewsSinceLastNew = 0,
+                        extraNewToday = 50,
+                    ),
+                )
+
+            repository.getNextVocabularyItem()
+        }
+
+    @Test
+    fun `getNextVocabularyItem extraNewToday does not affect review quota`() =
+        runTest {
+            val now = System.currentTimeMillis()
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 15,
+                        reviewPerDay = 5,
+                        overlayInterval = 6,
+                        mixMode = MixMode.REVIEWS_FIRST,
+                    ),
+                )
+            insertTestVocabulary(
+                word = "review",
+                translation = "revisar",
+                fsrsCardJson = Card.builder().build().toJson(),
+                fsrsDueAt = now - 1000,
+                correctCount = 1,
+                incorrectCount = 0,
+            )
+            insertTestVocabulary("new", "nuevo")
+
+            // Review quota exhausted; extraNewToday should not leak into review quota calc.
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(
+                        yyyymmdd = todayStamp(),
+                        newShown = 0,
+                        reviewShown = 5,
+                        reviewsSinceLastNew = 0,
+                        extraNewToday = 20,
+                    ),
+                )
+
+            val result = repository.getNextVocabularyItem()
+
+            // Review quota is exhausted, so falls back to the new card despite REVIEWS_FIRST mode.
+            assertThat(result.word).isEqualTo("new")
+        }
+
+    @Test
+    fun `hasAvailableItems returns true when extraNewToday grants allowance past newPerDay`() =
+        runTest {
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 15,
+                        reviewPerDay = 99,
+                        overlayInterval = 6,
+                        mixMode = MixMode.MIX,
+                    ),
+                )
+            insertTestVocabulary("bonus", "bono")
+
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(
+                        yyyymmdd = todayStamp(),
+                        newShown = 15,
+                        reviewShown = 0,
+                        reviewsSinceLastNew = 0,
+                        extraNewToday = 1,
+                    ),
+                )
+
+            assertThat(repository.hasAvailableItems()).isTrue()
+        }
+
+    @Test
+    fun `hasAvailableItems returns false when limit reached and extraNewToday is zero`() =
+        runTest {
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 15,
+                        reviewPerDay = 99,
+                        overlayInterval = 6,
+                        mixMode = MixMode.MIX,
+                    ),
+                )
+            insertTestVocabulary("bonus", "bono")
+
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(
+                        yyyymmdd = todayStamp(),
+                        newShown = 15,
+                        reviewShown = 0,
+                        reviewsSinceLastNew = 0,
+                        extraNewToday = 0,
+                    ),
+                )
+
+            assertThat(repository.hasAvailableItems()).isFalse()
+        }
+
+    @Test
+    fun `getNextVocabularyItem resets extraNewToday along with other counters on new day`() =
+        runTest {
+            coEvery { dayCountersStore.readPolicy() } returns
+                flowOf(
+                    LearningPreferencesConfig(
+                        newPerDay = 20,
+                        reviewPerDay = 99,
+                        overlayInterval = 6,
+                        mixMode = MixMode.NEW_FIRST,
+                    ),
+                )
+
+            insertTestVocabulary("test", "prueba")
+
+            val yesterday = todayStamp() - 1
+            val today = todayStamp()
+
+            // Yesterday's boost should not carry over; ensureDay() resets before this read is used.
+            coEvery { dayCountersStore.read() } returns
+                flowOf(
+                    DayCounters(
+                        yyyymmdd = yesterday,
+                        newShown = 15,
+                        reviewShown = 150,
+                        reviewsSinceLastNew = 5,
+                        extraNewToday = 25,
+                    ),
+                )
+            coEvery { dayCountersStore.resetFor(today) } just Runs
+
+            repository.getNextVocabularyItem()
+
+            coVerify { dayCountersStore.resetFor(today) }
+        }
+
+    @Test
     fun `due reviews ignored and new word is shown when review cap reached even if mode is review first`() =
         runTest {
             val now = System.currentTimeMillis()

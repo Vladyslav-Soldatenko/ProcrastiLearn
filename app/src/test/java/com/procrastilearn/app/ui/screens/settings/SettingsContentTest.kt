@@ -2,6 +2,8 @@ package com.procrastilearn.app.ui.screens.settings
 
 import android.content.Context
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -60,10 +62,11 @@ class SettingsContentTest {
         setContent()
 
         composeTestRule.onNodeWithText(string(R.string.settings_study_mode_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.settings_add_cards_for_today_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_new_cards_per_day_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_reviews_per_day_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_overlay_headline)).assertIsDisplayed()
-        composeTestRule.onNodeWithText(string(R.string.settings_about_us_row)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.settings_about_us_row)).performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_import_row)).performScrollTo().assertIsDisplayed()
     }
 
@@ -131,6 +134,61 @@ class SettingsContentTest {
     }
 
     @Test
+    fun `add cards for today dialog title shows available new count`() {
+        setContent(availableNewCount = 23)
+
+        composeTestRule.onNodeWithText(string(R.string.settings_add_cards_for_today_title)).performClick()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_add_cards_for_today_dialog_title, 23))
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `opening add cards for today dialog triggers on-demand count load`() {
+        var dialogOpenedCount = 0
+        setContent(onNewPerDayDialogOpen = { dialogOpenedCount++ })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_add_cards_for_today_title)).performClick()
+
+        assertThat(dialogOpenedCount).isEqualTo(1)
+    }
+
+    @Test
+    fun `add cards for today OK is disabled until a value is entered`() {
+        setContent()
+
+        composeTestRule.onNodeWithText(string(R.string.settings_add_cards_for_today_title)).performClick()
+
+        // Default/empty input (0) - OK should be disabled
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("5")
+
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsEnabled()
+    }
+
+    @Test
+    fun `confirming add cards for today value invokes callback and closes dialog`() {
+        var addedAmount: Int? = null
+        setContent(onAddCardsForToday = { addedAmount = it })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_add_cards_for_today_title)).performClick()
+
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("16")
+
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+
+        assertThat(addedAmount).isEqualTo(16)
+        // dialog dismissed after submission; ensure primary row still visible
+        composeTestRule.onNodeWithText(string(R.string.settings_add_cards_for_today_title)).assertIsDisplayed()
+    }
+
+    @Test
     fun `overlay permission click delegates to callback`() {
         var overlayClicks = 0
         setContent(onOverlayClick = { overlayClicks++ })
@@ -144,7 +202,7 @@ class SettingsContentTest {
     fun `about us item shows dialog`() {
         setContent()
 
-        composeTestRule.onNodeWithText(string(R.string.settings_about_us_row)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.settings_about_us_row)).performScrollTo().performClick()
 
         composeTestRule.onNodeWithText(string(R.string.settings_about_us_privacy)).assertIsDisplayed()
 
@@ -168,6 +226,7 @@ class SettingsContentTest {
         onMixModeChange: (MixMode) -> Unit = {},
         onNewPerDayDialogOpen: () -> Unit = {},
         onNewPerDayChange: (Int) -> Unit = {},
+        onAddCardsForToday: (Int) -> Unit = {},
         onReviewPerDayChange: (Int) -> Unit = {},
         onOverlayIntervalChange: (Int) -> Unit = {},
         onOpenAiApiKeyChange: (String) -> Unit = {},
@@ -195,6 +254,7 @@ class SettingsContentTest {
                     onMixModeChange = onMixModeChange,
                     onNewPerDayDialogOpen = onNewPerDayDialogOpen,
                     onNewPerDayChange = onNewPerDayChange,
+                    onAddCardsForToday = onAddCardsForToday,
                     onReviewPerDayChange = onReviewPerDayChange,
                     onOverlayIntervalChange = onOverlayIntervalChange,
                     onOpenAiApiKeyChange = onOpenAiApiKeyChange,

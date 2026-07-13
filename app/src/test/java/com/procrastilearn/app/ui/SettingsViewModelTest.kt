@@ -9,6 +9,7 @@ import com.procrastilearn.app.R
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
@@ -46,7 +47,8 @@ class SettingsViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var appContext: Context
-    private lateinit var store: DayCountersStore
+    private lateinit var dayCountersStore: DayCountersStore
+    private lateinit var openAiStore: OpenAiPreferencesStore
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var vocabularyRepository: VocabularyRepository
     private lateinit var policyFlow: MutableStateFlow<LearningPreferencesConfig>
@@ -67,7 +69,8 @@ class SettingsViewModelTest {
     @Before
     fun setUp() {
         appContext = ApplicationProvider.getApplicationContext()
-        store = mockk(relaxed = true)
+        dayCountersStore = mockk(relaxed = true)
+        openAiStore = mockk(relaxed = true)
         vocabularyDao = mockk()
         vocabularyRepository = mockk(relaxed = true)
         policyFlow =
@@ -83,10 +86,10 @@ class SettingsViewModelTest {
         promptFlow = MutableStateFlow(OpenAiPromptDefaults.translationPrompt)
         reversePromptFlow = MutableStateFlow(OpenAiPromptDefaults.reverseTranslationPrompt)
 
-        every { store.readPolicy() } returns policyFlow
-        every { store.readOpenAiApiKey() } returns apiKeyFlow
-        every { store.readOpenAiPrompt() } returns promptFlow
-        every { store.readOpenAiReversePrompt() } returns reversePromptFlow
+        every { dayCountersStore.readPolicy() } returns policyFlow
+        every { openAiStore.readOpenAiApiKey() } returns apiKeyFlow
+        every { openAiStore.readOpenAiPrompt() } returns promptFlow
+        every { openAiStore.readOpenAiReversePrompt() } returns reversePromptFlow
     }
 
     @After
@@ -96,7 +99,8 @@ class SettingsViewModelTest {
 
     private fun buildViewModel(parsers: Set<VocabularyParser> = setOf(defaultParser)): SettingsViewModel =
         SettingsViewModel(
-            store = store,
+            dayCountersStore = dayCountersStore,
+            openAiStore = openAiStore,
             vocabularyDao = vocabularyDao,
             vocabularyRepository = vocabularyRepository,
             parsers = parsers,
@@ -178,84 +182,96 @@ class SettingsViewModelTest {
     fun `onMixModeChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { store.setMixMode(any()) } returns Unit
+            coEvery { dayCountersStore.setMixMode(any()) } returns Unit
 
             viewModel.onMixModeChange(MixMode.NEW_FIRST)
             advanceUntilIdle()
 
-            coVerify { store.setMixMode(MixMode.NEW_FIRST) }
+            coVerify { dayCountersStore.setMixMode(MixMode.NEW_FIRST) }
         }
 
     @Test
     fun `onNewPerDayChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { store.setNewPerDay(any()) } returns Unit
+            coEvery { dayCountersStore.setNewPerDay(any()) } returns Unit
 
             viewModel.onNewPerDayChange(42)
             advanceUntilIdle()
 
-            coVerify { store.setNewPerDay(42) }
+            coVerify { dayCountersStore.setNewPerDay(42) }
+        }
+
+    @Test
+    fun `onAddCardsForToday delegates to store`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            coEvery { dayCountersStore.addExtraNewToday(any()) } returns Unit
+
+            viewModel.onAddCardsForToday(16)
+            advanceUntilIdle()
+
+            coVerify { dayCountersStore.addExtraNewToday(16) }
         }
 
     @Test
     fun `onReviewPerDayChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { store.setReviewPerDay(any()) } returns Unit
+            coEvery { dayCountersStore.setReviewPerDay(any()) } returns Unit
 
             viewModel.onReviewPerDayChange(77)
             advanceUntilIdle()
 
-            coVerify { store.setReviewPerDay(77) }
+            coVerify { dayCountersStore.setReviewPerDay(77) }
         }
 
     @Test
     fun `onOverlayIntervalChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { store.setOverlayInterval(any()) } returns Unit
+            coEvery { dayCountersStore.setOverlayInterval(any()) } returns Unit
 
             viewModel.onOverlayIntervalChange(9)
             advanceUntilIdle()
 
-            coVerify { store.setOverlayInterval(9) }
+            coVerify { dayCountersStore.setOverlayInterval(9) }
         }
 
     @Test
     fun `onOpenAiApiKeyChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { store.setOpenAiApiKey(any()) } returns Unit
+            coEvery { openAiStore.setOpenAiApiKey(any()) } returns Unit
 
             viewModel.onOpenAiApiKeyChange("key")
             advanceUntilIdle()
 
-            coVerify { store.setOpenAiApiKey("key") }
+            coVerify { openAiStore.setOpenAiApiKey("key") }
         }
 
     @Test
     fun `onOpenAiPromptChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { store.setOpenAiPrompt(any()) } returns Unit
+            coEvery { openAiStore.setOpenAiPrompt(any()) } returns Unit
 
             viewModel.onOpenAiPromptChange("prompt")
             advanceUntilIdle()
 
-            coVerify { store.setOpenAiPrompt("prompt") }
+            coVerify { openAiStore.setOpenAiPrompt("prompt") }
         }
 
     @Test
     fun `onOpenAiReversePromptChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { store.setOpenAiReversePrompt(any()) } returns Unit
+            coEvery { openAiStore.setOpenAiReversePrompt(any()) } returns Unit
 
             viewModel.onOpenAiReversePromptChange("prompt")
             advanceUntilIdle()
 
-            coVerify { store.setOpenAiReversePrompt("prompt") }
+            coVerify { openAiStore.setOpenAiReversePrompt("prompt") }
         }
 
     @Test

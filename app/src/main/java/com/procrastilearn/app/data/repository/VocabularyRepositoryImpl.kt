@@ -154,7 +154,8 @@ class VocabularyRepositoryImpl
                 val policy = prefs.readPolicy().first()
 
                 Log.i("fsrs", counters.toString())
-                val newRemaining = (policy.newPerDay - counters.newShown).coerceAtLeast(0)
+                val newRemaining =
+                    (policy.newPerDay + counters.extraNewToday - counters.newShown).coerceAtLeast(0)
                 val reviewRemaining = (policy.reviewPerDay - counters.reviewShown).coerceAtLeast(0)
 
                 // 1) Check due reviews (incl. learning due now via FSRS dueAt)
@@ -212,7 +213,8 @@ class VocabularyRepositoryImpl
 
                 val counters = prefs.read().first()
                 val policy = prefs.readPolicy().first()
-                val newRemaining = (policy.newPerDay - counters.newShown).coerceAtLeast(0)
+                val newRemaining =
+                    (policy.newPerDay + counters.extraNewToday - counters.newShown).coerceAtLeast(0)
                 val reviewRemaining = (policy.reviewPerDay - counters.reviewShown).coerceAtLeast(0)
 
                 // Check if there are due reviews

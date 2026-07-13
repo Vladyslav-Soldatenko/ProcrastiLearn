@@ -2,7 +2,7 @@ package com.procrastilearn.app.ui
 
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
-import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
 import com.procrastilearn.app.domain.model.AiTranslationDirection
@@ -44,7 +44,7 @@ class AddWordViewModelTest {
     private lateinit var observePendingWordsUseCase: ObservePendingWordsUseCase
     private lateinit var deletePendingWordUseCase: DeletePendingWordUseCase
     private lateinit var connectivityObserver: NetworkConnectivityObserver
-    private lateinit var prefs: DayCountersStore
+    private lateinit var openAiStore: OpenAiPreferencesStore
     private lateinit var generateAiTranslationUseCase: GenerateAiTranslationUseCase
     private lateinit var openAiKeyFlow: MutableStateFlow<String?>
     private lateinit var useAiFlow: MutableStateFlow<Boolean>
@@ -64,7 +64,7 @@ class AddWordViewModelTest {
         observePendingWordsUseCase = mockk()
         deletePendingWordUseCase = mockk()
         connectivityObserver = mockk()
-        prefs = mockk(relaxed = true)
+        openAiStore = mockk(relaxed = true)
         openAiKeyFlow = MutableStateFlow(null)
         useAiFlow = MutableStateFlow(false)
         promptFlow = MutableStateFlow("system prompt")
@@ -74,15 +74,15 @@ class AddWordViewModelTest {
         pendingWordsFlow = MutableStateFlow(emptyList())
         aiTranslationProvider = FakeAiTranslationProvider()
         generateAiTranslationUseCase =
-            GenerateAiTranslationUseCase(aiTranslationProvider, prefs, mainDispatcherRule.testDispatcher)
+            GenerateAiTranslationUseCase(aiTranslationProvider, openAiStore, mainDispatcherRule.testDispatcher)
 
-        every { prefs.readOpenAiApiKey() } returns openAiKeyFlow
-        every { prefs.readUseAiForTranslation() } returns useAiFlow
-        every { prefs.readOpenAiPrompt() } returns promptFlow
-        every { prefs.readOpenAiReversePrompt() } returns reversePromptFlow
-        every { prefs.readAiTranslationDirection() } returns directionFlow
-        coEvery { prefs.setUseAiForTranslation(any()) } just Runs
-        coEvery { prefs.setAiTranslationDirection(any()) } just Runs
+        every { openAiStore.readOpenAiApiKey() } returns openAiKeyFlow
+        every { openAiStore.readUseAiForTranslation() } returns useAiFlow
+        every { openAiStore.readOpenAiPrompt() } returns promptFlow
+        every { openAiStore.readOpenAiReversePrompt() } returns reversePromptFlow
+        every { openAiStore.readAiTranslationDirection() } returns directionFlow
+        coEvery { openAiStore.setUseAiForTranslation(any()) } just Runs
+        coEvery { openAiStore.setAiTranslationDirection(any()) } just Runs
         coEvery { getVocabularyItemByWordUseCase.invoke(any()) } returns null
         coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
         every { connectivityObserver.observe() } returns onlineFlow
@@ -101,7 +101,7 @@ class AddWordViewModelTest {
             addVocabularyItemUseCase,
             getVocabularyItemByWordUseCase,
             overrideVocabularyItemUseCase,
-            prefs,
+            openAiStore,
             generateAiTranslationUseCase,
             queuePendingWordUseCase,
             observePendingWordsUseCase,
@@ -363,7 +363,7 @@ class AddWordViewModelTest {
             advanceUntilIdle()
 
             assertThat(viewModel.uiState.value.useAiForTranslation).isTrue()
-            coVerify { prefs.setUseAiForTranslation(true) }
+            coVerify { openAiStore.setUseAiForTranslation(true) }
         }
 
     @Test
@@ -379,7 +379,7 @@ class AddWordViewModelTest {
             advanceUntilIdle()
 
             assertThat(viewModel.uiState.value.useAiForTranslation).isTrue()
-            coVerify(exactly = 0) { prefs.setUseAiForTranslation(false) }
+            coVerify(exactly = 0) { openAiStore.setUseAiForTranslation(false) }
         }
 
     @Test
@@ -397,8 +397,8 @@ class AddWordViewModelTest {
             val state = viewModel.uiState.value
             assertThat(state.translationDirection).isEqualTo(AiTranslationDirection.RU_TO_EN)
             assertThat(state.useAiForTranslation).isTrue()
-            coVerify { prefs.setAiTranslationDirection(AiTranslationDirection.RU_TO_EN) }
-            coVerify { prefs.setUseAiForTranslation(true) }
+            coVerify { openAiStore.setAiTranslationDirection(AiTranslationDirection.RU_TO_EN) }
+            coVerify { openAiStore.setUseAiForTranslation(true) }
         }
 
     @Test

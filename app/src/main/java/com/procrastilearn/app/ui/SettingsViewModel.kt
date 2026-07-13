@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.mapper.toEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.VocabularyExportItem
@@ -46,7 +47,8 @@ data class SettingsUiState(
 class SettingsViewModel
     @Inject
     constructor(
-        private val store: DayCountersStore,
+        private val dayCountersStore: DayCountersStore,
+        private val openAiStore: OpenAiPreferencesStore,
         private val vocabularyDao: VocabularyDao,
         private val vocabularyRepository: VocabularyRepository,
         private val parsers: Set<@JvmSuppressWildcards VocabularyParser>,
@@ -55,10 +57,10 @@ class SettingsViewModel
         val uiState: StateFlow<SettingsUiState> =
             kotlinx.coroutines.flow
                 .combine(
-                    store.readPolicy(),
-                    store.readOpenAiApiKey(),
-                    store.readOpenAiPrompt(),
-                    store.readOpenAiReversePrompt(),
+                    dayCountersStore.readPolicy(),
+                    openAiStore.readOpenAiApiKey(),
+                    openAiStore.readOpenAiPrompt(),
+                    openAiStore.readOpenAiReversePrompt(),
                 ) { policy, apiKey, prompt, reversePrompt ->
                     SettingsUiState(
                         mixMode = policy.mixMode,
@@ -93,31 +95,35 @@ class SettingsViewModel
                 }.sortedBy { it.titleResId }
 
         fun onMixModeChange(mode: MixMode) {
-            viewModelScope.launch { store.setMixMode(mode) }
+            viewModelScope.launch { dayCountersStore.setMixMode(mode) }
         }
 
         fun onNewPerDayChange(value: Int) {
-            viewModelScope.launch { store.setNewPerDay(value) }
+            viewModelScope.launch { dayCountersStore.setNewPerDay(value) }
+        }
+
+        fun onAddCardsForToday(amount: Int) {
+            viewModelScope.launch { dayCountersStore.addExtraNewToday(amount) }
         }
 
         fun onReviewPerDayChange(value: Int) {
-            viewModelScope.launch { store.setReviewPerDay(value) }
+            viewModelScope.launch { dayCountersStore.setReviewPerDay(value) }
         }
 
         fun onOverlayIntervalChange(value: Int) {
-            viewModelScope.launch { store.setOverlayInterval(value) }
+            viewModelScope.launch { dayCountersStore.setOverlayInterval(value) }
         }
 
         fun onOpenAiApiKeyChange(value: String) {
-            viewModelScope.launch { store.setOpenAiApiKey(value) }
+            viewModelScope.launch { openAiStore.setOpenAiApiKey(value) }
         }
 
         fun onOpenAiPromptChange(value: String) {
-            viewModelScope.launch { store.setOpenAiPrompt(value) }
+            viewModelScope.launch { openAiStore.setOpenAiPrompt(value) }
         }
 
         fun onOpenAiReversePromptChange(value: String) {
-            viewModelScope.launch { store.setOpenAiReversePrompt(value) }
+            viewModelScope.launch { openAiStore.setOpenAiReversePrompt(value) }
         }
 
         /**

@@ -126,6 +126,8 @@
         <string name="settings_study_mode_new_first_desc">Показывать новые карточки перед повторениями</string>
 
         <!-- Daily limits -->
+        <string name="settings_add_cards_for_today_title">Добавить карточки на сегодня</string>
+        <string name="settings_add_cards_for_today_dialog_title">Добавить карточки на сегодня (Доступно новых: %1$d)</string>
         <string name="settings_new_cards_per_day_title">Новых карточек в день</string>
         <string name="settings_new_cards_per_day_dialog_title">Новых карточек в день (Доступно новых: %1$d)</string>
         <string name="settings_reviews_per_day_title">Повторений в день</string>

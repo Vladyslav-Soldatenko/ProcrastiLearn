@@ -3,7 +3,7 @@ package com.procrastilearn.app.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
-import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
@@ -29,7 +29,7 @@ class AddWordViewModel @Inject
         private val addVocabularyItemUseCase: AddVocabularyItemUseCase,
         private val getVocabularyItemByWordUseCase: GetVocabularyItemByWordUseCase,
         private val overrideVocabularyItemUseCase: OverrideVocabularyItemUseCase,
-        private val prefs: DayCountersStore,
+        private val openAiStore: OpenAiPreferencesStore,
         private val generateAiTranslationUseCase: GenerateAiTranslationUseCase,
         private val queuePendingWordUseCase: QueuePendingWordUseCase,
         private val observePendingWordsUseCase: ObservePendingWordsUseCase,
@@ -44,9 +44,9 @@ class AddWordViewModel @Inject
             // Observe OpenAI key and toggle from preferences
             viewModelScope.launch {
                 combine(
-                    prefs.readOpenAiApiKey(),
-                    prefs.readUseAiForTranslation(),
-                    prefs.readAiTranslationDirection(),
+                    openAiStore.readOpenAiApiKey(),
+                    openAiStore.readUseAiForTranslation(),
+                    openAiStore.readAiTranslationDirection(),
                 ) { key: String?, useAi: Boolean, direction: AiTranslationDirection ->
                     Triple(!key.isNullOrBlank(), useAi, direction)
                 }.collectLatest { (hasKey, useAi, direction) ->
@@ -201,7 +201,7 @@ class AddWordViewModel @Inject
         if (!checked && _uiState.value.translationDirection == AiTranslationDirection.RU_TO_EN) {
             return
         }
-        viewModelScope.launch { prefs.setUseAiForTranslation(checked) }
+        viewModelScope.launch { openAiStore.setUseAiForTranslation(checked) }
         _uiState.value =
             _uiState.value.copy(
                 useAiForTranslation = checked,
@@ -219,9 +219,9 @@ class AddWordViewModel @Inject
                 AiTranslationDirection.EN_TO_RU
             }
         viewModelScope.launch {
-            prefs.setAiTranslationDirection(next)
+            openAiStore.setAiTranslationDirection(next)
             if (next == AiTranslationDirection.RU_TO_EN) {
-                prefs.setUseAiForTranslation(true)
+                openAiStore.setUseAiForTranslation(true)
             }
         }
         _uiState.value =

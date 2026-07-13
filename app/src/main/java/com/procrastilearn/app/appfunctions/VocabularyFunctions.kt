@@ -4,7 +4,7 @@ import androidx.appfunctions.AppFunctionAppUnknownException
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.service.AppFunction
-import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
 import com.procrastilearn.app.domain.model.AiTranslationDirection
@@ -22,7 +22,7 @@ class VocabularyFunctions
         private val addVocabularyItemUseCase: AddVocabularyItemUseCase,
         private val getVocabularyItemByWordUseCase: GetVocabularyItemByWordUseCase,
         private val overrideVocabularyItemUseCase: OverrideVocabularyItemUseCase,
-        private val prefs: DayCountersStore,
+        private val openAiStore: OpenAiPreferencesStore,
         private val aiTranslationProvider: AiTranslationProvider,
         private val ioDispatcher: CoroutineDispatcher,
     ) {
@@ -86,15 +86,15 @@ class VocabularyFunctions
             word: String,
             manualTranslation: String?,
         ): String {
-            val apiKey = prefs.readOpenAiApiKey().first()
-            val useAi = prefs.readUseAiForTranslation().first()
-            val direction = prefs.readAiTranslationDirection().first()
+            val apiKey = openAiStore.readOpenAiApiKey().first()
+            val useAi = openAiStore.readUseAiForTranslation().first()
+            val direction = openAiStore.readAiTranslationDirection().first()
 
             if (!apiKey.isNullOrBlank() && useAi) {
                 val systemPrompt =
                     when (direction) {
-                        AiTranslationDirection.EN_TO_RU -> prefs.readOpenAiPrompt().first()
-                        AiTranslationDirection.RU_TO_EN -> prefs.readOpenAiReversePrompt().first()
+                        AiTranslationDirection.EN_TO_RU -> openAiStore.readOpenAiPrompt().first()
+                        AiTranslationDirection.RU_TO_EN -> openAiStore.readOpenAiReversePrompt().first()
                     }
                 val userPrompt =
                     """

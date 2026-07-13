@@ -1,6 +1,6 @@
 package com.procrastilearn.app.domain.usecase
 
-import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
 import com.procrastilearn.app.domain.model.AiTranslationDirection
@@ -13,7 +13,7 @@ class GenerateAiTranslationUseCase
     @Inject
     constructor(
         private val aiTranslationProvider: AiTranslationProvider,
-        private val prefs: DayCountersStore,
+        private val openAiStore: OpenAiPreferencesStore,
         private val ioDispatcher: CoroutineDispatcher,
     ) {
         suspend operator fun invoke(
@@ -21,13 +21,13 @@ class GenerateAiTranslationUseCase
             direction: AiTranslationDirection,
         ): String =
             withContext(ioDispatcher) {
-                val apiKey: String = prefs.readOpenAiApiKey().first().orEmpty()
+                val apiKey: String = openAiStore.readOpenAiApiKey().first().orEmpty()
                 require(apiKey.isNotBlank()) { "Missing OpenAI API key" }
 
                 val systemPrompt =
                     when (direction) {
-                        AiTranslationDirection.EN_TO_RU -> prefs.readOpenAiPrompt().first()
-                        AiTranslationDirection.RU_TO_EN -> prefs.readOpenAiReversePrompt().first()
+                        AiTranslationDirection.EN_TO_RU -> openAiStore.readOpenAiPrompt().first()
+                        AiTranslationDirection.RU_TO_EN -> openAiStore.readOpenAiReversePrompt().first()
                     }
                 val userPrompt =
                     """

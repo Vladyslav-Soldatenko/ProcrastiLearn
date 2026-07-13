@@ -5,4 +5,5 @@ data class DayCounters(
     val newShown: Int,
     val reviewShown: Int,
     val reviewsSinceLastNew: Int,
+    val extraNewToday: Int = 0,
 )
