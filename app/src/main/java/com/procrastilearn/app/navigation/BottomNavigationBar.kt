@@ -59,12 +59,18 @@ fun BottomNavigationBar(navController: NavController) {
             NavigationBarItem(
                 selected = currentRoute == item.screen.route,
                 onClick = {
-                    navController.navigate(item.screen.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+                    val poppedToDestination =
+                        item.screen == Screen.AddWord &&
+                            currentRoute == Screen.WordList.route &&
+                            navController.popBackStack(Screen.AddWord.route, inclusive = false)
+                    if (!poppedToDestination) {
+                        navController.navigate(item.screen.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
                     }
                 },
                 icon = {
