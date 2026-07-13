@@ -53,7 +53,6 @@ class SettingsViewModelTest {
     private lateinit var apiKeyFlow: MutableStateFlow<String?>
     private lateinit var promptFlow: MutableStateFlow<String>
     private lateinit var reversePromptFlow: MutableStateFlow<String>
-    private lateinit var newCountFlow: MutableStateFlow<Int>
     private val defaultParser: VocabularyParser =
         object : VocabularyParser {
             override val id: String = "apkg"
@@ -83,13 +82,11 @@ class SettingsViewModelTest {
         apiKeyFlow = MutableStateFlow(null)
         promptFlow = MutableStateFlow(OpenAiPromptDefaults.translationPrompt)
         reversePromptFlow = MutableStateFlow(OpenAiPromptDefaults.reverseTranslationPrompt)
-        newCountFlow = MutableStateFlow(0)
 
         every { store.readPolicy() } returns policyFlow
         every { store.readOpenAiApiKey() } returns apiKeyFlow
         every { store.readOpenAiPrompt() } returns promptFlow
         every { store.readOpenAiReversePrompt() } returns reversePromptFlow
-        every { vocabularyDao.observeNewCount() } returns newCountFlow
     }
 
     @After
@@ -136,7 +133,6 @@ class SettingsViewModelTest {
                 assertThat(hydrated.openAiApiKey).isNull()
                 assertThat(hydrated.openAiPrompt).isEqualTo(OpenAiPromptDefaults.translationPrompt)
                 assertThat(hydrated.openAiReversePrompt).isEqualTo(OpenAiPromptDefaults.reverseTranslationPrompt)
-                assertThat(hydrated.availableNewCount).isEqualTo(0)
 
                 policyFlow.value =
                     policyFlow.value.copy(
@@ -148,7 +144,6 @@ class SettingsViewModelTest {
                 apiKeyFlow.value = "abc"
                 promptFlow.value = "custom prompt"
                 reversePromptFlow.value = "custom reverse prompt"
-                newCountFlow.value = 7
 
                 val updated = awaitItem()
                 assertThat(updated.mixMode).isEqualTo(MixMode.NEW_FIRST)
@@ -158,9 +153,25 @@ class SettingsViewModelTest {
                 assertThat(updated.openAiApiKey).isEqualTo("abc")
                 assertThat(updated.openAiPrompt).isEqualTo("custom prompt")
                 assertThat(updated.openAiReversePrompt).isEqualTo("custom reverse prompt")
-                assertThat(updated.availableNewCount).isEqualTo(7)
                 cancelAndIgnoreRemainingEvents()
             }
+        }
+
+    @Test
+    fun `loadAvailableNewCount queries dao and updates state`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            coEvery { vocabularyDao.countNewTotal() } returns 12
+
+            viewModel.availableNewCount.test {
+                assertThat(awaitItem()).isEqualTo(0)
+
+                viewModel.loadAvailableNewCount()
+
+                assertThat(awaitItem()).isEqualTo(12)
+                cancelAndIgnoreRemainingEvents()
+            }
+            coVerify { vocabularyDao.countNewTotal() }
         }
 
     @Test

@@ -19,6 +19,7 @@ import com.procrastilearn.app.domain.repository.VocabularyRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -39,7 +40,6 @@ data class SettingsUiState(
     val openAiApiKey: String? = null,
     val openAiPrompt: String = OpenAiPromptDefaults.translationPrompt,
     val openAiReversePrompt: String = OpenAiPromptDefaults.reverseTranslationPrompt,
-    val availableNewCount: Int = 0,
 )
 
 @HiltViewModel
@@ -59,8 +59,7 @@ class SettingsViewModel
                     store.readOpenAiApiKey(),
                     store.readOpenAiPrompt(),
                     store.readOpenAiReversePrompt(),
-                    vocabularyDao.observeNewCount(),
-                ) { policy, apiKey, prompt, reversePrompt, availableNewCount ->
+                ) { policy, apiKey, prompt, reversePrompt ->
                     SettingsUiState(
                         mixMode = policy.mixMode,
                         newPerDay = policy.newPerDay,
@@ -69,9 +68,19 @@ class SettingsViewModel
                         openAiApiKey = apiKey,
                         openAiPrompt = prompt,
                         openAiReversePrompt = reversePrompt,
-                        availableNewCount = availableNewCount,
                     )
                 }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
+
+        private val _availableNewCount = MutableStateFlow(0)
+        val availableNewCount: StateFlow<Int> = _availableNewCount
+
+        // Queried on demand (dialog open) rather than observed, since it only needs
+        // to reflect the count at the moment the New Cards Per Day dialog is shown.
+        fun loadAvailableNewCount() {
+            viewModelScope.launch {
+                _availableNewCount.value = vocabularyDao.countNewTotal()
+            }
+        }
 
         val importOptions: List<VocabularyImportOption> =
             parsers

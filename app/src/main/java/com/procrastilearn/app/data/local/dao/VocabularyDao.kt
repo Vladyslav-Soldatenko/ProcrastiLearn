@@ -173,11 +173,6 @@ interface VocabularyDao {
     @Query("SELECT COUNT(*) FROM vocabulary WHERE correctCount = 0 AND incorrectCount = 0")
     suspend fun countNewTotal(): Int
 
-    // Reactive twin of [countNewTotal]: re-emits whenever the vocabulary table changes,
-    // so screens showing the available-new count stay in sync without polling.
-    @Query("SELECT COUNT(*) FROM vocabulary WHERE correctCount = 0 AND incorrectCount = 0")
-    fun observeNewCount(): Flow<Int>
-
     // Pick next review (due now), earliest first
     @Query(
         """
