@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
+import com.procrastilearn.app.data.text.ProcessTextEventBus
 import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
@@ -19,11 +20,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class AddWordViewModel @Inject
     constructor(
         private val addVocabularyItemUseCase: AddVocabularyItemUseCase,
@@ -35,6 +37,7 @@ class AddWordViewModel @Inject
         private val observePendingWordsUseCase: ObservePendingWordsUseCase,
         private val deletePendingWordUseCase: DeletePendingWordUseCase,
         private val connectivityObserver: NetworkConnectivityObserver,
+        private val processTextEventBus: ProcessTextEventBus = ProcessTextEventBus(),
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(AddWordUiState())
         private var pendingOverride: PendingOverrideSubmission? = null
@@ -72,6 +75,42 @@ class AddWordViewModel @Inject
                             pendingWords = pendingWords.map { PendingWordUi(id = it.id, word = it.word) },
                         )
                 }
+            }
+
+            viewModelScope.launch {
+                processTextEventBus.events.collectLatest { text ->
+                    if (!text.isNullOrBlank()) {
+                        prefillFromProcessText(text)
+                        processTextEventBus.consume()
+                    }
+                }
+            }
+        }
+
+        private suspend fun prefillFromProcessText(rawText: String) {
+            val word = rawText.trim()
+            if (word.isBlank()) return
+
+            val hasKey = !openAiStore.readOpenAiApiKey().first().isNullOrBlank()
+            val useAi = openAiStore.readUseAiForTranslation().first()
+
+            _uiState.value =
+                _uiState.value.copy(
+                    word = word,
+                    translation = "",
+                    wordError = null,
+                    translationError = null,
+                    openAiAvailable = hasKey,
+                    useAiForTranslation = useAi,
+                    previewContent = null,
+                    isPreviewVisible = false,
+                    errorMessage = null,
+                    successMessage = null,
+                    isSuccess = false,
+                )
+
+            if (hasKey && useAi && _uiState.value.isOnline) {
+                onPreviewClick()
             }
         }
 

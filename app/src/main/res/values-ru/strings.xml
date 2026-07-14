@@ -26,6 +26,9 @@
         <string name="word_list_delete">@string/action_delete</string>
         <string name="add_word_view_list">@string/action_view_list</string>
 
+        <!-- ─── Text selection context menu ─────────────────────────────────────── -->
+        <string name="process_text_action">Добавить в ProcrastiLearn</string>
+
         <!-- ─── Navigation ──────────────────────────────────────────────────────── -->
         <string name="nav_apps">Приложения</string>
         <string name="nav_add_word">Добавить слово</string>
