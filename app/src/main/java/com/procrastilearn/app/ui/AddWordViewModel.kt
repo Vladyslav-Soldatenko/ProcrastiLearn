@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@Suppress("LongParameterList", "TooManyFunctions")
+@Suppress("LongParameterList")
 class AddWordViewModel @Inject
     constructor(
         private val addVocabularyItemUseCase: AddVocabularyItemUseCase,
@@ -80,37 +80,29 @@ class AddWordViewModel @Inject
             viewModelScope.launch {
                 processTextEventBus.events.collectLatest { text ->
                     if (!text.isNullOrBlank()) {
-                        prefillFromProcessText(text)
+                        val prefill = resolveProcessTextPrefill(openAiStore, text)
+                        if (prefill != null) {
+                            _uiState.value =
+                                _uiState.value.copy(
+                                    word = prefill.word,
+                                    translation = "",
+                                    wordError = null,
+                                    translationError = null,
+                                    openAiAvailable = prefill.hasKey,
+                                    useAiForTranslation = prefill.useAi,
+                                    previewContent = null,
+                                    isPreviewVisible = false,
+                                    errorMessage = null,
+                                    successMessage = null,
+                                    isSuccess = false,
+                                )
+                            if (prefill.hasKey && prefill.useAi && _uiState.value.isOnline) {
+                                onPreviewClick()
+                            }
+                        }
                         processTextEventBus.consume()
                     }
                 }
-            }
-        }
-
-        private suspend fun prefillFromProcessText(rawText: String) {
-            val word = rawText.trim()
-            if (word.isBlank()) return
-
-            val hasKey = !openAiStore.readOpenAiApiKey().first().isNullOrBlank()
-            val useAi = openAiStore.readUseAiForTranslation().first()
-
-            _uiState.value =
-                _uiState.value.copy(
-                    word = word,
-                    translation = "",
-                    wordError = null,
-                    translationError = null,
-                    openAiAvailable = hasKey,
-                    useAiForTranslation = useAi,
-                    previewContent = null,
-                    isPreviewVisible = false,
-                    errorMessage = null,
-                    successMessage = null,
-                    isSuccess = false,
-                )
-
-            if (hasKey && useAi && _uiState.value.isOnline) {
-                onPreviewClick()
             }
         }
 
@@ -586,4 +578,22 @@ enum class AddWordLoadingAction {
     ADD,
     PREVIEW,
     PREVIEW_CONFIRM,
+}
+
+internal data class ProcessTextPrefill(
+    val word: String,
+    val hasKey: Boolean,
+    val useAi: Boolean,
+)
+
+internal suspend fun resolveProcessTextPrefill(
+    openAiStore: OpenAiPreferencesStore,
+    rawText: String,
+): ProcessTextPrefill? {
+    val word = rawText.trim()
+    if (word.isBlank()) return null
+
+    val hasKey = !openAiStore.readOpenAiApiKey().first().isNullOrBlank()
+    val useAi = openAiStore.readUseAiForTranslation().first()
+    return ProcessTextPrefill(word, hasKey, useAi)
 }

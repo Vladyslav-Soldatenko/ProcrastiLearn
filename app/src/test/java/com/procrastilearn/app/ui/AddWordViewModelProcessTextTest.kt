@@ -31,10 +31,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * Covers the "ProcrastiLearn this" text-selection prefill flow, kept in its own file so
- * [AddWordViewModelTest] doesn't grow past detekt's LargeClass threshold.
- */
 @OptIn(ExperimentalCoroutinesApi::class)
 class AddWordViewModelProcessTextTest {
     @get:Rule

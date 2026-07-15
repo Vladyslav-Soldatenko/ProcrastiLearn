@@ -7,9 +7,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Bridges an incoming ACTION_PROCESS_TEXT intent (from the "ProcrastiLearn this" text-selection
- * action) from [com.procrastilearn.app.MainActivity] to the Add-Word screen, since nav routes
- * take no arguments and the receiving ViewModel may not exist yet when the intent arrives.
+ * Bridges an incoming ACTION_PROCESS_TEXT intent from [com.procrastilearn.app.MainActivity]
+ * to the Add-Word screen, since nav routes take no arguments and the receiving ViewModel
+ * may not exist yet when the intent arrives.
  */
 @Singleton
 class ProcessTextEventBus
