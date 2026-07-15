@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
+import com.procrastilearn.app.data.text.ProcessTextEventBus
 import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,6 +37,7 @@ class AddWordViewModel @Inject
         private val observePendingWordsUseCase: ObservePendingWordsUseCase,
         private val deletePendingWordUseCase: DeletePendingWordUseCase,
         private val connectivityObserver: NetworkConnectivityObserver,
+        private val processTextEventBus: ProcessTextEventBus = ProcessTextEventBus(),
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(AddWordUiState())
         private var pendingOverride: PendingOverrideSubmission? = null
@@ -71,6 +74,34 @@ class AddWordViewModel @Inject
                         _uiState.value.copy(
                             pendingWords = pendingWords.map { PendingWordUi(id = it.id, word = it.word) },
                         )
+                }
+            }
+
+            viewModelScope.launch {
+                processTextEventBus.events.collectLatest { text ->
+                    if (!text.isNullOrBlank()) {
+                        val prefill = resolveProcessTextPrefill(openAiStore, text)
+                        if (prefill != null) {
+                            _uiState.value =
+                                _uiState.value.copy(
+                                    word = prefill.word,
+                                    translation = "",
+                                    wordError = null,
+                                    translationError = null,
+                                    openAiAvailable = prefill.hasKey,
+                                    useAiForTranslation = prefill.useAi,
+                                    previewContent = null,
+                                    isPreviewVisible = false,
+                                    errorMessage = null,
+                                    successMessage = null,
+                                    isSuccess = false,
+                                )
+                            if (prefill.hasKey && prefill.useAi && _uiState.value.isOnline) {
+                                onPreviewClick()
+                            }
+                        }
+                        processTextEventBus.consume()
+                    }
                 }
             }
         }
@@ -547,4 +578,22 @@ enum class AddWordLoadingAction {
     ADD,
     PREVIEW,
     PREVIEW_CONFIRM,
+}
+
+internal data class ProcessTextPrefill(
+    val word: String,
+    val hasKey: Boolean,
+    val useAi: Boolean,
+)
+
+internal suspend fun resolveProcessTextPrefill(
+    openAiStore: OpenAiPreferencesStore,
+    rawText: String,
+): ProcessTextPrefill? {
+    val word = rawText.trim()
+    if (word.isBlank()) return null
+
+    val hasKey = !openAiStore.readOpenAiApiKey().first().isNullOrBlank()
+    val useAi = openAiStore.readUseAiForTranslation().first()
+    return ProcessTextPrefill(word, hasKey, useAi)
 }

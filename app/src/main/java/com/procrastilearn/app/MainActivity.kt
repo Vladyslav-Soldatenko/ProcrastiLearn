@@ -27,14 +27,17 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.lifecycleScope
+import com.procrastilearn.app.data.text.ProcessTextEventBus
 import com.procrastilearn.app.ui.components.OverlayPermissionDialog
 import com.procrastilearn.app.ui.components.ProminentA11yDisclosureScreen
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import com.procrastilearn.app.ui.views.MainScreen
+import com.procrastilearn.app.utils.extractProcessText
 import com.procrastilearn.app.utils.isPermissionsGranted
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 private val Context.dataStore by preferencesDataStore("app_prefs")
 private val KEY_ACCESSIBILITY_SKIPPED = booleanPreferencesKey("accessibility_skipped")
@@ -42,10 +45,14 @@ private val KEY_OVERLAY_SKIPPED = booleanPreferencesKey("overlay_skipped")
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var processTextEventBus: ProcessTextEventBus
+
     @Suppress("LongMethod", "CyclomaticComplexMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        handleProcessTextIntent(intent)
 
         setContent {
             MyApplicationTheme {
@@ -158,6 +165,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleProcessTextIntent(intent)
+    }
+
+    private fun handleProcessTextIntent(intent: Intent?) {
+        extractProcessText(intent)?.let { processTextEventBus.submit(it) }
     }
 
     private fun openAccessibilitySettings() {
