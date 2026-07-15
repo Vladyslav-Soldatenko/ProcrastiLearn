@@ -115,6 +115,29 @@ interface VocabularyDao {
         incIncorrect: Int,
     )
 
+    // Restore a card + count columns to an absolute prior state (undo)
+    @Suppress("LongParameterList")
+    @Query(
+        """
+        UPDATE vocabulary
+        SET
+            fsrsCardJson = :cardJson,
+            fsrsDueAt = :dueAt,
+            lastShownAt = :lastShownAt,
+            correctCount = :correctCount,
+            incorrectCount = :incorrectCount
+        WHERE id = :id
+    """,
+    )
+    suspend fun restoreFsrsState(
+        id: Long,
+        cardJson: String,
+        dueAt: Long,
+        lastShownAt: Long?,
+        correctCount: Int,
+        incorrectCount: Int,
+    )
+
     @Query(
         """
         SELECT * FROM vocabulary

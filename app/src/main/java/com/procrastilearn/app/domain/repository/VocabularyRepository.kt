@@ -1,9 +1,11 @@
 package com.procrastilearn.app.domain.repository
 
+import com.procrastilearn.app.domain.model.UndoResult
 import com.procrastilearn.app.domain.model.VocabularyItem
 import io.github.openspacedrepetition.Rating
 import kotlinx.coroutines.flow.Flow
 
+@Suppress("TooManyFunctions")
 interface VocabularyRepository {
     suspend fun getNextVocabularyItem(): VocabularyItem
 
@@ -27,4 +29,8 @@ interface VocabularyRepository {
         id: Long,
         rating: Rating,
     )
+
+    suspend fun undoLastRating(): UndoResult?
+
+    fun observeUndoCount(): Flow<Int>
 }

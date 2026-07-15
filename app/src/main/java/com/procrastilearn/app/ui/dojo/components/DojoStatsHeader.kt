@@ -1,14 +1,20 @@
 package com.procrastilearn.app.ui.dojo.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -17,52 +23,73 @@ import androidx.compose.ui.unit.sp
 import com.procrastilearn.app.R
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 
+private const val DISABLED_ALPHA = 0.35f
+
 @Composable
 fun DojoStatsHeader(
     newQuotaRemaining: Int,
     pendingReviewCount: Int,
     modifier: Modifier = Modifier,
+    canUndo: Boolean = false,
+    onUndo: () -> Unit = {},
 ) {
-    Row(
+    Box(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
+                .padding(horizontal = 4.dp, vertical = 8.dp),
     ) {
-        // New words remaining
-        Text(
-            text = newQuotaRemaining.toString(),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.error,
-        )
-        Text(
-            text = " ${stringResource(R.string.dojo_stats_new_remaining)}",
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+        IconButton(
+            onClick = onUndo,
+            enabled = canUndo,
+            modifier = Modifier.align(Alignment.CenterStart),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Refresh,
+                contentDescription = stringResource(R.string.dojo_undo_content_description),
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.alpha(if (canUndo) 1f else DISABLED_ALPHA),
+            )
+        }
 
-        Text(
-            text = " / ",
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 4.dp),
-        )
+        Row(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // New words remaining
+            Text(
+                text = newQuotaRemaining.toString(),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.error,
+            )
+            Text(
+                text = " ${stringResource(R.string.dojo_stats_new_remaining)}",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
 
-        // Reviews due
-        Text(
-            text = pendingReviewCount.toString(),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.tertiary,
-        )
-        Text(
-            text = " ${stringResource(R.string.dojo_stats_reviews_due)}",
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+            Text(
+                text = " / ",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 4.dp),
+            )
+
+            // Reviews due
+            Text(
+                text = pendingReviewCount.toString(),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.tertiary,
+            )
+            Text(
+                text = " ${stringResource(R.string.dojo_stats_reviews_due)}",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
     }
 }
 
@@ -74,6 +101,7 @@ private fun DojoStatsHeaderPreview() {
         DojoStatsHeader(
             newQuotaRemaining = 17,
             pendingReviewCount = 10,
+            canUndo = true,
         )
     }
 }
@@ -85,6 +113,7 @@ private fun DojoStatsHeaderZeroPreview() {
         DojoStatsHeader(
             newQuotaRemaining = 0,
             pendingReviewCount = 0,
+            canUndo = false,
         )
     }
 }

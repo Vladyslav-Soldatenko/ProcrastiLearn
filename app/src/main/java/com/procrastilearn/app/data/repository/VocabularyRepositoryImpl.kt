@@ -1,12 +1,17 @@
 package com.procrastilearn.app.data.repository
 
 import android.util.Log
+import androidx.room.withTransaction
+import com.procrastilearn.app.data.local.dao.UndoSnapshotDao
 import com.procrastilearn.app.data.local.dao.VocabularyDao
+import com.procrastilearn.app.data.local.database.AppDatabase
+import com.procrastilearn.app.data.local.entity.UndoSnapshotEntity
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.mapper.toDomain
 import com.procrastilearn.app.data.local.mapper.toEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.UndoResult
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.repository.VocabularyRepository
 import io.github.openspacedrepetition.Card
@@ -19,11 +24,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private const val UNDO_STACK_CAP = 3
 
 private fun todayStamp(): Int =
     LocalDate
@@ -40,9 +49,12 @@ class VocabularyRepositoryImpl
         private val vocabularyDao: VocabularyDao,
         private val scheduler: Scheduler,
         private val prefs: DayCountersStore,
+        private val undoSnapshotDao: UndoSnapshotDao,
+        private val appDatabase: AppDatabase,
     ) : VocabularyRepository {
         private val currentItem = MutableStateFlow<VocabularyItem?>(null)
         private val io = Dispatchers.IO
+        private val reviewMutex = Mutex()
 
         override suspend fun getVocabularyItemByWord(word: String): VocabularyItem? =
             withContext(io) {
@@ -68,12 +80,14 @@ class VocabularyRepositoryImpl
                             translation = item.translation,
                         )
                     vocabularyDao.updateVocabulary(updatedEntity)
+                    undoSnapshotDao.deleteForVocab(item.id)
                 }
             }
 
         override suspend fun deleteVocabularyItem(item: VocabularyItem) =
             withContext(io) {
                 vocabularyDao.deleteVocabulary(item.toEntity())
+                undoSnapshotDao.deleteForVocab(item.id)
             }
 
         override suspend fun resetVocabularyProgress(item: VocabularyItem): Unit =
@@ -89,6 +103,7 @@ class VocabularyRepositoryImpl
                         fsrsDueAt = 0L,
                     )
                 vocabularyDao.updateVocabulary(resetEntity)
+                undoSnapshotDao.deleteForVocab(item.id)
                 if (currentItem.value?.id == item.id) {
                     currentItem.value = resetEntity.toDomain()
                 }
@@ -104,44 +119,106 @@ class VocabularyRepositoryImpl
             rating: Rating,
         ): Unit =
             withContext(io) {
-                Log.i("fsrs", "reviewng $id")
-                val entity =
-                    vocabularyDao.getVocabularyById(id)
-                        ?: throw IllegalArgumentException("Vocabulary $id not found")
+                reviewMutex.withLock {
+                    Log.i("fsrs", "reviewng $id")
+                    val entity =
+                        vocabularyDao.getVocabularyById(id)
+                            ?: throw IllegalArgumentException("Vocabulary $id not found")
 
-                val card =
-                    if (entity.fsrsCardJson.isBlank()) {
-                        Card.builder().build()
-                    } else {
-                        Card.fromJson(entity.fsrsCardJson)
+                    val card =
+                        if (entity.fsrsCardJson.isBlank()) {
+                            Card.builder().build()
+                        } else {
+                            Card.fromJson(entity.fsrsCardJson)
+                        }
+
+                    val result = scheduler.reviewCard(card, rating)
+                    val updatedCard = result.card()
+                    val log = result.reviewLog()
+
+                    val reviewedAt = log.reviewDatetime().toEpochMilli()
+                    val nextDue = updatedCard.getDue().toEpochMilli()
+
+                    val incCorrect = if (rating == Rating.AGAIN) 0 else 1
+                    val incIncorrect = if (rating == Rating.AGAIN) 1 else 0
+
+                    val counters = prefs.read().first()
+                    val snapshot =
+                        UndoSnapshotEntity(
+                            vocabId = id,
+                            createdAt = System.currentTimeMillis(),
+                            snapshotDay = todayStamp(),
+                            ratingName = rating.name,
+                            fsrsCardJson = entity.fsrsCardJson,
+                            fsrsDueAt = entity.fsrsDueAt,
+                            lastShownAt = entity.lastShownAt,
+                            correctCount = entity.correctCount,
+                            incorrectCount = entity.incorrectCount,
+                            newShown = counters.newShown,
+                            reviewShown = counters.reviewShown,
+                            reviewsSinceLastNew = counters.reviewsSinceLastNew,
+                        )
+
+                    appDatabase.withTransaction {
+                        vocabularyDao.applyFsrsReview(
+                            id = id,
+                            cardJson = updatedCard.toJson(),
+                            dueAt = nextDue,
+                            reviewedAt = reviewedAt,
+                            incCorrect = incCorrect,
+                            incIncorrect = incIncorrect,
+                        )
+                        undoSnapshotDao.insert(snapshot)
+                        undoSnapshotDao.trimToLast(UNDO_STACK_CAP)
                     }
 
-                val result = scheduler.reviewCard(card, rating)
-                val updatedCard = result.card()
-                val log = result.reviewLog()
-
-                val reviewedAt = log.reviewDatetime().toEpochMilli()
-                val nextDue = updatedCard.getDue().toEpochMilli()
-
-                val incCorrect = if (rating == Rating.AGAIN) 0 else 1
-                val incIncorrect = if (rating == Rating.AGAIN) 1 else 0
-
-                vocabularyDao.applyFsrsReview(
-                    id = id,
-                    cardJson = updatedCard.toJson(),
-                    dueAt = nextDue,
-                    reviewedAt = reviewedAt,
-                    incCorrect = incCorrect,
-                    incIncorrect = incIncorrect,
-                )
-
-                // IMPORTANT: Clear current item after review to force new item on next call
-                currentItem.value = null
-                // Update day counters based on card type at *display* time
-                val isNew = (entity.correctCount == 0 && entity.incorrectCount == 0)
-                if (isNew) prefs.markNewShown() else prefs.markReviewShown()
-                Log.i("FSRS", "Reviewed $id as $rating; next due at $nextDue")
+                    // IMPORTANT: Clear current item after review to force new item on next call
+                    currentItem.value = null
+                    // Update day counters based on card type at *display* time
+                    val isNew = (entity.correctCount == 0 && entity.incorrectCount == 0)
+                    if (isNew) prefs.markNewShown() else prefs.markReviewShown()
+                    Log.i("FSRS", "Reviewed $id as $rating; next due at $nextDue")
+                }
             }
+
+        override suspend fun undoLastRating(): UndoResult? =
+            withContext(io) {
+                reviewMutex.withLock {
+                    val snapshot = undoSnapshotDao.peekLatest() ?: return@withLock null
+
+                    appDatabase.withTransaction {
+                        vocabularyDao.restoreFsrsState(
+                            id = snapshot.vocabId,
+                            cardJson = snapshot.fsrsCardJson,
+                            dueAt = snapshot.fsrsDueAt,
+                            lastShownAt = snapshot.lastShownAt,
+                            correctCount = snapshot.correctCount,
+                            incorrectCount = snapshot.incorrectCount,
+                        )
+                        undoSnapshotDao.deleteById(snapshot.id)
+                    }
+
+                    if (snapshot.snapshotDay == todayStamp()) {
+                        prefs.restoreCounters(
+                            newShown = snapshot.newShown,
+                            reviewShown = snapshot.reviewShown,
+                            reviewsSinceLastNew = snapshot.reviewsSinceLastNew,
+                        )
+                    }
+
+                    val restoredEntity =
+                        vocabularyDao.getVocabularyById(snapshot.vocabId)
+                            ?: return@withLock null
+                    val restoredItem = restoredEntity.toDomain()
+                    currentItem.value = restoredItem
+                    UndoResult(
+                        item = restoredItem,
+                        revertedRating = Rating.valueOf(snapshot.ratingName),
+                    )
+                }
+            }
+
+        override fun observeUndoCount(): Flow<Int> = undoSnapshotDao.observeCount()
 
         @Suppress("CyclomaticComplexMethod")
         override suspend fun getNextVocabularyItem(): VocabularyItem =

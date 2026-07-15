@@ -52,6 +52,8 @@
         <string name="dojo_stats_reviews_due">к повторению</string>
         <string name="dojo_empty_title">На сегодня всё готово!</string>
         <string name="dojo_empty_message">Вы прошли все доступные слова на сегодня. Возвращайтесь позже или измените дневные лимиты в настройках.</string>
+        <string name="dojo_undo_content_description">Отменить последнюю оценку</string>
+        <string name="dojo_undo_confirmation">Отменено «%1$s» для \"%2$s\"</string>
 
         <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
         <string name="overlay_permission_title">Разрешить отображение поверх других окон</string>

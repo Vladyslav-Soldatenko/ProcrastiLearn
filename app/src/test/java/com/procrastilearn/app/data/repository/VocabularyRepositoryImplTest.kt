@@ -5,8 +5,10 @@ import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.counter.DayCounters
+import com.procrastilearn.app.data.local.dao.UndoSnapshotDao
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.database.AppDatabase
+import com.procrastilearn.app.data.local.entity.UndoSnapshotEntity
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
@@ -39,6 +41,7 @@ class VocabularyRepositoryImplTest {
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var dayCountersStore: DayCountersStore
     private lateinit var scheduler: Scheduler
+    private lateinit var undoSnapshotDao: UndoSnapshotDao
     private lateinit var repository: VocabularyRepositoryImpl
 
     @Before
@@ -61,11 +64,14 @@ class VocabularyRepositoryImplTest {
         scheduler = Scheduler.builder().build()
 
         // Create repository
+        undoSnapshotDao = database.undoSnapshotDao()
         repository =
             VocabularyRepositoryImpl(
                 vocabularyDao = vocabularyDao,
                 scheduler = scheduler,
                 prefs = dayCountersStore,
+                undoSnapshotDao = undoSnapshotDao,
+                appDatabase = database,
             )
     }
 
@@ -282,6 +288,8 @@ class VocabularyRepositoryImplTest {
         runTest {
             val id = insertTestVocabulary("sehen", "see")
             coEvery { dayCountersStore.markNewShown() } just Runs
+            coEvery { dayCountersStore.read() } returns
+                flowOf(DayCounters(yyyymmdd = todayStamp(), newShown = 0, reviewShown = 0, reviewsSinceLastNew = 0))
 
             repository.reviewVocabularyItem(id, Rating.GOOD)
 
@@ -308,6 +316,8 @@ class VocabularyRepositoryImplTest {
                     incorrectCount = 1,
                 )
             coEvery { dayCountersStore.markReviewShown() } just Runs
+            coEvery { dayCountersStore.read() } returns
+                flowOf(DayCounters(yyyymmdd = todayStamp(), newShown = 0, reviewShown = 2, reviewsSinceLastNew = 1))
 
             repository.reviewVocabularyItem(id, Rating.GOOD)
 

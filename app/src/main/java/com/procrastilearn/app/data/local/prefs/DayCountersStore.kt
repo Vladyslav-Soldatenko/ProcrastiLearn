@@ -70,6 +70,20 @@ class DayCountersStore
             }
         }
 
+        // Restore the three rating-derived counters to an absolute prior value (undo).
+        // Deliberately leaves EXTRA_NEW_TODAY and DAY untouched: a rating never changes them.
+        suspend fun restoreCounters(
+            newShown: Int,
+            reviewShown: Int,
+            reviewsSinceLastNew: Int,
+        ) {
+            ds.edit { p ->
+                p[K.NEW_SHOWN] = newShown
+                p[K.REVIEW_SHOWN] = reviewShown
+                p[K.REVIEWS_SINCE_NEW] = reviewsSinceLastNew
+            }
+        }
+
         suspend fun addExtraNewToday(amount: Int) {
             if (amount <= 0) return
             ds.edit { p ->

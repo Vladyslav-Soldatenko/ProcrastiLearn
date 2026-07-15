@@ -57,6 +57,8 @@ class VocabularyRepositoryGetNextItemTest {
                 vocabularyDao = vocabularyDao,
                 scheduler = scheduler,
                 prefs = dayCountersStore,
+                undoSnapshotDao = database.undoSnapshotDao(),
+                appDatabase = database,
             )
     }
 
@@ -227,6 +229,8 @@ class VocabularyRepositoryGetNextItemTest {
                     vocabularyDao = vocabularyDao,
                     scheduler = scheduler,
                     prefs = dayCountersStore,
+                    undoSnapshotDao = database.undoSnapshotDao(),
+                    appDatabase = database,
                 )
 
             coEvery { dayCountersStore.readPolicy() } returns
@@ -708,6 +712,8 @@ class VocabularyRepositoryGetNextItemTest {
                     vocabularyDao = vocabularyDao,
                     scheduler = scheduler,
                     prefs = dayCountersStore,
+                    undoSnapshotDao = database.undoSnapshotDao(),
+                    appDatabase = database,
                 )
             coEvery { dayCountersStore.readPolicy() } returns
                 flowOf(
