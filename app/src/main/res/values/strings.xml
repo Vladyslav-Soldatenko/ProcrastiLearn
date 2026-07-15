@@ -40,6 +40,7 @@
     <string name="learning_no_translation">No translation loaded</string>
     <string name="learning_show_translation">Show translation</string>
     <string name="learning_question">How well did you know this?</string>
+    <string name="learning_speak_word">Pronounce word</string>
 
     <!-- Ratings -->
     <string name="rating_again">Again</string>
@@ -130,6 +131,10 @@
     <string name="settings_study_mode_mixed_desc">Mix new and review cards</string>
     <string name="settings_study_mode_reviews_first_desc">Show all reviews before new cards</string>
     <string name="settings_study_mode_new_first_desc">Show new cards before reviews</string>
+
+    <!-- Pronunciation -->
+    <string name="settings_pronunciation_title">Enable pronunciation (Experimental)</string>
+    <string name="settings_pronunciation_desc">Adds a speaker icon next to the word to hear it pronounced</string>
 
     <!-- Daily limits -->
     <string name="settings_add_cards_for_today_title">Add Cards For Today</string>

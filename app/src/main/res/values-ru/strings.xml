@@ -37,6 +37,7 @@
         <string name="learning_no_translation">Перевод не загружен</string>
         <string name="learning_show_translation">Показать перевод</string>
         <string name="learning_question">Насколько хорошо вы знали это?</string>
+        <string name="learning_speak_word">Произнести слово</string>
 
         <!-- Ratings -->
         <string name="rating_again">Снова</string>
@@ -124,6 +125,10 @@
         <string name="settings_study_mode_mixed_desc">Смешивать новые и повторения</string>
         <string name="settings_study_mode_reviews_first_desc">Показывать все повторения перед новыми карточками</string>
         <string name="settings_study_mode_new_first_desc">Показывать новые карточки перед повторениями</string>
+
+        <!-- Pronunciation -->
+        <string name="settings_pronunciation_title">Включить произношение (Экспериментально)</string>
+        <string name="settings_pronunciation_desc">Добавляет значок динамика рядом со словом, чтобы услышать его произношение</string>
 
         <!-- Daily limits -->
         <string name="settings_add_cards_for_today_title">Добавить карточки на сегодня</string>

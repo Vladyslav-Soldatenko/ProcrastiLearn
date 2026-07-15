@@ -26,6 +26,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -48,7 +51,7 @@ import com.procrastilearn.app.overlay.OverlayUiState
 import com.procrastilearn.app.overlay.theme.OverlayThemeTokens
 import io.github.openspacedrepetition.Rating
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "LongParameterList")
 @Composable
 fun LearningCard(
     state: OverlayUiState,
@@ -56,6 +59,8 @@ fun LearningCard(
     onDifficultySelected: (Rating) -> Unit,
     showTranslationButtonHeight: androidx.compose.ui.unit.Dp = 52.dp,
     addNavigationBarsPadding: Boolean = true,
+    pronunciationEnabled: Boolean = false,
+    onSpeakWord: () -> Unit = {},
 ) {
     val titleAnnotated =
         buildAnnotatedString {
@@ -89,17 +94,31 @@ fun LearningCard(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Title
-            Text(
-                text = titleAnnotated,
-                fontSize = 30.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = OverlayThemeTokens.colors.titleColor,
-                textAlign = TextAlign.Center,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
                 modifier =
                     Modifier
                         .padding(top = 6.dp, bottom = 10.dp)
                         .fillMaxWidth(),
-            )
+            ) {
+                Text(
+                    text = titleAnnotated,
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = OverlayThemeTokens.colors.titleColor,
+                    textAlign = TextAlign.Center,
+                )
+                if (pronunciationEnabled) {
+                    IconButton(onClick = onSpeakWord) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_volume_up),
+                            contentDescription = stringResource(R.string.learning_speak_word),
+                            tint = OverlayThemeTokens.colors.titleColor,
+                        )
+                    }
+                }
+            }
             // Translation area (middle). Scrollable when shown.
             val scrollState = rememberScrollState()
             LaunchedEffect(state.vocabularyItem?.id, state.showAnswer) {

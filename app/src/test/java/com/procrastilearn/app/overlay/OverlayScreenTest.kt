@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
@@ -195,5 +197,76 @@ class OverlayScreenTest {
 
         composeTestRule.onNodeWithText(noWordText).assertIsDisplayed()
         composeTestRule.onNodeWithText(noTranslationText, useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun `speaker icon hidden when pronunciation is disabled`() {
+        composeTestRule.setContent {
+            OverlayScreen(
+                uiState =
+                    OverlayUiState(
+                        vocabularyItem = sampleVocabularyItem,
+                        showAnswer = false,
+                        pronunciationEnabled = false,
+                    ),
+                onToggleShowAnswer = {},
+                onDifficultySelected = {},
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        val speakContentDescription = context.getString(R.string.learning_speak_word)
+        composeTestRule
+            .onAllNodesWithContentDescription(speakContentDescription)
+            .assertCountEquals(0)
+    }
+
+    @Test
+    fun `speaker icon shown when pronunciation is enabled`() {
+        composeTestRule.setContent {
+            OverlayScreen(
+                uiState =
+                    OverlayUiState(
+                        vocabularyItem = sampleVocabularyItem,
+                        showAnswer = false,
+                        pronunciationEnabled = true,
+                    ),
+                onToggleShowAnswer = {},
+                onDifficultySelected = {},
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        val speakContentDescription = context.getString(R.string.learning_speak_word)
+        composeTestRule
+            .onNodeWithContentDescription(speakContentDescription)
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `clicking speaker icon invokes onSpeakWord`() {
+        var spoken = false
+
+        composeTestRule.setContent {
+            OverlayScreen(
+                uiState =
+                    OverlayUiState(
+                        vocabularyItem = sampleVocabularyItem,
+                        showAnswer = false,
+                        pronunciationEnabled = true,
+                    ),
+                onToggleShowAnswer = {},
+                onDifficultySelected = {},
+                onSpeakWord = { spoken = true },
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        val speakContentDescription = context.getString(R.string.learning_speak_word)
+        composeTestRule.onNodeWithContentDescription(speakContentDescription).performClick()
+
+        composeTestRule.runOnIdle {
+            assertThat(spoken).isTrue()
+        }
     }
 }

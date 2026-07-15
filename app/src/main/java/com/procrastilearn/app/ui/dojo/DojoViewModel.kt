@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.PronunciationPreferencesStore
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
+import com.procrastilearn.app.tts.Speaker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.openspacedrepetition.Rating
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,6 +30,8 @@ class DojoViewModel
         private val saveDifficultyRating: SaveDifficultyRatingUseCase,
         private val vocabularyDao: VocabularyDao,
         private val dayCountersStore: DayCountersStore,
+        private val pronunciationPreferencesStore: PronunciationPreferencesStore,
+        private val speaker: Speaker,
     ) : ViewModel() {
         private val flashcardState = MutableStateFlow(FlashcardState())
 
@@ -40,7 +45,8 @@ class DojoViewModel
                 dayCountersStore.read(),
                 dayCountersStore.readPolicy(),
                 reviewsDueCount,
-            ) { flashcard, counters, policy, pendingReviews ->
+                pronunciationPreferencesStore.readEnabled(),
+            ) { flashcard, counters, policy, pendingReviews, pronunciationEnabled ->
                 // Calculate stats reactively
                 val newQuotaRemaining =
                     (policy.newPerDay + counters.extraNewToday - counters.newShown).coerceAtLeast(0)
@@ -55,6 +61,7 @@ class DojoViewModel
                     isLoading = flashcard.isLoading,
                     newQuotaRemaining = newQuotaRemaining,
                     pendingReviewCount = pendingReviewCount,
+                    pronunciationEnabled = pronunciationEnabled,
                 )
             }.stateIn(viewModelScope, SharingStarted.Eagerly, DojoUiState(isLoading = true))
 
@@ -77,6 +84,11 @@ class DojoViewModel
 
         fun onToggleShowAnswer() {
             flashcardState.value = flashcardState.value.copy(showAnswer = !flashcardState.value.showAnswer)
+        }
+
+        fun speakCurrentWord() {
+            val word = flashcardState.value.vocabularyItem?.word ?: return
+            speaker.speak(word, Locale.ENGLISH)
         }
 
         fun onDifficultySelected(rating: Rating) {

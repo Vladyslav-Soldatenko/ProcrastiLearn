@@ -13,6 +13,8 @@ import com.procrastilearn.app.domain.parser.VocabularyParser
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
 import com.procrastilearn.app.domain.repository.PendingWordRepository
 import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.tts.AndroidTtsSpeaker
+import com.procrastilearn.app.tts.Speaker
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -45,6 +47,10 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindPendingWordRepository(impl: PendingWordRepositoryImpl): PendingWordRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSpeaker(impl: AndroidTtsSpeaker): Speaker
 
     @Binds
     @IntoSet

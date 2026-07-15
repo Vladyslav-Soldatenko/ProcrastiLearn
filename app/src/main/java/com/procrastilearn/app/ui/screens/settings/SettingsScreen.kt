@@ -59,6 +59,7 @@ import com.procrastilearn.app.ui.screens.settings.components.OpenAiApiKeySetting
 import com.procrastilearn.app.ui.screens.settings.components.OpenAiPromptSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.OpenAiReversePromptSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.OverlayPermissionItem
+import com.procrastilearn.app.ui.screens.settings.components.PronunciationSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ReviewPerDaySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ShowOverlayIntervalSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.StringInputDialog
@@ -162,6 +163,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             openAiApiKey = state.openAiApiKey,
             openAiPrompt = state.openAiPrompt,
             openAiReversePrompt = state.openAiReversePrompt,
+            pronunciationEnabled = state.pronunciationEnabled,
             onOverlayClick = { openOverlaySettings(ctx) },
             onA11yClick = { openAccessibilitySettings(ctx) },
             onMixModeChange = viewModel::onMixModeChange,
@@ -173,6 +175,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             onOpenAiApiKeyChange = viewModel::onOpenAiApiKeyChange,
             onOpenAiPromptChange = viewModel::onOpenAiPromptChange,
             onOpenAiReversePromptChange = viewModel::onOpenAiReversePromptChange,
+            onPronunciationEnabledChange = viewModel::onPronunciationEnabledChange,
             onExportClick = {
                 val name = "vocabulary-export-${LocalDate.now()}.json"
                 exportLauncher.launch(name)
@@ -212,6 +215,7 @@ internal fun SettingsContent(
     openAiApiKey: String?,
     openAiPrompt: String,
     openAiReversePrompt: String,
+    pronunciationEnabled: Boolean = false,
     onOverlayClick: () -> Unit,
     onA11yClick: () -> Unit,
     onMixModeChange: (MixMode) -> Unit,
@@ -223,6 +227,7 @@ internal fun SettingsContent(
     onOpenAiApiKeyChange: (String) -> Unit,
     onOpenAiPromptChange: (String) -> Unit,
     onOpenAiReversePromptChange: (String) -> Unit,
+    onPronunciationEnabledChange: (Boolean) -> Unit = {},
     onExportClick: () -> Unit,
     importOptions: List<VocabularyImportOption> = emptyList(),
     onImportOptionSelected: (VocabularyImportOption) -> Unit = {},
@@ -288,6 +293,13 @@ internal fun SettingsContent(
             OpenAiReversePromptSettingsItem(
                 prompt = openAiReversePrompt,
                 onClick = { dialogState = DialogState.OpenAiReversePrompt },
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            PronunciationSettingsItem(
+                isEnabled = pronunciationEnabled,
+                onToggle = onPronunciationEnabledChange,
             )
             Divider(
                 modifier = Modifier.padding(vertical = 8.dp),
