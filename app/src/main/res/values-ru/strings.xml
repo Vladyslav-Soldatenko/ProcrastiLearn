@@ -230,6 +230,9 @@
         <string name="add_word_button_add_later">Добавить позже</string>
         <string name="add_word_pending_title">Ожидающие переводы</string>
         <string name="add_word_pending_delete">Удалить ожидающее слово</string>
+        <string name="add_word_pending_status_waiting">Ожидает повтора…</string>
+        <string name="add_word_pending_status_failed">Не удалось перевести</string>
+        <string name="add_word_pending_retry">Повторить</string>
 
         <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
         <string name="cd_add_word">Добавить слово</string>

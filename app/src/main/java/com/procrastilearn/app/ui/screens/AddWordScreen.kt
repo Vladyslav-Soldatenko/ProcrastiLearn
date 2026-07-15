@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.procrastilearn.app.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
@@ -36,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -55,6 +58,7 @@ import com.procrastilearn.app.ui.AddWordPreviewContent
 import com.procrastilearn.app.ui.AddWordViewModel
 import com.procrastilearn.app.ui.PendingWordUi
 import com.procrastilearn.app.domain.model.AiTranslationDirection
+import com.procrastilearn.app.domain.model.PendingWordStatus
 import kotlinx.coroutines.delay
 
 @Suppress("MagicNumber")
@@ -97,6 +101,7 @@ fun AddWordScreen(
         isAddLaterMode = uiState.isAddLaterMode,
         pendingWords = uiState.pendingWords,
         onDeletePendingWord = viewModel::onDeletePendingWord,
+        onRetryPendingWord = viewModel::onRetryPendingWord,
         onWordChange = viewModel::onWordChange,
         onTranslationChange = viewModel::onTranslationChange,
         onUseAiToggle = viewModel::onUseAiToggle,
@@ -136,6 +141,7 @@ internal fun AddWordContent(
     isAddLaterMode: Boolean,
     pendingWords: List<PendingWordUi>,
     onDeletePendingWord: (Long) -> Unit,
+    onRetryPendingWord: (Long) -> Unit,
     onWordChange: (String) -> Unit,
     onTranslationChange: (String) -> Unit,
     onUseAiToggle: (Boolean) -> Unit,
@@ -234,6 +240,7 @@ internal fun AddWordContent(
                 PendingWordsSection(
                     pendingWords = pendingWords,
                     onDeletePendingWord = onDeletePendingWord,
+                    onRetryPendingWord = onRetryPendingWord,
                     modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                 )
             }
@@ -580,6 +587,7 @@ private fun ErrorMessageCard(errorMessage: String?) {
 internal fun PendingWordsSection(
     pendingWords: List<PendingWordUi>,
     onDeletePendingWord: (Long) -> Unit,
+    onRetryPendingWord: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -599,31 +607,68 @@ internal fun PendingWordsSection(
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 pendingWords.forEachIndexed { index, pendingWord ->
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = pendingWord.word,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.weight(1f),
-                        )
-                        IconButton(onClick = { onDeletePendingWord(pendingWord.id) }) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = stringResource(R.string.add_word_pending_delete),
-                                tint = MaterialTheme.colorScheme.error,
-                            )
-                        }
-                    }
+                    PendingWordRow(
+                        pendingWord = pendingWord,
+                        onDeletePendingWord = onDeletePendingWord,
+                        onRetryPendingWord = onRetryPendingWord,
+                    )
                     if (index != pendingWords.lastIndex) {
                         HorizontalDivider()
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun PendingWordRow(
+    pendingWord: PendingWordUi,
+    onDeletePendingWord: (Long) -> Unit,
+    onRetryPendingWord: (Long) -> Unit,
+) {
+    val isFailed = pendingWord.status == PendingWordStatus.FAILED
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = pendingWord.word,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Text(
+                text =
+                    stringResource(
+                        if (isFailed) {
+                            R.string.add_word_pending_status_failed
+                        } else {
+                            R.string.add_word_pending_status_waiting
+                        },
+                    ),
+                style = MaterialTheme.typography.bodySmall,
+                color =
+                    if (isFailed) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+            )
+        }
+        if (isFailed) {
+            TextButton(onClick = { onRetryPendingWord(pendingWord.id) }) {
+                Text(text = stringResource(R.string.add_word_pending_retry))
+            }
+        }
+        IconButton(onClick = { onDeletePendingWord(pendingWord.id) }) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = stringResource(R.string.add_word_pending_delete),
+                tint = MaterialTheme.colorScheme.error,
+            )
         }
     }
 }

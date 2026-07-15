@@ -5,6 +5,7 @@ import com.procrastilearn.app.data.local.mapper.toDomain
 import com.procrastilearn.app.data.local.mapper.toEntity
 import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.PendingWord
+import com.procrastilearn.app.domain.model.PendingWordStatus
 import com.procrastilearn.app.domain.repository.PendingWordRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -32,10 +33,28 @@ class PendingWordRepositoryImpl
         override suspend fun queuePendingWord(
             word: String,
             direction: AiTranslationDirection,
+            status: PendingWordStatus,
+            lastError: String?,
         ): Unit =
             withContext(io) {
-                val entity = PendingWord(word = word, direction = direction).toEntity()
+                val entity =
+                    PendingWord(
+                        word = word,
+                        direction = direction,
+                        status = status,
+                        lastError = lastError,
+                    ).toEntity()
                 pendingWordDao.insertPendingWord(entity)
+            }
+
+        override suspend fun updatePendingWord(pendingWord: PendingWord): Unit =
+            withContext(io) {
+                pendingWordDao.updatePendingWord(pendingWord.toEntity())
+            }
+
+        override suspend fun retryPendingWord(id: Long): Unit =
+            withContext(io) {
+                pendingWordDao.resetPendingWordForRetry(id)
             }
 
         override suspend fun deletePendingWord(pendingWord: PendingWord): Unit =

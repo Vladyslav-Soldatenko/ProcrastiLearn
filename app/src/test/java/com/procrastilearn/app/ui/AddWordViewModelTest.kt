@@ -5,8 +5,10 @@ import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
+import com.procrastilearn.app.data.translation.TranslationErrorClassifier
 import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.PendingWord
+import com.procrastilearn.app.domain.model.PendingWordStatus
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.DeletePendingWordUseCase
@@ -15,6 +17,7 @@ import com.procrastilearn.app.domain.usecase.GetVocabularyItemByWordUseCase
 import com.procrastilearn.app.domain.usecase.ObservePendingWordsUseCase
 import com.procrastilearn.app.domain.usecase.OverrideVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.QueuePendingWordUseCase
+import com.procrastilearn.app.domain.usecase.RetryPendingWordUseCase
 import com.procrastilearn.app.utils.MainDispatcherRule
 import io.mockk.Runs
 import io.mockk.clearAllMocks
@@ -33,6 +36,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("LargeClass")
 class AddWordViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -43,7 +47,9 @@ class AddWordViewModelTest {
     private lateinit var queuePendingWordUseCase: QueuePendingWordUseCase
     private lateinit var observePendingWordsUseCase: ObservePendingWordsUseCase
     private lateinit var deletePendingWordUseCase: DeletePendingWordUseCase
+    private lateinit var retryPendingWordUseCase: RetryPendingWordUseCase
     private lateinit var connectivityObserver: NetworkConnectivityObserver
+    private val translationErrorClassifier = TranslationErrorClassifier()
     private lateinit var openAiStore: OpenAiPreferencesStore
     private lateinit var generateAiTranslationUseCase: GenerateAiTranslationUseCase
     private lateinit var openAiKeyFlow: MutableStateFlow<String?>
@@ -63,6 +69,7 @@ class AddWordViewModelTest {
         queuePendingWordUseCase = mockk()
         observePendingWordsUseCase = mockk()
         deletePendingWordUseCase = mockk()
+        retryPendingWordUseCase = mockk()
         connectivityObserver = mockk()
         openAiStore = mockk(relaxed = true)
         openAiKeyFlow = MutableStateFlow(null)
@@ -87,8 +94,9 @@ class AddWordViewModelTest {
         coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
         every { connectivityObserver.observe() } returns onlineFlow
         every { observePendingWordsUseCase.invoke() } returns pendingWordsFlow
-        coEvery { queuePendingWordUseCase.invoke(any(), any()) } just Runs
+        coEvery { queuePendingWordUseCase.invoke(any(), any(), any(), any()) } just Runs
         coEvery { deletePendingWordUseCase.invoke(any()) } just Runs
+        coEvery { retryPendingWordUseCase.invoke(any()) } just Runs
     }
 
     @After
@@ -106,7 +114,9 @@ class AddWordViewModelTest {
             queuePendingWordUseCase,
             observePendingWordsUseCase,
             deletePendingWordUseCase,
+            retryPendingWordUseCase,
             connectivityObserver,
+            translationErrorClassifier,
         )
 
     @Test
@@ -195,6 +205,41 @@ class AddWordViewModelTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) { deletePendingWordUseCase.invoke(9L) }
+        }
+
+    @Test
+    fun `onRetryPendingWord delegates to use case`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onRetryPendingWord(9L)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { retryPendingWordUseCase.invoke(9L) }
+        }
+
+    @Test
+    fun `pendingWords reflects failed status and last error from use case emissions`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            pendingWordsFlow.value =
+                listOf(
+                    PendingWord(
+                        id = 6,
+                        word = "Haus",
+                        direction = AiTranslationDirection.EN_TO_RU,
+                        status = PendingWordStatus.FAILED,
+                        lastError = "401: unauthorized",
+                    ),
+                )
+            advanceUntilIdle()
+
+            val pendingWord = viewModel.uiState.value.pendingWords.single()
+            assertThat(pendingWord.status).isEqualTo(PendingWordStatus.FAILED)
+            assertThat(pendingWord.lastError).isEqualTo("401: unauthorized")
         }
 
     @Test
@@ -622,13 +667,13 @@ class AddWordViewModelTest {
         }
 
     @Test
-    fun `onAddClick falls back when AI translation fails`() =
+    fun `onAddClick queues the word as pending when AI translation fails with a transient error`() =
         runTest(mainDispatcherRule.testDispatcher) {
             openAiKeyFlow.value = "abc"
             useAiFlow.value = true
 
             val viewModel = buildViewModel()
-            aiTranslationProvider.nextError = IllegalStateException("nope")
+            aiTranslationProvider.nextError = IllegalStateException("network blip")
 
             advanceUntilIdle()
 
@@ -638,12 +683,71 @@ class AddWordViewModelTest {
             advanceUntilIdle()
 
             val state = viewModel.uiState.value
-            assertThat(state.translationError).isEqualTo("Please enter a translation")
+            assertThat(state.translationError).isNull()
             assertThat(state.errorMessage).isNull()
-            assertThat(state.isSuccess).isFalse()
+            assertThat(state.isSuccess).isTrue()
+            assertThat(state.successMessage).contains("Saved")
+            assertThat(state.word).isEmpty()
             coVerify(exactly = 0) { addVocabularyItemUseCase.invoke(any(), any()) }
+            coVerify(exactly = 1) {
+                queuePendingWordUseCase.invoke(
+                    "Haus",
+                    AiTranslationDirection.EN_TO_RU,
+                    PendingWordStatus.PENDING,
+                    "network blip",
+                )
+            }
             assertThat(aiTranslationProvider.requests).hasSize(1)
             assertThat(aiTranslationProvider.requests.single().userPrompt).contains("Haus")
+        }
+
+    @Test
+    fun `onAddClick queues the word as failed when AI translation fails with a permanent error`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+
+            val viewModel = buildViewModel()
+            aiTranslationProvider.nextError = IllegalArgumentException("Missing OpenAI API key")
+
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isSuccess).isTrue()
+            coVerify(exactly = 0) { addVocabularyItemUseCase.invoke(any(), any()) }
+            coVerify(exactly = 1) {
+                queuePendingWordUseCase.invoke(
+                    "Haus",
+                    AiTranslationDirection.EN_TO_RU,
+                    PendingWordStatus.FAILED,
+                    "Missing OpenAI API key",
+                )
+            }
+        }
+
+    @Test
+    fun `onAddClick queues the word when AI returns a blank translation`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+
+            val viewModel = buildViewModel()
+            aiTranslationProvider.nextTranslation = "   "
+
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { addVocabularyItemUseCase.invoke(any(), any()) }
+            coVerify(exactly = 1) {
+                queuePendingWordUseCase.invoke("Haus", AiTranslationDirection.EN_TO_RU, PendingWordStatus.PENDING, any())
+            }
         }
 
     @Test

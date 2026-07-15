@@ -3,6 +3,7 @@ package com.procrastilearn.app.ui.screens
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.procrastilearn.app.domain.model.AiTranslationDirection
+import com.procrastilearn.app.domain.model.PendingWordStatus
 import com.procrastilearn.app.ui.AddWordPreviewContent
 import com.procrastilearn.app.ui.PendingWordUi
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
@@ -38,6 +39,7 @@ private fun AddWordContentPreviewAiEnabled() {
             isAddLaterMode = false,
             pendingWords = emptyList(),
             onDeletePendingWord = {},
+            onRetryPendingWord = {},
             onWordChange = {},
             onTranslationChange = {},
             onUseAiToggle = {},
@@ -81,9 +83,10 @@ private fun AddWordContentPreviewOffline() {
                 listOf(
                     PendingWordUi(id = 1, word = "Haus"),
                     PendingWordUi(id = 2, word = "Auto"),
-                    PendingWordUi(id = 3, word = "Fenster"),
+                    PendingWordUi(id = 3, word = "Fenster", status = PendingWordStatus.FAILED, lastError = "401"),
                 ),
             onDeletePendingWord = {},
+            onRetryPendingWord = {},
             onWordChange = {},
             onTranslationChange = {},
             onUseAiToggle = {},
@@ -106,9 +109,10 @@ private fun PendingWordsSectionPreview() {
             pendingWords =
                 listOf(
                     PendingWordUi(id = 1, word = "Haus"),
-                    PendingWordUi(id = 2, word = "Auto"),
+                    PendingWordUi(id = 2, word = "Auto", status = PendingWordStatus.FAILED, lastError = "401"),
                 ),
             onDeletePendingWord = {},
+            onRetryPendingWord = {},
         )
     }
 }
@@ -162,6 +166,7 @@ private fun AddWordContentPreview() {
             isAddLaterMode = false,
             pendingWords = emptyList(),
             onDeletePendingWord = {},
+            onRetryPendingWord = {},
             onWordChange = {},
             onTranslationChange = {},
             onUseAiToggle = {},

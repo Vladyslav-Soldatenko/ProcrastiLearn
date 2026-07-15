@@ -7,6 +7,7 @@ import com.procrastilearn.app.data.parser.json.JsonVocabularyParser
 import com.procrastilearn.app.data.repository.AppPreferencesRepositoryImpl
 import com.procrastilearn.app.data.repository.PendingWordRepositoryImpl
 import com.procrastilearn.app.data.repository.VocabularyRepositoryImpl
+import com.procrastilearn.app.data.sync.TimeProvider
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.OpenAiTranslationProvider
 import com.procrastilearn.app.domain.parser.VocabularyParser
@@ -58,5 +59,9 @@ abstract class AppModule {
         @Provides
         @Singleton
         fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+        @Provides
+        @Singleton
+        fun provideTimeProvider(): TimeProvider = TimeProvider { System.currentTimeMillis() }
     }
 }

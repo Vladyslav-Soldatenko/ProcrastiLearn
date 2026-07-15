@@ -14,4 +14,8 @@ data class PendingWordEntity(
     @ColumnInfo(collate = ColumnInfo.NOCASE) val word: String,
     val direction: String,
     val createdAt: Long = System.currentTimeMillis(),
+    val status: String = "PENDING",
+    val retryCount: Int = 0,
+    val nextAttemptAt: Long = 0,
+    val lastError: String? = null,
 )

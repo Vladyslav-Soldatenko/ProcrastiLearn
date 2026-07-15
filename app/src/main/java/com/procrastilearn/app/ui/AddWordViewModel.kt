@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
+import com.procrastilearn.app.data.translation.ErrorClassification
+import com.procrastilearn.app.data.translation.TranslationErrorClassifier
 import com.procrastilearn.app.domain.model.AiTranslationDirection
+import com.procrastilearn.app.domain.model.PendingWordStatus
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.DeletePendingWordUseCase
@@ -13,6 +16,7 @@ import com.procrastilearn.app.domain.usecase.GetVocabularyItemByWordUseCase
 import com.procrastilearn.app.domain.usecase.ObservePendingWordsUseCase
 import com.procrastilearn.app.domain.usecase.OverrideVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.QueuePendingWordUseCase
+import com.procrastilearn.app.domain.usecase.RetryPendingWordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +27,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class AddWordViewModel @Inject
     constructor(
         private val addVocabularyItemUseCase: AddVocabularyItemUseCase,
@@ -34,7 +38,9 @@ class AddWordViewModel @Inject
         private val queuePendingWordUseCase: QueuePendingWordUseCase,
         private val observePendingWordsUseCase: ObservePendingWordsUseCase,
         private val deletePendingWordUseCase: DeletePendingWordUseCase,
+        private val retryPendingWordUseCase: RetryPendingWordUseCase,
         private val connectivityObserver: NetworkConnectivityObserver,
+        private val translationErrorClassifier: TranslationErrorClassifier,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(AddWordUiState())
         private var pendingOverride: PendingOverrideSubmission? = null
@@ -69,7 +75,15 @@ class AddWordViewModel @Inject
                 observePendingWordsUseCase().collectLatest { pendingWords ->
                     _uiState.value =
                         _uiState.value.copy(
-                            pendingWords = pendingWords.map { PendingWordUi(id = it.id, word = it.word) },
+                            pendingWords =
+                                pendingWords.map {
+                                    PendingWordUi(
+                                        id = it.id,
+                                        word = it.word,
+                                        status = it.status,
+                                        lastError = it.lastError,
+                                    )
+                                },
                         )
                 }
             }
@@ -120,8 +134,12 @@ class AddWordViewModel @Inject
                         isExistingWordDialogLoading = false,
                     )
 
-                val finalTranslation = resolveTranslationForAdd(currentState)
+                if (currentState.aiModeActive) {
+                    submitWithAiTranslation(currentState)
+                    return@launch
+                }
 
+                val finalTranslation = currentState.translation
                 if (finalTranslation.isBlank()) {
                     _uiState.value =
                         _uiState.value.copy(
@@ -140,25 +158,38 @@ class AddWordViewModel @Inject
             }
         }
 
-        private suspend fun resolveTranslationForAdd(currentState: AddWordUiState): String {
-            val aiTranslation: String? =
-                if (currentState.aiModeActive) {
-                    runCatching {
-                        generateAiTranslationUseCase(
-                            currentState.word,
-                            currentState.translationDirection,
-                        )
-                    }.getOrNull()
-                } else {
-                    null
+        private suspend fun submitWithAiTranslation(currentState: AddWordUiState) {
+            val word = currentState.word.trim()
+            val outcome =
+                runCatching {
+                    generateAiTranslationUseCase(word, currentState.translationDirection)
                 }
 
-            return if (!aiTranslation.isNullOrBlank()) {
-                _uiState.value = _uiState.value.copy(translation = aiTranslation)
-                aiTranslation
-            } else {
-                currentState.translation
+            val translation = outcome.getOrNull()?.trim()
+            if (!translation.isNullOrBlank()) {
+                _uiState.value = _uiState.value.copy(translation = translation)
+                handleWordSubmission(word = word, translation = translation, fromPreview = false)
+                return
             }
+
+            val error = outcome.exceptionOrNull() ?: IllegalStateException(EMPTY_AI_TRANSLATION_ERROR)
+            queueAfterAiFailure(word, currentState.translationDirection, error)
+        }
+
+        private suspend fun queueAfterAiFailure(
+            word: String,
+            direction: AiTranslationDirection,
+            error: Throwable,
+        ) {
+            val classification = translationErrorClassifier.classify(error)
+            val status =
+                if (classification is ErrorClassification.Permanent) {
+                    PendingWordStatus.FAILED
+                } else {
+                    PendingWordStatus.PENDING
+                }
+            queuePendingWordUseCase(word, direction, status, classification.message)
+            applyQueuedState(AI_ERROR_QUEUED_MESSAGE)
         }
 
         private fun queuePendingWord(
@@ -167,23 +198,31 @@ class AddWordViewModel @Inject
         ) {
             viewModelScope.launch {
                 queuePendingWordUseCase(word, direction)
-                _uiState.value =
-                    _uiState.value.copy(
-                        word = "",
-                        translation = "",
-                        wordError = null,
-                        translationError = null,
-                        errorMessage = null,
-                        isLoading = false,
-                        loadingAction = null,
-                        isSuccess = true,
-                        successMessage = PENDING_QUEUED_MESSAGE,
-                    )
+                applyQueuedState(PENDING_QUEUED_MESSAGE)
             }
+        }
+
+        private fun applyQueuedState(message: String) {
+            _uiState.value =
+                _uiState.value.copy(
+                    word = "",
+                    translation = "",
+                    wordError = null,
+                    translationError = null,
+                    errorMessage = null,
+                    isLoading = false,
+                    loadingAction = null,
+                    isSuccess = true,
+                    successMessage = message,
+                )
         }
 
         fun onDeletePendingWord(id: Long) {
             viewModelScope.launch { deletePendingWordUseCase(id) }
+        }
+
+        fun onRetryPendingWord(id: Long) {
+            viewModelScope.launch { retryPendingWordUseCase(id) }
         }
 
         fun resetSuccess() {
@@ -484,6 +523,9 @@ class AddWordViewModel @Inject
             private const val DEFAULT_ADD_SUCCESS_MESSAGE = "Word added successfully!"
             private const val OVERRIDE_SUCCESS_MESSAGE = "Word updated and progress reset!"
             private const val PENDING_QUEUED_MESSAGE = "Saved. Translation will be generated once you're back online."
+            private const val AI_ERROR_QUEUED_MESSAGE =
+                "Couldn't reach AI. Saved - translation will be generated automatically."
+            private const val EMPTY_AI_TRANSLATION_ERROR = "AI returned an empty translation"
         }
 
         fun onPreviewConfirmAdd() {
@@ -541,6 +583,8 @@ data class AddWordPreviewContent(
 data class PendingWordUi(
     val id: Long,
     val word: String,
+    val status: PendingWordStatus = PendingWordStatus.PENDING,
+    val lastError: String? = null,
 )
 
 enum class AddWordLoadingAction {

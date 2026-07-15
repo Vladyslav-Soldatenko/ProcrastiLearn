@@ -8,6 +8,7 @@ import com.procrastilearn.app.data.local.dao.PendingWordDao
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.PendingWord
+import com.procrastilearn.app.domain.model.PendingWordStatus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -62,6 +63,103 @@ class PendingWordRepositoryImplTest {
             val snapshot = repository.getAllPendingWordsSnapshot()
             assertThat(snapshot).hasSize(1)
             assertThat(snapshot.first().direction).isEqualTo(AiTranslationDirection.RU_TO_EN)
+        }
+
+    @Test
+    fun `queuePendingWord with explicit failed status persists status and lastError`() =
+        runTest {
+            repository.queuePendingWord(
+                "Haus",
+                AiTranslationDirection.EN_TO_RU,
+                PendingWordStatus.FAILED,
+                "401: unauthorized",
+            )
+
+            val stored = repository.getAllPendingWordsSnapshot().first()
+            assertThat(stored.status).isEqualTo(PendingWordStatus.FAILED)
+            assertThat(stored.lastError).isEqualTo("401: unauthorized")
+        }
+
+    @Test
+    fun `queuePendingWord replacing an existing word resets retry state to fresh pending`() =
+        runTest {
+            repository.queuePendingWord(
+                "Haus",
+                AiTranslationDirection.EN_TO_RU,
+                PendingWordStatus.FAILED,
+                "401: unauthorized",
+            )
+            val failed = repository.getAllPendingWordsSnapshot().first()
+            repository.updatePendingWord(failed.copy(retryCount = 3, nextAttemptAt = 999_999L))
+
+            repository.queuePendingWord("Haus", AiTranslationDirection.EN_TO_RU)
+
+            val stored = repository.getAllPendingWordsSnapshot().first()
+            assertThat(stored.status).isEqualTo(PendingWordStatus.PENDING)
+            assertThat(stored.retryCount).isEqualTo(0)
+            assertThat(stored.nextAttemptAt).isEqualTo(0)
+            assertThat(stored.lastError).isNull()
+        }
+
+    @Test
+    fun `updatePendingWord persists retry state changes`() =
+        runTest {
+            repository.queuePendingWord("Haus", AiTranslationDirection.EN_TO_RU)
+            val stored = repository.getAllPendingWordsSnapshot().first()
+
+            repository.updatePendingWord(
+                stored.copy(retryCount = 2, nextAttemptAt = 123_456L, lastError = "timeout"),
+            )
+
+            val updated = repository.getAllPendingWordsSnapshot().first()
+            assertThat(updated.retryCount).isEqualTo(2)
+            assertThat(updated.nextAttemptAt).isEqualTo(123_456L)
+            assertThat(updated.lastError).isEqualTo("timeout")
+            assertThat(updated.status).isEqualTo(PendingWordStatus.PENDING)
+        }
+
+    @Test
+    fun `updatePendingWord can mark an item as failed`() =
+        runTest {
+            repository.queuePendingWord("Haus", AiTranslationDirection.EN_TO_RU)
+            val stored = repository.getAllPendingWordsSnapshot().first()
+
+            repository.updatePendingWord(stored.copy(status = PendingWordStatus.FAILED, lastError = "boom"))
+
+            val updated = repository.getAllPendingWordsSnapshot().first()
+            assertThat(updated.status).isEqualTo(PendingWordStatus.FAILED)
+            assertThat(updated.lastError).isEqualTo("boom")
+        }
+
+    @Test
+    fun `retryPendingWord resets a failed item back to pending`() =
+        runTest {
+            repository.queuePendingWord(
+                "Haus",
+                AiTranslationDirection.EN_TO_RU,
+                PendingWordStatus.FAILED,
+                "401: unauthorized",
+            )
+            val failed = repository.getAllPendingWordsSnapshot().first()
+            repository.updatePendingWord(failed.copy(retryCount = 5, nextAttemptAt = 999_999L))
+
+            repository.retryPendingWord(failed.id)
+
+            val retried = repository.getAllPendingWordsSnapshot().first()
+            assertThat(retried.status).isEqualTo(PendingWordStatus.PENDING)
+            assertThat(retried.retryCount).isEqualTo(0)
+            assertThat(retried.nextAttemptAt).isEqualTo(0)
+            assertThat(retried.lastError).isNull()
+        }
+
+    @Test
+    fun `retryPendingWord for an unknown id is a no-op`() =
+        runTest {
+            repository.queuePendingWord("Haus", AiTranslationDirection.EN_TO_RU)
+
+            repository.retryPendingWord(999L)
+
+            assertThat(repository.getAllPendingWordsSnapshot()).hasSize(1)
         }
 
     @Test
