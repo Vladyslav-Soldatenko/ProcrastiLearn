@@ -10,10 +10,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
-/**
- * Unit tests for the [resolveProcessTextPrefill] helper extracted out of [AddWordViewModel],
- * covering it directly rather than only through the ViewModel's behavior.
- */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProcessTextPrefillResolverTest {
     private lateinit var openAiStore: OpenAiPreferencesStore
