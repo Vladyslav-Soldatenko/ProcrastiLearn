@@ -10,6 +10,7 @@ import com.procrastilearn.app.data.local.mapper.toEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
+import com.procrastilearn.app.data.local.prefs.PronunciationPreferencesStore
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.VocabularyExportItem
 import com.procrastilearn.app.domain.model.VocabularyItem
@@ -41,9 +42,11 @@ data class SettingsUiState(
     val openAiApiKey: String? = null,
     val openAiPrompt: String = OpenAiPromptDefaults.translationPrompt,
     val openAiReversePrompt: String = OpenAiPromptDefaults.reverseTranslationPrompt,
+    val pronunciationEnabled: Boolean = false,
 )
 
 @HiltViewModel
+@Suppress("LongParameterList")
 class SettingsViewModel
     @Inject
     constructor(
@@ -53,6 +56,7 @@ class SettingsViewModel
         private val vocabularyRepository: VocabularyRepository,
         private val parsers: Set<@JvmSuppressWildcards VocabularyParser>,
         private val ioDispatcher: CoroutineDispatcher,
+        private val pronunciationPreferencesStore: PronunciationPreferencesStore,
     ) : ViewModel() {
         val uiState: StateFlow<SettingsUiState> =
             kotlinx.coroutines.flow
@@ -61,7 +65,8 @@ class SettingsViewModel
                     openAiStore.readOpenAiApiKey(),
                     openAiStore.readOpenAiPrompt(),
                     openAiStore.readOpenAiReversePrompt(),
-                ) { policy, apiKey, prompt, reversePrompt ->
+                    pronunciationPreferencesStore.readEnabled(),
+                ) { policy, apiKey, prompt, reversePrompt, pronunciationEnabled ->
                     SettingsUiState(
                         mixMode = policy.mixMode,
                         newPerDay = policy.newPerDay,
@@ -70,6 +75,7 @@ class SettingsViewModel
                         openAiApiKey = apiKey,
                         openAiPrompt = prompt,
                         openAiReversePrompt = reversePrompt,
+                        pronunciationEnabled = pronunciationEnabled,
                     )
                 }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -124,6 +130,10 @@ class SettingsViewModel
 
         fun onOpenAiReversePromptChange(value: String) {
             viewModelScope.launch { openAiStore.setOpenAiReversePrompt(value) }
+        }
+
+        fun onPronunciationEnabledChange(enabled: Boolean) {
+            viewModelScope.launch { pronunciationPreferencesStore.setEnabled(enabled) }
         }
 
         /**

@@ -10,6 +10,7 @@ data class DojoUiState(
     // Stats state
     val newQuotaRemaining: Int = 0,
     val pendingReviewCount: Int = 0,
+    val pronunciationEnabled: Boolean = false,
 ) {
     val hasNoWords: Boolean get() = vocabularyItem == null && !isLoading
 }

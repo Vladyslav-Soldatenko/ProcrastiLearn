@@ -20,6 +20,7 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.PronunciationPreferencesStore
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
@@ -28,6 +29,7 @@ import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
 import com.procrastilearn.app.overlay.OverlayScreen
 import com.procrastilearn.app.overlay.OverlayViewModel
+import com.procrastilearn.app.tts.Speaker
 import com.procrastilearn.app.utils.ServiceLifecycleOwner
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
@@ -73,6 +75,8 @@ class OverlayAccessibilityService : AccessibilityService() {
     internal lateinit var getNextVocabularyItemUseCase: GetNextVocabularyItemUseCase
     internal lateinit var getSaveDifficultyRatingUseCase: SaveDifficultyRatingUseCase
     internal lateinit var dayCountersStore: DayCountersStore
+    internal lateinit var pronunciationPreferencesStore: PronunciationPreferencesStore
+    internal lateinit var speaker: Speaker
 
     private fun initializeDependenciesIfNeeded() {
         if (!::appPreferencesRepository.isInitialized) {
@@ -89,6 +93,12 @@ class OverlayAccessibilityService : AccessibilityService() {
         }
         if (!::dayCountersStore.isInitialized) {
             dayCountersStore = serviceEntryPoint.dayCountersStore()
+        }
+        if (!::pronunciationPreferencesStore.isInitialized) {
+            pronunciationPreferencesStore = serviceEntryPoint.pronunciationPreferencesStore()
+        }
+        if (!::speaker.isInitialized) {
+            speaker = serviceEntryPoint.speaker()
         }
     }
 
@@ -214,6 +224,8 @@ class OverlayAccessibilityService : AccessibilityService() {
                     ServiceViewModelFactory(
                         getNextVocabularyItemUseCase,
                         getSaveDifficultyRatingUseCase,
+                        pronunciationPreferencesStore,
+                        speaker,
                     ),
                 ).get(OverlayViewModel::class.java)
             // Seed the already-loaded word so the first composition renders it immediately,
@@ -459,6 +471,9 @@ class OverlayAccessibilityService : AccessibilityService() {
         Log.d("OverlayService", "Service destroying")
         hideOverlay()
         stopIntervalTimer()
+        if (::speaker.isInitialized) {
+            speaker.shutdown()
+        }
         serviceScope.cancel()
         super.onDestroy()
     }

@@ -11,6 +11,7 @@ import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
+import com.procrastilearn.app.data.local.prefs.PronunciationPreferencesStore
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.VocabularyExportItem
@@ -51,10 +52,12 @@ class SettingsViewModelTest {
     private lateinit var openAiStore: OpenAiPreferencesStore
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var vocabularyRepository: VocabularyRepository
+    private lateinit var pronunciationPreferencesStore: PronunciationPreferencesStore
     private lateinit var policyFlow: MutableStateFlow<LearningPreferencesConfig>
     private lateinit var apiKeyFlow: MutableStateFlow<String?>
     private lateinit var promptFlow: MutableStateFlow<String>
     private lateinit var reversePromptFlow: MutableStateFlow<String>
+    private lateinit var pronunciationEnabledFlow: MutableStateFlow<Boolean>
     private val defaultParser: VocabularyParser =
         object : VocabularyParser {
             override val id: String = "apkg"
@@ -73,6 +76,7 @@ class SettingsViewModelTest {
         openAiStore = mockk(relaxed = true)
         vocabularyDao = mockk()
         vocabularyRepository = mockk(relaxed = true)
+        pronunciationPreferencesStore = mockk(relaxed = true)
         policyFlow =
             MutableStateFlow(
                 LearningPreferencesConfig(
@@ -85,11 +89,13 @@ class SettingsViewModelTest {
         apiKeyFlow = MutableStateFlow(null)
         promptFlow = MutableStateFlow(OpenAiPromptDefaults.translationPrompt)
         reversePromptFlow = MutableStateFlow(OpenAiPromptDefaults.reverseTranslationPrompt)
+        pronunciationEnabledFlow = MutableStateFlow(false)
 
         every { dayCountersStore.readPolicy() } returns policyFlow
         every { openAiStore.readOpenAiApiKey() } returns apiKeyFlow
         every { openAiStore.readOpenAiPrompt() } returns promptFlow
         every { openAiStore.readOpenAiReversePrompt() } returns reversePromptFlow
+        every { pronunciationPreferencesStore.readEnabled() } returns pronunciationEnabledFlow
     }
 
     @After
@@ -105,6 +111,7 @@ class SettingsViewModelTest {
             vocabularyRepository = vocabularyRepository,
             parsers = parsers,
             ioDispatcher = mainDispatcherRule.testDispatcher,
+            pronunciationPreferencesStore = pronunciationPreferencesStore,
         )
 
     @Test
@@ -137,6 +144,7 @@ class SettingsViewModelTest {
                 assertThat(hydrated.openAiApiKey).isNull()
                 assertThat(hydrated.openAiPrompt).isEqualTo(OpenAiPromptDefaults.translationPrompt)
                 assertThat(hydrated.openAiReversePrompt).isEqualTo(OpenAiPromptDefaults.reverseTranslationPrompt)
+                assertThat(hydrated.pronunciationEnabled).isFalse()
 
                 policyFlow.value =
                     policyFlow.value.copy(
@@ -148,6 +156,7 @@ class SettingsViewModelTest {
                 apiKeyFlow.value = "abc"
                 promptFlow.value = "custom prompt"
                 reversePromptFlow.value = "custom reverse prompt"
+                pronunciationEnabledFlow.value = true
 
                 val updated = awaitItem()
                 assertThat(updated.mixMode).isEqualTo(MixMode.NEW_FIRST)
@@ -157,6 +166,7 @@ class SettingsViewModelTest {
                 assertThat(updated.openAiApiKey).isEqualTo("abc")
                 assertThat(updated.openAiPrompt).isEqualTo("custom prompt")
                 assertThat(updated.openAiReversePrompt).isEqualTo("custom reverse prompt")
+                assertThat(updated.pronunciationEnabled).isTrue()
                 cancelAndIgnoreRemainingEvents()
             }
         }
@@ -272,6 +282,18 @@ class SettingsViewModelTest {
             advanceUntilIdle()
 
             coVerify { openAiStore.setOpenAiReversePrompt("prompt") }
+        }
+
+    @Test
+    fun `onPronunciationEnabledChange delegates to store`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            coEvery { pronunciationPreferencesStore.setEnabled(any()) } returns Unit
+
+            viewModel.onPronunciationEnabledChange(true)
+            advanceUntilIdle()
+
+            coVerify { pronunciationPreferencesStore.setEnabled(true) }
         }
 
     @Test

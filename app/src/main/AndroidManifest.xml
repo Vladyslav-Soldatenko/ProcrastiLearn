@@ -11,6 +11,10 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
+        <!-- Required on API 30+ so TextToSpeech can see and bind to the device's TTS engine. -->
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
     </queries>
     <application
         android:localeConfig="@xml/locales_config"

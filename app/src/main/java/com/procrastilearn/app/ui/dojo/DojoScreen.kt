@@ -38,7 +38,12 @@ import io.github.openspacedrepetition.Rating
 @Composable
 fun DojoScreen(viewModel: DojoViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsState()
-    DojoScreen(uiState, viewModel::onToggleShowAnswer, viewModel::onDifficultySelected)
+    DojoScreen(
+        uiState,
+        viewModel::onToggleShowAnswer,
+        viewModel::onDifficultySelected,
+        viewModel::speakCurrentWord,
+    )
 }
 
 @VisibleForTesting
@@ -47,6 +52,7 @@ internal fun DojoScreen(
     uiState: DojoUiState,
     onToggleShowAnswer: () -> Unit,
     onDifficultySelected: (Rating) -> Unit,
+    onSpeakWord: () -> Unit = {},
 ) {
     MyApplicationTheme {
         Surface(
@@ -97,6 +103,8 @@ internal fun DojoScreen(
                                     onDifficultySelected = onDifficultySelected,
                                     showTranslationButtonHeight = 56.dp,
                                     addNavigationBarsPadding = false,
+                                    pronunciationEnabled = uiState.pronunciationEnabled,
+                                    onSpeakWord = onSpeakWord,
                                 )
                             }
                         }

@@ -2,10 +2,12 @@ package com.procrastilearn.app.overlay
 
 import android.util.Log
 import com.google.common.truth.Truth.assertThat
+import com.procrastilearn.app.data.local.prefs.PronunciationPreferencesStore
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
+import com.procrastilearn.app.tts.Speaker
 import com.procrastilearn.app.utils.MainDispatcherRule
 import io.github.openspacedrepetition.Rating
 import io.mockk.clearAllMocks
@@ -15,7 +17,9 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -23,6 +27,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.util.Locale
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OverlayViewModelTest {
@@ -31,6 +36,9 @@ class OverlayViewModelTest {
 
     private lateinit var getNextVocabularyItem: GetNextVocabularyItemUseCase
     private lateinit var saveDifficultyRating: SaveDifficultyRatingUseCase
+    private lateinit var pronunciationPreferencesStore: PronunciationPreferencesStore
+    private lateinit var speaker: Speaker
+    private lateinit var pronunciationEnabledFlow: MutableStateFlow<Boolean>
 
     @Before
     fun setUp() {
@@ -38,6 +46,10 @@ class OverlayViewModelTest {
         every { Log.i(any(), any()) } returns 0
         getNextVocabularyItem = mockk()
         saveDifficultyRating = mockk()
+        pronunciationPreferencesStore = mockk()
+        speaker = mockk(relaxed = true)
+        pronunciationEnabledFlow = MutableStateFlow(false)
+        every { pronunciationPreferencesStore.readEnabled() } returns pronunciationEnabledFlow
     }
 
     @After
@@ -46,7 +58,13 @@ class OverlayViewModelTest {
         unmockkStatic(Log::class)
     }
 
-    private fun buildViewModel(): OverlayViewModel = OverlayViewModel(getNextVocabularyItem, saveDifficultyRating)
+    private fun buildViewModel(): OverlayViewModel =
+        OverlayViewModel(
+            getNextVocabularyItem,
+            saveDifficultyRating,
+            pronunciationPreferencesStore,
+            speaker,
+        )
 
     @Test
     fun `onOverlayOpened loads next item and resets reveal state`() =
@@ -190,4 +208,41 @@ class OverlayViewModelTest {
             assertThat(state.showAnswer).isFalse()
             assertThat(state.vocabularyItem).isEqualTo(item)
         }
+
+    @Test
+    fun `pronunciationEnabled reflects the preference store`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.pronunciationEnabled).isFalse()
+
+            pronunciationEnabledFlow.value = true
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.pronunciationEnabled).isTrue()
+        }
+
+    @Test
+    fun `speakCurrentWord delegates to speaker with the current word in English`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 42, word = "Haus", translation = "House", isNew = true)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+
+            val viewModel = buildViewModel()
+            viewModel.onOverlayOpened()
+            advanceUntilIdle()
+
+            viewModel.speakCurrentWord()
+
+            verify(exactly = 1) { speaker.speak("Haus", Locale.ENGLISH) }
+        }
+
+    @Test
+    fun `speakCurrentWord is a no-op when no word is loaded`() {
+        val viewModel = buildViewModel()
+
+        viewModel.speakCurrentWord()
+
+        verify(exactly = 0) { speaker.speak(any(), any()) }
+    }
 }

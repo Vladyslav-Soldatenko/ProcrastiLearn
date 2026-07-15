@@ -7,4 +7,5 @@ data class OverlayUiState(
     val showAnswer: Boolean = false,
     val unlocked: Boolean = false,
     val isLoading: Boolean = false,
+    val pronunciationEnabled: Boolean = false,
 )

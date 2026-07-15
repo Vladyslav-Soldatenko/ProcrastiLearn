@@ -4,12 +4,14 @@ import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.PronunciationPreferencesStore
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
+import com.procrastilearn.app.tts.Speaker
 import com.procrastilearn.app.utils.MainDispatcherRule
 import io.github.openspacedrepetition.Rating
 import io.mockk.clearAllMocks
@@ -17,6 +19,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -25,6 +28,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.util.Locale
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DojoViewModelTest {
@@ -35,10 +39,13 @@ class DojoViewModelTest {
     private lateinit var saveDifficultyRating: SaveDifficultyRatingUseCase
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var dayCountersStore: DayCountersStore
+    private lateinit var pronunciationPreferencesStore: PronunciationPreferencesStore
+    private lateinit var speaker: Speaker
 
     private lateinit var countersFlow: MutableStateFlow<DayCounters>
     private lateinit var policyFlow: MutableStateFlow<LearningPreferencesConfig>
     private lateinit var dueCountFlow: MutableStateFlow<Int>
+    private lateinit var pronunciationEnabledFlow: MutableStateFlow<Boolean>
 
     @Before
     fun setUp() {
@@ -46,6 +53,8 @@ class DojoViewModelTest {
         saveDifficultyRating = mockk()
         vocabularyDao = mockk()
         dayCountersStore = mockk()
+        pronunciationPreferencesStore = mockk()
+        speaker = mockk(relaxed = true)
 
         // Default flows
         countersFlow =
@@ -67,11 +76,13 @@ class DojoViewModelTest {
                 ),
             )
         dueCountFlow = MutableStateFlow(10)
+        pronunciationEnabledFlow = MutableStateFlow(false)
 
         every { dayCountersStore.read() } returns countersFlow
         every { dayCountersStore.readPolicy() } returns policyFlow
         coEvery { vocabularyDao.countReviewsDue(any()) } returns 10
         every { vocabularyDao.observeReviewsDueCount(any()) } returns dueCountFlow
+        every { pronunciationPreferencesStore.readEnabled() } returns pronunciationEnabledFlow
     }
 
     @After
@@ -85,6 +96,8 @@ class DojoViewModelTest {
             saveDifficultyRating,
             vocabularyDao,
             dayCountersStore,
+            pronunciationPreferencesStore,
+            speaker,
         )
 
     @Test
@@ -468,5 +481,48 @@ class DojoViewModelTest {
 
             // showAnswer should be reset
             assertThat(viewModel.uiState.value.showAnswer).isFalse()
+        }
+
+    @Test
+    fun `pronunciationEnabled reflects the preference store`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.pronunciationEnabled).isFalse()
+
+            pronunciationEnabledFlow.value = true
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.pronunciationEnabled).isTrue()
+        }
+
+    @Test
+    fun `speakCurrentWord delegates to speaker with the current word in English`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "serendipity", translation = "случайность", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.speakCurrentWord()
+
+            verify(exactly = 1) { speaker.speak("serendipity", Locale.ENGLISH) }
+        }
+
+    @Test
+    fun `speakCurrentWord is a no-op when no word is loaded`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            coEvery { getNextVocabularyItem.invoke() } returns Result.failure(NoAvailableItemsException())
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.speakCurrentWord()
+
+            verify(exactly = 0) { speaker.speak(any(), any()) }
         }
 }

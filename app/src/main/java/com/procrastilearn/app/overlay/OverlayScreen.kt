@@ -39,7 +39,12 @@ fun OverlayScreen(
         if (uiState.unlocked) onUnlock()
     }
 
-    OverlayScreen(uiState, viewModel::onToggleShowAnswer, viewModel::onDifficultySelected)
+    OverlayScreen(
+        uiState,
+        viewModel::onToggleShowAnswer,
+        viewModel::onDifficultySelected,
+        viewModel::speakCurrentWord,
+    )
 }
 
 @Suppress("MagicNumber")
@@ -49,6 +54,7 @@ internal fun OverlayScreen(
     uiState: OverlayUiState,
     onToggleShowAnswer: () -> Unit,
     onDifficultySelected: (Rating) -> Unit,
+    onSpeakWord: () -> Unit = {},
 ) {
     OverlayTheme {
         val backgroundGradient =
@@ -70,6 +76,8 @@ internal fun OverlayScreen(
                 state = uiState,
                 onToggleShowAnswer = onToggleShowAnswer,
                 onDifficultySelected = onDifficultySelected,
+                pronunciationEnabled = uiState.pronunciationEnabled,
+                onSpeakWord = onSpeakWord,
             )
         }
     }
