@@ -16,9 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,6 +58,7 @@ import com.procrastilearn.app.ui.screens.settings.components.OpenAiPromptSetting
 import com.procrastilearn.app.ui.screens.settings.components.OpenAiReversePromptSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.OverlayPermissionItem
 import com.procrastilearn.app.ui.screens.settings.components.ReviewPerDaySettingsItem
+import com.procrastilearn.app.ui.screens.settings.components.SettingsSectionHeader
 import com.procrastilearn.app.ui.screens.settings.components.ShowOverlayIntervalSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.StringInputDialog
 import com.procrastilearn.app.ui.screens.settings.components.openAccessibilitySettings
@@ -240,6 +239,11 @@ internal fun SettingsContent(
                     .padding(vertical = 8.dp)
                     .verticalScroll(rememberScrollState()),
         ) {
+            SettingsSectionHeader(
+                title = stringResource(R.string.settings_section_study_reviews),
+                showDivider = false,
+            )
+
             MixModeSettingsItem(
                 mixMode = mixMode,
                 onClick = { dialogState = DialogState.MixMode },
@@ -275,7 +279,7 @@ internal fun SettingsContent(
                 onClick = { dialogState = DialogState.OverlayInterval },
             )
 
-            Spacer(Modifier.height(4.dp))
+            SettingsSectionHeader(title = stringResource(R.string.settings_section_ai_features))
 
             OpenAiApiKeySettingsItem(
                 apiKey = openAiApiKey,
@@ -289,12 +293,9 @@ internal fun SettingsContent(
                 prompt = openAiReversePrompt,
                 onClick = { dialogState = DialogState.OpenAiReversePrompt },
             )
-            Divider(
-                modifier = Modifier.padding(vertical = 8.dp),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-            )
 
-            // Permission settings
+            SettingsSectionHeader(title = stringResource(R.string.settings_section_permissions))
+
             OverlayPermissionItem(
                 isGranted = overlayGranted,
                 onClick = onOverlayClick,
@@ -307,13 +308,7 @@ internal fun SettingsContent(
                 onClick = onA11yClick,
             )
 
-            Spacer(Modifier.height(4.dp))
-
-            AboutUsSettingsItem(
-                onClick = { dialogState = DialogState.AboutUs },
-            )
-
-            Spacer(Modifier.height(4.dp))
+            SettingsSectionHeader(title = stringResource(R.string.settings_section_data_about))
 
             if (importOptions.isNotEmpty()) {
                 ImportSettingsItem(
@@ -325,6 +320,12 @@ internal fun SettingsContent(
             }
 
             ExportSettingsItem(onClick = onExportClick)
+
+            Spacer(Modifier.height(4.dp))
+
+            AboutUsSettingsItem(
+                onClick = { dialogState = DialogState.AboutUs },
+            )
         }
     }
 

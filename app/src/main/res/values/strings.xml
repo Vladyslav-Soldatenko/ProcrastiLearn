@@ -127,6 +127,12 @@
     <!-- ─── Settings ────────────────────────────────────────────────────────── -->
     <string name="settings_title">Settings</string>
 
+    <!-- Section headers -->
+    <string name="settings_section_study_reviews">Study &amp; Reviews</string>
+    <string name="settings_section_ai_features">AI Features (API key required)</string>
+    <string name="settings_section_permissions">Permissions</string>
+    <string name="settings_section_data_about">Data &amp; About</string>
+
     <!-- Study mode -->
     <string name="settings_study_mode_title">Study Mode</string>
     <string name="settings_study_mode_mixed">Mixed</string>
