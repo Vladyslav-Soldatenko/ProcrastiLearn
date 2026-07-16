@@ -25,6 +25,7 @@ fun NumberInputDialog(
     onValueConfirm: (Int) -> Unit,
     onDismiss: () -> Unit,
     minValue: Int = 0,
+    maxValue: Int = Int.MAX_VALUE,
 ) {
     var textValue by remember { mutableStateOf(currentValue.toString()) }
 
@@ -50,10 +51,10 @@ fun NumberInputDialog(
         confirmButton = {
             val currentInput = textValue.toIntOrNull()
             TextButton(
-                enabled = currentInput != null && currentInput >= minValue,
+                enabled = currentInput != null && currentInput in minValue..maxValue,
                 onClick = {
                     textValue.toIntOrNull()?.let { value ->
-                        if (value >= minValue) {
+                        if (value in minValue..maxValue) {
                             onValueConfirm(value)
                         }
                     }

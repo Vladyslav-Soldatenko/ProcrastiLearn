@@ -84,10 +84,20 @@ class DayCountersStore
             }
         }
 
-        suspend fun addExtraNewToday(amount: Int) {
+        // Clamps the boost so newPerDay + extraNewToday - newShown can never exceed
+        // [availableNew], the actual number of unseen cards left in the deck.
+        suspend fun addExtraNewToday(
+            amount: Int,
+            availableNew: Int,
+        ) {
             if (amount <= 0) return
             ds.edit { p ->
-                p[K.EXTRA_NEW_TODAY] = (p[K.EXTRA_NEW_TODAY] ?: 0) + amount
+                val newPerDay = p[K.NEW_PER_DAY_LIMIT] ?: DEFAULT_NEW_PER_DAY
+                val newShown = p[K.NEW_SHOWN] ?: 0
+                val extra = p[K.EXTRA_NEW_TODAY] ?: 0
+                val remaining = (newPerDay + extra - newShown).coerceAtLeast(0)
+                val capacity = (availableNew - remaining).coerceAtLeast(0)
+                p[K.EXTRA_NEW_TODAY] = extra + amount.coerceAtMost(capacity)
             }
         }
 

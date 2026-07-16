@@ -72,8 +72,8 @@ class DayCountersStoreTest {
     fun addExtraNewTodayAccumulatesAcrossCalls() =
         runTest {
             store.resetFor(20240131)
-            store.addExtraNewToday(5)
-            store.addExtraNewToday(3)
+            store.addExtraNewToday(5, availableNew = 100)
+            store.addExtraNewToday(3, availableNew = 100)
 
             val counters = store.read().first()
             assertThat(counters.extraNewToday).isEqualTo(8)
@@ -83,19 +83,79 @@ class DayCountersStoreTest {
     fun addExtraNewTodayIgnoresZeroAndNegativeAmounts() =
         runTest {
             store.resetFor(20240131)
-            store.addExtraNewToday(10)
-            store.addExtraNewToday(0)
-            store.addExtraNewToday(-5)
+            store.addExtraNewToday(10, availableNew = 100)
+            store.addExtraNewToday(0, availableNew = 100)
+            store.addExtraNewToday(-5, availableNew = 100)
 
             val counters = store.read().first()
             assertThat(counters.extraNewToday).isEqualTo(10)
         }
 
     @Test
+    fun addExtraNewTodayClampsToAvailableNewWhenAmountExceedsCapacity() =
+        runTest {
+            // newPerDay defaults to 15, nothing shown yet -> 15 already "remaining".
+            // Only 20 cards are unseen in the deck, so at most 5 more can be added.
+            store.resetFor(20240131)
+
+            store.addExtraNewToday(50, availableNew = 20)
+
+            assertThat(store.read().first().extraNewToday).isEqualTo(5)
+        }
+
+    @Test
+    fun addExtraNewTodayAddsNothingWhenNoCapacityRemains() =
+        runTest {
+            // availableNew = 0: no unseen cards left, so no boost can be granted at all.
+            store.resetFor(20240131)
+
+            store.addExtraNewToday(10, availableNew = 0)
+
+            assertThat(store.read().first().extraNewToday).isEqualTo(0)
+        }
+
+    @Test
+    fun addExtraNewTodayRepeatedAddsStopAtCapacityInsteadOfAccumulatingPastIt() =
+        runTest {
+            // Regression for the "Add Cards For Today" bug: each add alone might look
+            // like it's within bounds, but repeated adds must not accumulate past the
+            // number of cards that actually exist.
+            store.resetFor(20240131)
+
+            store.addExtraNewToday(3, availableNew = 20) // remaining 15 -> +3 = 18, capacity was 5
+            store.addExtraNewToday(3, availableNew = 20) // remaining 18 -> capacity now 2, clamps to +2
+
+            assertThat(store.read().first().extraNewToday).isEqualTo(5)
+        }
+
+    @Test
+    fun addExtraNewTodayAccountsForNewShownWhenComputingCapacity() =
+        runTest {
+            // newPerDay=15, 10 already shown -> 5 remaining. 8 unseen cards left in the
+            // deck means only 3 more can be granted before remaining would exceed unseen.
+            store.resetFor(20240131)
+            repeat(10) { store.markNewShown() }
+
+            store.addExtraNewToday(100, availableNew = 8)
+
+            assertThat(store.read().first().extraNewToday).isEqualTo(3)
+        }
+
+    @Test
+    fun addExtraNewTodayAllowsFullAmountWhenWithinCapacity() =
+        runTest {
+            store.resetFor(20240131)
+
+            store.addExtraNewToday(4, availableNew = 100)
+
+            assertThat(store.read().first().extraNewToday).isEqualTo(4)
+        }
+
+    @Test
     fun resetForClearsExtraNewToday() =
         runTest {
             store.resetFor(20240131)
-            store.addExtraNewToday(10)
+            store.addExtraNewToday(10, availableNew = 100)
             assertThat(store.read().first().extraNewToday).isEqualTo(10)
 
             store.resetFor(20240201)
@@ -109,7 +169,7 @@ class DayCountersStoreTest {
     fun restoreCountersSetsValuesAbsolutelyAndLeavesExtraNewTodayAndDayUntouched() =
         runTest {
             store.resetFor(20240131)
-            store.addExtraNewToday(7)
+            store.addExtraNewToday(7, availableNew = 100)
             store.markReviewShown()
             store.markReviewShown()
             store.markNewShown()

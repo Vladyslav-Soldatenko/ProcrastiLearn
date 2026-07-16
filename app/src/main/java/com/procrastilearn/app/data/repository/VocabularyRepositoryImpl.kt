@@ -229,6 +229,7 @@ class VocabularyRepositoryImpl
                 // Read day counters once
                 val counters = prefs.read().first()
                 val policy = prefs.readPolicy().first()
+                val totalNew = vocabularyDao.countNewTotal()
 
                 Log.i("fsrs", counters.toString())
                 val newRemaining =
@@ -264,7 +265,6 @@ class VocabularyRepositoryImpl
 
                         // If we want a new now (ratio hit) or no reviews due, try new (within daily cap)
                         newRemaining > 0 && (wantNew || dueCount == 0) -> {
-                            val totalNew = vocabularyDao.countNewTotal()
                             if (totalNew > 0) {
                                 val offset = kotlin.random.Random.nextInt(totalNew) // O(1) sampler
                                 vocabularyDao.pickNewIdByOffset(offset)
@@ -290,6 +290,7 @@ class VocabularyRepositoryImpl
 
                 val counters = prefs.read().first()
                 val policy = prefs.readPolicy().first()
+                val totalNew = vocabularyDao.countNewTotal()
                 val newRemaining =
                     (policy.newPerDay + counters.extraNewToday - counters.newShown).coerceAtLeast(0)
                 val reviewRemaining = (policy.reviewPerDay - counters.reviewShown).coerceAtLeast(0)
@@ -302,7 +303,7 @@ class VocabularyRepositoryImpl
                 // 2. We haven't hit the new card limit AND there are new cards
                 return@withContext when {
                     dueCount > 0 -> true
-                    newRemaining > 0 && vocabularyDao.countNewTotal() > 0 -> true
+                    newRemaining > 0 && totalNew > 0 -> true
                     else -> false
                 }
             }

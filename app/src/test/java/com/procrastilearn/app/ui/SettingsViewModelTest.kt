@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.R
+import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
@@ -52,6 +53,7 @@ class SettingsViewModelTest {
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var vocabularyRepository: VocabularyRepository
     private lateinit var policyFlow: MutableStateFlow<LearningPreferencesConfig>
+    private lateinit var countersFlow: MutableStateFlow<DayCounters>
     private lateinit var apiKeyFlow: MutableStateFlow<String?>
     private lateinit var promptFlow: MutableStateFlow<String>
     private lateinit var reversePromptFlow: MutableStateFlow<String>
@@ -82,11 +84,22 @@ class SettingsViewModelTest {
                     mixMode = MixMode.MIX,
                 ),
             )
+        countersFlow =
+            MutableStateFlow(
+                DayCounters(
+                    yyyymmdd = 20260716,
+                    newShown = 0,
+                    reviewShown = 0,
+                    reviewsSinceLastNew = 0,
+                    extraNewToday = 0,
+                ),
+            )
         apiKeyFlow = MutableStateFlow(null)
         promptFlow = MutableStateFlow(OpenAiPromptDefaults.translationPrompt)
         reversePromptFlow = MutableStateFlow(OpenAiPromptDefaults.reverseTranslationPrompt)
 
         every { dayCountersStore.readPolicy() } returns policyFlow
+        every { dayCountersStore.read() } returns countersFlow
         every { openAiStore.readOpenAiApiKey() } returns apiKeyFlow
         every { openAiStore.readOpenAiPrompt() } returns promptFlow
         every { openAiStore.readOpenAiReversePrompt() } returns reversePromptFlow
@@ -179,6 +192,50 @@ class SettingsViewModelTest {
         }
 
     @Test
+    fun `loadAvailableNewCount computes availableToAddToday from unseen total minus current quota`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            // newPerDay=20 (from policyFlow), newShown=0, extraNewToday=0 -> quota remaining = 20.
+            val viewModel = buildViewModel()
+            coEvery { vocabularyDao.countNewTotal() } returns 50
+
+            viewModel.loadAvailableNewCount()
+            advanceUntilIdle()
+
+            // remaining quota = 20 (newPerDay) + 0 (extra) - 0 (shown) = 20
+            // availableToAddToday = 50 (unseen) - 20 (remaining quota) = 30
+            assertThat(viewModel.availableToAddToday.value).isEqualTo(30)
+        }
+
+    @Test
+    fun `loadAvailableNewCount reports zero availableToAddToday when unseen count is at or below current quota`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            // Regression test for the reported bug: when the deck has fewer (or no) unseen
+            // cards than the current quota already claims, there is no room to add more.
+            val viewModel = buildViewModel()
+            coEvery { vocabularyDao.countNewTotal() } returns 0
+
+            viewModel.loadAvailableNewCount()
+            advanceUntilIdle()
+
+            assertThat(viewModel.availableToAddToday.value).isEqualTo(0)
+        }
+
+    @Test
+    fun `loadAvailableNewCount accounts for extraNewToday already granted when computing capacity`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            // newPerDay=20, extraNewToday=15 already granted, newShown=0 -> quota remaining = 35.
+            // Only 40 cards are unseen, so just 5 more can still be added before hitting the cap.
+            countersFlow.value = countersFlow.value.copy(extraNewToday = 15)
+            val viewModel = buildViewModel()
+            coEvery { vocabularyDao.countNewTotal() } returns 40
+
+            viewModel.loadAvailableNewCount()
+            advanceUntilIdle()
+
+            assertThat(viewModel.availableToAddToday.value).isEqualTo(5)
+        }
+
+    @Test
     fun `onMixModeChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
@@ -203,15 +260,16 @@ class SettingsViewModelTest {
         }
 
     @Test
-    fun `onAddCardsForToday delegates to store`() =
+    fun `onAddCardsForToday delegates to store with current available new count`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { dayCountersStore.addExtraNewToday(any()) } returns Unit
+            coEvery { vocabularyDao.countNewTotal() } returns 30
+            coEvery { dayCountersStore.addExtraNewToday(any(), any()) } returns Unit
 
             viewModel.onAddCardsForToday(16)
             advanceUntilIdle()
 
-            coVerify { dayCountersStore.addExtraNewToday(16) }
+            coVerify { dayCountersStore.addExtraNewToday(16, 30) }
         }
 
     @Test

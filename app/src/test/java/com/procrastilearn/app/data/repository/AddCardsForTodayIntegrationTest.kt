@@ -110,7 +110,7 @@ class AddCardsForTodayIntegrationTest {
             assertThat(dayCountersStore.read().first().newShown).isEqualTo(2)
 
             // "open Settings -> Add Cards For Today, add 3"
-            dayCountersStore.addExtraNewToday(3)
+            dayCountersStore.addExtraNewToday(3, availableNew = database.vocabularyDao().countNewTotal())
 
             // "confirm 3 more cards appear in Dojo"
             assertThat(repository.hasAvailableItems()).isTrue()
@@ -135,6 +135,53 @@ class AddCardsForTodayIntegrationTest {
             // Only 2 new cards (the permanent quota) are available, not 5.
             reviewNextNewCard()
             reviewNextNewCard()
+            assertThat(repository.hasAvailableItems()).isFalse()
+        }
+
+    @Test
+    fun `add cards for today cannot grant more than the actual unseen cards in the deck`() =
+        runTest {
+            // Regression test for the reported bug: the user could type any number into
+            // "Add Cards For Today" - even one far larger than the number of unseen cards
+            // that exist - and it would be accepted and rendered as the day's new quota.
+            dayCountersStore.setNewPerDay(1)
+            insertNewWords(4) // Only 4 unseen cards ever exist in the deck.
+            // Establish "today" first (mirrors real usage where the day is already
+            // current by the time Settings is opened); otherwise ensureDay()'s
+            // first-run reset would wipe the boost we're about to add.
+            dayCountersStore.resetFor(todayStamp())
+
+            // Request a wildly oversized boost, as reported (e.g. entering 222 with a
+            // near-empty deck).
+            dayCountersStore.addExtraNewToday(999, availableNew = database.vocabularyDao().countNewTotal())
+
+            // The boost must be clamped: 1 permanent + boost can never exceed 4 unseen.
+            val counters = dayCountersStore.read().first()
+            val policy = dayCountersStore.readPolicy().first()
+            assertThat(policy.newPerDay + counters.extraNewToday).isEqualTo(4)
+
+            // And the deck can in fact only serve exactly 4 new cards today, not 999.
+            reviewNextNewCard()
+            reviewNextNewCard()
+            reviewNextNewCard()
+            reviewNextNewCard()
+            assertThat(repository.hasAvailableItems()).isFalse()
+        }
+
+    @Test
+    fun `add cards for today grants nothing when there are no unseen cards left`() =
+        runTest {
+            // Regression test: the dialog accepted input even when "Available New: 0" -
+            // adding cards must be a no-op once the deck has no unseen cards left.
+            dayCountersStore.setNewPerDay(2)
+            insertNewWords(2)
+            reviewNextNewCard()
+            reviewNextNewCard()
+            assertThat(database.vocabularyDao().countNewTotal()).isEqualTo(0)
+
+            dayCountersStore.addExtraNewToday(50, availableNew = database.vocabularyDao().countNewTotal())
+
+            assertThat(dayCountersStore.read().first().extraNewToday).isEqualTo(0)
             assertThat(repository.hasAvailableItems()).isFalse()
         }
 }

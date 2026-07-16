@@ -44,6 +44,7 @@ class DojoViewModelTest {
     private lateinit var countersFlow: MutableStateFlow<DayCounters>
     private lateinit var policyFlow: MutableStateFlow<LearningPreferencesConfig>
     private lateinit var dueCountFlow: MutableStateFlow<Int>
+    private lateinit var newTotalCountFlow: MutableStateFlow<Int>
     private lateinit var undoCountFlow: MutableStateFlow<Int>
 
     @Before
@@ -75,12 +76,16 @@ class DojoViewModelTest {
                 ),
             )
         dueCountFlow = MutableStateFlow(10)
+        // High default so existing formula-only tests aren't affected by the new cap;
+        // tests that specifically exercise the cap override this per-test.
+        newTotalCountFlow = MutableStateFlow(1000)
         undoCountFlow = MutableStateFlow(0)
 
         every { dayCountersStore.read() } returns countersFlow
         every { dayCountersStore.readPolicy() } returns policyFlow
         coEvery { vocabularyDao.countReviewsDue(any()) } returns 10
         every { vocabularyDao.observeReviewsDueCount(any()) } returns dueCountFlow
+        every { vocabularyDao.observeNewTotalCount() } returns newTotalCountFlow
         every { undoSnapshotDao.observeCount() } returns undoCountFlow
     }
 
@@ -246,6 +251,92 @@ class DojoViewModelTest {
 
             val state = viewModel.uiState.value
             assertThat(state.newQuotaRemaining).isEqualTo(0)
+        }
+
+    @Test
+    fun `newQuotaRemaining is capped at the actual number of unseen cards left in the deck`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            // Regression test for the reported bug: the "N new" counter must never claim
+            // more new cards exist than are actually unseen in the deck, even if
+            // newPerDay + extraNewToday - newShown computes to a larger number.
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+            // newPerDay=20, newShown=3, extraNewToday=0 -> formula gives 17, but only 4 unseen.
+            newTotalCountFlow.value = 4
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.newQuotaRemaining).isEqualTo(4)
+        }
+
+    @Test
+    fun `newQuotaRemaining stays under the formula value when unseen count exceeds it`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+            // newPerDay=20, newShown=3 -> formula gives 17; plenty of unseen cards (100) exist.
+            newTotalCountFlow.value = 100
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.newQuotaRemaining).isEqualTo(17)
+        }
+
+    @Test
+    fun `newQuotaRemaining caps an oversized extraNewToday boost at the unseen total`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            // Simulates a boost that was granted before the write-side clamp existed
+            // (or any other way an oversized value ends up persisted): the display must
+            // still never exceed reality.
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+            countersFlow.value =
+                DayCounters(
+                    yyyymmdd = 20260117,
+                    newShown = 3,
+                    reviewShown = 5,
+                    reviewsSinceLastNew = 2,
+                    extraNewToday = 500,
+                )
+            newTotalCountFlow.value = 6
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.newQuotaRemaining).isEqualTo(6)
+        }
+
+    @Test
+    fun `newQuotaRemaining is zero when there are no unseen cards left regardless of quota`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+            newTotalCountFlow.value = 0
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.newQuotaRemaining).isEqualTo(0)
+        }
+
+    @Test
+    fun `newQuotaRemaining reacts when the unseen total changes elsewhere`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+            newTotalCountFlow.value = 4
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.newQuotaRemaining).isEqualTo(4)
+
+            // More words get imported/added elsewhere in the app.
+            newTotalCountFlow.value = 50
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.newQuotaRemaining).isEqualTo(17) // 20 - 3
         }
 
     @Test
