@@ -30,11 +30,6 @@ import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-/**
- * Real Room + real (DataStore-backed) DayCountersStore - no mocks - so the exact
- * snapshot/restore semantics of undo (row columns + day counters together) can be
- * verified end to end, including the cross-day guard.
- */
 @ExperimentalCoroutinesApi
 @RunWith(RobolectricTestRunner::class)
 class VocabularyRepositoryUndoTest {
