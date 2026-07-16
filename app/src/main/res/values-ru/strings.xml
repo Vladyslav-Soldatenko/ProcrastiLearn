@@ -121,6 +121,12 @@
         <!-- ─── Settings ────────────────────────────────────────────────────────── -->
         <string name="settings_title">Настройки</string>
 
+        <!-- Section headers -->
+        <string name="settings_section_study_reviews">Обучение и повторы</string>
+        <string name="settings_section_ai_features">ИИ-функции (нужен API-ключ)</string>
+        <string name="settings_section_permissions">Разрешения</string>
+        <string name="settings_section_data_about">Данные и о приложении</string>
+
         <!-- Study mode -->
         <string name="settings_study_mode_title">Режим обучения</string>
         <string name="settings_study_mode_mixed">Смешанный</string>
