@@ -44,6 +44,7 @@ class DojoViewModel
         // Reactive: re-emits whenever the vocabulary table changes anywhere in the app
         // (e.g. a review recorded from the blocking overlay), not just from this screen.
         private val reviewsDueCount = vocabularyDao.observeReviewsDueCount(System.currentTimeMillis())
+        private val newTotalCount = vocabularyDao.observeNewTotalCount()
         private val undoCount = undoSnapshotDao.observeCount()
 
         private val baseState =
@@ -52,9 +53,13 @@ class DojoViewModel
                 dayCountersStore.read(),
                 dayCountersStore.readPolicy(),
                 reviewsDueCount,
-            ) { flashcard, counters, policy, pendingReviews ->
+                newTotalCount,
+            ) { flashcard, counters, policy, pendingReviews, newTotal ->
+                // Capped at newTotal: the quota can never claim more new cards exist
+                // than are actually left unseen in the deck.
                 val newQuotaRemaining =
-                    (policy.newPerDay + counters.extraNewToday - counters.newShown).coerceAtLeast(0)
+                    (policy.newPerDay + counters.extraNewToday - counters.newShown)
+                        .coerceIn(0, newTotal)
 
                 // Only show pending reviews if review quota available
                 val reviewQuotaRemaining = (policy.reviewPerDay - counters.reviewShown).coerceAtLeast(0)

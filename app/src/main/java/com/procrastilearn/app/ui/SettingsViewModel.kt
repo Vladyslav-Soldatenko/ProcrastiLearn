@@ -76,9 +76,21 @@ class SettingsViewModel
         private val _availableNewCount = MutableStateFlow(0)
         val availableNewCount: StateFlow<Int> = _availableNewCount
 
+        // How many more new cards can still be added to today's quota before the
+        // total new-card quota would exceed the actual number of unseen cards.
+        private val _availableToAddToday = MutableStateFlow(0)
+        val availableToAddToday: StateFlow<Int> = _availableToAddToday
+
         fun loadAvailableNewCount() {
             viewModelScope.launch {
-                _availableNewCount.value = vocabularyDao.countNewTotal()
+                val totalNew = vocabularyDao.countNewTotal()
+                _availableNewCount.value = totalNew
+
+                val policy = dayCountersStore.readPolicy().first()
+                val counters = dayCountersStore.read().first()
+                val remaining =
+                    (policy.newPerDay + counters.extraNewToday - counters.newShown).coerceAtLeast(0)
+                _availableToAddToday.value = (totalNew - remaining).coerceAtLeast(0)
             }
         }
 
@@ -103,7 +115,9 @@ class SettingsViewModel
         }
 
         fun onAddCardsForToday(amount: Int) {
-            viewModelScope.launch { dayCountersStore.addExtraNewToday(amount) }
+            viewModelScope.launch {
+                dayCountersStore.addExtraNewToday(amount, vocabularyDao.countNewTotal())
+            }
         }
 
         fun onReviewPerDayChange(value: Int) {

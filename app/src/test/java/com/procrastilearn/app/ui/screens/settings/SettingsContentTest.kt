@@ -134,8 +134,8 @@ class SettingsContentTest {
     }
 
     @Test
-    fun `add cards for today dialog title shows available new count`() {
-        setContent(availableNewCount = 23)
+    fun `add cards for today dialog title shows how many more can be added today`() {
+        setContent(availableToAddToday = 23)
 
         composeTestRule.onNodeWithText(string(R.string.settings_add_cards_for_today_title)).performClick()
 
@@ -189,6 +189,57 @@ class SettingsContentTest {
     }
 
     @Test
+    fun `add cards for today OK is disabled once entered value exceeds what can still be added`() {
+        var addedAmount: Int? = null
+        setContent(availableToAddToday = 5, onAddCardsForToday = { addedAmount = it })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_add_cards_for_today_title)).performClick()
+
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("222")
+
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+
+        assertThat(addedAmount).isNull()
+    }
+
+    @Test
+    fun `add cards for today OK is enabled at exactly the remaining capacity`() {
+        var addedAmount: Int? = null
+        setContent(availableToAddToday = 5, onAddCardsForToday = { addedAmount = it })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_add_cards_for_today_title)).performClick()
+
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("5")
+
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsEnabled()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+
+        assertThat(addedAmount).isEqualTo(5)
+    }
+
+    @Test
+    fun `add cards for today OK stays disabled for any input when nothing can be added`() {
+        var addedAmount: Int? = null
+        setContent(availableToAddToday = 0, onAddCardsForToday = { addedAmount = it })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_add_cards_for_today_title)).performClick()
+
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("222")
+
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+
+        assertThat(addedAmount).isNull()
+    }
+
+    @Test
     fun `overlay permission click delegates to callback`() {
         var overlayClicks = 0
         setContent(onOverlayClick = { overlayClicks++ })
@@ -214,6 +265,7 @@ class SettingsContentTest {
         mixMode: MixMode = MixMode.MIX,
         newPerDay: Int = 10,
         availableNewCount: Int = 0,
+        availableToAddToday: Int = 100,
         reviewPerDay: Int = 50,
         overlayInterval: Int = 5,
         openAiApiKey: String? = null,
@@ -244,6 +296,7 @@ class SettingsContentTest {
                     mixMode = mixMode,
                     newPerDay = newPerDay,
                     availableNewCount = availableNewCount,
+                    availableToAddToday = availableToAddToday,
                     reviewPerDay = reviewPerDay,
                     overlayInterval = overlayInterval,
                     openAiApiKey = openAiApiKey,

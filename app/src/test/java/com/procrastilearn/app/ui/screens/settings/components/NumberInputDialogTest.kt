@@ -170,6 +170,66 @@ class NumberInputDialogTest {
     }
 
     @Test
+    fun `OK is enabled when value equals maximum boundary`() {
+        setContent(
+            title = "Max boundary",
+            currentValue = 0,
+            minValue = 1,
+            maxValue = 10,
+        )
+
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("10")
+
+        val okButton = composeTestRule.onNodeWithText(string(R.string.action_ok))
+        okButton.assertIsEnabled()
+        okButton.performClick()
+
+        verify(exactly = 1) { onValueConfirm.invoke(10) }
+    }
+
+    @Test
+    fun `confirm ignores values above maximum`() {
+        setContent(
+            title = "Max value",
+            currentValue = 0,
+            minValue = 1,
+            maxValue = 10,
+        )
+
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("11")
+
+        val okButton = composeTestRule.onNodeWithText(string(R.string.action_ok))
+        okButton.assertIsNotEnabled()
+        okButton.performClick()
+
+        verify(exactly = 0) { onValueConfirm(any()) }
+    }
+
+    @Test
+    fun `OK stays disabled for any input when maximum is zero`() {
+        setContent(
+            title = "No capacity",
+            currentValue = 0,
+            minValue = 1,
+            maxValue = 0,
+        )
+
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("222")
+
+        val okButton = composeTestRule.onNodeWithText(string(R.string.action_ok))
+        okButton.assertIsNotEnabled()
+        okButton.performClick()
+
+        verify(exactly = 0) { onValueConfirm(any()) }
+    }
+
+    @Test
     fun `dismiss button invokes onDismiss`() {
         setContent(
             title = "Dismiss",
@@ -188,6 +248,7 @@ class NumberInputDialogTest {
         title: String,
         currentValue: Int,
         minValue: Int = 1,
+        maxValue: Int = Int.MAX_VALUE,
     ) {
         composeTestRule.setContent {
             MyApplicationTheme {
@@ -197,6 +258,7 @@ class NumberInputDialogTest {
                     onValueConfirm = onValueConfirm,
                     onDismiss = onDismiss,
                     minValue = minValue,
+                    maxValue = maxValue,
                 )
             }
         }

@@ -97,6 +97,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val permissionStates = rememberPermissionStates(ctx)
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val availableNewCount by viewModel.availableNewCount.collectAsStateWithLifecycle()
+    val availableToAddToday by viewModel.availableToAddToday.collectAsStateWithLifecycle()
     val importOptions = viewModel.importOptions
     var pendingImportOptionId by rememberSaveable { mutableStateOf<String?>(null) }
 
@@ -157,6 +158,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             mixMode = state.mixMode,
             newPerDay = state.newPerDay,
             availableNewCount = availableNewCount,
+            availableToAddToday = availableToAddToday,
             reviewPerDay = state.reviewPerDay,
             overlayInterval = state.overlayInterval,
             openAiApiKey = state.openAiApiKey,
@@ -207,6 +209,7 @@ internal fun SettingsContent(
     mixMode: MixMode,
     newPerDay: Int,
     availableNewCount: Int = 0,
+    availableToAddToday: Int = 0,
     reviewPerDay: Int,
     overlayInterval: Int,
     openAiApiKey: String?,
@@ -342,9 +345,10 @@ internal fun SettingsContent(
         }
         DialogState.AddCardsForToday -> {
             NumberInputDialog(
-                title = stringResource(R.string.settings_add_cards_for_today_dialog_title, availableNewCount),
+                title = stringResource(R.string.settings_add_cards_for_today_dialog_title, availableToAddToday),
                 currentValue = 0,
                 minValue = 1,
+                maxValue = availableToAddToday,
                 onValueConfirm = {
                     onAddCardsForToday(it)
                     dialogState = DialogState.None

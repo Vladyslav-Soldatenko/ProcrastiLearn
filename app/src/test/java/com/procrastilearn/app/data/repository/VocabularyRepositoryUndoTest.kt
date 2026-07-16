@@ -276,7 +276,7 @@ class VocabularyRepositoryUndoTest {
     fun `undoLastRating never touches extraNewToday`() =
         runTest {
             val id = insertVocab("kaufen")
-            dayCountersStore.addExtraNewToday(5)
+            dayCountersStore.addExtraNewToday(5, availableNew = 100)
 
             repository.reviewVocabularyItem(id, Rating.GOOD)
             repository.undoLastRating()
