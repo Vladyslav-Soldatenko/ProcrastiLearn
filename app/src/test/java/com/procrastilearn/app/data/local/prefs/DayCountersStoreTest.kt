@@ -117,9 +117,6 @@ class DayCountersStoreTest {
     @Test
     fun addExtraNewTodayRepeatedAddsStopAtCapacityInsteadOfAccumulatingPastIt() =
         runTest {
-            // Regression for the "Add Cards For Today" bug: each add alone might look
-            // like it's within bounds, but repeated adds must not accumulate past the
-            // number of cards that actually exist.
             store.resetFor(20240131)
 
             store.addExtraNewToday(3, availableNew = 20) // remaining 15 -> +3 = 18, capacity was 5

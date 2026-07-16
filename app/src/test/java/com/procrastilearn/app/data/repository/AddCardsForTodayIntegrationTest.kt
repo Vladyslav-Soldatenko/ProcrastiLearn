@@ -141,9 +141,6 @@ class AddCardsForTodayIntegrationTest {
     @Test
     fun `add cards for today cannot grant more than the actual unseen cards in the deck`() =
         runTest {
-            // Regression test for the reported bug: the user could type any number into
-            // "Add Cards For Today" - even one far larger than the number of unseen cards
-            // that exist - and it would be accepted and rendered as the day's new quota.
             dayCountersStore.setNewPerDay(1)
             insertNewWords(4) // Only 4 unseen cards ever exist in the deck.
             // Establish "today" first (mirrors real usage where the day is already
@@ -171,8 +168,6 @@ class AddCardsForTodayIntegrationTest {
     @Test
     fun `add cards for today grants nothing when there are no unseen cards left`() =
         runTest {
-            // Regression test: the dialog accepted input even when "Available New: 0" -
-            // adding cards must be a no-op once the deck has no unseen cards left.
             dayCountersStore.setNewPerDay(2)
             insertNewWords(2)
             reviewNextNewCard()

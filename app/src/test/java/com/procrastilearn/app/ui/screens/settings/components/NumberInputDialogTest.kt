@@ -211,8 +211,6 @@ class NumberInputDialogTest {
 
     @Test
     fun `OK stays disabled for any input when maximum is zero`() {
-        // Mirrors the "Available New: 0" dialog state from the reported bug: with no
-        // capacity left, no typed value should be accepted.
         setContent(
             title = "No capacity",
             currentValue = 0,

@@ -256,12 +256,8 @@ class DojoViewModelTest {
     @Test
     fun `newQuotaRemaining is capped at the actual number of unseen cards left in the deck`() =
         runTest(mainDispatcherRule.testDispatcher) {
-            // Regression test for the reported bug: the "N new" counter must never claim
-            // more new cards exist than are actually unseen in the deck, even if
-            // newPerDay + extraNewToday - newShown computes to a larger number.
             val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
             coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
-            // newPerDay=20, newShown=3, extraNewToday=0 -> formula gives 17, but only 4 unseen.
             newTotalCountFlow.value = 4
 
             val viewModel = buildViewModel()
@@ -287,9 +283,6 @@ class DojoViewModelTest {
     @Test
     fun `newQuotaRemaining caps an oversized extraNewToday boost at the unseen total`() =
         runTest(mainDispatcherRule.testDispatcher) {
-            // Simulates a boost that was granted before the write-side clamp existed
-            // (or any other way an oversized value ends up persisted): the display must
-            // still never exceed reality.
             val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
             coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
             countersFlow.value =

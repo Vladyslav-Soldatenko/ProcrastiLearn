@@ -190,8 +190,6 @@ class SettingsContentTest {
 
     @Test
     fun `add cards for today OK is disabled once entered value exceeds what can still be added`() {
-        // Regression test for the reported bug: entering a number greater than the
-        // available capacity must not be accepted.
         var addedAmount: Int? = null
         setContent(availableToAddToday = 5, onAddCardsForToday = { addedAmount = it })
 
@@ -226,7 +224,6 @@ class SettingsContentTest {
 
     @Test
     fun `add cards for today OK stays disabled for any input when nothing can be added`() {
-        // Mirrors the screenshot scenario: "Available New: 0" - typing 222 must not enable OK.
         var addedAmount: Int? = null
         setContent(availableToAddToday = 0, onAddCardsForToday = { addedAmount = it })
 

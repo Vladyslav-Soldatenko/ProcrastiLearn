@@ -84,8 +84,6 @@ class DayCountersStore
             }
         }
 
-        // Clamps the boost so newPerDay + extraNewToday - newShown can never exceed
-        // [availableNew], the actual number of unseen cards left in the deck.
         suspend fun addExtraNewToday(
             amount: Int,
             availableNew: Int,

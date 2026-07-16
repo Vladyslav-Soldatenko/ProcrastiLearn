@@ -209,8 +209,6 @@ class SettingsViewModelTest {
     @Test
     fun `loadAvailableNewCount reports zero availableToAddToday when unseen count is at or below current quota`() =
         runTest(mainDispatcherRule.testDispatcher) {
-            // Regression test for the reported bug: when the deck has fewer (or no) unseen
-            // cards than the current quota already claims, there is no room to add more.
             val viewModel = buildViewModel()
             coEvery { vocabularyDao.countNewTotal() } returns 0
 
