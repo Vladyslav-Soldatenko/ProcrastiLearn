@@ -106,6 +106,39 @@ class DayCountersStoreTest {
         }
 
     @Test
+    fun restoreCountersSetsValuesAbsolutelyAndLeavesExtraNewTodayAndDayUntouched() =
+        runTest {
+            store.resetFor(20240131)
+            store.addExtraNewToday(7)
+            store.markReviewShown()
+            store.markReviewShown()
+            store.markNewShown()
+
+            store.restoreCounters(newShown = 0, reviewShown = 0, reviewsSinceLastNew = 0)
+
+            val counters = store.read().first()
+            assertThat(counters.newShown).isEqualTo(0)
+            assertThat(counters.reviewShown).isEqualTo(0)
+            assertThat(counters.reviewsSinceLastNew).isEqualTo(0)
+            // Untouched by restore:
+            assertThat(counters.extraNewToday).isEqualTo(7)
+            assertThat(counters.yyyymmdd).isEqualTo(20240131)
+        }
+
+    @Test
+    fun restoreCountersCanIncreaseValuesToo() =
+        runTest {
+            store.resetFor(20240131)
+
+            store.restoreCounters(newShown = 4, reviewShown = 9, reviewsSinceLastNew = 2)
+
+            val counters = store.read().first()
+            assertThat(counters.newShown).isEqualTo(4)
+            assertThat(counters.reviewShown).isEqualTo(9)
+            assertThat(counters.reviewsSinceLastNew).isEqualTo(2)
+        }
+
+    @Test
     fun policyLimitsAreClampedAndMixModePersists() =
         runTest {
             store.setMixMode(MixMode.NEW_FIRST)

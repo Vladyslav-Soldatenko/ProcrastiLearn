@@ -66,6 +66,8 @@ class AddCardsForTodayIntegrationTest {
                 vocabularyDao = database.vocabularyDao(),
                 scheduler = Scheduler.builder().build(),
                 prefs = dayCountersStore,
+                undoSnapshotDao = database.undoSnapshotDao(),
+                appDatabase = database,
             )
     }
 

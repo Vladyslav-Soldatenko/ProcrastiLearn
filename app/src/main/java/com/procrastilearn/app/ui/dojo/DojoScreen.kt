@@ -9,11 +9,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,7 +44,13 @@ import io.github.openspacedrepetition.Rating
 @Composable
 fun DojoScreen(viewModel: DojoViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsState()
-    DojoScreen(uiState, viewModel::onToggleShowAnswer, viewModel::onDifficultySelected)
+    DojoScreen(
+        uiState,
+        viewModel::onToggleShowAnswer,
+        viewModel::onDifficultySelected,
+        viewModel::onUndo,
+        viewModel::onUndoEventShown,
+    )
 }
 
 @VisibleForTesting
@@ -47,17 +59,46 @@ internal fun DojoScreen(
     uiState: DojoUiState,
     onToggleShowAnswer: () -> Unit,
     onDifficultySelected: (Rating) -> Unit,
+    onUndo: () -> Unit = {},
+    onUndoEventShown: () -> Unit = {},
 ) {
     MyApplicationTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background,
-        ) {
-            Column(modifier = Modifier.fillMaxSize()) {
+        val snackbarHostState = remember { SnackbarHostState() }
+        val undoEvent = uiState.undoEvent
+        val undoMessage =
+            undoEvent?.let { event ->
+                stringResource(
+                    R.string.dojo_undo_confirmation,
+                    ratingLabel(event.revertedRating),
+                    event.word,
+                )
+            }
+
+        LaunchedEffect(undoEvent?.id) {
+            if (undoMessage != null) {
+                snackbarHostState.showSnackbar(message = undoMessage)
+                onUndoEventShown()
+            }
+        }
+
+        Scaffold(
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState) { data ->
+                    Snackbar(snackbarData = data)
+                }
+            },
+        ) { scaffoldPadding ->
+            Surface(
+                modifier = Modifier.fillMaxSize().padding(scaffoldPadding),
+                color = MaterialTheme.colorScheme.background,
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
                 // Stats header always visible
                 DojoStatsHeader(
                     newQuotaRemaining = uiState.newQuotaRemaining,
                     pendingReviewCount = uiState.pendingReviewCount,
+                    canUndo = uiState.canUndo,
+                    onUndo = onUndo,
                 )
 
                 // Content area
@@ -102,10 +143,21 @@ internal fun DojoScreen(
                         }
                     }
                 }
+                }
             }
         }
     }
 }
+
+@Composable
+private fun ratingLabel(rating: Rating): String =
+    when (rating) {
+        Rating.AGAIN -> stringResource(R.string.rating_again)
+        Rating.HARD -> stringResource(R.string.rating_hard)
+        Rating.GOOD -> stringResource(R.string.rating_good)
+        Rating.EASY -> stringResource(R.string.rating_easy)
+        else -> rating.name
+    }
 
 @Composable
 private fun EmptyState(modifier: Modifier = Modifier) {

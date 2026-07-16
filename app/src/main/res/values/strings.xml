@@ -55,6 +55,8 @@
     <string name="dojo_stats_reviews_due">due</string>
     <string name="dojo_empty_title">All done for now!</string>
     <string name="dojo_empty_message">You\'ve completed all available words for today. Come back later or adjust your daily limits in Settings.</string>
+    <string name="dojo_undo_content_description">Undo last rating</string>
+    <string name="dojo_undo_confirmation">Undid %1$s for \"%2$s\"</string>
 
     <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
     <string name="overlay_permission_title">Allow overlay display</string>
