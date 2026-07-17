@@ -23,7 +23,7 @@ private fun AddWordContentPreviewAiEnabled() {
             successMessage = null,
             openAiAvailable = true,
             useAiForTranslation = true,
-            translationDirection = AiTranslationDirection.FOREIGN_TO_NATIVE,
+            translationDirection = AiTranslationDirection.TARGET_TO_NATIVE,
             nativeLanguageCode = "EN",
             targetLanguageCode = "RU",
             previewContent =
@@ -70,7 +70,7 @@ private fun AddWordContentPreviewOffline() {
             successMessage = null,
             openAiAvailable = true,
             useAiForTranslation = true,
-            translationDirection = AiTranslationDirection.FOREIGN_TO_NATIVE,
+            translationDirection = AiTranslationDirection.TARGET_TO_NATIVE,
             nativeLanguageCode = "EN",
             targetLanguageCode = "RU",
             previewContent = null,
@@ -122,7 +122,7 @@ private fun PendingWordsSectionPreview() {
 private fun TranslationDirectionRowPreviewEnRu() {
     MyApplicationTheme {
         TranslationDirectionRow(
-            direction = AiTranslationDirection.FOREIGN_TO_NATIVE,
+            direction = AiTranslationDirection.TARGET_TO_NATIVE,
             nativeLanguageCode = "EN",
             targetLanguageCode = "RU",
             onToggle = {},
@@ -135,7 +135,7 @@ private fun TranslationDirectionRowPreviewEnRu() {
 private fun TranslationDirectionRowPreviewRuEn() {
     MyApplicationTheme {
         TranslationDirectionRow(
-            direction = AiTranslationDirection.NATIVE_TO_FOREIGN,
+            direction = AiTranslationDirection.NATIVE_TO_TARGET,
             nativeLanguageCode = "EN",
             targetLanguageCode = "RU",
             onToggle = {},
@@ -159,7 +159,7 @@ private fun AddWordContentPreview() {
             successMessage = "Word added successfully!",
             openAiAvailable = true,
             useAiForTranslation = false,
-            translationDirection = AiTranslationDirection.FOREIGN_TO_NATIVE,
+            translationDirection = AiTranslationDirection.TARGET_TO_NATIVE,
             nativeLanguageCode = "EN",
             targetLanguageCode = "RU",
             previewContent = null,

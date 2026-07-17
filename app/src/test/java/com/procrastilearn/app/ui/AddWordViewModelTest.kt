@@ -75,7 +75,7 @@ class AddWordViewModelTest {
         useAiFlow = MutableStateFlow(false)
         promptFlow = MutableStateFlow("system prompt")
         reversePromptFlow = MutableStateFlow("reverse system prompt")
-        directionFlow = MutableStateFlow(AiTranslationDirection.FOREIGN_TO_NATIVE)
+        directionFlow = MutableStateFlow(AiTranslationDirection.TARGET_TO_NATIVE)
         onlineFlow = MutableStateFlow(true)
         pendingWordsFlow = MutableStateFlow(emptyList())
         languagePairFlow = MutableStateFlow(LanguagePair(Language.ENGLISH, Language.RUSSIAN))
@@ -124,7 +124,7 @@ class AddWordViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             openAiKeyFlow.value = "abc123"
             useAiFlow.value = true
-            directionFlow.value = AiTranslationDirection.NATIVE_TO_FOREIGN
+            directionFlow.value = AiTranslationDirection.NATIVE_TO_TARGET
 
             val viewModel = buildViewModel()
 
@@ -133,7 +133,7 @@ class AddWordViewModelTest {
             val state = viewModel.uiState.value
             assertThat(state.openAiAvailable).isTrue()
             assertThat(state.useAiForTranslation).isTrue()
-            assertThat(state.translationDirection).isEqualTo(AiTranslationDirection.NATIVE_TO_FOREIGN)
+            assertThat(state.translationDirection).isEqualTo(AiTranslationDirection.NATIVE_TO_TARGET)
         }
 
     @Test
@@ -157,9 +157,9 @@ class AddWordViewModelTest {
             advanceUntilIdle()
             assertThat(viewModel.uiState.value.useAiForTranslation).isTrue()
 
-            directionFlow.value = AiTranslationDirection.NATIVE_TO_FOREIGN
+            directionFlow.value = AiTranslationDirection.NATIVE_TO_TARGET
             advanceUntilIdle()
-            assertThat(viewModel.uiState.value.translationDirection).isEqualTo(AiTranslationDirection.NATIVE_TO_FOREIGN)
+            assertThat(viewModel.uiState.value.translationDirection).isEqualTo(AiTranslationDirection.NATIVE_TO_TARGET)
         }
 
     @Test
@@ -186,7 +186,7 @@ class AddWordViewModelTest {
             assertThat(viewModel.uiState.value.pendingWords).isEmpty()
 
             pendingWordsFlow.value =
-                listOf(PendingWord(id = 5, word = "Haus", direction = AiTranslationDirection.FOREIGN_TO_NATIVE))
+                listOf(PendingWord(id = 5, word = "Haus", direction = AiTranslationDirection.TARGET_TO_NATIVE))
             advanceUntilIdle()
 
             val pendingWords = viewModel.uiState.value.pendingWords
@@ -332,7 +332,7 @@ class AddWordViewModelTest {
             assertThat(state.isSuccess).isTrue()
             assertThat(state.successMessage).contains("back online")
             assertThat(state.loadingAction).isNull()
-            coVerify(exactly = 1) { queuePendingWordUseCase.invoke("Haus", AiTranslationDirection.FOREIGN_TO_NATIVE) }
+            coVerify(exactly = 1) { queuePendingWordUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) }
             coVerify(exactly = 0) { addVocabularyItemUseCase.invoke(any(), any()) }
             assertThat(aiTranslationProvider.requests).isEmpty()
         }
@@ -379,7 +379,7 @@ class AddWordViewModelTest {
     @Test
     fun `onUseAiToggle allows disable when direction is native to foreign`() =
         runTest(mainDispatcherRule.testDispatcher) {
-            directionFlow.value = AiTranslationDirection.NATIVE_TO_FOREIGN
+            directionFlow.value = AiTranslationDirection.NATIVE_TO_TARGET
             useAiFlow.value = true
             val viewModel = buildViewModel()
 
@@ -396,7 +396,7 @@ class AddWordViewModelTest {
     fun `onTranslationDirectionToggle flips direction without forcing AI on`() =
         runTest(mainDispatcherRule.testDispatcher) {
             useAiFlow.value = false
-            directionFlow.value = AiTranslationDirection.FOREIGN_TO_NATIVE
+            directionFlow.value = AiTranslationDirection.TARGET_TO_NATIVE
             val viewModel = buildViewModel()
 
             advanceUntilIdle()
@@ -405,9 +405,9 @@ class AddWordViewModelTest {
             advanceUntilIdle()
 
             val state = viewModel.uiState.value
-            assertThat(state.translationDirection).isEqualTo(AiTranslationDirection.NATIVE_TO_FOREIGN)
+            assertThat(state.translationDirection).isEqualTo(AiTranslationDirection.NATIVE_TO_TARGET)
             assertThat(state.useAiForTranslation).isFalse()
-            coVerify { openAiStore.setAiTranslationDirection(AiTranslationDirection.NATIVE_TO_FOREIGN) }
+            coVerify { openAiStore.setAiTranslationDirection(AiTranslationDirection.NATIVE_TO_TARGET) }
             coVerify(exactly = 0) { openAiStore.setUseAiForTranslation(any()) }
         }
 
@@ -611,7 +611,7 @@ class AddWordViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             openAiKeyFlow.value = "abc"
             useAiFlow.value = true
-            directionFlow.value = AiTranslationDirection.NATIVE_TO_FOREIGN
+            directionFlow.value = AiTranslationDirection.NATIVE_TO_TARGET
             reversePromptFlow.value = "reverse prompt"
             coEvery { addVocabularyItemUseCase.invoke(any(), any()) } returns Result.success(Unit)
 

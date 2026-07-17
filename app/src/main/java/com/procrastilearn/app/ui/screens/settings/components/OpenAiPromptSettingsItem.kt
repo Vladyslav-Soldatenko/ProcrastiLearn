@@ -27,14 +27,14 @@ fun OpenAiPromptSettingsItem(
         if (prompt == OpenAiPromptDefaults.translationPrompt) {
             @Suppress("ForbiddenComment")
             // TODO: make this dynamic
-            stringResource(R.string.settings_openai_prompt_default, "RU", "EN")
+            stringResource(R.string.settings_openai_prompt_default, "EN", "RU")
         } else {
             stringResource(R.string.settings_openai_prompt_custom, nativeLanguageCode, targetLanguageCode)
         }
 
     ListItem(
         headlineContent = {
-            Text(stringResource(R.string.settings_openai_prompt_title, nativeLanguageCode, targetLanguageCode))
+            Text(stringResource(R.string.settings_openai_prompt_title, targetLanguageCode, nativeLanguageCode ))
         },
         supportingContent = {
             Text(

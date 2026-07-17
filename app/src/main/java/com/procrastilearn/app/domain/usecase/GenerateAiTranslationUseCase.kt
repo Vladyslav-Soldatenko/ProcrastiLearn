@@ -26,8 +26,8 @@ class GenerateAiTranslationUseCase
 
                 val systemPrompt =
                     when (direction) {
-                        AiTranslationDirection.FOREIGN_TO_NATIVE -> openAiStore.readOpenAiPrompt().first()
-                        AiTranslationDirection.NATIVE_TO_FOREIGN -> openAiStore.readOpenAiReversePrompt().first()
+                        AiTranslationDirection.TARGET_TO_NATIVE -> openAiStore.readOpenAiPrompt().first()
+                        AiTranslationDirection.NATIVE_TO_TARGET -> openAiStore.readOpenAiReversePrompt().first()
                     }
                 val userPrompt =
                     """

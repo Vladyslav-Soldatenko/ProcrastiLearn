@@ -44,7 +44,7 @@ class OpenAiPreferencesStoreTest {
             assertThat(store.readOpenAiPrompt().first()).isEqualTo(OpenAiPromptDefaults.translationPrompt)
             assertThat(store.readOpenAiReversePrompt().first()).isEqualTo(OpenAiPromptDefaults.reverseTranslationPrompt)
             assertThat(store.readUseAiForTranslation().first()).isFalse()
-            assertThat(store.readAiTranslationDirection().first()).isEqualTo(AiTranslationDirection.FOREIGN_TO_NATIVE)
+            assertThat(store.readAiTranslationDirection().first()).isEqualTo(AiTranslationDirection.TARGET_TO_NATIVE)
         }
 
     @Test
@@ -71,8 +71,8 @@ class OpenAiPreferencesStoreTest {
             store.setOpenAiReversePrompt("   ")
             assertThat(store.readOpenAiReversePrompt().first()).isEqualTo(OpenAiPromptDefaults.reverseTranslationPrompt)
 
-            store.setAiTranslationDirection(AiTranslationDirection.NATIVE_TO_FOREIGN)
-            assertThat(store.readAiTranslationDirection().first()).isEqualTo(AiTranslationDirection.NATIVE_TO_FOREIGN)
+            store.setAiTranslationDirection(AiTranslationDirection.NATIVE_TO_TARGET)
+            assertThat(store.readAiTranslationDirection().first()).isEqualTo(AiTranslationDirection.NATIVE_TO_TARGET)
 
             store.setUseAiForTranslation(true)
             assertThat(store.readUseAiForTranslation().first()).isTrue()

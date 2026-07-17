@@ -24,7 +24,7 @@ class ObservePendingWordsUseCaseTest {
     @Test
     fun `invoke delegates to repository`() =
         runTest {
-            val words = listOf(PendingWord(id = 1, word = "Haus", direction = AiTranslationDirection.FOREIGN_TO_NATIVE))
+            val words = listOf(PendingWord(id = 1, word = "Haus", direction = AiTranslationDirection.TARGET_TO_NATIVE))
             every { repository.observePendingWords() } returns flowOf(words)
 
             val result = useCase().first()

@@ -253,10 +253,10 @@ class AddWordViewModel @Inject
     fun onTranslationDirectionToggle() {
         val current = _uiState.value.translationDirection
         val next =
-            if (current == AiTranslationDirection.FOREIGN_TO_NATIVE) {
-                AiTranslationDirection.NATIVE_TO_FOREIGN
+            if (current == AiTranslationDirection.TARGET_TO_NATIVE) {
+                AiTranslationDirection.NATIVE_TO_TARGET
             } else {
-                AiTranslationDirection.FOREIGN_TO_NATIVE
+                AiTranslationDirection.TARGET_TO_NATIVE
             }
         viewModelScope.launch { openAiStore.setAiTranslationDirection(next) }
         _uiState.value =
@@ -561,7 +561,7 @@ data class AddWordUiState(
     val successMessage: String? = null,
     val openAiAvailable: Boolean = false,
     val useAiForTranslation: Boolean = false,
-    val translationDirection: AiTranslationDirection = AiTranslationDirection.FOREIGN_TO_NATIVE,
+    val translationDirection: AiTranslationDirection = AiTranslationDirection.TARGET_TO_NATIVE,
     val nativeLanguageCode: String = Language.ENGLISH.code.uppercase(),
     val targetLanguageCode: String = Language.RUSSIAN.code.uppercase(),
     val previewContent: AddWordPreviewContent? = null,

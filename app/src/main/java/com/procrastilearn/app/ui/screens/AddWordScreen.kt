@@ -643,7 +643,7 @@ internal fun TranslationDirectionRow(
     onToggle: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isNativeToTarget = direction == AiTranslationDirection.NATIVE_TO_FOREIGN
+    val isNativeToTarget = direction == AiTranslationDirection.NATIVE_TO_TARGET
     val startLabel = if (isNativeToTarget) nativeLanguageCode else targetLanguageCode
     val endLabel = if (isNativeToTarget) targetLanguageCode else nativeLanguageCode
     Row(

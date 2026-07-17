@@ -29,9 +29,9 @@ fun OpenAiReversePromptSettingsItem(
         if (prompt == OpenAiPromptDefaults.reverseTranslationPrompt) {
             @Suppress("ForbiddenComment")
             // TODO: make this dynamic
-            stringResource(R.string.settings_openai_reverse_prompt_default, "EN", "RU")
+            stringResource(R.string.settings_openai_reverse_prompt_default, "RU", "EN")
         } else {
-            stringResource(R.string.settings_openai_reverse_prompt_custom, targetLanguageCode, nativeLanguageCode)
+            stringResource(R.string.settings_openai_reverse_prompt_custom, nativeLanguageCode, targetLanguageCode )
         }
 
     ListItem(
@@ -39,8 +39,8 @@ fun OpenAiReversePromptSettingsItem(
             Text(
                 stringResource(
                     R.string.settings_openai_reverse_prompt_title,
-                    targetLanguageCode,
                     nativeLanguageCode,
+                    targetLanguageCode,
                 ),
             )
         },

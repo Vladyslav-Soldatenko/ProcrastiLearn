@@ -40,10 +40,10 @@ class PendingWordSyncManagerTest {
     @Test
     fun `syncPendingWords generates translation, adds the word and clears the pending entry`() =
         runTest {
-            val pending = PendingWord(id = 1, word = "Haus", direction = AiTranslationDirection.FOREIGN_TO_NATIVE)
+            val pending = PendingWord(id = 1, word = "Haus", direction = AiTranslationDirection.TARGET_TO_NATIVE)
             coEvery { pendingWordRepository.getAllPendingWordsSnapshot() } returns listOf(pending)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns null
-            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.FOREIGN_TO_NATIVE) } returns "House"
+            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) } returns "House"
             coEvery { addVocabularyItemUseCase.invoke("Haus", "House") } returns Result.success(Unit)
             coEvery { pendingWordRepository.deletePendingWord(pending) } just Runs
 
@@ -56,7 +56,7 @@ class PendingWordSyncManagerTest {
     @Test
     fun `syncPendingWords drops the entry without generating when the word already exists`() =
         runTest {
-            val pending = PendingWord(id = 1, word = "Haus", direction = AiTranslationDirection.FOREIGN_TO_NATIVE)
+            val pending = PendingWord(id = 1, word = "Haus", direction = AiTranslationDirection.TARGET_TO_NATIVE)
             val existing = VocabularyItem(id = 10, word = "Haus", translation = "House", isNew = false)
             coEvery { pendingWordRepository.getAllPendingWordsSnapshot() } returns listOf(pending)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
@@ -72,7 +72,7 @@ class PendingWordSyncManagerTest {
     @Test
     fun `syncPendingWords leaves the word pending when translation generation fails`() =
         runTest {
-            val pending = PendingWord(id = 1, word = "Haus", direction = AiTranslationDirection.FOREIGN_TO_NATIVE)
+            val pending = PendingWord(id = 1, word = "Haus", direction = AiTranslationDirection.TARGET_TO_NATIVE)
             coEvery { pendingWordRepository.getAllPendingWordsSnapshot() } returns listOf(pending)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns null
             coEvery { generateAiTranslationUseCase.invoke(any(), any()) } throws IllegalStateException("network blip")
@@ -86,10 +86,10 @@ class PendingWordSyncManagerTest {
     @Test
     fun `syncPendingWords leaves the word pending when adding it fails`() =
         runTest {
-            val pending = PendingWord(id = 1, word = "Haus", direction = AiTranslationDirection.FOREIGN_TO_NATIVE)
+            val pending = PendingWord(id = 1, word = "Haus", direction = AiTranslationDirection.TARGET_TO_NATIVE)
             coEvery { pendingWordRepository.getAllPendingWordsSnapshot() } returns listOf(pending)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns null
-            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.FOREIGN_TO_NATIVE) } returns "House"
+            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) } returns "House"
             coEvery { addVocabularyItemUseCase.invoke("Haus", "House") } returns
                 Result.failure(IllegalStateException("db busy"))
 
@@ -101,10 +101,10 @@ class PendingWordSyncManagerTest {
     @Test
     fun `syncPendingWords leaves the word pending when the generated translation is blank`() =
         runTest {
-            val pending = PendingWord(id = 1, word = "Haus", direction = AiTranslationDirection.FOREIGN_TO_NATIVE)
+            val pending = PendingWord(id = 1, word = "Haus", direction = AiTranslationDirection.TARGET_TO_NATIVE)
             coEvery { pendingWordRepository.getAllPendingWordsSnapshot() } returns listOf(pending)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns null
-            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.FOREIGN_TO_NATIVE) } returns "   "
+            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) } returns "   "
 
             manager.syncPendingWords()
 
@@ -115,8 +115,8 @@ class PendingWordSyncManagerTest {
     @Test
     fun `syncPendingWords keeps processing remaining words after one fails`() =
         runTest {
-            val failing = PendingWord(id = 1, word = "Fail", direction = AiTranslationDirection.FOREIGN_TO_NATIVE)
-            val succeeding = PendingWord(id = 2, word = "Haus", direction = AiTranslationDirection.FOREIGN_TO_NATIVE)
+            val failing = PendingWord(id = 1, word = "Fail", direction = AiTranslationDirection.TARGET_TO_NATIVE)
+            val succeeding = PendingWord(id = 2, word = "Haus", direction = AiTranslationDirection.TARGET_TO_NATIVE)
             coEvery { pendingWordRepository.getAllPendingWordsSnapshot() } returns listOf(failing, succeeding)
             coEvery { getVocabularyItemByWordUseCase.invoke("Fail") } returns null
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns null

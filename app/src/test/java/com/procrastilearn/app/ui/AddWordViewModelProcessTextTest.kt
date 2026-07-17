@@ -69,7 +69,7 @@ class AddWordViewModelProcessTextTest {
         openAiStore = mockk(relaxed = true)
         openAiKeyFlow = MutableStateFlow(null)
         useAiFlow = MutableStateFlow(false)
-        directionFlow = MutableStateFlow(AiTranslationDirection.FOREIGN_TO_NATIVE)
+        directionFlow = MutableStateFlow(AiTranslationDirection.TARGET_TO_NATIVE)
         onlineFlow = MutableStateFlow(true)
         pendingWordsFlow = MutableStateFlow(emptyList())
         aiTranslationProvider = FakeAiTranslationProvider()
