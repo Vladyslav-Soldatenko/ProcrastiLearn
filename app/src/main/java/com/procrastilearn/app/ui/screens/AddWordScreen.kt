@@ -353,7 +353,6 @@ private fun AiToggleRow(
     onUseAiToggle: (Boolean) -> Unit,
     onTranslationDirectionToggle: () -> Unit,
 ) {
-    val isAiToggleLocked = translationDirection == AiTranslationDirection.NATIVE_TO_FOREIGN
     if (useAiForTranslation) {
         TranslationDirectionRow(
             direction = translationDirection,
@@ -367,13 +366,7 @@ private fun AiToggleRow(
     Row(modifier = Modifier.fillMaxWidth()) {
         Checkbox(
             checked = useAiForTranslation,
-            onCheckedChange =
-                if (isAiToggleLocked) {
-                    null
-                } else {
-                    { onUseAiToggle(it) }
-                },
-            enabled = !isAiToggleLocked,
+            onCheckedChange = { onUseAiToggle(it) },
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(

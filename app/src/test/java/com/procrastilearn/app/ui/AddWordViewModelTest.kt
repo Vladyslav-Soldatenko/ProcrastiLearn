@@ -377,7 +377,7 @@ class AddWordViewModelTest {
         }
 
     @Test
-    fun `onUseAiToggle ignores disable when direction is RU to EN`() =
+    fun `onUseAiToggle allows disable when direction is native to foreign`() =
         runTest(mainDispatcherRule.testDispatcher) {
             directionFlow.value = AiTranslationDirection.NATIVE_TO_FOREIGN
             useAiFlow.value = true
@@ -388,12 +388,12 @@ class AddWordViewModelTest {
             viewModel.onUseAiToggle(false)
             advanceUntilIdle()
 
-            assertThat(viewModel.uiState.value.useAiForTranslation).isTrue()
-            coVerify(exactly = 0) { openAiStore.setUseAiForTranslation(false) }
+            assertThat(viewModel.uiState.value.useAiForTranslation).isFalse()
+            coVerify { openAiStore.setUseAiForTranslation(false) }
         }
 
     @Test
-    fun `onTranslationDirectionToggle flips direction and forces AI on`() =
+    fun `onTranslationDirectionToggle flips direction without forcing AI on`() =
         runTest(mainDispatcherRule.testDispatcher) {
             useAiFlow.value = false
             directionFlow.value = AiTranslationDirection.FOREIGN_TO_NATIVE
@@ -406,9 +406,9 @@ class AddWordViewModelTest {
 
             val state = viewModel.uiState.value
             assertThat(state.translationDirection).isEqualTo(AiTranslationDirection.NATIVE_TO_FOREIGN)
-            assertThat(state.useAiForTranslation).isTrue()
+            assertThat(state.useAiForTranslation).isFalse()
             coVerify { openAiStore.setAiTranslationDirection(AiTranslationDirection.NATIVE_TO_FOREIGN) }
-            coVerify { openAiStore.setUseAiForTranslation(true) }
+            coVerify(exactly = 0) { openAiStore.setUseAiForTranslation(any()) }
         }
 
     @Test

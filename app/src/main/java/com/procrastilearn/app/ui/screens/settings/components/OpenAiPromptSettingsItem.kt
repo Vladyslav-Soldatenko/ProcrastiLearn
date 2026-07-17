@@ -25,7 +25,8 @@ fun OpenAiPromptSettingsItem(
 ) {
     val supporting =
         if (prompt == OpenAiPromptDefaults.translationPrompt) {
-            stringResource(R.string.settings_openai_prompt_default, nativeLanguageCode, targetLanguageCode)
+            // TODO: make this dynamic
+            stringResource(R.string.settings_openai_prompt_default, "RU", "EN")
         } else {
             stringResource(R.string.settings_openai_prompt_custom, nativeLanguageCode, targetLanguageCode)
         }

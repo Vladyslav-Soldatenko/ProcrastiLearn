@@ -27,7 +27,8 @@ fun OpenAiReversePromptSettingsItem(
 ) {
     val supporting =
         if (prompt == OpenAiPromptDefaults.reverseTranslationPrompt) {
-            stringResource(R.string.settings_openai_reverse_prompt_default, targetLanguageCode, nativeLanguageCode)
+            // TODO: make this dynamic
+            stringResource(R.string.settings_openai_reverse_prompt_default, "EN", "RU")
         } else {
             stringResource(R.string.settings_openai_reverse_prompt_custom, targetLanguageCode, nativeLanguageCode)
         }

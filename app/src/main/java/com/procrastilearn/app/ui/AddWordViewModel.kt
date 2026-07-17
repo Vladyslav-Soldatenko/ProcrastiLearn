@@ -240,11 +240,7 @@ class AddWordViewModel @Inject
                 )
         }
 
-    // AI stays mandatory for native->foreign since the user can't reliably write the foreign language themselves.
     fun onUseAiToggle(checked: Boolean) {
-        if (!checked && _uiState.value.translationDirection == AiTranslationDirection.NATIVE_TO_FOREIGN) {
-            return
-        }
         viewModelScope.launch { openAiStore.setUseAiForTranslation(checked) }
         _uiState.value =
             _uiState.value.copy(
@@ -262,16 +258,10 @@ class AddWordViewModel @Inject
             } else {
                 AiTranslationDirection.FOREIGN_TO_NATIVE
             }
-        viewModelScope.launch {
-            openAiStore.setAiTranslationDirection(next)
-            if (next == AiTranslationDirection.NATIVE_TO_FOREIGN) {
-                openAiStore.setUseAiForTranslation(true)
-            }
-        }
+        viewModelScope.launch { openAiStore.setAiTranslationDirection(next) }
         _uiState.value =
             _uiState.value.copy(
                 translationDirection = next,
-                useAiForTranslation = next == AiTranslationDirection.NATIVE_TO_FOREIGN || _uiState.value.useAiForTranslation,
                 previewContent = null,
                 isPreviewVisible = false,
             )
