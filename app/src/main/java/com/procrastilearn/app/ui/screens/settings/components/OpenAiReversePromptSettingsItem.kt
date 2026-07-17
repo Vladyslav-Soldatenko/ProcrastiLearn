@@ -27,6 +27,7 @@ fun OpenAiReversePromptSettingsItem(
 ) {
     val supporting =
         if (prompt == OpenAiPromptDefaults.reverseTranslationPrompt) {
+            @Suppress("ForbiddenComment")
             // TODO: make this dynamic
             stringResource(R.string.settings_openai_reverse_prompt_default, "EN", "RU")
         } else {
