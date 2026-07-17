@@ -21,17 +21,27 @@ import com.procrastilearn.app.ui.theme.MyApplicationTheme
 @Composable
 fun OpenAiReversePromptSettingsItem(
     prompt: String,
+    nativeLanguageCode: String,
+    targetLanguageCode: String,
     onClick: () -> Unit,
 ) {
     val supporting =
         if (prompt == OpenAiPromptDefaults.reverseTranslationPrompt) {
-            stringResource(R.string.settings_openai_reverse_prompt_default)
+            stringResource(R.string.settings_openai_reverse_prompt_default, targetLanguageCode, nativeLanguageCode)
         } else {
-            stringResource(R.string.settings_openai_reverse_prompt_custom)
+            stringResource(R.string.settings_openai_reverse_prompt_custom, targetLanguageCode, nativeLanguageCode)
         }
 
     ListItem(
-        headlineContent = { Text(stringResource(R.string.settings_openai_reverse_prompt_title)) },
+        headlineContent = {
+            Text(
+                stringResource(
+                    R.string.settings_openai_reverse_prompt_title,
+                    targetLanguageCode,
+                    nativeLanguageCode,
+                ),
+            )
+        },
         supportingContent = {
             Text(
                 supporting,
@@ -59,6 +69,8 @@ private fun OpenAiReversePromptSettingsItemPreview() {
     MyApplicationTheme {
         OpenAiReversePromptSettingsItem(
             prompt = OpenAiPromptDefaults.reverseTranslationPrompt,
+            nativeLanguageCode = "EN",
+            targetLanguageCode = "RU",
             onClick = {},
         )
     }

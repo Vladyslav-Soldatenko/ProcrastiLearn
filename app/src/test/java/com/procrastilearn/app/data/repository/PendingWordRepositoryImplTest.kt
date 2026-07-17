@@ -45,29 +45,29 @@ class PendingWordRepositoryImplTest {
     @Test
     fun `queuePendingWord persists the word and direction`() =
         runTest {
-            repository.queuePendingWord("Haus", AiTranslationDirection.EN_TO_RU)
+            repository.queuePendingWord("Haus", AiTranslationDirection.FOREIGN_TO_NATIVE)
 
             val snapshot = repository.getAllPendingWordsSnapshot()
             assertThat(snapshot).hasSize(1)
             assertThat(snapshot.first().word).isEqualTo("Haus")
-            assertThat(snapshot.first().direction).isEqualTo(AiTranslationDirection.EN_TO_RU)
+            assertThat(snapshot.first().direction).isEqualTo(AiTranslationDirection.FOREIGN_TO_NATIVE)
         }
 
     @Test
     fun `queuePendingWord replaces existing entry for the same word`() =
         runTest {
-            repository.queuePendingWord("Haus", AiTranslationDirection.EN_TO_RU)
-            repository.queuePendingWord("Haus", AiTranslationDirection.RU_TO_EN)
+            repository.queuePendingWord("Haus", AiTranslationDirection.FOREIGN_TO_NATIVE)
+            repository.queuePendingWord("Haus", AiTranslationDirection.NATIVE_TO_FOREIGN)
 
             val snapshot = repository.getAllPendingWordsSnapshot()
             assertThat(snapshot).hasSize(1)
-            assertThat(snapshot.first().direction).isEqualTo(AiTranslationDirection.RU_TO_EN)
+            assertThat(snapshot.first().direction).isEqualTo(AiTranslationDirection.NATIVE_TO_FOREIGN)
         }
 
     @Test
     fun `deletePendingWord removes the matching row`() =
         runTest {
-            repository.queuePendingWord("Haus", AiTranslationDirection.EN_TO_RU)
+            repository.queuePendingWord("Haus", AiTranslationDirection.FOREIGN_TO_NATIVE)
             val stored = repository.getAllPendingWordsSnapshot().first()
 
             repository.deletePendingWord(stored)
@@ -78,7 +78,7 @@ class PendingWordRepositoryImplTest {
     @Test
     fun `deletePendingWordById removes the matching row`() =
         runTest {
-            repository.queuePendingWord("Haus", AiTranslationDirection.EN_TO_RU)
+            repository.queuePendingWord("Haus", AiTranslationDirection.FOREIGN_TO_NATIVE)
             val stored = repository.getAllPendingWordsSnapshot().first()
 
             repository.deletePendingWordById(stored.id)
@@ -92,7 +92,7 @@ class PendingWordRepositoryImplTest {
             repository.observePendingWords().test {
                 assertThat(awaitItem()).isEmpty()
 
-                repository.queuePendingWord("Haus", AiTranslationDirection.EN_TO_RU)
+                repository.queuePendingWord("Haus", AiTranslationDirection.FOREIGN_TO_NATIVE)
                 assertThat(awaitItem().map { it.word }).containsExactly("Haus")
 
                 val stored: PendingWord = repository.getAllPendingWordsSnapshot().first()

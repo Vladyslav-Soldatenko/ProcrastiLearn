@@ -93,8 +93,8 @@ class VocabularyFunctions
             if (!apiKey.isNullOrBlank() && useAi) {
                 val systemPrompt =
                     when (direction) {
-                        AiTranslationDirection.EN_TO_RU -> openAiStore.readOpenAiPrompt().first()
-                        AiTranslationDirection.RU_TO_EN -> openAiStore.readOpenAiReversePrompt().first()
+                        AiTranslationDirection.FOREIGN_TO_NATIVE -> openAiStore.readOpenAiPrompt().first()
+                        AiTranslationDirection.NATIVE_TO_FOREIGN -> openAiStore.readOpenAiReversePrompt().first()
                     }
                 val userPrompt =
                     """

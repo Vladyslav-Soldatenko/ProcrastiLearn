@@ -14,6 +14,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.R
+import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import com.procrastilearn.app.testing.ComponentActivityRegistrationRule
@@ -65,7 +66,11 @@ class SettingsContentTest {
         composeTestRule.onNodeWithText(string(R.string.settings_add_cards_for_today_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_new_cards_per_day_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_reviews_per_day_title)).assertIsDisplayed()
-        composeTestRule.onNodeWithText(string(R.string.settings_overlay_headline)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.settings_language_pair_title)).assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_overlay_headline))
+            .performScrollTo()
+            .assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_about_us_row)).performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_import_row)).performScrollTo().assertIsDisplayed()
     }
@@ -244,9 +249,79 @@ class SettingsContentTest {
         var overlayClicks = 0
         setContent(onOverlayClick = { overlayClicks++ })
 
-        composeTestRule.onNodeWithText(string(R.string.settings_overlay_headline)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.settings_overlay_headline)).performScrollTo().performClick()
 
         assertThat(overlayClicks).isEqualTo(1)
+    }
+
+    @Test
+    fun `language pair settings item shows configured pair`() {
+        setContent(nativeLanguage = Language.ENGLISH, targetLanguage = Language.SPANISH)
+
+        composeTestRule.onNodeWithText(string(R.string.settings_language_pair_title)).assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(
+                context.getString(
+                    R.string.settings_language_pair_desc,
+                    context.getString(R.string.language_name_english),
+                    context.getString(R.string.language_name_spanish),
+                ),
+            ).assertIsDisplayed()
+    }
+
+    @Test
+    fun `language pair item opens language selection dialog`() {
+        setContent()
+
+        composeTestRule.onNodeWithText(string(R.string.settings_language_pair_title)).performClick()
+
+        composeTestRule.onNodeWithText(string(R.string.language_selection_dialog_title)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `confirming language selection dialog invokes callback and closes dialog`() {
+        var changedNative: Language? = null
+        var changedTarget: Language? = null
+        setContent(
+            nativeLanguage = Language.ENGLISH,
+            targetLanguage = Language.SPANISH,
+            onLanguagePairChange = { native, target ->
+                changedNative = native
+                changedTarget = target
+            },
+        )
+
+        composeTestRule.onNodeWithText(string(R.string.settings_language_pair_title)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_continue)).performClick()
+
+        assertThat(changedNative).isEqualTo(Language.ENGLISH)
+        assertThat(changedTarget).isEqualTo(Language.SPANISH)
+        // dialog dismissed after confirm; ensure primary row still visible
+        composeTestRule.onNodeWithText(string(R.string.settings_language_pair_title)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `cancelling language selection dialog does not invoke callback`() {
+        var callbackInvoked = false
+        setContent(onLanguagePairChange = { _, _ -> callbackInvoked = true })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_language_pair_title)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_cancel)).performClick()
+
+        assertThat(callbackInvoked).isFalse()
+        composeTestRule.onNodeWithText(string(R.string.settings_language_pair_title)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `AI prompt titles reflect the configured language pair`() {
+        setContent(nativeLanguage = Language.GERMAN, targetLanguage = Language.FRENCH)
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_openai_prompt_title, "DE", "FR"))
+            .assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_title, "FR", "DE"))
+            .assertIsDisplayed()
     }
 
     @Test
@@ -271,6 +346,8 @@ class SettingsContentTest {
         openAiApiKey: String? = null,
         openAiPrompt: String = "Prompt",
         openAiReversePrompt: String = "Reverse prompt",
+        nativeLanguage: Language = Language.ENGLISH,
+        targetLanguage: Language = Language.RUSSIAN,
         overlayGranted: Boolean = false,
         a11yEnabled: Boolean = false,
         onOverlayClick: () -> Unit = {},
@@ -284,6 +361,7 @@ class SettingsContentTest {
         onOpenAiApiKeyChange: (String) -> Unit = {},
         onOpenAiPromptChange: (String) -> Unit = {},
         onOpenAiReversePromptChange: (String) -> Unit = {},
+        onLanguagePairChange: (Language, Language) -> Unit = { _, _ -> },
         onExportClick: () -> Unit = {},
         importOptions: List<VocabularyImportOption> = listOf(defaultImportOption),
         onImportOptionSelected: (VocabularyImportOption) -> Unit = {},
@@ -302,6 +380,8 @@ class SettingsContentTest {
                     openAiApiKey = openAiApiKey,
                     openAiPrompt = openAiPrompt,
                     openAiReversePrompt = openAiReversePrompt,
+                    nativeLanguage = nativeLanguage,
+                    targetLanguage = targetLanguage,
                     onOverlayClick = onOverlayClick,
                     onA11yClick = onA11yClick,
                     onMixModeChange = onMixModeChange,
@@ -313,6 +393,7 @@ class SettingsContentTest {
                     onOpenAiApiKeyChange = onOpenAiApiKeyChange,
                     onOpenAiPromptChange = onOpenAiPromptChange,
                     onOpenAiReversePromptChange = onOpenAiReversePromptChange,
+                    onLanguagePairChange = onLanguagePairChange,
                     onExportClick = onExportClick,
                     importOptions = importOptions,
                     onImportOptionSelected = onImportOptionSelected,

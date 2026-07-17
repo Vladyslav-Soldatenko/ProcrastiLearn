@@ -4,7 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -12,37 +12,33 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.procrastilearn.app.R
-import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
+import com.procrastilearn.app.domain.model.Language
+import com.procrastilearn.app.ui.theme.MyApplicationTheme
 
 @Composable
-fun OpenAiPromptSettingsItem(
-    prompt: String,
-    nativeLanguageCode: String,
-    targetLanguageCode: String,
+fun LanguagePairSettingsItem(
+    nativeLanguage: Language,
+    targetLanguage: Language,
     onClick: () -> Unit,
 ) {
-    val supporting =
-        if (prompt == OpenAiPromptDefaults.translationPrompt) {
-            stringResource(R.string.settings_openai_prompt_default, nativeLanguageCode, targetLanguageCode)
-        } else {
-            stringResource(R.string.settings_openai_prompt_custom, nativeLanguageCode, targetLanguageCode)
-        }
-
     ListItem(
-        headlineContent = {
-            Text(stringResource(R.string.settings_openai_prompt_title, nativeLanguageCode, targetLanguageCode))
-        },
+        headlineContent = { Text(stringResource(R.string.settings_language_pair_title)) },
         supportingContent = {
             Text(
-                supporting,
+                stringResource(
+                    R.string.settings_language_pair_desc,
+                    stringResource(nativeLanguage.displayNameRes),
+                    stringResource(targetLanguage.displayNameRes),
+                ),
                 style = MaterialTheme.typography.bodySmall,
             )
         },
         trailingContent = {
             Icon(
-                imageVector = Icons.Default.Edit,
+                imageVector = Icons.Default.KeyboardArrowRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -53,4 +49,16 @@ fun OpenAiPromptSettingsItem(
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth(),
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LanguagePairSettingsItemPreview() {
+    MyApplicationTheme {
+        LanguagePairSettingsItem(
+            nativeLanguage = Language.ENGLISH,
+            targetLanguage = Language.SPANISH,
+            onClick = {},
+        )
+    }
 }

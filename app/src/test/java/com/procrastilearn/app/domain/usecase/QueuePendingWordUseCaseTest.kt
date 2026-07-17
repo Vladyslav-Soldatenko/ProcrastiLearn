@@ -27,15 +27,15 @@ class QueuePendingWordUseCaseTest {
         runTest {
             coEvery { repository.queuePendingWord(any(), any()) } just Runs
 
-            useCase(" Haus ", AiTranslationDirection.EN_TO_RU)
+            useCase(" Haus ", AiTranslationDirection.FOREIGN_TO_NATIVE)
 
-            coVerify(exactly = 1) { repository.queuePendingWord("Haus", AiTranslationDirection.EN_TO_RU) }
+            coVerify(exactly = 1) { repository.queuePendingWord("Haus", AiTranslationDirection.FOREIGN_TO_NATIVE) }
         }
 
     @Test
     fun `invoke throws for a blank word without touching the repository`() {
         assertThrows(IllegalArgumentException::class.java) {
-            runBlocking { useCase("   ", AiTranslationDirection.EN_TO_RU) }
+            runBlocking { useCase("   ", AiTranslationDirection.FOREIGN_TO_NATIVE) }
         }
 
         coVerify(exactly = 0) { repository.queuePendingWord(any(), any()) }

@@ -33,7 +33,7 @@ class GenerateAiTranslationUseCaseTest {
         runTest {
             provider.nextTranslation = "House"
 
-            val result = useCase("Haus", AiTranslationDirection.EN_TO_RU)
+            val result = useCase("Haus", AiTranslationDirection.FOREIGN_TO_NATIVE)
 
             assertThat(result).isEqualTo("House")
             val request = provider.requests.single()
@@ -47,7 +47,7 @@ class GenerateAiTranslationUseCaseTest {
         runTest {
             provider.nextTranslation = "House"
 
-            useCase("дом", AiTranslationDirection.RU_TO_EN)
+            useCase("дом", AiTranslationDirection.NATIVE_TO_FOREIGN)
 
             val request = provider.requests.single()
             assertThat(request.systemPrompt).isEqualTo("reverse prompt")
@@ -59,7 +59,7 @@ class GenerateAiTranslationUseCaseTest {
         every { openAiStore.readOpenAiApiKey() } returns flowOf(null)
 
         assertThrows(IllegalArgumentException::class.java) {
-            kotlinx.coroutines.runBlocking { useCase("Haus", AiTranslationDirection.EN_TO_RU) }
+            kotlinx.coroutines.runBlocking { useCase("Haus", AiTranslationDirection.FOREIGN_TO_NATIVE) }
         }
         assertThat(provider.requests).isEmpty()
     }

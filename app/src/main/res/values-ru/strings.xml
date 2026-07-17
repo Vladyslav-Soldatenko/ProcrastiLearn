@@ -118,6 +118,22 @@
         <string name="add_word_error_translation_required">Введите перевод.</string>
         <string name="add_word_toast_added">Слово добавлено.</string>
 
+        <!-- ─── Language selection ──────────────────────────────────────────────── -->
+        <string name="language_name_english">Английский</string>
+        <string name="language_name_russian">Русский</string>
+        <string name="language_name_spanish">Испанский</string>
+        <string name="language_name_french">Французский</string>
+        <string name="language_name_german">Немецкий</string>
+        <string name="language_name_italian">Итальянский</string>
+        <string name="language_name_portuguese">Португальский</string>
+        <string name="language_name_chinese">Китайский (мандарин)</string>
+
+        <string name="language_selection_dialog_title">Выберите ваши языки</string>
+        <string name="language_selection_subtitle">Выберите язык, на котором вы говорите, и язык, который хотите изучать. Это можно изменить позже в настройках.</string>
+        <string name="language_selection_native_label">Я говорю на</string>
+        <string name="language_selection_target_label">Я хочу изучить</string>
+        <string name="language_selection_same_language_error">Родной и изучаемый языки должны отличаться</string>
+
         <!-- ─── Settings ────────────────────────────────────────────────────────── -->
         <string name="settings_title">Настройки</string>
 
@@ -126,6 +142,10 @@
         <string name="settings_section_ai_features">ИИ-функции (нужен API-ключ)</string>
         <string name="settings_section_permissions">Разрешения</string>
         <string name="settings_section_data_about">Данные и о приложении</string>
+
+        <!-- Language pair -->
+        <string name="settings_language_pair_title">Языковая пара</string>
+        <string name="settings_language_pair_desc">%1$s → %2$s</string>
 
         <!-- Study mode -->
         <string name="settings_study_mode_title">Режим обучения</string>
@@ -150,14 +170,14 @@
         <string name="settings_openai_api_key_dialog_title">Введите ключ OpenAI API</string>
         <string name="settings_openai_api_key_not_set">Не задан</string>
         <string name="settings_openai_api_key_set">Сохранён</string>
-        <string name="settings_openai_prompt_title">Промпт AI EN-&gt;RU</string>
-        <string name="settings_openai_prompt_dialog_title">Измените промпт AI EN-&gt;RU</string>
-        <string name="settings_openai_prompt_default">Используется промпт EN-&gt;RU по умолчанию</string>
-        <string name="settings_openai_prompt_custom">Пользовательский промпт EN-&gt;RU сохранён</string>
-        <string name="settings_openai_reverse_prompt_title">Промпт AI RU-&gt;EN</string>
-        <string name="settings_openai_reverse_prompt_dialog_title">Измените промпт AI RU-&gt;EN</string>
-        <string name="settings_openai_reverse_prompt_default">Используется промпт RU-&gt;EN по умолчанию</string>
-        <string name="settings_openai_reverse_prompt_custom">Пользовательский промпт RU-&gt;EN сохранён</string>
+        <string name="settings_openai_prompt_title">Промпт AI %1$s-&gt;%2$s</string>
+        <string name="settings_openai_prompt_dialog_title">Измените промпт AI %1$s-&gt;%2$s</string>
+        <string name="settings_openai_prompt_default">Используется промпт %1$s-&gt;%2$s по умолчанию</string>
+        <string name="settings_openai_prompt_custom">Пользовательский промпт %1$s-&gt;%2$s сохранён</string>
+        <string name="settings_openai_reverse_prompt_title">Промпт AI %1$s-&gt;%2$s</string>
+        <string name="settings_openai_reverse_prompt_dialog_title">Измените промпт AI %1$s-&gt;%2$s</string>
+        <string name="settings_openai_reverse_prompt_default">Используется промпт %1$s-&gt;%2$s по умолчанию</string>
+        <string name="settings_openai_reverse_prompt_custom">Пользовательский промпт %1$s-&gt;%2$s сохранён</string>
 
         <string name="settings_overlay_headline">Разрешение на оверлей</string>
         <string name="settings_overlay_support">
@@ -224,8 +244,6 @@
         <!-- Add Word: AI translation toggle -->
         <string name="add_word_use_ai_toggle">использовать ИИ для генерации перевода</string>
         <string name="add_word_toggle_direction">Переключить направление перевода</string>
-        <string name="add_word_direction_en">EN</string>
-        <string name="add_word_direction_ru">RU</string>
         <string name="add_word_button_preview">Предпросмотр</string>
         <string name="add_word_preview_title">Предпросмотр ИИ</string>
         <string name="add_word_preview_cancel">@string/action_cancel</string>

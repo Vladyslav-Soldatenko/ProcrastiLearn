@@ -8,8 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.mapper.toEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
+import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.VocabularyExportItem
 import com.procrastilearn.app.domain.model.VocabularyItem
@@ -41,14 +43,18 @@ data class SettingsUiState(
     val openAiApiKey: String? = null,
     val openAiPrompt: String = OpenAiPromptDefaults.translationPrompt,
     val openAiReversePrompt: String = OpenAiPromptDefaults.reverseTranslationPrompt,
+    val nativeLanguage: Language = Language.ENGLISH,
+    val targetLanguage: Language = Language.RUSSIAN,
 )
 
 @HiltViewModel
+@Suppress("LongParameterList")
 class SettingsViewModel
     @Inject
     constructor(
         private val dayCountersStore: DayCountersStore,
         private val openAiStore: OpenAiPreferencesStore,
+        private val languagePreferencesStore: LanguagePreferencesStore,
         private val vocabularyDao: VocabularyDao,
         private val vocabularyRepository: VocabularyRepository,
         private val parsers: Set<@JvmSuppressWildcards VocabularyParser>,
@@ -61,7 +67,8 @@ class SettingsViewModel
                     openAiStore.readOpenAiApiKey(),
                     openAiStore.readOpenAiPrompt(),
                     openAiStore.readOpenAiReversePrompt(),
-                ) { policy, apiKey, prompt, reversePrompt ->
+                    languagePreferencesStore.readLanguagePair(),
+                ) { policy, apiKey, prompt, reversePrompt, languagePair ->
                     SettingsUiState(
                         mixMode = policy.mixMode,
                         newPerDay = policy.newPerDay,
@@ -70,6 +77,8 @@ class SettingsViewModel
                         openAiApiKey = apiKey,
                         openAiPrompt = prompt,
                         openAiReversePrompt = reversePrompt,
+                        nativeLanguage = languagePair?.native ?: Language.ENGLISH,
+                        targetLanguage = languagePair?.target ?: Language.RUSSIAN,
                     )
                 }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -138,6 +147,13 @@ class SettingsViewModel
 
         fun onOpenAiReversePromptChange(value: String) {
             viewModelScope.launch { openAiStore.setOpenAiReversePrompt(value) }
+        }
+
+        fun onLanguagePairChange(
+            native: Language,
+            target: Language,
+        ) {
+            viewModelScope.launch { languagePreferencesStore.setLanguagePair(native, target) }
         }
 
         /**

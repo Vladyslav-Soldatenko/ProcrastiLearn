@@ -2,11 +2,14 @@ package com.procrastilearn.app.ui
 
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
+import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.text.ProcessTextEventBus
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
 import com.procrastilearn.app.domain.model.AiTranslationDirection
+import com.procrastilearn.app.domain.model.Language
+import com.procrastilearn.app.domain.model.LanguagePair
 import com.procrastilearn.app.domain.model.PendingWord
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.DeletePendingWordUseCase
@@ -44,6 +47,7 @@ class AddWordViewModelProcessTextTest {
     private lateinit var deletePendingWordUseCase: DeletePendingWordUseCase
     private lateinit var connectivityObserver: NetworkConnectivityObserver
     private lateinit var openAiStore: OpenAiPreferencesStore
+    private lateinit var languagePreferencesStore: LanguagePreferencesStore
     private lateinit var generateAiTranslationUseCase: GenerateAiTranslationUseCase
     private lateinit var openAiKeyFlow: MutableStateFlow<String?>
     private lateinit var useAiFlow: MutableStateFlow<Boolean>
@@ -65,10 +69,11 @@ class AddWordViewModelProcessTextTest {
         openAiStore = mockk(relaxed = true)
         openAiKeyFlow = MutableStateFlow(null)
         useAiFlow = MutableStateFlow(false)
-        directionFlow = MutableStateFlow(AiTranslationDirection.EN_TO_RU)
+        directionFlow = MutableStateFlow(AiTranslationDirection.FOREIGN_TO_NATIVE)
         onlineFlow = MutableStateFlow(true)
         pendingWordsFlow = MutableStateFlow(emptyList())
         aiTranslationProvider = FakeAiTranslationProvider()
+        languagePreferencesStore = mockk(relaxed = true)
         generateAiTranslationUseCase =
             GenerateAiTranslationUseCase(aiTranslationProvider, openAiStore, mainDispatcherRule.testDispatcher)
         processTextEventBus = ProcessTextEventBus()
@@ -78,6 +83,8 @@ class AddWordViewModelProcessTextTest {
         every { openAiStore.readOpenAiPrompt() } returns MutableStateFlow("system prompt")
         every { openAiStore.readOpenAiReversePrompt() } returns MutableStateFlow("reverse system prompt")
         every { openAiStore.readAiTranslationDirection() } returns directionFlow
+        every { languagePreferencesStore.readLanguagePair() } returns
+            MutableStateFlow(LanguagePair(Language.ENGLISH, Language.RUSSIAN))
         coEvery { getVocabularyItemByWordUseCase.invoke(any()) } returns null
         every { connectivityObserver.observe() } returns onlineFlow
         every { observePendingWordsUseCase.invoke() } returns pendingWordsFlow
@@ -96,6 +103,7 @@ class AddWordViewModelProcessTextTest {
             getVocabularyItemByWordUseCase,
             overrideVocabularyItemUseCase,
             openAiStore,
+            languagePreferencesStore,
             generateAiTranslationUseCase,
             queuePendingWordUseCase,
             observePendingWordsUseCase,

@@ -87,6 +87,8 @@ fun AddWordScreen(
         openAiAvailable = uiState.openAiAvailable,
         useAiForTranslation = uiState.useAiForTranslation,
         translationDirection = uiState.translationDirection,
+        nativeLanguageCode = uiState.nativeLanguageCode,
+        targetLanguageCode = uiState.targetLanguageCode,
         previewContent = uiState.previewContent,
         isPreviewVisible = uiState.isPreviewVisible,
         isExistingWordDialogVisible = uiState.isExistingWordDialogVisible,
@@ -126,6 +128,8 @@ internal fun AddWordContent(
     openAiAvailable: Boolean,
     useAiForTranslation: Boolean,
     translationDirection: AiTranslationDirection,
+    nativeLanguageCode: String,
+    targetLanguageCode: String,
     previewContent: AddWordPreviewContent?,
     isPreviewVisible: Boolean,
     isExistingWordDialogVisible: Boolean,
@@ -197,6 +201,8 @@ internal fun AddWordContent(
                 openAiAvailable = openAiAvailable,
                 useAiForTranslation = useAiForTranslation,
                 translationDirection = translationDirection,
+                nativeLanguageCode = nativeLanguageCode,
+                targetLanguageCode = targetLanguageCode,
                 onWordChange = onWordChange,
                 onUseAiToggle = onUseAiToggle,
                 onTranslationDirectionToggle = onTranslationDirectionToggle,
@@ -286,6 +292,8 @@ private fun WordInputCard(
     openAiAvailable: Boolean,
     useAiForTranslation: Boolean,
     translationDirection: AiTranslationDirection,
+    nativeLanguageCode: String,
+    targetLanguageCode: String,
     onWordChange: (String) -> Unit,
     onUseAiToggle: (Boolean) -> Unit,
     onTranslationDirectionToggle: () -> Unit,
@@ -308,6 +316,8 @@ private fun WordInputCard(
                 AiToggleRow(
                     useAiForTranslation = useAiForTranslation,
                     translationDirection = translationDirection,
+                    nativeLanguageCode = nativeLanguageCode,
+                    targetLanguageCode = targetLanguageCode,
                     onUseAiToggle = onUseAiToggle,
                     onTranslationDirectionToggle = onTranslationDirectionToggle,
                 )
@@ -338,13 +348,17 @@ private fun WordInputCard(
 private fun AiToggleRow(
     useAiForTranslation: Boolean,
     translationDirection: AiTranslationDirection,
+    nativeLanguageCode: String,
+    targetLanguageCode: String,
     onUseAiToggle: (Boolean) -> Unit,
     onTranslationDirectionToggle: () -> Unit,
 ) {
-    val isAiToggleLocked = translationDirection == AiTranslationDirection.RU_TO_EN
+    val isAiToggleLocked = translationDirection == AiTranslationDirection.NATIVE_TO_FOREIGN
     if (useAiForTranslation) {
         TranslationDirectionRow(
             direction = translationDirection,
+            nativeLanguageCode = nativeLanguageCode,
+            targetLanguageCode = targetLanguageCode,
             onToggle = onTranslationDirectionToggle,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -631,19 +645,21 @@ internal fun PendingWordsSection(
 @Composable
 internal fun TranslationDirectionRow(
     direction: AiTranslationDirection,
+    nativeLanguageCode: String,
+    targetLanguageCode: String,
     onToggle: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isEnToRu = direction == AiTranslationDirection.EN_TO_RU
-    val startLabel = if (isEnToRu) R.string.add_word_direction_en else R.string.add_word_direction_ru
-    val endLabel = if (isEnToRu) R.string.add_word_direction_ru else R.string.add_word_direction_en
+    val isNativeToTarget = direction == AiTranslationDirection.NATIVE_TO_FOREIGN
+    val startLabel = if (isNativeToTarget) nativeLanguageCode else targetLanguageCode
+    val endLabel = if (isNativeToTarget) targetLanguageCode else nativeLanguageCode
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = stringResource(startLabel),
+            text = startLabel,
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -657,7 +673,7 @@ internal fun TranslationDirectionRow(
         }
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = stringResource(endLabel),
+            text = endLabel,
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )

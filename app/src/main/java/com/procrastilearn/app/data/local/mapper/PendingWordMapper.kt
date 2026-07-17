@@ -10,7 +10,7 @@ fun PendingWordEntity.toDomain(): PendingWord =
         word = word,
         direction =
             runCatching { AiTranslationDirection.valueOf(direction) }
-                .getOrDefault(AiTranslationDirection.EN_TO_RU),
+                .getOrDefault(AiTranslationDirection.FOREIGN_TO_NATIVE),
         createdAt = createdAt,
     )
 
