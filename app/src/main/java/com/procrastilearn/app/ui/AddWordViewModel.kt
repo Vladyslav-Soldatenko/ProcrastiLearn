@@ -3,9 +3,11 @@ package com.procrastilearn.app.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
+import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.text.ProcessTextEventBus
 import com.procrastilearn.app.domain.model.AiTranslationDirection
+import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.DeletePendingWordUseCase
@@ -32,6 +34,7 @@ class AddWordViewModel @Inject
         private val getVocabularyItemByWordUseCase: GetVocabularyItemByWordUseCase,
         private val overrideVocabularyItemUseCase: OverrideVocabularyItemUseCase,
         private val openAiStore: OpenAiPreferencesStore,
+        private val languagePreferencesStore: LanguagePreferencesStore,
         private val generateAiTranslationUseCase: GenerateAiTranslationUseCase,
         private val queuePendingWordUseCase: QueuePendingWordUseCase,
         private val observePendingWordsUseCase: ObservePendingWordsUseCase,
@@ -50,14 +53,23 @@ class AddWordViewModel @Inject
                     openAiStore.readOpenAiApiKey(),
                     openAiStore.readUseAiForTranslation(),
                     openAiStore.readAiTranslationDirection(),
-                ) { key: String?, useAi: Boolean, direction: AiTranslationDirection ->
-                    Triple(!key.isNullOrBlank(), useAi, direction)
-                }.collectLatest { (hasKey, useAi, direction) ->
+                    languagePreferencesStore.readLanguagePair(),
+                ) { key: String?, useAi: Boolean, direction: AiTranslationDirection, languagePair ->
+                    AddWordCombinedPrefs(
+                        hasKey = !key.isNullOrBlank(),
+                        useAi = useAi,
+                        direction = direction,
+                        nativeLanguage = languagePair?.native ?: Language.ENGLISH,
+                        targetLanguage = languagePair?.target ?: Language.RUSSIAN,
+                    )
+                }.collectLatest { combined ->
                     _uiState.value =
                         _uiState.value.copy(
-                            openAiAvailable = hasKey,
-                            useAiForTranslation = useAi,
-                            translationDirection = direction,
+                            openAiAvailable = combined.hasKey,
+                            useAiForTranslation = combined.useAi,
+                            translationDirection = combined.direction,
+                            nativeLanguageCode = combined.nativeLanguage.code.uppercase(),
+                            targetLanguageCode = combined.targetLanguage.code.uppercase(),
                         )
                 }
             }
@@ -229,9 +241,6 @@ class AddWordViewModel @Inject
         }
 
     fun onUseAiToggle(checked: Boolean) {
-        if (!checked && _uiState.value.translationDirection == AiTranslationDirection.RU_TO_EN) {
-            return
-        }
         viewModelScope.launch { openAiStore.setUseAiForTranslation(checked) }
         _uiState.value =
             _uiState.value.copy(
@@ -244,21 +253,15 @@ class AddWordViewModel @Inject
     fun onTranslationDirectionToggle() {
         val current = _uiState.value.translationDirection
         val next =
-            if (current == AiTranslationDirection.EN_TO_RU) {
-                AiTranslationDirection.RU_TO_EN
+            if (current == AiTranslationDirection.TARGET_TO_NATIVE) {
+                AiTranslationDirection.NATIVE_TO_TARGET
             } else {
-                AiTranslationDirection.EN_TO_RU
+                AiTranslationDirection.TARGET_TO_NATIVE
             }
-        viewModelScope.launch {
-            openAiStore.setAiTranslationDirection(next)
-            if (next == AiTranslationDirection.RU_TO_EN) {
-                openAiStore.setUseAiForTranslation(true)
-            }
-        }
+        viewModelScope.launch { openAiStore.setAiTranslationDirection(next) }
         _uiState.value =
             _uiState.value.copy(
                 translationDirection = next,
-                useAiForTranslation = next == AiTranslationDirection.RU_TO_EN || _uiState.value.useAiForTranslation,
                 previewContent = null,
                 isPreviewVisible = false,
             )
@@ -504,6 +507,14 @@ class AddWordViewModel @Inject
             )
         }
 
+        private data class AddWordCombinedPrefs(
+            val hasKey: Boolean,
+            val useAi: Boolean,
+            val direction: AiTranslationDirection,
+            val nativeLanguage: Language,
+            val targetLanguage: Language,
+        )
+
         private data class PendingOverrideSubmission(
             val existingItem: VocabularyItem,
             val word: String,
@@ -550,7 +561,9 @@ data class AddWordUiState(
     val successMessage: String? = null,
     val openAiAvailable: Boolean = false,
     val useAiForTranslation: Boolean = false,
-    val translationDirection: AiTranslationDirection = AiTranslationDirection.EN_TO_RU,
+    val translationDirection: AiTranslationDirection = AiTranslationDirection.TARGET_TO_NATIVE,
+    val nativeLanguageCode: String = Language.ENGLISH.code.uppercase(),
+    val targetLanguageCode: String = Language.RUSSIAN.code.uppercase(),
     val previewContent: AddWordPreviewContent? = null,
     val isPreviewVisible: Boolean = false,
     val isExistingWordDialogVisible: Boolean = false,

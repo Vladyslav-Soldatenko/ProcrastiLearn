@@ -124,6 +124,22 @@
     <string name="add_word_error_translation_required">Please enter a translation.</string>
     <string name="add_word_toast_added">Word added.</string>
 
+    <!-- ─── Language selection ──────────────────────────────────────────────── -->
+    <string name="language_name_english">English</string>
+    <string name="language_name_russian">Russian</string>
+    <string name="language_name_spanish">Spanish</string>
+    <string name="language_name_french">French</string>
+    <string name="language_name_german">German</string>
+    <string name="language_name_italian">Italian</string>
+    <string name="language_name_portuguese">Portuguese</string>
+    <string name="language_name_chinese">Chinese (Mandarin)</string>
+
+    <string name="language_selection_dialog_title">Choose your languages</string>
+    <string name="language_selection_subtitle">Pick the language you speak and the one you want to learn. You can change this later in Settings.</string>
+    <string name="language_selection_native_label">I speak</string>
+    <string name="language_selection_target_label">I want to learn</string>
+    <string name="language_selection_same_language_error">Native and target languages must be different</string>
+
     <!-- ─── Settings ────────────────────────────────────────────────────────── -->
     <string name="settings_title">Settings</string>
 
@@ -132,6 +148,10 @@
     <string name="settings_section_ai_features">AI Features (API key required)</string>
     <string name="settings_section_permissions">Permissions</string>
     <string name="settings_section_data_about">Data &amp; About</string>
+
+    <!-- Language pair -->
+    <string name="settings_language_pair_title">Language pair</string>
+    <string name="settings_language_pair_desc">%1$s → %2$s</string>
 
     <!-- Study mode -->
     <string name="settings_study_mode_title">Study Mode</string>
@@ -208,20 +228,18 @@
     <string name="settings_openai_api_key_dialog_title">Enter OpenAI API Key</string>
     <string name="settings_openai_api_key_not_set">Not set</string>
     <string name="settings_openai_api_key_set">Saved</string>
-    <string name="settings_openai_prompt_title">AI EN-&gt;RU prompt</string>
-    <string name="settings_openai_prompt_dialog_title">Edit AI EN-&gt;RU prompt</string>
-    <string name="settings_openai_prompt_default">Using default EN-&gt;RU prompt</string>
-    <string name="settings_openai_prompt_custom">Custom EN-&gt;RU prompt saved</string>
-    <string name="settings_openai_reverse_prompt_title">AI RU-&gt;EN prompt</string>
-    <string name="settings_openai_reverse_prompt_dialog_title">Edit AI RU-&gt;EN prompt</string>
-    <string name="settings_openai_reverse_prompt_default">Using default RU-&gt;EN prompt</string>
-    <string name="settings_openai_reverse_prompt_custom">Custom RU-&gt;EN prompt saved</string>
+    <string name="settings_openai_prompt_title">AI %1$s-&gt;%2$s prompt</string>
+    <string name="settings_openai_prompt_dialog_title">Edit AI %1$s-&gt;%2$s prompt</string>
+    <string name="settings_openai_prompt_default">Using default %1$s-&gt;%2$s prompt</string>
+    <string name="settings_openai_prompt_custom">Custom %1$s-&gt;%2$s prompt saved</string>
+    <string name="settings_openai_reverse_prompt_title">AI %1$s-&gt;%2$s prompt</string>
+    <string name="settings_openai_reverse_prompt_dialog_title">Edit AI %1$s-&gt;%2$s prompt</string>
+    <string name="settings_openai_reverse_prompt_default">Using default %1$s-&gt;%2$s prompt</string>
+    <string name="settings_openai_reverse_prompt_custom">Custom %1$s-&gt;%2$s prompt saved</string>
 
     <!-- Add Word: AI translation toggle -->
     <string name="add_word_use_ai_toggle">use AI to generate translation</string>
     <string name="add_word_toggle_direction">Toggle translation direction</string>
-    <string name="add_word_direction_en">EN</string>
-    <string name="add_word_direction_ru">RU</string>
     <string name="add_word_button_preview">Preview</string>
     <string name="add_word_preview_title">AI preview</string>
     <string name="add_word_preview_cancel">@string/action_cancel</string>

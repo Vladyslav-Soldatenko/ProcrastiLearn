@@ -10,8 +10,11 @@ import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
+import com.procrastilearn.app.domain.model.Language
+import com.procrastilearn.app.domain.model.LanguagePair
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.VocabularyExportItem
@@ -50,6 +53,7 @@ class SettingsViewModelTest {
     private lateinit var appContext: Context
     private lateinit var dayCountersStore: DayCountersStore
     private lateinit var openAiStore: OpenAiPreferencesStore
+    private lateinit var languagePreferencesStore: LanguagePreferencesStore
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var vocabularyRepository: VocabularyRepository
     private lateinit var policyFlow: MutableStateFlow<LearningPreferencesConfig>
@@ -57,6 +61,7 @@ class SettingsViewModelTest {
     private lateinit var apiKeyFlow: MutableStateFlow<String?>
     private lateinit var promptFlow: MutableStateFlow<String>
     private lateinit var reversePromptFlow: MutableStateFlow<String>
+    private lateinit var languagePairFlow: MutableStateFlow<LanguagePair?>
     private val defaultParser: VocabularyParser =
         object : VocabularyParser {
             override val id: String = "apkg"
@@ -73,6 +78,7 @@ class SettingsViewModelTest {
         appContext = ApplicationProvider.getApplicationContext()
         dayCountersStore = mockk(relaxed = true)
         openAiStore = mockk(relaxed = true)
+        languagePreferencesStore = mockk(relaxed = true)
         vocabularyDao = mockk()
         vocabularyRepository = mockk(relaxed = true)
         policyFlow =
@@ -97,12 +103,14 @@ class SettingsViewModelTest {
         apiKeyFlow = MutableStateFlow(null)
         promptFlow = MutableStateFlow(OpenAiPromptDefaults.translationPrompt)
         reversePromptFlow = MutableStateFlow(OpenAiPromptDefaults.reverseTranslationPrompt)
+        languagePairFlow = MutableStateFlow(null)
 
         every { dayCountersStore.readPolicy() } returns policyFlow
         every { dayCountersStore.read() } returns countersFlow
         every { openAiStore.readOpenAiApiKey() } returns apiKeyFlow
         every { openAiStore.readOpenAiPrompt() } returns promptFlow
         every { openAiStore.readOpenAiReversePrompt() } returns reversePromptFlow
+        every { languagePreferencesStore.readLanguagePair() } returns languagePairFlow
     }
 
     @After
@@ -114,6 +122,7 @@ class SettingsViewModelTest {
         SettingsViewModel(
             dayCountersStore = dayCountersStore,
             openAiStore = openAiStore,
+            languagePreferencesStore = languagePreferencesStore,
             vocabularyDao = vocabularyDao,
             vocabularyRepository = vocabularyRepository,
             parsers = parsers,
@@ -150,6 +159,8 @@ class SettingsViewModelTest {
                 assertThat(hydrated.openAiApiKey).isNull()
                 assertThat(hydrated.openAiPrompt).isEqualTo(OpenAiPromptDefaults.translationPrompt)
                 assertThat(hydrated.openAiReversePrompt).isEqualTo(OpenAiPromptDefaults.reverseTranslationPrompt)
+                assertThat(hydrated.nativeLanguage).isEqualTo(Language.ENGLISH)
+                assertThat(hydrated.targetLanguage).isEqualTo(Language.RUSSIAN)
 
                 policyFlow.value =
                     policyFlow.value.copy(
@@ -161,6 +172,7 @@ class SettingsViewModelTest {
                 apiKeyFlow.value = "abc"
                 promptFlow.value = "custom prompt"
                 reversePromptFlow.value = "custom reverse prompt"
+                languagePairFlow.value = LanguagePair(Language.GERMAN, Language.FRENCH)
 
                 val updated = awaitItem()
                 assertThat(updated.mixMode).isEqualTo(MixMode.NEW_FIRST)
@@ -170,6 +182,37 @@ class SettingsViewModelTest {
                 assertThat(updated.openAiApiKey).isEqualTo("abc")
                 assertThat(updated.openAiPrompt).isEqualTo("custom prompt")
                 assertThat(updated.openAiReversePrompt).isEqualTo("custom reverse prompt")
+                assertThat(updated.nativeLanguage).isEqualTo(Language.GERMAN)
+                assertThat(updated.targetLanguage).isEqualTo(Language.FRENCH)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `uiState falls back to English to Russian when no language pair is configured`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+
+            viewModel.uiState.test {
+                awaitItem()
+                val hydrated = awaitItem()
+                assertThat(hydrated.nativeLanguage).isEqualTo(Language.ENGLISH)
+                assertThat(hydrated.targetLanguage).isEqualTo(Language.RUSSIAN)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `uiState reflects a configured language pair from the very first hydration`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            languagePairFlow.value = LanguagePair(Language.ITALIAN, Language.PORTUGUESE)
+            val viewModel = buildViewModel()
+
+            viewModel.uiState.test {
+                awaitItem()
+                val hydrated = awaitItem()
+                assertThat(hydrated.nativeLanguage).isEqualTo(Language.ITALIAN)
+                assertThat(hydrated.targetLanguage).isEqualTo(Language.PORTUGUESE)
                 cancelAndIgnoreRemainingEvents()
             }
         }
@@ -328,6 +371,18 @@ class SettingsViewModelTest {
             advanceUntilIdle()
 
             coVerify { openAiStore.setOpenAiReversePrompt("prompt") }
+        }
+
+    @Test
+    fun `onLanguagePairChange delegates to store`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            coEvery { languagePreferencesStore.setLanguagePair(any(), any()) } returns Unit
+
+            viewModel.onLanguagePairChange(Language.SPANISH, Language.ITALIAN)
+            advanceUntilIdle()
+
+            coVerify { languagePreferencesStore.setLanguagePair(Language.SPANISH, Language.ITALIAN) }
         }
 
     @Test

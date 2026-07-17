@@ -21,17 +21,29 @@ import com.procrastilearn.app.ui.theme.MyApplicationTheme
 @Composable
 fun OpenAiReversePromptSettingsItem(
     prompt: String,
+    nativeLanguageCode: String,
+    targetLanguageCode: String,
     onClick: () -> Unit,
 ) {
     val supporting =
         if (prompt == OpenAiPromptDefaults.reverseTranslationPrompt) {
-            stringResource(R.string.settings_openai_reverse_prompt_default)
+            @Suppress("ForbiddenComment")
+            // TODO: make this dynamic
+            stringResource(R.string.settings_openai_reverse_prompt_default, "RU", "EN")
         } else {
-            stringResource(R.string.settings_openai_reverse_prompt_custom)
+            stringResource(R.string.settings_openai_reverse_prompt_custom, nativeLanguageCode, targetLanguageCode )
         }
 
     ListItem(
-        headlineContent = { Text(stringResource(R.string.settings_openai_reverse_prompt_title)) },
+        headlineContent = {
+            Text(
+                stringResource(
+                    R.string.settings_openai_reverse_prompt_title,
+                    nativeLanguageCode,
+                    targetLanguageCode,
+                ),
+            )
+        },
         supportingContent = {
             Text(
                 supporting,
@@ -59,6 +71,8 @@ private fun OpenAiReversePromptSettingsItemPreview() {
     MyApplicationTheme {
         OpenAiReversePromptSettingsItem(
             prompt = OpenAiPromptDefaults.reverseTranslationPrompt,
+            nativeLanguageCode = "EN",
+            targetLanguageCode = "RU",
             onClick = {},
         )
     }

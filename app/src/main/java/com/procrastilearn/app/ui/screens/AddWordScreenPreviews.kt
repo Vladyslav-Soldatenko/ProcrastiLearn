@@ -23,7 +23,9 @@ private fun AddWordContentPreviewAiEnabled() {
             successMessage = null,
             openAiAvailable = true,
             useAiForTranslation = true,
-            translationDirection = AiTranslationDirection.EN_TO_RU,
+            translationDirection = AiTranslationDirection.TARGET_TO_NATIVE,
+            nativeLanguageCode = "EN",
+            targetLanguageCode = "RU",
             previewContent =
                 AddWordPreviewContent(
                     word = "Haus",
@@ -68,7 +70,9 @@ private fun AddWordContentPreviewOffline() {
             successMessage = null,
             openAiAvailable = true,
             useAiForTranslation = true,
-            translationDirection = AiTranslationDirection.EN_TO_RU,
+            translationDirection = AiTranslationDirection.TARGET_TO_NATIVE,
+            nativeLanguageCode = "EN",
+            targetLanguageCode = "RU",
             previewContent = null,
             isPreviewVisible = false,
             isExistingWordDialogVisible = false,
@@ -118,7 +122,9 @@ private fun PendingWordsSectionPreview() {
 private fun TranslationDirectionRowPreviewEnRu() {
     MyApplicationTheme {
         TranslationDirectionRow(
-            direction = AiTranslationDirection.EN_TO_RU,
+            direction = AiTranslationDirection.TARGET_TO_NATIVE,
+            nativeLanguageCode = "EN",
+            targetLanguageCode = "RU",
             onToggle = {},
         )
     }
@@ -129,7 +135,9 @@ private fun TranslationDirectionRowPreviewEnRu() {
 private fun TranslationDirectionRowPreviewRuEn() {
     MyApplicationTheme {
         TranslationDirectionRow(
-            direction = AiTranslationDirection.RU_TO_EN,
+            direction = AiTranslationDirection.NATIVE_TO_TARGET,
+            nativeLanguageCode = "EN",
+            targetLanguageCode = "RU",
             onToggle = {},
         )
     }
@@ -151,7 +159,9 @@ private fun AddWordContentPreview() {
             successMessage = "Word added successfully!",
             openAiAvailable = true,
             useAiForTranslation = false,
-            translationDirection = AiTranslationDirection.EN_TO_RU,
+            translationDirection = AiTranslationDirection.TARGET_TO_NATIVE,
+            nativeLanguageCode = "EN",
+            targetLanguageCode = "RU",
             previewContent = null,
             isPreviewVisible = false,
             isExistingWordDialogVisible = false,

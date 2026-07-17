@@ -27,7 +27,10 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.lifecycleScope
+import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.text.ProcessTextEventBus
+import com.procrastilearn.app.domain.model.LanguagePair
+import com.procrastilearn.app.ui.components.LanguageSelectionDialog
 import com.procrastilearn.app.ui.components.OverlayPermissionDialog
 import com.procrastilearn.app.ui.components.ProminentA11yDisclosureScreen
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
@@ -48,6 +51,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var processTextEventBus: ProcessTextEventBus
 
+    @Inject
+    lateinit var languagePreferencesStore: LanguagePreferencesStore
+
     @Suppress("LongMethod", "CyclomaticComplexMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +68,7 @@ class MainActivity : ComponentActivity() {
                 var preferencesLoaded by remember { mutableStateOf(false) }
                 var hasSkippedAccessibility by remember { mutableStateOf(false) }
                 var hasSkippedOverlay by remember { mutableStateOf(false) }
+                var languagePair by remember { mutableStateOf<LanguagePair?>(null) }
 
                 // Track dynamic permission state
                 var isAccessibilityEnabled by remember { mutableStateOf(isPermissionsGranted(ctx)) }
@@ -72,6 +79,7 @@ class MainActivity : ComponentActivity() {
                     val prefs = ctx.dataStore.data.first()
                     hasSkippedAccessibility = prefs[KEY_ACCESSIBILITY_SKIPPED] ?: false
                     hasSkippedOverlay = prefs[KEY_OVERLAY_SKIPPED] ?: false
+                    languagePair = languagePreferencesStore.readLanguagePair().first()
                     preferencesLoaded = true
                 }
 
@@ -154,6 +162,18 @@ class MainActivity : ComponentActivity() {
                                     }
                                     hasSkippedOverlay = true
                                 },
+                            )
+                        }
+
+                        languagePair == null -> {
+                            LanguageSelectionDialog(
+                                onConfirm = { native, target ->
+                                    lifecycleScope.launch {
+                                        languagePreferencesStore.setLanguagePair(native, target)
+                                    }
+                                    languagePair = LanguagePair(native, target)
+                                },
+                                onDismiss = null,
                             )
                         }
 

@@ -38,6 +38,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.procrastilearn.app.R
+import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import com.procrastilearn.app.ui.SettingsViewModel
@@ -48,7 +49,9 @@ import com.procrastilearn.app.ui.screens.settings.components.AboutUsSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.AccessibilityPermissionItem
 import com.procrastilearn.app.ui.screens.settings.components.AddCardsForTodaySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ExportSettingsItem
+import com.procrastilearn.app.ui.components.LanguageSelectionDialog
 import com.procrastilearn.app.ui.screens.settings.components.ImportSettingsItem
+import com.procrastilearn.app.ui.screens.settings.components.LanguagePairSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.MixModeDialog
 import com.procrastilearn.app.ui.screens.settings.components.MixModeSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NewPerDaySettingsItem
@@ -87,6 +90,8 @@ sealed interface DialogState {
     object OpenAiPrompt : DialogState
 
     object OpenAiReversePrompt : DialogState
+
+    object LanguageSelection : DialogState
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -163,6 +168,8 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             openAiApiKey = state.openAiApiKey,
             openAiPrompt = state.openAiPrompt,
             openAiReversePrompt = state.openAiReversePrompt,
+            nativeLanguage = state.nativeLanguage,
+            targetLanguage = state.targetLanguage,
             onOverlayClick = { openOverlaySettings(ctx) },
             onA11yClick = { openAccessibilitySettings(ctx) },
             onMixModeChange = viewModel::onMixModeChange,
@@ -174,6 +181,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             onOpenAiApiKeyChange = viewModel::onOpenAiApiKeyChange,
             onOpenAiPromptChange = viewModel::onOpenAiPromptChange,
             onOpenAiReversePromptChange = viewModel::onOpenAiReversePromptChange,
+            onLanguagePairChange = viewModel::onLanguagePairChange,
             onExportClick = {
                 val name = "vocabulary-export-${LocalDate.now()}.json"
                 exportLauncher.launch(name)
@@ -214,6 +222,8 @@ internal fun SettingsContent(
     openAiApiKey: String?,
     openAiPrompt: String,
     openAiReversePrompt: String,
+    nativeLanguage: Language,
+    targetLanguage: Language,
     onOverlayClick: () -> Unit,
     onA11yClick: () -> Unit,
     onMixModeChange: (MixMode) -> Unit,
@@ -225,6 +235,7 @@ internal fun SettingsContent(
     onOpenAiApiKeyChange: (String) -> Unit,
     onOpenAiPromptChange: (String) -> Unit,
     onOpenAiReversePromptChange: (String) -> Unit,
+    onLanguagePairChange: (Language, Language) -> Unit = { _, _ -> },
     onExportClick: () -> Unit,
     importOptions: List<VocabularyImportOption> = emptyList(),
     onImportOptionSelected: (VocabularyImportOption) -> Unit = {},
@@ -282,6 +293,14 @@ internal fun SettingsContent(
                 onClick = { dialogState = DialogState.OverlayInterval },
             )
 
+            Spacer(Modifier.height(4.dp))
+
+            LanguagePairSettingsItem(
+                nativeLanguage = nativeLanguage,
+                targetLanguage = targetLanguage,
+                onClick = { dialogState = DialogState.LanguageSelection },
+            )
+
             SettingsSectionHeader(title = stringResource(R.string.settings_section_ai_features))
 
             OpenAiApiKeySettingsItem(
@@ -290,10 +309,14 @@ internal fun SettingsContent(
             )
             OpenAiPromptSettingsItem(
                 prompt = openAiPrompt,
+                nativeLanguageCode = nativeLanguage.code.uppercase(),
+                targetLanguageCode = targetLanguage.code.uppercase(),
                 onClick = { dialogState = DialogState.OpenAiPrompt },
             )
             OpenAiReversePromptSettingsItem(
                 prompt = openAiReversePrompt,
+                nativeLanguageCode = nativeLanguage.code.uppercase(),
+                targetLanguageCode = targetLanguage.code.uppercase(),
                 onClick = { dialogState = DialogState.OpenAiReversePrompt },
             )
 
@@ -415,7 +438,12 @@ internal fun SettingsContent(
         }
         DialogState.OpenAiPrompt -> {
             StringInputDialog(
-                title = stringResource(R.string.settings_openai_prompt_dialog_title),
+                title =
+                    stringResource(
+                        R.string.settings_openai_prompt_dialog_title,
+                        nativeLanguage.code.uppercase(),
+                        targetLanguage.code.uppercase(),
+                    ),
                 currentValue = openAiPrompt,
                 onValueConfirm = {
                     onOpenAiPromptChange(it)
@@ -429,7 +457,12 @@ internal fun SettingsContent(
         }
         DialogState.OpenAiReversePrompt -> {
             StringInputDialog(
-                title = stringResource(R.string.settings_openai_reverse_prompt_dialog_title),
+                title =
+                    stringResource(
+                        R.string.settings_openai_reverse_prompt_dialog_title,
+                        targetLanguage.code.uppercase(),
+                        nativeLanguage.code.uppercase(),
+                    ),
                 currentValue = openAiReversePrompt,
                 onValueConfirm = {
                     onOpenAiReversePromptChange(it)
@@ -439,6 +472,18 @@ internal fun SettingsContent(
                 isPassword = false,
                 singleLine = false,
                 maxLines = 12,
+            )
+        }
+
+        DialogState.LanguageSelection -> {
+            LanguageSelectionDialog(
+                initialNativeLanguage = nativeLanguage,
+                initialTargetLanguage = targetLanguage,
+                onConfirm = { native, target ->
+                    onLanguagePairChange(native, target)
+                    dialogState = DialogState.None
+                },
+                onDismiss = { dialogState = DialogState.None },
             )
         }
 
@@ -486,6 +531,8 @@ fun SettingsScreenPreview_AllGranted() {
             openAiApiKey = null,
             openAiPrompt = "Prompt",
             openAiReversePrompt = "Reverse prompt",
+            nativeLanguage = Language.ENGLISH,
+            targetLanguage = Language.RUSSIAN,
             onOverlayClick = {},
             onA11yClick = {},
             onMixModeChange = {},

@@ -67,8 +67,8 @@ class OpenAiPreferencesStore
 
         fun readAiTranslationDirection(): Flow<AiTranslationDirection> =
             ds.data.map { p ->
-                val stored = p[K.AI_TRANSLATION_DIRECTION] ?: AiTranslationDirection.EN_TO_RU.name
-                runCatching { AiTranslationDirection.valueOf(stored) }.getOrDefault(AiTranslationDirection.EN_TO_RU)
+                val stored = p[K.AI_TRANSLATION_DIRECTION] ?: AiTranslationDirection.TARGET_TO_NATIVE.name
+                runCatching { AiTranslationDirection.valueOf(stored) }.getOrDefault(AiTranslationDirection.TARGET_TO_NATIVE)
             }
 
         suspend fun setAiTranslationDirection(value: AiTranslationDirection) {

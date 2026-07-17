@@ -2,10 +2,13 @@ package com.procrastilearn.app.ui
 
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
+import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
 import com.procrastilearn.app.domain.model.AiTranslationDirection
+import com.procrastilearn.app.domain.model.Language
+import com.procrastilearn.app.domain.model.LanguagePair
 import com.procrastilearn.app.domain.model.PendingWord
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
@@ -33,6 +36,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("LargeClass")
 class AddWordViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -45,6 +49,7 @@ class AddWordViewModelTest {
     private lateinit var deletePendingWordUseCase: DeletePendingWordUseCase
     private lateinit var connectivityObserver: NetworkConnectivityObserver
     private lateinit var openAiStore: OpenAiPreferencesStore
+    private lateinit var languagePreferencesStore: LanguagePreferencesStore
     private lateinit var generateAiTranslationUseCase: GenerateAiTranslationUseCase
     private lateinit var openAiKeyFlow: MutableStateFlow<String?>
     private lateinit var useAiFlow: MutableStateFlow<Boolean>
@@ -53,6 +58,7 @@ class AddWordViewModelTest {
     private lateinit var directionFlow: MutableStateFlow<AiTranslationDirection>
     private lateinit var onlineFlow: MutableStateFlow<Boolean>
     private lateinit var pendingWordsFlow: MutableStateFlow<List<PendingWord>>
+    private lateinit var languagePairFlow: MutableStateFlow<LanguagePair?>
     private lateinit var aiTranslationProvider: FakeAiTranslationProvider
 
     @Before
@@ -69,10 +75,12 @@ class AddWordViewModelTest {
         useAiFlow = MutableStateFlow(false)
         promptFlow = MutableStateFlow("system prompt")
         reversePromptFlow = MutableStateFlow("reverse system prompt")
-        directionFlow = MutableStateFlow(AiTranslationDirection.EN_TO_RU)
+        directionFlow = MutableStateFlow(AiTranslationDirection.TARGET_TO_NATIVE)
         onlineFlow = MutableStateFlow(true)
         pendingWordsFlow = MutableStateFlow(emptyList())
+        languagePairFlow = MutableStateFlow(LanguagePair(Language.ENGLISH, Language.RUSSIAN))
         aiTranslationProvider = FakeAiTranslationProvider()
+        languagePreferencesStore = mockk(relaxed = true)
         generateAiTranslationUseCase =
             GenerateAiTranslationUseCase(aiTranslationProvider, openAiStore, mainDispatcherRule.testDispatcher)
 
@@ -81,6 +89,7 @@ class AddWordViewModelTest {
         every { openAiStore.readOpenAiPrompt() } returns promptFlow
         every { openAiStore.readOpenAiReversePrompt() } returns reversePromptFlow
         every { openAiStore.readAiTranslationDirection() } returns directionFlow
+        every { languagePreferencesStore.readLanguagePair() } returns languagePairFlow
         coEvery { openAiStore.setUseAiForTranslation(any()) } just Runs
         coEvery { openAiStore.setAiTranslationDirection(any()) } just Runs
         coEvery { getVocabularyItemByWordUseCase.invoke(any()) } returns null
@@ -102,6 +111,7 @@ class AddWordViewModelTest {
             getVocabularyItemByWordUseCase,
             overrideVocabularyItemUseCase,
             openAiStore,
+            languagePreferencesStore,
             generateAiTranslationUseCase,
             queuePendingWordUseCase,
             observePendingWordsUseCase,
@@ -114,7 +124,7 @@ class AddWordViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             openAiKeyFlow.value = "abc123"
             useAiFlow.value = true
-            directionFlow.value = AiTranslationDirection.RU_TO_EN
+            directionFlow.value = AiTranslationDirection.NATIVE_TO_TARGET
 
             val viewModel = buildViewModel()
 
@@ -123,7 +133,7 @@ class AddWordViewModelTest {
             val state = viewModel.uiState.value
             assertThat(state.openAiAvailable).isTrue()
             assertThat(state.useAiForTranslation).isTrue()
-            assertThat(state.translationDirection).isEqualTo(AiTranslationDirection.RU_TO_EN)
+            assertThat(state.translationDirection).isEqualTo(AiTranslationDirection.NATIVE_TO_TARGET)
         }
 
     @Test
@@ -147,9 +157,9 @@ class AddWordViewModelTest {
             advanceUntilIdle()
             assertThat(viewModel.uiState.value.useAiForTranslation).isTrue()
 
-            directionFlow.value = AiTranslationDirection.RU_TO_EN
+            directionFlow.value = AiTranslationDirection.NATIVE_TO_TARGET
             advanceUntilIdle()
-            assertThat(viewModel.uiState.value.translationDirection).isEqualTo(AiTranslationDirection.RU_TO_EN)
+            assertThat(viewModel.uiState.value.translationDirection).isEqualTo(AiTranslationDirection.NATIVE_TO_TARGET)
         }
 
     @Test
@@ -176,7 +186,7 @@ class AddWordViewModelTest {
             assertThat(viewModel.uiState.value.pendingWords).isEmpty()
 
             pendingWordsFlow.value =
-                listOf(PendingWord(id = 5, word = "Haus", direction = AiTranslationDirection.EN_TO_RU))
+                listOf(PendingWord(id = 5, word = "Haus", direction = AiTranslationDirection.TARGET_TO_NATIVE))
             advanceUntilIdle()
 
             val pendingWords = viewModel.uiState.value.pendingWords
@@ -322,7 +332,7 @@ class AddWordViewModelTest {
             assertThat(state.isSuccess).isTrue()
             assertThat(state.successMessage).contains("back online")
             assertThat(state.loadingAction).isNull()
-            coVerify(exactly = 1) { queuePendingWordUseCase.invoke("Haus", AiTranslationDirection.EN_TO_RU) }
+            coVerify(exactly = 1) { queuePendingWordUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) }
             coVerify(exactly = 0) { addVocabularyItemUseCase.invoke(any(), any()) }
             assertThat(aiTranslationProvider.requests).isEmpty()
         }
@@ -367,9 +377,9 @@ class AddWordViewModelTest {
         }
 
     @Test
-    fun `onUseAiToggle ignores disable when direction is RU to EN`() =
+    fun `onUseAiToggle allows disable when direction is native to foreign`() =
         runTest(mainDispatcherRule.testDispatcher) {
-            directionFlow.value = AiTranslationDirection.RU_TO_EN
+            directionFlow.value = AiTranslationDirection.NATIVE_TO_TARGET
             useAiFlow.value = true
             val viewModel = buildViewModel()
 
@@ -378,15 +388,15 @@ class AddWordViewModelTest {
             viewModel.onUseAiToggle(false)
             advanceUntilIdle()
 
-            assertThat(viewModel.uiState.value.useAiForTranslation).isTrue()
-            coVerify(exactly = 0) { openAiStore.setUseAiForTranslation(false) }
+            assertThat(viewModel.uiState.value.useAiForTranslation).isFalse()
+            coVerify { openAiStore.setUseAiForTranslation(false) }
         }
 
     @Test
-    fun `onTranslationDirectionToggle flips direction and forces AI on`() =
+    fun `onTranslationDirectionToggle flips direction without forcing AI on`() =
         runTest(mainDispatcherRule.testDispatcher) {
             useAiFlow.value = false
-            directionFlow.value = AiTranslationDirection.EN_TO_RU
+            directionFlow.value = AiTranslationDirection.TARGET_TO_NATIVE
             val viewModel = buildViewModel()
 
             advanceUntilIdle()
@@ -395,10 +405,10 @@ class AddWordViewModelTest {
             advanceUntilIdle()
 
             val state = viewModel.uiState.value
-            assertThat(state.translationDirection).isEqualTo(AiTranslationDirection.RU_TO_EN)
-            assertThat(state.useAiForTranslation).isTrue()
-            coVerify { openAiStore.setAiTranslationDirection(AiTranslationDirection.RU_TO_EN) }
-            coVerify { openAiStore.setUseAiForTranslation(true) }
+            assertThat(state.translationDirection).isEqualTo(AiTranslationDirection.NATIVE_TO_TARGET)
+            assertThat(state.useAiForTranslation).isFalse()
+            coVerify { openAiStore.setAiTranslationDirection(AiTranslationDirection.NATIVE_TO_TARGET) }
+            coVerify(exactly = 0) { openAiStore.setUseAiForTranslation(any()) }
         }
 
     @Test
@@ -601,7 +611,7 @@ class AddWordViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             openAiKeyFlow.value = "abc"
             useAiFlow.value = true
-            directionFlow.value = AiTranslationDirection.RU_TO_EN
+            directionFlow.value = AiTranslationDirection.NATIVE_TO_TARGET
             reversePromptFlow.value = "reverse prompt"
             coEvery { addVocabularyItemUseCase.invoke(any(), any()) } returns Result.success(Unit)
 
@@ -752,6 +762,54 @@ class AddWordViewModelTest {
             assertThat(state.isExistingWordDialogVisible).isFalse()
             coVerify { overrideVocabularyItemUseCase.invoke(existing, "Haus", "Дом") }
         }
+
+    @Test
+    fun `init exposes uppercase language codes from configured pair`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            languagePairFlow.value = LanguagePair(Language.GERMAN, Language.FRENCH)
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.nativeLanguageCode).isEqualTo("DE")
+            assertThat(state.targetLanguageCode).isEqualTo("FR")
+        }
+
+    @Test
+    fun `language pair changes propagate to state live`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.nativeLanguageCode).isEqualTo("EN")
+            assertThat(viewModel.uiState.value.targetLanguageCode).isEqualTo("RU")
+
+            languagePairFlow.value = LanguagePair(Language.SPANISH, Language.ITALIAN)
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.nativeLanguageCode).isEqualTo("ES")
+            assertThat(state.targetLanguageCode).isEqualTo("IT")
+        }
+
+    @Test
+    fun `null language pair falls back to English to Russian defaults`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            languagePairFlow.value = null
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.nativeLanguageCode).isEqualTo("EN")
+            assertThat(state.targetLanguageCode).isEqualTo("RU")
+        }
+
+    @Test
+    fun `default ui state has English to Russian codes before init completes`() {
+        assertThat(AddWordUiState().nativeLanguageCode).isEqualTo("EN")
+        assertThat(AddWordUiState().targetLanguageCode).isEqualTo("RU")
+    }
 
     private class FakeAiTranslationProvider : AiTranslationProvider {
         var nextTranslation: String = "House"
