@@ -44,6 +44,15 @@ class AnkiApkgVocabularyParserTest {
                         ).joinToString(separator = "\n"),
                     isNew = true,
                 ),
+                VocabularyItem(
+                    word = listOf("agree", "əˈɡriː").joinToString(separator = "\n"),
+                    translation =
+                        listOf(
+                            "Meaning: To agree is to have the same opinion or belief as another person.",
+                            "Example: The students agree they have too much homework.",
+                        ).joinToString(separator = "\n"),
+                    isNew = true,
+                ),
             ).inOrder()
     }
 

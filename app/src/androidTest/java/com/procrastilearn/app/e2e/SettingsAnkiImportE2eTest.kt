@@ -13,6 +13,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -71,6 +72,7 @@ class SettingsAnkiImportE2eTest {
         prepareDocumentPickerResponse(deckUri)
 
         dismissInitialPrompts()
+        completeLanguageSelection()
         navigateToSettings()
         openImportAndSelectAnki()
 
@@ -143,6 +145,27 @@ class SettingsAnkiImportE2eTest {
 
         waitUntilNodeExists(hasText(notNow))
         composeTestRule.onNodeWithText(notNow, useUnmergedTree = true).performClick()
+        composeTestRule.waitForIdle()
+    }
+
+    private fun completeLanguageSelection() {
+        val nativeFieldTag = "language_selection_native_field"
+        waitUntilNodeExists(hasText(targetContext.getString(R.string.language_selection_dialog_title)))
+
+        composeTestRule.onNodeWithTag(nativeFieldTag, useUnmergedTree = true).performClick()
+        composeTestRule.waitForIdle()
+        val nativeLanguageName = targetContext.getString(R.string.language_name_english)
+        composeTestRule.onNodeWithText(nativeLanguageName, useUnmergedTree = true).performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithTag("language_selection_target_field", useUnmergedTree = true).performClick()
+        composeTestRule.waitForIdle()
+        val targetLanguageName = targetContext.getString(R.string.language_name_russian)
+        composeTestRule.onNodeWithText(targetLanguageName, useUnmergedTree = true).performClick()
+        composeTestRule.waitForIdle()
+
+        val continueLabel = targetContext.getString(R.string.action_continue)
+        composeTestRule.onNodeWithText(continueLabel, useUnmergedTree = true).performClick()
         composeTestRule.waitForIdle()
     }
 
@@ -229,6 +252,15 @@ class SettingsAnkiImportE2eTest {
                             "",
                             "ol1",
                             "ol2",
+                        ).joinToString(separator = "\n"),
+                    isNew = true,
+                ),
+                VocabularyItem(
+                    word = listOf("agree", "əˈɡriː").joinToString(separator = "\n"),
+                    translation =
+                        listOf(
+                            "Meaning: To agree is to have the same opinion or belief as another person.",
+                            "Example: The students agree they have too much homework.",
                         ).joinToString(separator = "\n"),
                     isNew = true,
                 ),
