@@ -1,11 +1,15 @@
-ProcrastiLearn turns mindless app-opening into vocabulary practice. Choose which apps you tend to open out of habit — social media, browsers, games — and whenever you launch one, a full-screen flashcard overlay appears. Reveal the translation, rate how well you remembered it, and the app you wanted opens immediately. No subscription, no ads, no accounts.
+There's Anki on your phone, there's Duolingo, and you do mean to get around to them. Then you pick the phone up, and twenty minutes later you're somewhere in TikTok, not really sure how you got there.
+
+ProcrastiLearn steps in right at that moment. It catches you just as you're about to disappear into another time sink, and asks you for one word first.
+
+That's how mindless app-opening turns into vocabulary practice. Choose which apps you tend to open out of habit — social media, browsers, games — and whenever you launch one, a full-screen flashcard overlay appears. Reveal the translation, rate how well you remembered it, and the app you wanted opens immediately. No subscription, no ads, no accounts.
 
 
 HOW IT WORKS
 
 Pick the apps you want to gate in the Apps tab. From that point on, opening any of those apps shows a flashcard first. You rate your answer (Again / Hard / Good / Easy) and the FSRS spaced-repetition algorithm schedules the next review automatically. Daily caps prevent you from being overwhelmed.
 
-If you tend to lose track of time once you're inside a gated app, the optional recurring reminder has you covered: set an interval (e.g. every 10 minutes) and the overlay reappears as long as you stay in that app, turning each lingering session into extra review reps.
+If you tend to lose track of time once you're inside a gated app, the optional recurring reminder has you covered: set an interval (e.g. every 3 minutes) and the overlay reappears as long as you stay in that app, turning each lingering session into extra review reps.
 
 
 VOCABULARY

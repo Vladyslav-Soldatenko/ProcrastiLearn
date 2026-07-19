@@ -1,0 +1,6 @@
+Add "ProcrastiLearn this" text-selection action to quickly add words from any app.
+Add undo for last dojo/overlay rating.
+Add back navigation from My Vocabulary to Add Word page.
+Group settings into labeled sections.
+Fix Add Cards For Today over-counting unseen cards.
+Improved ANKI support.

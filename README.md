@@ -1,11 +1,13 @@
 # ProcrastiLearn
 
+There's Anki on your phone, there's Duolingo, and you do mean to get around to them. Then you pick the phone up, and twenty minutes later you're somewhere in TikTok, not really sure how you got there. ProcrastiLearn steps in right at that moment and asks you for one word first.
+
 ProcrastiLearn is an Android (Kotlin + Jetpack Compose) app that turns distracting moments into spaced‑repetition reps. Pick the apps you tend to open mindlessly; whenever you launch them, a full‑screen overlay blocks access until you learn/review a word. Optional OpenAI-powered translations (API key required) make adding new words fast.
 
 ## How It Works
 - Select gated apps: choose which packages to guard in `Apps`. A gate session starts whenever one of them is opened.
 - Learn before you scroll: the overlay shows a card over the target app. Reveal the translation, rate it, and the app you opened comes back to the front.
-- In-app timer: optionally re-show the overlay every X minutes while you stay inside a gated app.
+- In-app timer: if you tend to lose track of time once you're already inside a gated app, set an interval (say, every 3 minutes) and the overlay keeps coming back for as long as you stay there — each lingering session turns into extra reps.
 - Smart scheduling: FSRS (Again/Hard/Good/Easy) with daily limits for new/review cards and mix modes (mixed, reviews-first, new-first).
 - All local: vocabulary, preferences, and progress stay fully on-device (opt-in possibility for cloud sync may be added later). For now - no external traffic except optional OpenAI calls you initiate (API key required).
 

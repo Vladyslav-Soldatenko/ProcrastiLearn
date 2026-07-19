@@ -15,8 +15,8 @@ android {
     applicationId = "com.procrastilearn.app"
     minSdk = 30
     targetSdk = 36
-    versionCode = 7
-    versionName = "1.2.2"
+    versionCode = 8
+    versionName = "1.3.0"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
@@ -27,7 +27,7 @@ android {
     arg("appfunctions:aggregateAppFunctions", "true")
   }
   sourceSets {
-    getByName("androidTest").assets.setSrcDirs(listOf("$projectDir/schemas"))
+    getByName("androidTest").assets.setSrcDirs(listOf("$projectDir/schemas", "src/androidTest/assets"))
   }
 
   buildTypes {
