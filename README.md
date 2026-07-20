@@ -50,6 +50,7 @@ All data (blocked apps, vocabulary, progress, and preferences) is stored locally
 - Support rich text formatting for word/translation.
 - Add pronunciation (TTS)
 - Add some charts to view data of progress
+- Generation of words with AI for given topic
 
 ### Installation
 For now you have several options to choose:
