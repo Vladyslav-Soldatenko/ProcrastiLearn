@@ -1,0 +1,1 @@
+Première version. Verrouillage par carte-mémo pour les applications choisies, répétition espacée FSRS, import de paquets Anki (.apkg), traductions générées par IA via OpenAI (facultatif), mode d'entraînement dans l'application, et import/export du vocabulaire en JSON.

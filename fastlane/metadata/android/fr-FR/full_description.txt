@@ -1,0 +1,41 @@
+Il y a Anki sur votre téléphone, Duolingo aussi, et vous comptez bien vous y mettre. Puis vous attrapez votre téléphone, et vingt minutes plus tard vous voilà sur TikTok, sans trop savoir comment vous avez atterri là.
+
+C'est exactement à ce moment que ProcrastiLearn entre en jeu. Il vous intercepte juste avant que vous ne replongiez dans un autre gouffre à temps, et vous demande d'abord un mot.
+
+C'est ainsi qu'ouvrir une appli par réflexe se transforme en exercice de vocabulaire. Choisissez les applications où vous atterrissez par habitude — réseaux sociaux, navigateur, jeux — et à chaque lancement, une carte plein écran apparaît. Révélez la traduction, évaluez votre souvenir, et l'application s'ouvre aussitôt. Sans abonnement, sans pub, sans compte.
+
+
+COMMENT ÇA MARCHE
+
+Choisissez les applications à verrouiller dans l'onglet Applications. Dès lors, ouvrir l'une d'elles affiche d'abord une carte. Vous évaluez votre réponse (Encore / Difficile / Bien / Facile), et l'algorithme de répétition espacée FSRS programme automatiquement la prochaine révision. Des limites quotidiennes évitent d'être submergé.
+
+Si vous avez tendance à perdre la notion du temps une fois dans une application verrouillée, le rappel récurrent (facultatif) est là pour ça : définissez un intervalle (par exemple toutes les 3 minutes) et la carte réapparaît tant que vous restez dans l'application, transformant chaque session prolongée en révisions supplémentaires.
+
+
+VOCABULAIRE
+
+Ajoutez des mots à la main, ou laissez l'IA s'en charger : collez un mot, appuyez sur Générer, et l'application propose une traduction via OpenAI. Le prompt est entièrement modifiable, pour ajuster le ton, le contexte ou la langue cible.
+
+Vous pouvez aussi importer un paquet Anki existant (.apkg) pour démarrer directement avec un vocabulaire que vous connaissez déjà.
+
+
+LANGUES
+
+L'application fonctionne surtout bien avec la paire anglais-russe (c'est la paire par défaut dans le prompt IA), mais n'importe quelle paire de langues fonctionne — il suffit d'adapter le prompt dans les Paramètres. La prise en charge d'autres paires avec une interface dédiée arrivera dans de prochaines versions, en particulier selon les demandes des utilisateurs sur GitHub ou par e-mail.
+
+
+CONFIDENTIALITÉ
+
+Toutes les données — vocabulaire, liste d'applications bloquées, historique de révisions, paramètres — restent uniquement sur votre appareil. Aucun outil d'analyse, aucun rapport de plantage, aucun SDK publicitaire. Le seul trafic réseau sortant est l'appel OpenAI facultatif que vous déclenchez vous-même en appuyant sur Générer, avec votre propre clé API renseignée dans les Paramètres.
+
+
+AUTORISATIONS
+
+Service d'accessibilité : utilisé uniquement pour détecter quelle application est au premier plan, afin que ProcrastiLearn sache quand afficher la carte. Le service ne lit ni le contenu de l'écran, ni les frappes clavier, ni aucune autre saisie.
+
+Affichage par-dessus les autres applications : nécessaire pour dessiner la carte par-dessus l'application verrouillée.
+
+
+OPEN SOURCE
+
+ProcrastiLearn est un logiciel libre et open source (licence Apache 2.0). Le code source et le suivi des problèmes sont sur GitHub.

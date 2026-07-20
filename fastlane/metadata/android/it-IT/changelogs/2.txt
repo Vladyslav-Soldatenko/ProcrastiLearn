@@ -1,0 +1,1 @@
+Prima versione. Blocco con carta a scomparsa per le app scelte, ripetizione dilazionata FSRS, importazione di mazzi Anki (.apkg), traduzioni generate dall'IA tramite OpenAI (opzionale), modalità di allenamento nell'app, importazione ed esportazione del vocabolario in JSON.

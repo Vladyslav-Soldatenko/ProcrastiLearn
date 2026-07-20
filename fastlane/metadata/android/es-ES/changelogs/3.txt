@@ -1,0 +1,2 @@
+Mejorados los prompts para la generación de traducciones con IA (pares EN-RU y RU-EN)
+Preparación para la integración de las funciones de la app con asistentes de voz
