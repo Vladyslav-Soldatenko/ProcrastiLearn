@@ -1,0 +1,41 @@
+Sul telefono avete Anki, avete anche Duolingo, e avreste davvero intenzione di usarli. Poi prendete in mano il telefono, e venti minuti dopo siete finiti su TikTok, senza capire bene come ci siete arrivati.
+
+Ed è proprio in quel momento che entra in gioco ProcrastiLearn. Vi intercetta un attimo prima che spariate nell'ennesimo buco nero di tempo, e vi chiede prima una parola.
+
+Così l'abitudine di aprire un'app senza pensarci diventa un esercizio di vocabolario. Scegliete le app in cui finite per abitudine — social, browser, giochi — e ogni volta che le aprite compare una carta a schermo intero. Rivelate la traduzione, valutate quanto ve la ricordavate, e l'app si apre subito dopo. Niente abbonamenti, niente pubblicità, niente account.
+
+
+COME FUNZIONA
+
+Scegliete le app da bloccare nella scheda App. Da quel momento, aprire una di quelle app mostra prima una carta. Valutate la vostra risposta (Ancora / Difficile / Bene / Facile) e l'algoritmo di ripetizione dilazionata FSRS programma automaticamente la revisione successiva. I limiti giornalieri evitano di sentirsi sommersi.
+
+Se tendete a perdere la cognizione del tempo una volta dentro un'app bloccata, il promemoria ricorrente opzionale è pensato apposta: impostate un intervallo (ad esempio ogni 3 minuti) e la carta ricompare finché restate in quell'app, trasformando ogni sessione prolungata in ripetizioni extra.
+
+
+VOCABOLARIO
+
+Aggiungete parole manualmente oppure lasciate fare all'IA: incollate una parola, toccate Genera, e l'app propone una traduzione tramite OpenAI. Il prompt è completamente modificabile, così potete regolare tono, contesto o lingua di destinazione.
+
+Potete anche importare un mazzo Anki esistente (file .apkg) per partire subito con un vocabolario di cui vi fidate già.
+
+
+LINGUE
+
+L'app funziona al meglio con la coppia inglese-russo (è quella predefinita nel prompt IA), ma qualsiasi coppia di lingue va bene — basta modificare il prompt nelle Impostazioni. Il supporto dedicato per altre coppie di lingue arriverà nelle prossime versioni, soprattutto in base alle richieste degli utenti su GitHub o via email.
+
+
+PRIVACY
+
+Tutti i dati — vocabolario, elenco delle app bloccate, cronologia delle revisioni, impostazioni — restano esclusivamente sul vostro dispositivo. Nessuna analitica, nessun crash reporter, nessun SDK pubblicitario. L'unico traffico di rete in uscita è la chiamata opzionale a OpenAI, avviata da voi toccando Genera, con la vostra chiave API personale inserita nelle Impostazioni.
+
+
+PERMESSI
+
+Servizio di accessibilità: usato solo per rilevare quale app è in primo piano, così ProcrastiLearn sa quando mostrare la carta. Il servizio non legge il contenuto dello schermo, i tasti premuti o qualsiasi altro input.
+
+Visualizza sopra le altre app: necessario per disegnare la carta sopra l'app bloccata.
+
+
+OPEN SOURCE
+
+ProcrastiLearn è software libero e open source (licenza Apache 2.0). Codice sorgente e issue tracker sono su GitHub.

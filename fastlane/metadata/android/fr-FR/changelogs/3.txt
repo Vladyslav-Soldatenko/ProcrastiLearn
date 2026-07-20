@@ -1,0 +1,2 @@
+Amélioration des prompts pour la génération de traductions par IA (paires EN-RU et RU-EN)
+Préparation de l'intégration des fonctions de l'application avec les assistants vocaux

@@ -1,0 +1,1 @@
+Aggiunta una coda offline per le traduzioni generate dall'IA

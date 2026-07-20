@@ -1,0 +1,6 @@
+Ajout de l'action « ProcrastiLearn this » pour ajouter rapidement un mot depuis le texte sélectionné dans n'importe quelle application.
+Ajout d'une fonction d'annulation pour la dernière évaluation en mode dojo ou sur la carte de verrouillage.
+Ajout d'un retour depuis « Mon vocabulaire » vers la page d'ajout de mot.
+Regroupement des paramètres en sections.
+Correction d'un bug qui surestimait le nombre de cartes non vues dans « Ajouter des cartes pour aujourd'hui ».
+Meilleure prise en charge d'Anki.

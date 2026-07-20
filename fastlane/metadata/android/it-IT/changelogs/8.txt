@@ -1,0 +1,6 @@
+Aggiunta l'azione «ProcrastiLearn this» per aggiungere rapidamente parole selezionando il testo in qualsiasi app.
+Aggiunta la possibilità di annullare l'ultima valutazione nel dojo o sulla carta di blocco.
+Aggiunta la navigazione indietro da «Il mio vocabolario» alla pagina di aggiunta parola.
+Impostazioni raggruppate in sezioni.
+Corretto un bug che sovrastimava le carte non ancora viste in «Aggiungi carte per oggi».
+Migliorato il supporto ad Anki.

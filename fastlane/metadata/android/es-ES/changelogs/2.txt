@@ -1,0 +1,1 @@
+Primera versión. Bloqueo con tarjeta superpuesta para las apps elegidas, repetición espaciada FSRS, importación de mazos de Anki (.apkg), traducciones generadas por IA mediante OpenAI (opcional), modo de práctica dentro de la app, e importación/exportación del vocabulario en JSON.
