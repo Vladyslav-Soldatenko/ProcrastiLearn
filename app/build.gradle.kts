@@ -130,7 +130,7 @@ dependencies {
 tasks.named("check") {
   dependsOn("ktlintCheck")
   dependsOn("detekt")
-  dependsOn("lintDebug")
+  dependsOn("lint")
 }
 ktlint {
   version.set("1.3.1")

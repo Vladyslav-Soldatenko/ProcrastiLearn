@@ -32,7 +32,7 @@ jobs:
         run: ./gradlew detekt --no-daemon
 
       - name: Android Lint (incl. strings.xml translation completeness)
-        run: ./gradlew lintDebug --no-daemon
+        run: ./gradlew lint --no-daemon
 
       - name: Unit tests
         run: ./gradlew testDebugUnitTest --no-daemon
