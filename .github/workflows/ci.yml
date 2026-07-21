@@ -8,7 +8,6 @@ on:
 
 permissions:
   contents: read
-  code-quality: write
 
 jobs:
   verify:
@@ -34,25 +33,6 @@ jobs:
 
       - name: Unit tests
         run: ./gradlew testDebugUnitTest --no-daemon
-
-      - name: Generate JaCoCo coverage report
-        run: ./gradlew jacocoTestReport --no-daemon
-
-      - name: Convert coverage report to Cobertura format
-        run: |
-          curl -sSL -o cover2cover.py \
-            https://raw.githubusercontent.com/rix0rrr/cover2cover/3f78052d0e7c1aab2874fc000c2f1eada088fe85/cover2cover.py
-          python3 cover2cover.py \
-            app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml \
-            app/src/main/java > app/build/reports/jacoco/jacocoTestReport/cobertura.xml
-
-      - name: Upload coverage report
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-        uses: actions/upload-code-coverage@v1
-        with:
-          file: app/build/reports/jacoco/jacocoTestReport/cobertura.xml
-          language: Java
-          label: code-coverage/jacoco
 
       - name: Upload test reports
         if: failure()
