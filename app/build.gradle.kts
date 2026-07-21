@@ -5,6 +5,11 @@ plugins {
   id("com.google.dagger.hilt.android")
   id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
   id("io.gitlab.arturbosch.detekt") version "1.23.8"
+  jacoco
+}
+
+jacoco {
+  toolVersion = "0.8.12"
 }
 
 android {
@@ -73,10 +78,6 @@ dependencies {
   ksp(libs.hilt.compiler)
   implementation(libs.androidx.hilt.navigation.compose)
   implementation(libs.fastscroller.material3)
-  // (Optional but common) AndroidX Hilt extensions:
-  // If you use hiltViewModel(), WorkManager with Hilt, etc., add:
-  // implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-  // ksp("androidx.hilt:hilt-compiler:1.2.0")
 
   implementation(libs.openai.java) {
     exclude(group = "org.apache.httpcomponents.client5", module = "httpclient5")
@@ -143,4 +144,40 @@ android {
   testOptions {
     unitTests.isIncludeAndroidResources = true
   }
+}
+
+tasks.withType<Test>().configureEach {
+  extensions.configure(JacocoTaskExtension::class) {
+    isIncludeNoLocationClasses = true
+    excludes = listOf("jdk.internal.*")
+  }
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+  dependsOn("testDebugUnitTest")
+  group = "verification"
+  description = "Generates JaCoCo coverage report for debug unit tests."
+
+  reports {
+    xml.required.set(true)
+    html.required.set(true)
+    csv.required.set(true)
+  }
+
+  val coverageExcludes =
+    listOf(
+      "**/*_Impl*.*", // Room-generated DAO/database
+      "**/*ComposableSingletons*.*", // Compose-generated
+      "**/*Preview*.*", // @Preview composables
+      "**/*aggregated_deps/**", // Hilt/AppFunctions generated registries
+      "**/di/**", // Hilt DI modules (config)
+    )
+
+  classDirectories.setFrom(
+    fileTree("${layout.buildDirectory.get()}/intermediates/built_in_kotlinc/debug/compileDebugKotlin/classes") {
+      exclude(coverageExcludes)
+    },
+  )
+  sourceDirectories.setFrom(files("$projectDir/src/main/java"))
+  executionData.setFrom(files("${layout.buildDirectory.get()}/jacoco/testDebugUnitTest.exec"))
 }
