@@ -60,6 +60,14 @@ android {
     includeInApk = false
     includeInBundle = false
   }
+
+  lint {
+    checkReleaseBuilds = true
+    abortOnError = true
+    // Fail the build if a translated strings.xml is missing entries present in the
+    // default (values/strings.xml), or has stale entries no longer in the default.
+    error += setOf("MissingTranslation", "ExtraTranslation")
+  }
 }
 
 dependencies {
@@ -122,6 +130,7 @@ dependencies {
 tasks.named("check") {
   dependsOn("ktlintCheck")
   dependsOn("detekt")
+  dependsOn("lintDebug")
 }
 ktlint {
   version.set("1.3.1")
