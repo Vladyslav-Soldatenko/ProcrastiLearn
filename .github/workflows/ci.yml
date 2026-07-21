@@ -51,8 +51,6 @@ jobs:
           name: detekt-reports
           path: app/build/reports/detekt/
 
-      # `lint` is an alias for `lintDebug` in this project (debug is the only/default
-      # variant), so the report AGP writes is still named lint-results-debug.html.
       - name: Upload lint report
         if: failure()
         uses: actions/upload-artifact@v4
