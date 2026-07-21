@@ -64,8 +64,6 @@ android {
   lint {
     checkReleaseBuilds = true
     abortOnError = true
-    // Fail the build if a translated strings.xml is missing entries present in the
-    // default (values/strings.xml), or has stale entries no longer in the default.
     error += setOf("MissingTranslation", "ExtraTranslation")
   }
 }
