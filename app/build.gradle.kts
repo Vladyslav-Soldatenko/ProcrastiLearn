@@ -168,13 +168,14 @@ tasks.register<JacocoReport>("jacocoTestReport") {
   }
 
   // Generated code (this module is pure Kotlin, so only these patterns exist).
-  val coverageExcludes = listOf(
-    "**/*_Impl*.*", // Room-generated DAO/database
-    "**/*ComposableSingletons*.*", // Compose-generated
-    "**/*Preview*.*", // @Preview composables
-    "**/*aggregated_deps/**", // Hilt/AppFunctions generated registries
-    "**/di/**", // Hilt DI modules (config)
-  )
+  val coverageExcludes =
+    listOf(
+      "**/*_Impl*.*", // Room-generated DAO/database
+      "**/*ComposableSingletons*.*", // Compose-generated
+      "**/*Preview*.*", // @Preview composables
+      "**/*aggregated_deps/**", // Hilt/AppFunctions generated registries
+      "**/di/**", // Hilt DI modules (config)
+    )
 
   classDirectories.setFrom(
     fileTree("${layout.buildDirectory.get()}/intermediates/built_in_kotlinc/debug/compileDebugKotlin/classes") {
