@@ -146,7 +146,6 @@ android {
   }
 }
 
-// Enable coverage data collection for the debug unit-test task.
 tasks.withType<Test>().configureEach {
   extensions.configure(JacocoTaskExtension::class) {
     isIncludeNoLocationClasses = true
@@ -154,8 +153,6 @@ tasks.withType<Test>().configureEach {
   }
 }
 
-// Generates a JaCoCo coverage report from the debug unit tests.
-// Run with: ./gradlew jacocoTestReport
 tasks.register<JacocoReport>("jacocoTestReport") {
   dependsOn("testDebugUnitTest")
   group = "verification"
@@ -167,7 +164,6 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     csv.required.set(true)
   }
 
-  // Generated code (this module is pure Kotlin, so only these patterns exist).
   val coverageExcludes =
     listOf(
       "**/*_Impl*.*", // Room-generated DAO/database
