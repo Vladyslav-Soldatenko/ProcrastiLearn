@@ -78,10 +78,6 @@ dependencies {
   ksp(libs.hilt.compiler)
   implementation(libs.androidx.hilt.navigation.compose)
   implementation(libs.fastscroller.material3)
-  // (Optional but common) AndroidX Hilt extensions:
-  // If you use hiltViewModel(), WorkManager with Hilt, etc., add:
-  // implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-  // ksp("androidx.hilt:hilt-compiler:1.2.0")
 
   implementation(libs.openai.java) {
     exclude(group = "org.apache.httpcomponents.client5", module = "httpclient5")
