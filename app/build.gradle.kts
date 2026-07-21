@@ -5,6 +5,11 @@ plugins {
   id("com.google.dagger.hilt.android")
   id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
   id("io.gitlab.arturbosch.detekt") version "1.23.8"
+  jacoco
+}
+
+jacoco {
+  toolVersion = "0.8.12"
 }
 
 android {
@@ -143,4 +148,67 @@ android {
   testOptions {
     unitTests.isIncludeAndroidResources = true
   }
+}
+
+// Enable coverage data collection for the debug unit-test task.
+tasks.withType<Test>().configureEach {
+  extensions.configure(JacocoTaskExtension::class) {
+    isIncludeNoLocationClasses = true
+    excludes = listOf("jdk.internal.*")
+  }
+}
+
+// Generates a JaCoCo coverage report from the debug unit tests.
+// Run with: ./gradlew jacocoTestReport
+tasks.register<JacocoReport>("jacocoTestReport") {
+  dependsOn("testDebugUnitTest")
+  group = "verification"
+  description = "Generates JaCoCo coverage report for debug unit tests."
+
+  reports {
+    xml.required.set(true)
+    html.required.set(true)
+    csv.required.set(true)
+  }
+
+  // Generated / non-testable code we don't want counted against coverage.
+  val coverageExcludes = listOf(
+    "**/R.class",
+    "**/R$*.class",
+    "**/BuildConfig.*",
+    "**/Manifest*.*",
+    "**/*_Factory*.*",
+    "**/*_HiltModules*.*",
+    "**/*_MembersInjector*.*",
+    "**/Hilt_*.*",
+    "**/*Hilt*.*",
+    "**/Dagger*.*",
+    "**/*_GeneratedInjector*.*",
+    "**/*ComposableSingletons*.*",
+    "**/*Preview*.*",
+    "**/*_Impl*.*",
+    "**/di/**",
+  )
+
+  // AGP 9 compiles Kotlin via the built-in Kotlin compiler and Java via javac,
+  // each writing to its own intermediates directory.
+  val kotlinClasses =
+    fileTree("${layout.buildDirectory.get()}/intermediates/built_in_kotlinc/debug/compileDebugKotlin/classes") {
+      exclude(coverageExcludes)
+    }
+  val javaClasses =
+    fileTree("${layout.buildDirectory.get()}/intermediates/javac/debug/compileDebugJavaWithJavac/classes") {
+      exclude(coverageExcludes)
+    }
+  classDirectories.setFrom(files(kotlinClasses, javaClasses))
+
+  sourceDirectories.setFrom(
+    files("$projectDir/src/main/java", "$projectDir/src/main/kotlin"),
+  )
+
+  executionData.setFrom(
+    fileTree(layout.buildDirectory.get()) {
+      include("**/testDebugUnitTest.exec", "**/*.exec")
+    },
+  )
 }
