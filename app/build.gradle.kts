@@ -171,44 +171,20 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     csv.required.set(true)
   }
 
-  // Generated / non-testable code we don't want counted against coverage.
+  // Generated code (this module is pure Kotlin, so only these patterns exist).
   val coverageExcludes = listOf(
-    "**/R.class",
-    "**/R$*.class",
-    "**/BuildConfig.*",
-    "**/Manifest*.*",
-    "**/*_Factory*.*",
-    "**/*_HiltModules*.*",
-    "**/*_MembersInjector*.*",
-    "**/Hilt_*.*",
-    "**/*Hilt*.*",
-    "**/Dagger*.*",
-    "**/*_GeneratedInjector*.*",
-    "**/*ComposableSingletons*.*",
-    "**/*Preview*.*",
-    "**/*_Impl*.*",
-    "**/di/**",
+    "**/*_Impl*.*", // Room-generated DAO/database
+    "**/*ComposableSingletons*.*", // Compose-generated
+    "**/*Preview*.*", // @Preview composables
+    "**/*aggregated_deps/**", // Hilt/AppFunctions generated registries
+    "**/di/**", // Hilt DI modules (config)
   )
 
-  // AGP 9 compiles Kotlin via the built-in Kotlin compiler and Java via javac,
-  // each writing to its own intermediates directory.
-  val kotlinClasses =
+  classDirectories.setFrom(
     fileTree("${layout.buildDirectory.get()}/intermediates/built_in_kotlinc/debug/compileDebugKotlin/classes") {
       exclude(coverageExcludes)
-    }
-  val javaClasses =
-    fileTree("${layout.buildDirectory.get()}/intermediates/javac/debug/compileDebugJavaWithJavac/classes") {
-      exclude(coverageExcludes)
-    }
-  classDirectories.setFrom(files(kotlinClasses, javaClasses))
-
-  sourceDirectories.setFrom(
-    files("$projectDir/src/main/java", "$projectDir/src/main/kotlin"),
-  )
-
-  executionData.setFrom(
-    fileTree(layout.buildDirectory.get()) {
-      include("**/testDebugUnitTest.exec", "**/*.exec")
     },
   )
+  sourceDirectories.setFrom(files("$projectDir/src/main/java"))
+  executionData.setFrom(files("${layout.buildDirectory.get()}/jacoco/testDebugUnitTest.exec"))
 }
