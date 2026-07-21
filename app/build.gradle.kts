@@ -60,6 +60,12 @@ android {
     includeInApk = false
     includeInBundle = false
   }
+
+  lint {
+    checkReleaseBuilds = true
+    abortOnError = true
+    error += setOf("MissingTranslation", "ExtraTranslation")
+  }
 }
 
 dependencies {
@@ -122,6 +128,7 @@ dependencies {
 tasks.named("check") {
   dependsOn("ktlintCheck")
   dependsOn("detekt")
+  dependsOn("lint")
 }
 ktlint {
   version.set("1.3.1")
