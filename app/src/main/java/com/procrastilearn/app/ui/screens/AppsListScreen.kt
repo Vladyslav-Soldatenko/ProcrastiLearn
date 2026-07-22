@@ -24,7 +24,7 @@ fun AppsListScreen() {
 }
 
 @Composable
-private fun AppsListScreenContent(
+internal fun AppsListScreenContent(
     state: AppsViewModel.UiState,
     onToggle: (AppInfo) -> Unit,
     onEnabledChange: (Boolean) -> Unit,
