@@ -11,6 +11,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.R
@@ -35,7 +36,6 @@ import org.robolectric.annotation.Config
 @Config(
     sdk = [33],
     manifest = Config.NONE,
-    qualifiers = "xlarge",
 )
 class AddWordScreenContentTest {
     private val composeTestRule = createComposeRule()
@@ -80,8 +80,6 @@ class AddWordScreenContentTest {
 
     private fun string(resId: Int) = context.getString(resId)
 
-    // --- Basic rendering & navigation ---
-
     @Test
     fun `shows title and subtitle`() {
         setContent()
@@ -114,8 +112,6 @@ class AddWordScreenContentTest {
 
         composeTestRule.onNodeWithText("Please enter a translation.").assertIsDisplayed()
     }
-
-    // --- AI toggle & translation field visibility ---
 
     @Test
     fun `ai toggle hidden when openAiAvailable is false`() {
@@ -177,8 +173,6 @@ class AddWordScreenContentTest {
         composeTestRule.onNodeWithText("Haus").assertIsDisplayed().assertIsEnabled()
     }
 
-    // --- Translation direction row ---
-
     @Test
     fun `translation direction row hidden when ai translation is not used`() {
         setContent(openAiAvailable = true, useAiForTranslation = false)
@@ -198,8 +192,6 @@ class AddWordScreenContentTest {
 
         verify(exactly = 1) { onTranslationDirectionToggle.invoke() }
     }
-
-    // --- Preview / Add buttons ---
 
     @Test
     fun `preview button hidden when ai translation is not used`() {
@@ -235,7 +227,7 @@ class AddWordScreenContentTest {
     fun `clicking add button invokes onAddClick`() {
         setContent()
 
-        composeTestRule.onNodeWithText(string(R.string.add_word_button_add)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.add_word_button_add)).performScrollTo().performClick()
 
         verify(exactly = 1) { onAddClick.invoke() }
     }
@@ -251,11 +243,9 @@ class AddWordScreenContentTest {
     fun `add button shows add later label in add later mode`() {
         setContent(isAddLaterMode = true)
 
-        composeTestRule.onNodeWithText(string(R.string.add_word_button_add_later)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.add_word_button_add_later)).performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.add_word_button_add)).assertDoesNotExist()
     }
-
-    // --- Pending words ---
 
     @Test
     fun `pending words section hidden when list is empty`() {
@@ -274,9 +264,9 @@ class AddWordScreenContentTest {
                 ),
         )
 
-        composeTestRule.onNodeWithText(string(R.string.add_word_pending_title)).assertIsDisplayed()
-        composeTestRule.onNodeWithText("Haus").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Auto").assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.add_word_pending_title)).performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Haus").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Auto").performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -291,18 +281,17 @@ class AddWordScreenContentTest {
 
         composeTestRule
             .onAllNodesWithContentDescription(string(R.string.add_word_pending_delete))[1]
+            .performScrollTo()
             .performClick()
 
         verify(exactly = 1) { onDeletePendingWord(2L) }
     }
 
-    // --- Error & success ---
-
     @Test
     fun `shows error message when present`() {
         setContent(errorMessage = "Something went wrong")
 
-        composeTestRule.onNodeWithText("Something went wrong").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Something went wrong").performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -332,8 +321,6 @@ class AddWordScreenContentTest {
 
         composeTestRule.onNodeWithText(string(R.string.add_word_success_default)).assertDoesNotExist()
     }
-
-    // --- Preview dialog wiring ---
 
     @Test
     fun `preview dialog shown when visible and content present`() {
@@ -384,8 +371,6 @@ class AddWordScreenContentTest {
         verify(exactly = 1) { onPreviewCancel.invoke() }
     }
 
-    // --- Existing word dialog wiring ---
-
     @Test
     fun `existing word dialog shown when visible flag set`() {
         setContent(
@@ -429,8 +414,6 @@ class AddWordScreenContentTest {
         verify { onExistingWordDialogProceed wasNot called }
     }
 
-    // --- TranslationDirectionRow (tested directly for ordering) ---
-
     @Test
     fun `translation direction row places native before target for native-to-target direction`() {
         composeTestRule.setContent {
@@ -464,8 +447,6 @@ class AddWordScreenContentTest {
 
         assertThat(targetLeft).isLessThan(nativeLeft)
     }
-
-    // --- PendingWordsSection (tested directly) ---
 
     @Test
     fun `pending words section renders every word in order`() {

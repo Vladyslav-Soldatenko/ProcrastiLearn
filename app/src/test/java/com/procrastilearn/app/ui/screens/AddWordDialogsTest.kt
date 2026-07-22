@@ -26,7 +26,6 @@ import org.robolectric.annotation.Config
 @Config(
     sdk = [33],
     manifest = Config.NONE,
-    qualifiers = "xlarge",
 )
 class AddWordDialogsTest {
     private val composeTestRule = createComposeRule()
@@ -55,8 +54,6 @@ class AddWordDialogsTest {
     }
 
     private fun string(resId: Int) = context.getString(resId)
-
-    // --- AddWordPreviewDialog ---
 
     @Test
     fun `preview dialog displays word and translation`() {
@@ -122,8 +119,6 @@ class AddWordDialogsTest {
             )
         }
     }
-
-    // --- ExistingWordDialog ---
 
     @Test
     fun `existing word dialog shows title and message`() {

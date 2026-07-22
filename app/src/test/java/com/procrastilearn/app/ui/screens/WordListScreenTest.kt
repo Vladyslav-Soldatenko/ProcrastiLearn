@@ -32,7 +32,6 @@ import org.robolectric.annotation.Config
 @Config(
     sdk = [33],
     manifest = Config.NONE,
-    qualifiers = "xlarge",
 )
 class WordListScreenTest {
     private val composeTestRule = createComposeRule()
@@ -66,8 +65,6 @@ class WordListScreenTest {
     }
 
     private fun string(resId: Int) = context.getString(resId)
-
-    // --- WordListContent ---
 
     @Test
     fun `shows empty state when there are no words`() {
@@ -135,8 +132,6 @@ class WordListScreenTest {
         verify(exactly = 1) { onNavigateBack.invoke() }
     }
 
-    // --- WordListItem menu + dialogs ---
-
     @Test
     fun `opening the item menu shows edit reset and delete actions`() {
         setContent(words = words.take(1))
@@ -177,7 +172,6 @@ class WordListScreenTest {
         composeTestRule.onNodeWithText("Save").performClick()
 
         verify { onEdit wasNot called }
-        // dialog remains open since the edit was rejected
         composeTestRule.onNodeWithText(string(R.string.edit_word_title)).assertIsDisplayed()
     }
 

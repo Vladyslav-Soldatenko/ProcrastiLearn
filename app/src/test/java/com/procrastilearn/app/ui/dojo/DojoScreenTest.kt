@@ -30,7 +30,6 @@ import org.robolectric.annotation.Config
 @Config(
     sdk = [33],
     manifest = Config.NONE,
-    qualifiers = "xlarge",
 )
 class DojoScreenTest {
     private val composeTestRule = createComposeRule()
