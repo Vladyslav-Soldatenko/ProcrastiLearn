@@ -23,13 +23,8 @@ import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(
-    sdk = [33],
-    manifest = Config.NONE,
-)
 class BottomNavigationBarTest {
     private val composeTestRule = createComposeRule()
 
