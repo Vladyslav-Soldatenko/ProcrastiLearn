@@ -134,12 +134,38 @@ class StringInputDialogTest {
         verify { onValueConfirm wasNot called }
     }
 
+    @Test
+    fun `helper text is shown when provided`() {
+        setContent(
+            title = "Prompt",
+            currentValue = "value",
+            helperText = "Use placeholders to customize the prompt",
+        )
+
+        composeTestRule
+            .onNodeWithText("Use placeholders to customize the prompt")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `helper text is absent by default`() {
+        setContent(
+            title = "Prompt",
+            currentValue = "value",
+        )
+
+        composeTestRule
+            .onNodeWithText("Use placeholders to customize the prompt")
+            .assertDoesNotExist()
+    }
+
     private fun setContent(
         title: String,
         currentValue: String,
         isPassword: Boolean = true,
         singleLine: Boolean = true,
         maxLines: Int = if (singleLine) 1 else 4,
+        helperText: String? = null,
     ) {
         composeTestRule.setContent {
             MyApplicationTheme {
@@ -151,6 +177,7 @@ class StringInputDialogTest {
                     isPassword = isPassword,
                     singleLine = singleLine,
                     maxLines = maxLines,
+                    helperText = helperText,
                 )
             }
         }

@@ -21,7 +21,7 @@ Potete anche importare un mazzo Anki esistente (file .apkg) per partire subito c
 
 LINGUE
 
-L'app funziona al meglio con la coppia inglese-russo (è quella predefinita nel prompt IA), ma qualsiasi coppia di lingue va bene — basta modificare il prompt nelle Impostazioni. Il supporto dedicato per altre coppie di lingue arriverà nelle prossime versioni, soprattutto in base alle richieste degli utenti su GitHub o via email.
+Il prompt IA ora si adatta automaticamente alla coppia di lingue scelta nelle Impostazioni: le spiegazioni compaiono nella tua lingua madre e gli esempi nella lingua che stai imparando. Qualsiasi coppia di lingue funziona da subito, senza dover modificare nulla a mano. Altri miglioramenti legati alle lingue continueranno ad arrivare, soprattutto in base alle richieste degli utenti su GitHub o via email.
 
 
 PRIVACY

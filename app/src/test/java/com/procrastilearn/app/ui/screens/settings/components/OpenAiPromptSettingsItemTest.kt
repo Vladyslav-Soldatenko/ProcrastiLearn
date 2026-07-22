@@ -15,7 +15,6 @@ import io.mockk.called
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -24,7 +23,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-@Ignore
 @RunWith(RobolectricTestRunner::class)
 @Config(
     sdk = [33],
@@ -50,11 +48,11 @@ class OpenAiPromptSettingsItemTest {
     }
 
     @Test
-    fun `shows default prompt state with default language codes`() {
+    fun `shows default prompt state with given language codes`() {
         setContent(prompt = OpenAiPromptDefaults.translationPrompt)
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings_openai_prompt_title, "EN", "RU"))
+            .onNodeWithText(context.getString(R.string.settings_openai_prompt_title, "RU", "EN"))
             .assertIsDisplayed()
 
         composeTestRule
@@ -74,11 +72,24 @@ class OpenAiPromptSettingsItemTest {
     }
 
     @Test
+    fun `default prompt supporting text reflects a non-default language pair`() {
+        setContent(prompt = OpenAiPromptDefaults.translationPrompt, nativeLanguageCode = "DE", targetLanguageCode = "FR")
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_openai_prompt_title, "FR", "DE"))
+            .assertIsDisplayed()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_openai_prompt_default, "DE", "FR"))
+            .assertIsDisplayed()
+    }
+
+    @Test
     fun `title reflects the given language codes`() {
         setContent(prompt = OpenAiPromptDefaults.translationPrompt, nativeLanguageCode = "DE", targetLanguageCode = "FR")
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings_openai_prompt_title, "DE", "FR"))
+            .onNodeWithText(context.getString(R.string.settings_openai_prompt_title, "FR", "DE"))
             .assertIsDisplayed()
     }
 
@@ -87,7 +98,7 @@ class OpenAiPromptSettingsItemTest {
         setContent(prompt = "Custom prompt")
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings_openai_prompt_title, "EN", "RU"))
+            .onNodeWithText(context.getString(R.string.settings_openai_prompt_title, "RU", "EN"))
             .assertHasClickAction()
             .performClick()
 

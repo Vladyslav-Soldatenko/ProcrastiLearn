@@ -75,7 +75,12 @@ class AddWordViewModelProcessTextTest {
         aiTranslationProvider = FakeAiTranslationProvider()
         languagePreferencesStore = mockk(relaxed = true)
         generateAiTranslationUseCase =
-            GenerateAiTranslationUseCase(aiTranslationProvider, openAiStore, mainDispatcherRule.testDispatcher)
+            GenerateAiTranslationUseCase(
+                aiTranslationProvider,
+                openAiStore,
+                languagePreferencesStore,
+                mainDispatcherRule.testDispatcher,
+            )
         processTextEventBus = ProcessTextEventBus()
 
         every { openAiStore.readOpenAiApiKey() } returns openAiKeyFlow

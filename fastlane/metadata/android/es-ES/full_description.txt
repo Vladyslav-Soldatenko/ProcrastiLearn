@@ -21,7 +21,7 @@ También puedes importar un mazo de Anki existente (archivos .apkg) para empezar
 
 IDIOMAS
 
-La app funciona mejor con el par inglés-ruso (es el que viene por defecto en el prompt de IA), pero cualquier par de idiomas funciona: solo tienes que editar el prompt en Ajustes. El soporte dedicado para más pares de idiomas llegará en futuras versiones, sobre todo según lo que pidan los usuarios en los issues de GitHub o por correo.
+El prompt de IA se adapta automáticamente al par de idiomas que elijas en Ajustes: las explicaciones aparecen en tu idioma nativo y los ejemplos en el idioma que estás aprendiendo. Cualquier par de idiomas funciona de inmediato, sin necesidad de editar nada a mano. Seguirán llegando mejoras relacionadas con los idiomas, sobre todo según lo que pidan los usuarios en los issues de GitHub o por correo.
 
 
 PRIVACIDAD
