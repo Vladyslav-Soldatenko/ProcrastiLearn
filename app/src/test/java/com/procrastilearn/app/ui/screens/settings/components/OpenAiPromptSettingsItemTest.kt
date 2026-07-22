@@ -56,7 +56,7 @@ class OpenAiPromptSettingsItemTest {
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings_openai_prompt_default, "EN", "RU"))
+            .onNodeWithText(context.getString(R.string.settings_openai_prompt_default, "RU", "EN"))
             .assertIsDisplayed()
 
         verify { onClick wasNot called }
@@ -67,7 +67,7 @@ class OpenAiPromptSettingsItemTest {
         setContent(prompt = "Custom prompt")
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings_openai_prompt_custom, "EN", "RU"))
+            .onNodeWithText(context.getString(R.string.settings_openai_prompt_custom, "RU", "EN"))
             .assertIsDisplayed()
     }
 
@@ -80,7 +80,7 @@ class OpenAiPromptSettingsItemTest {
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings_openai_prompt_default, "DE", "FR"))
+            .onNodeWithText(context.getString(R.string.settings_openai_prompt_default, "FR", "DE"))
             .assertIsDisplayed()
     }
 
@@ -111,7 +111,7 @@ class OpenAiPromptSettingsItemTest {
 
         composeTestRule
             .onNodeWithText(
-                context.getString(R.string.settings_openai_prompt_default, "EN", "RU"),
+                context.getString(R.string.settings_openai_prompt_default, "RU", "EN"),
                 useUnmergedTree = true,
             ).performClick()
 

@@ -25,9 +25,9 @@ fun OpenAiPromptSettingsItem(
 ) {
     val supporting =
         if (prompt == OpenAiPromptDefaults.translationPrompt) {
-            stringResource(R.string.settings_openai_prompt_default, nativeLanguageCode, targetLanguageCode)
+            stringResource(R.string.settings_openai_prompt_default, targetLanguageCode, nativeLanguageCode)
         } else {
-            stringResource(R.string.settings_openai_prompt_custom, nativeLanguageCode, targetLanguageCode)
+            stringResource(R.string.settings_openai_prompt_custom, targetLanguageCode, nativeLanguageCode)
         }
 
     ListItem(
