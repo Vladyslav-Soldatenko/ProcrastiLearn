@@ -21,7 +21,7 @@ You can also import existing Anki decks (.apkg files) to get started immediately
 
 LANGUAGE SUPPORT
 
-The app currently works best with English-Russian vocabulary (that pair is the default in the AI prompt), but any language pair works — just edit the prompt in Settings to match your target language. Support for additional language pairs with dedicated UI will be added in future releases, especially based on user requests in github issues or via email.
+The AI prompt automatically adapts to whatever native and target languages you choose in Settings: explanations appear in your native language, and examples in the language you're learning. Any language pair works out of the box — no manual prompt editing needed. Further language-related improvements will keep arriving, especially based on user requests in GitHub issues or via email.
 
 
 PRIVACY

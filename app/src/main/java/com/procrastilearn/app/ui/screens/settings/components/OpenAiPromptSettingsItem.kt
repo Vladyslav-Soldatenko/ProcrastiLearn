@@ -25,9 +25,7 @@ fun OpenAiPromptSettingsItem(
 ) {
     val supporting =
         if (prompt == OpenAiPromptDefaults.translationPrompt) {
-            @Suppress("ForbiddenComment")
-            // TODO: make this dynamic
-            stringResource(R.string.settings_openai_prompt_default, "EN", "RU")
+            stringResource(R.string.settings_openai_prompt_default, nativeLanguageCode, targetLanguageCode)
         } else {
             stringResource(R.string.settings_openai_prompt_custom, nativeLanguageCode, targetLanguageCode)
         }

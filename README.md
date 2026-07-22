@@ -33,7 +33,6 @@ All data (blocked apps, vocabulary, progress, and preferences) is stored locally
 - Auto-delete a word after a good streak.
 - Stop TikTok media playback (or mute it at least) during gating; other apps mostly work.
 - Let users choose GPT model or provider (e.g., via LangChain).
-- Add/Update AI prompt to respect language pairs instead of hardcoded EN-RU.
 - Add a kebab menu to the overlay to delete/edit the current word.
 - Track progress properties and show analytics charts.
 - Use AI to analyze existing words, estimate level and suggest new vocabulary based on that info.

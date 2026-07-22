@@ -453,6 +453,7 @@ internal fun SettingsContent(
                 isPassword = false,
                 singleLine = false,
                 maxLines = 12,
+                helperText = stringResource(R.string.settings_openai_prompt_placeholder_hint),
             )
         }
         DialogState.OpenAiReversePrompt -> {
@@ -472,6 +473,7 @@ internal fun SettingsContent(
                 isPassword = false,
                 singleLine = false,
                 maxLines = 12,
+                helperText = stringResource(R.string.settings_openai_prompt_placeholder_hint),
             )
         }
 

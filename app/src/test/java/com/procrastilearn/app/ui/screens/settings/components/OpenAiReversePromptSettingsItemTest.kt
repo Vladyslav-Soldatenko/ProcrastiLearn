@@ -15,7 +15,6 @@ import io.mockk.called
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -23,7 +22,6 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@Ignore
 @RunWith(RobolectricTestRunner::class)
 class OpenAiReversePromptSettingsItemTest {
     private val composeTestRule = createComposeRule()
@@ -44,15 +42,15 @@ class OpenAiReversePromptSettingsItemTest {
     }
 
     @Test
-    fun `shows default prompt state with default language codes`() {
+    fun `shows default prompt state with given language codes`() {
         setContent(prompt = OpenAiPromptDefaults.reverseTranslationPrompt)
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_title, "RU", "EN"))
+            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_title, "EN", "RU"))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_default, "RU", "EN"))
+            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_default, "EN", "RU"))
             .assertIsDisplayed()
 
         verify { onClick wasNot called }
@@ -63,12 +61,12 @@ class OpenAiReversePromptSettingsItemTest {
         setContent(prompt = "Custom prompt")
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_custom, "RU", "EN"))
+            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_custom, "EN", "RU"))
             .assertIsDisplayed()
     }
 
     @Test
-    fun `title swaps native and target codes for the reverse direction`() {
+    fun `default prompt supporting text reflects a non-default language pair`() {
         setContent(
             prompt = OpenAiPromptDefaults.reverseTranslationPrompt,
             nativeLanguageCode = "DE",
@@ -76,7 +74,24 @@ class OpenAiReversePromptSettingsItemTest {
         )
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_title, "FR", "DE"))
+            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_title, "DE", "FR"))
+            .assertIsDisplayed()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_default, "DE", "FR"))
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `title reflects native to target order for the reverse direction`() {
+        setContent(
+            prompt = OpenAiPromptDefaults.reverseTranslationPrompt,
+            nativeLanguageCode = "DE",
+            targetLanguageCode = "FR",
+        )
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_title, "DE", "FR"))
             .assertIsDisplayed()
     }
 
@@ -85,7 +100,7 @@ class OpenAiReversePromptSettingsItemTest {
         setContent(prompt = "Custom prompt")
 
         composeTestRule
-            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_title, "RU", "EN"))
+            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_title, "EN", "RU"))
             .assertHasClickAction()
             .performClick()
 

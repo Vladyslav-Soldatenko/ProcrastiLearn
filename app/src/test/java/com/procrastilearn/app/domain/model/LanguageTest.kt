@@ -46,6 +46,14 @@ class LanguageTest {
     }
 
     @Test
+    fun everyLanguageHasAUniqueNonBlankEnglishName() {
+        val englishNames = Language.entries.map { it.englishName }
+
+        assertThat(englishNames).containsNoDuplicates()
+        englishNames.forEach { assertThat(it).isNotEmpty() }
+    }
+
+    @Test
     fun languagePairEqualityIsBasedOnNativeAndTarget() {
         val a = LanguagePair(Language.ENGLISH, Language.RUSSIAN)
         val b = LanguagePair(Language.ENGLISH, Language.RUSSIAN)

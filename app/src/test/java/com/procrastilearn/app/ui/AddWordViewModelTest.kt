@@ -82,7 +82,12 @@ class AddWordViewModelTest {
         aiTranslationProvider = FakeAiTranslationProvider()
         languagePreferencesStore = mockk(relaxed = true)
         generateAiTranslationUseCase =
-            GenerateAiTranslationUseCase(aiTranslationProvider, openAiStore, mainDispatcherRule.testDispatcher)
+            GenerateAiTranslationUseCase(
+                aiTranslationProvider,
+                openAiStore,
+                languagePreferencesStore,
+                mainDispatcherRule.testDispatcher,
+            )
 
         every { openAiStore.readOpenAiApiKey() } returns openAiKeyFlow
         every { openAiStore.readUseAiForTranslation() } returns useAiFlow
@@ -602,6 +607,8 @@ class AddWordViewModelTest {
                 HEADWORD: "Haus"
 
                 Produce ONLY the entry for this headword, in the exact frame and rules above. No extra text.
+
+                The headword above is in Russian. Write headings, explanations, and usage notes in English, and write every example sentence in Russian.
                 """.trimIndent(),
             )
         }

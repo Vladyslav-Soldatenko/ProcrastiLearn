@@ -178,6 +178,7 @@
         <string name="settings_openai_reverse_prompt_dialog_title">Измените промпт AI %1$s-&gt;%2$s</string>
         <string name="settings_openai_reverse_prompt_default">Используется промпт %1$s-&gt;%2$s по умолчанию</string>
         <string name="settings_openai_reverse_prompt_custom">Пользовательский промпт %1$s-&gt;%2$s сохранён</string>
+        <string name="settings_openai_prompt_placeholder_hint">Используйте плейсхолдеры {{NATIVE_LANGUAGE}} и {{TARGET_LANGUAGE}} — при генерации перевода они автоматически заменяются на выбранные вами языки.</string>
 
         <string name="settings_overlay_headline">Разрешение на оверлей</string>
         <string name="settings_overlay_support">

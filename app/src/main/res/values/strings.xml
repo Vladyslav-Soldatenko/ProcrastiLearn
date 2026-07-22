@@ -236,6 +236,7 @@
     <string name="settings_openai_reverse_prompt_dialog_title">Edit AI %1$s-&gt;%2$s prompt</string>
     <string name="settings_openai_reverse_prompt_default">Using default %1$s-&gt;%2$s prompt</string>
     <string name="settings_openai_reverse_prompt_custom">Custom %1$s-&gt;%2$s prompt saved</string>
+    <string name="settings_openai_prompt_placeholder_hint">Use {{NATIVE_LANGUAGE}} and {{TARGET_LANGUAGE}} as placeholders — they are automatically replaced with your selected languages when a translation is generated.</string>
 
     <!-- Add Word: AI translation toggle -->
     <string name="add_word_use_ai_toggle">use AI to generate translation</string>

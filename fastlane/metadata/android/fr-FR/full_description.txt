@@ -21,7 +21,7 @@ Vous pouvez aussi importer un paquet Anki existant (.apkg) pour démarrer direct
 
 LANGUES
 
-L'application fonctionne surtout bien avec la paire anglais-russe (c'est la paire par défaut dans le prompt IA), mais n'importe quelle paire de langues fonctionne — il suffit d'adapter le prompt dans les Paramètres. La prise en charge d'autres paires avec une interface dédiée arrivera dans de prochaines versions, en particulier selon les demandes des utilisateurs sur GitHub ou par e-mail.
+Le prompt IA s'adapte désormais automatiquement à la paire de langues choisie dans les Paramètres : les explications apparaissent dans votre langue maternelle, et les exemples dans la langue que vous apprenez. N'importe quelle paire de langues fonctionne directement, sans modification manuelle du prompt. D'autres améliorations liées aux langues arriveront, en particulier selon les demandes des utilisateurs sur GitHub ou par e-mail.
 
 
 CONFIDENTIALITÉ
