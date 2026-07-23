@@ -14,6 +14,7 @@ import com.procrastilearn.app.domain.usecase.UndoLastRatingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.openspacedrepetition.Rating
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +22,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -48,8 +51,10 @@ class DojoViewModel
         // would steal the restored card off the screen).
         private var pendingRestoredItem: VocabularyItem? = null
 
+        private val dueCountRefreshRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
         private val reviewsDueCount =
-            timeTicker.nowTicks()
+            merge(timeTicker.nowTicks(), dueCountRefreshRequests.map { timeTicker.now() })
                 .flatMapLatest { now -> vocabularyDao.observeReviewsDueCount(now) }
                 .distinctUntilChanged()
         private val newTotalCount = vocabularyDao.observeNewTotalCount()
@@ -118,6 +123,7 @@ class DojoViewModel
 
             viewModelScope.launch {
                 saveDifficultyRating(current.id, rating)
+                dueCountRefreshRequests.emit(Unit)
                 // Re-rating clears the pin: the next loadNextWord() should fetch for real.
                 pendingRestoredItem = null
                 // Reset showAnswer for next card
