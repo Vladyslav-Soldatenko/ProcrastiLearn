@@ -202,6 +202,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
 @Composable
 private fun SettingsTopBar() {
     CenterAlignedTopAppBar(
+        modifier = Modifier.height(60.dp),
         title = { Text(stringResource(R.string.settings_title)) },
     )
 }
