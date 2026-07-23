@@ -6,21 +6,26 @@ import com.procrastilearn.app.data.local.dao.UndoSnapshotDao
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
+import com.procrastilearn.app.data.time.TimeTicker
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
 import com.procrastilearn.app.domain.usecase.UndoLastRatingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.openspacedrepetition.Rating
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class DojoViewModel
     @Inject
@@ -31,6 +36,7 @@ class DojoViewModel
         private val dayCountersStore: DayCountersStore,
         private val undoLastRating: UndoLastRatingUseCase,
         private val undoSnapshotDao: UndoSnapshotDao,
+        private val timeTicker: TimeTicker,
     ) : ViewModel() {
         private val flashcardState = MutableStateFlow(FlashcardState())
         private val undoEvent = MutableStateFlow<UndoEvent?>(null)
@@ -43,7 +49,11 @@ class DojoViewModel
 
         // Reactive: re-emits whenever the vocabulary table changes anywhere in the app
         // (e.g. a review recorded from the blocking overlay), not just from this screen.
-        private val reviewsDueCount = vocabularyDao.observeReviewsDueCount(System.currentTimeMillis())
+        // TODO: take(1) still pins `now` to the moment the flow is first collected;
+        // this is intentionally the pre-fix (buggy) wiring and will be replaced.
+        private val reviewsDueCount =
+            timeTicker.nowTicks().take(1)
+                .flatMapLatest { now -> vocabularyDao.observeReviewsDueCount(now) }
         private val newTotalCount = vocabularyDao.observeNewTotalCount()
         private val undoCount = undoSnapshotDao.observeCount()
 
