@@ -47,13 +47,6 @@ class DojoViewModel
         // would steal the restored card off the screen).
         private var pendingRestoredItem: VocabularyItem? = null
 
-        // Reactive: re-emits whenever the vocabulary table changes anywhere in the app
-        // (e.g. a review recorded from the blocking overlay), not just from this screen,
-        // AND whenever the ticker advances. Room's reactive queries only re-run on table
-        // writes, never just because wall-clock time passes, so without re-subscribing on
-        // every tick this count would stay pinned to whatever "now" was current when Dojo
-        // was first opened - underreporting (or missing entirely) any card that becomes
-        // due later, including relearning cards from an "Again" rating.
         private val reviewsDueCount =
             timeTicker.nowTicks()
                 .flatMapLatest { now -> vocabularyDao.observeReviewsDueCount(now) }

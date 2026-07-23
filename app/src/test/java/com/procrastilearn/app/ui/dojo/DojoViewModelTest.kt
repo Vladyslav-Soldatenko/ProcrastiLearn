@@ -50,8 +50,6 @@ class DojoViewModelTest {
     private lateinit var newTotalCountFlow: MutableStateFlow<Int>
     private lateinit var undoCountFlow: MutableStateFlow<Int>
 
-    // Fixed base "now" the fake ticker starts at; tests advance it explicitly to
-    // simulate real time passing without relying on wall-clock delays.
     private val baseNow = 1_700_000_000_000L
     private lateinit var nowTicker: MutableStateFlow<Long>
     private val fakeTimeTicker =
@@ -752,15 +750,6 @@ class DojoViewModelTest {
             assertThat(viewModel.uiState.value.undoEvent?.word).isEqualTo("second-undo")
         }
 
-    // --- Regression tests for the frozen-`now` due-count bug ---
-    //
-    // Room's reactive queries only re-run when the observed *table* changes, never
-    // just because wall-clock time advances. observeReviewsDueCount(now) is bound to
-    // whatever `now` it was first subscribed with; these tests simulate that Room
-    // semantics via a mock that recomputes its due count from the `now` argument each
-    // time it's invoked, then advance a fake ticker to prove the count keeps up with
-    // real time instead of staying pinned to the value captured when Dojo was opened.
-
     @Test
     fun `pendingReviewCount reflects cards that become due after the screen opened`() =
         runTest(mainDispatcherRule.testDispatcher) {
@@ -777,8 +766,6 @@ class DojoViewModelTest {
             advanceUntilIdle()
             assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(0)
 
-            // Real time passes: 5 cards are now due, even though nothing wrote to the
-            // vocabulary table to trigger a Room re-query.
             nowTicker.value = baseNow + dueDelayMs
             advanceUntilIdle()
 
@@ -802,8 +789,6 @@ class DojoViewModelTest {
             advanceUntilIdle()
             assertThat(viewModel.uiState.value.hasNoWords).isTrue()
 
-            // A card becomes due purely from time passing; Dojo must notice on its own
-            // rather than requiring the app to be killed and reopened.
             nowTicker.value = baseNow + dueDelayMs
             advanceUntilIdle()
 
@@ -817,8 +802,6 @@ class DojoViewModelTest {
             val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
             coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
 
-            // Mirrors FsrsModule's 1-minute first learning step: a card rated Again
-            // becomes due again 1 minute after being reviewed.
             val relearningDelayMs = 60_000L
             every { vocabularyDao.observeReviewsDueCount(any()) } answers {
                 val now = firstArg<Long>()
@@ -832,8 +815,6 @@ class DojoViewModelTest {
             nowTicker.value = baseNow + relearningDelayMs
             advanceUntilIdle()
 
-            // The fetcher (which always reads a live "now") would serve these 5
-            // relearning cards; the header counter must agree instead of showing 0.
             assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(5)
         }
 }
