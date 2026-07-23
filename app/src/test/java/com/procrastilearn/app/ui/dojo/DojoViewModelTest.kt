@@ -52,9 +52,12 @@ class DojoViewModelTest {
 
     private val baseNow = 1_700_000_000_000L
     private lateinit var nowTicker: MutableStateFlow<Long>
+    private var liveNow = baseNow
     private val fakeTimeTicker =
         object : TimeTicker {
             override fun nowTicks(): Flow<Long> = nowTicker
+
+            override fun now(): Long = liveNow
         }
 
     @Before
@@ -91,6 +94,7 @@ class DojoViewModelTest {
         newTotalCountFlow = MutableStateFlow(1000)
         undoCountFlow = MutableStateFlow(0)
         nowTicker = MutableStateFlow(baseNow)
+        liveNow = baseNow
 
         every { dayCountersStore.read() } returns countersFlow
         every { dayCountersStore.readPolicy() } returns policyFlow
@@ -813,6 +817,63 @@ class DojoViewModelTest {
             assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(0)
 
             nowTicker.value = baseNow + relearningDelayMs
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(5)
+        }
+
+    @Test
+    fun `rating a card recomputes pendingReviewCount using a live now instead of waiting for the next tick`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+            coEvery { saveDifficultyRating.invoke(any(), any()) } returns Result.success(Unit)
+
+            val dueDelayMs = 2 * 60_000L
+            every { vocabularyDao.observeReviewsDueCount(any()) } answers {
+                val now = firstArg<Long>()
+                flowOf(if (now >= baseNow + dueDelayMs) 5 else 0)
+            }
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(0)
+
+            liveNow = baseNow + dueDelayMs
+            assertThat(nowTicker.value).isEqualTo(baseNow)
+
+            viewModel.onDifficultySelected(Rating.GOOD)
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(5)
+        }
+
+    @Test
+    fun `relearning cards become visible in the counter as soon as another card is rated, without waiting for the tick`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val first = VocabularyItem(id = 1, word = "first", translation = "первый", isNew = true)
+            val second = VocabularyItem(id = 2, word = "second", translation = "второй", isNew = true)
+            coEvery { getNextVocabularyItem.invoke() } returnsMany
+                listOf(Result.success(first), Result.success(second))
+            coEvery { saveDifficultyRating.invoke(any(), any()) } returns Result.success(Unit)
+
+            val relearningDelayMs = 60_000L
+            every { vocabularyDao.observeReviewsDueCount(any()) } answers {
+                val now = firstArg<Long>()
+                flowOf(if (now >= baseNow + relearningDelayMs) 5 else 0)
+            }
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(0)
+
+            viewModel.onDifficultySelected(Rating.AGAIN)
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(second)
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(0)
+
+            liveNow = baseNow + relearningDelayMs
+            viewModel.onDifficultySelected(Rating.GOOD)
             advanceUntilIdle()
 
             assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(5)

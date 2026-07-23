@@ -8,6 +8,8 @@ import javax.inject.Singleton
 
 interface TimeTicker {
     fun nowTicks(): Flow<Long>
+
+    fun now(): Long
 }
 
 @Singleton
@@ -21,6 +23,8 @@ class RealTimeTicker
                     delay(TICK_INTERVAL_MS)
                 }
             }
+
+        override fun now(): Long = System.currentTimeMillis()
 
         private companion object {
             const val TICK_INTERVAL_MS = 30_000L
