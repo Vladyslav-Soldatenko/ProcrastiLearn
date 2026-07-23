@@ -27,6 +27,7 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
+@Suppress("LongParameterList")
 class DojoViewModel
     @Inject
     constructor(
