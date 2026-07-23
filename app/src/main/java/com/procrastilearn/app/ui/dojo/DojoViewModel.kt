@@ -6,22 +6,31 @@ import com.procrastilearn.app.data.local.dao.UndoSnapshotDao
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
+import com.procrastilearn.app.data.time.TimeTicker
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
 import com.procrastilearn.app.domain.usecase.UndoLastRatingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.openspacedrepetition.Rating
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
+@Suppress("LongParameterList")
 class DojoViewModel
     @Inject
     constructor(
@@ -31,6 +40,7 @@ class DojoViewModel
         private val dayCountersStore: DayCountersStore,
         private val undoLastRating: UndoLastRatingUseCase,
         private val undoSnapshotDao: UndoSnapshotDao,
+        private val timeTicker: TimeTicker,
     ) : ViewModel() {
         private val flashcardState = MutableStateFlow(FlashcardState())
         private val undoEvent = MutableStateFlow<UndoEvent?>(null)
@@ -41,9 +51,12 @@ class DojoViewModel
         // would steal the restored card off the screen).
         private var pendingRestoredItem: VocabularyItem? = null
 
-        // Reactive: re-emits whenever the vocabulary table changes anywhere in the app
-        // (e.g. a review recorded from the blocking overlay), not just from this screen.
-        private val reviewsDueCount = vocabularyDao.observeReviewsDueCount(System.currentTimeMillis())
+        private val dueCountRefreshRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
+        private val reviewsDueCount =
+            merge(timeTicker.nowTicks(), dueCountRefreshRequests.map { timeTicker.now() })
+                .flatMapLatest { now -> vocabularyDao.observeReviewsDueCount(now) }
+                .distinctUntilChanged()
         private val newTotalCount = vocabularyDao.observeNewTotalCount()
         private val undoCount = undoSnapshotDao.observeCount()
 
@@ -110,6 +123,7 @@ class DojoViewModel
 
             viewModelScope.launch {
                 saveDifficultyRating(current.id, rating)
+                dueCountRefreshRequests.emit(Unit)
                 // Re-rating clears the pin: the next loadNextWord() should fetch for real.
                 pendingRestoredItem = null
                 // Reset showAnswer for next card
