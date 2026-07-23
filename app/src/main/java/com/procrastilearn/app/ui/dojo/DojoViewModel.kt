@@ -18,10 +18,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -48,12 +48,16 @@ class DojoViewModel
         private var pendingRestoredItem: VocabularyItem? = null
 
         // Reactive: re-emits whenever the vocabulary table changes anywhere in the app
-        // (e.g. a review recorded from the blocking overlay), not just from this screen.
-        // TODO: take(1) still pins `now` to the moment the flow is first collected;
-        // this is intentionally the pre-fix (buggy) wiring and will be replaced.
+        // (e.g. a review recorded from the blocking overlay), not just from this screen,
+        // AND whenever the ticker advances. Room's reactive queries only re-run on table
+        // writes, never just because wall-clock time passes, so without re-subscribing on
+        // every tick this count would stay pinned to whatever "now" was current when Dojo
+        // was first opened - underreporting (or missing entirely) any card that becomes
+        // due later, including relearning cards from an "Again" rating.
         private val reviewsDueCount =
-            timeTicker.nowTicks().take(1)
+            timeTicker.nowTicks()
                 .flatMapLatest { now -> vocabularyDao.observeReviewsDueCount(now) }
+                .distinctUntilChanged()
         private val newTotalCount = vocabularyDao.observeNewTotalCount()
         private val undoCount = undoSnapshotDao.observeCount()
 
