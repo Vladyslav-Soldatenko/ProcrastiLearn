@@ -16,7 +16,9 @@ VOCABULARY
 
 Add words manually or use the optional AI translation feature: paste a word, tap Generate, and the app drafts a translation using OpenAI. The AI prompt is fully editable so you can control tone, context, or target language.
 
-You can also import existing Anki decks (.apkg files) to get started immediately with a vocabulary set you already trust.
+You can also import existing Anki decks (.apkg files) to get started immediately with a vocabulary set you already trust. After that you can be sure that you'll learn it eventually, while watching tiktok or your favourite YouTuber.
+
+Come across a word somewhere else — an article, a chat, another app? Select it and tap "ProcrastiLearn this" from the menu to add it right away, no need to switch apps first.
 
 
 LANGUAGE SUPPORT

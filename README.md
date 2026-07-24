@@ -17,6 +17,7 @@ ProcrastiLearn is an Android (Kotlin + Jetpack Compose) app that turns distracti
 - ➕ Add words manually or let AI draft translations (prompt is editable). Currently GPT-5-mini is used, which means that you can add hundreds of words for a few cents.
 - 📂 Import Anki `.apkg` decks.
 - 📋 Word list with search, edit, delete, and “reset progress”.
+-    Select a word in any other app and click "Procrastilearn this" to immediately add this word to the app and be sure that you'll learn it later
 - ⚙️ Configurable overlay interval, OpenAI key/prompt, and enable/disable switch for gating.
 
 ## User Setup
@@ -44,7 +45,6 @@ All data (blocked apps, vocabulary, progress, and preferences) is stored locally
 - Expand import options and improve Anki support.
 - Add support for different decks so that user can choose words of which deck they want to study now.
 - Add tests.
-- Add an "add word" option to the OS text selection popup.
 - Integrate with Gemini Assistant to add words by voice.
 - Support rich text formatting for word/translation.
 - Add pronunciation (TTS)

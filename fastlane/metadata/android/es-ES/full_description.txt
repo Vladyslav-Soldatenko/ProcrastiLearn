@@ -16,7 +16,9 @@ VOCABULARIO
 
 Añade palabras a mano o deja que lo haga la IA: pega una palabra, pulsa Generar, y la app propone una traducción usando OpenAI. El prompt es totalmente editable, así que puedes ajustar el tono, el contexto o el idioma de destino.
 
-También puedes importar un mazo de Anki existente (archivos .apkg) para empezar directamente con un vocabulario en el que ya confías.
+También puedes importar un mazo de Anki existente (archivos .apkg) para empezar directamente con un vocabulario en el que ya confías. A partir de ahí no hay escapatoria: acabarás aprendiéndote la palabra igual, aunque sea viendo TikTok o a tu youtuber favorito.
+
+¿Te encuentras una palabra en otro sitio —un artículo, una conversación, otra app—? Selecciónala y toca "ProcrastiLearn this" en el menú para añadirla al momento, sin cambiar de aplicación.
 
 
 IDIOMAS
