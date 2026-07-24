@@ -1,0 +1,2 @@
+Correction d'un bug qui affichait des chiffres incorrects dans les statistiques du dojo.
+Quelques petits ajustements et améliorations.
