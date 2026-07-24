@@ -27,7 +27,7 @@ ProcrastiLearn is an Android (Kotlin + Jetpack Compose) app that turns distracti
 4) Practice flow: open a gated app → overlay appears → → try to remember what the presented word means → tap “Show translation” → rate. If daily limits are reached, the overlay won’t appear.
 
 ## Privacy
-All data (blocked apps, vocabulary, progress, and preferences) is stored locally (opt-in possibility for cloud sync may be added later). No analytics or ads. OpenAI calls use your key directly.
+All data (blocked apps, vocabulary, progress, and preferences) is stored locally. No analytics or ads. OpenAI calls use your key directly.
 
 ## Roadmap
 - UI polish, improve color scheme and UX where needed.
