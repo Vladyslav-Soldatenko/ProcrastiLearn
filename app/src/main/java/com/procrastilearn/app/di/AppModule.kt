@@ -7,6 +7,8 @@ import com.procrastilearn.app.data.parser.json.JsonVocabularyParser
 import com.procrastilearn.app.data.repository.AppPreferencesRepositoryImpl
 import com.procrastilearn.app.data.repository.PendingWordRepositoryImpl
 import com.procrastilearn.app.data.repository.VocabularyRepositoryImpl
+import com.procrastilearn.app.data.time.RealTimeTicker
+import com.procrastilearn.app.data.time.TimeTicker
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.OpenAiTranslationProvider
 import com.procrastilearn.app.domain.parser.VocabularyParser
@@ -45,6 +47,10 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindPendingWordRepository(impl: PendingWordRepositoryImpl): PendingWordRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindTimeTicker(impl: RealTimeTicker): TimeTicker
 
     @Binds
     @IntoSet

@@ -6,6 +6,7 @@ import com.procrastilearn.app.data.local.dao.UndoSnapshotDao
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
+import com.procrastilearn.app.data.time.TimeTicker
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.UndoResult
@@ -21,7 +22,9 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -30,6 +33,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("LargeClass")
 class DojoViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -46,6 +50,16 @@ class DojoViewModelTest {
     private lateinit var dueCountFlow: MutableStateFlow<Int>
     private lateinit var newTotalCountFlow: MutableStateFlow<Int>
     private lateinit var undoCountFlow: MutableStateFlow<Int>
+
+    private val baseNow = 1_700_000_000_000L
+    private lateinit var nowTicker: MutableStateFlow<Long>
+    private var liveNow = baseNow
+    private val fakeTimeTicker =
+        object : TimeTicker {
+            override fun nowTicks(): Flow<Long> = nowTicker
+
+            override fun now(): Long = liveNow
+        }
 
     @Before
     fun setUp() {
@@ -80,6 +94,8 @@ class DojoViewModelTest {
         // tests that specifically exercise the cap override this per-test.
         newTotalCountFlow = MutableStateFlow(1000)
         undoCountFlow = MutableStateFlow(0)
+        nowTicker = MutableStateFlow(baseNow)
+        liveNow = baseNow
 
         every { dayCountersStore.read() } returns countersFlow
         every { dayCountersStore.readPolicy() } returns policyFlow
@@ -102,6 +118,7 @@ class DojoViewModelTest {
             dayCountersStore,
             undoLastRating,
             undoSnapshotDao,
+            fakeTimeTicker,
         )
 
     @Test
@@ -736,5 +753,130 @@ class DojoViewModelTest {
             advanceUntilIdle()
             assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(restoredSecond)
             assertThat(viewModel.uiState.value.undoEvent?.word).isEqualTo("second-undo")
+        }
+
+    @Test
+    fun `pendingReviewCount reflects cards that become due after the screen opened`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+
+            val dueDelayMs = 2 * 60_000L
+            every { vocabularyDao.observeReviewsDueCount(any()) } answers {
+                val now = firstArg<Long>()
+                flowOf(if (now >= baseNow + dueDelayMs) 5 else 0)
+            }
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(0)
+
+            nowTicker.value = baseNow + dueDelayMs
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(5)
+        }
+
+    @Test
+    fun `empty state self-heals when a card becomes due without rebuilding the ViewModel`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = true)
+            coEvery { getNextVocabularyItem.invoke() } returnsMany
+                listOf(Result.failure(NoAvailableItemsException()), Result.success(item))
+
+            val dueDelayMs = 2 * 60_000L
+            every { vocabularyDao.observeReviewsDueCount(any()) } answers {
+                val now = firstArg<Long>()
+                flowOf(if (now >= baseNow + dueDelayMs) 1 else 0)
+            }
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.hasNoWords).isTrue()
+
+            nowTicker.value = baseNow + dueDelayMs
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.hasNoWords).isFalse()
+            assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(item)
+        }
+
+    @Test
+    fun `counter is not zero while relearning (Again) cards are being served`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+
+            val relearningDelayMs = 60_000L
+            every { vocabularyDao.observeReviewsDueCount(any()) } answers {
+                val now = firstArg<Long>()
+                flowOf(if (now >= baseNow + relearningDelayMs) 5 else 0)
+            }
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(0)
+
+            nowTicker.value = baseNow + relearningDelayMs
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(5)
+        }
+
+    @Test
+    fun `rating a card recomputes pendingReviewCount using a live now instead of waiting for the next tick`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+            coEvery { saveDifficultyRating.invoke(any(), any()) } returns Result.success(Unit)
+
+            val dueDelayMs = 2 * 60_000L
+            every { vocabularyDao.observeReviewsDueCount(any()) } answers {
+                val now = firstArg<Long>()
+                flowOf(if (now >= baseNow + dueDelayMs) 5 else 0)
+            }
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(0)
+
+            liveNow = baseNow + dueDelayMs
+            assertThat(nowTicker.value).isEqualTo(baseNow)
+
+            viewModel.onDifficultySelected(Rating.GOOD)
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(5)
+        }
+
+    @Test
+    fun `relearning cards become visible in the counter as soon as another card is rated, without waiting for the tick`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val first = VocabularyItem(id = 1, word = "first", translation = "первый", isNew = true)
+            val second = VocabularyItem(id = 2, word = "second", translation = "второй", isNew = true)
+            coEvery { getNextVocabularyItem.invoke() } returnsMany
+                listOf(Result.success(first), Result.success(second))
+            coEvery { saveDifficultyRating.invoke(any(), any()) } returns Result.success(Unit)
+
+            val relearningDelayMs = 60_000L
+            every { vocabularyDao.observeReviewsDueCount(any()) } answers {
+                val now = firstArg<Long>()
+                flowOf(if (now >= baseNow + relearningDelayMs) 5 else 0)
+            }
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(0)
+
+            viewModel.onDifficultySelected(Rating.AGAIN)
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(second)
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(0)
+
+            liveNow = baseNow + relearningDelayMs
+            viewModel.onDifficultySelected(Rating.GOOD)
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(5)
         }
 }
