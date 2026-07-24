@@ -52,6 +52,7 @@ class AddWordScreenContentTest {
     private lateinit var onPreviewClick: () -> Unit
     private lateinit var onPreviewCancel: () -> Unit
     private lateinit var onPreviewConfirmAdd: () -> Unit
+    private lateinit var onPreviewRegenerate: () -> Unit
     private lateinit var onAddClick: () -> Unit
     private lateinit var onExistingWordDialogCancel: () -> Unit
     private lateinit var onExistingWordDialogProceed: () -> Unit
@@ -68,6 +69,7 @@ class AddWordScreenContentTest {
         onPreviewClick = mockk(relaxed = true)
         onPreviewCancel = mockk(relaxed = true)
         onPreviewConfirmAdd = mockk(relaxed = true)
+        onPreviewRegenerate = mockk(relaxed = true)
         onAddClick = mockk(relaxed = true)
         onExistingWordDialogCancel = mockk(relaxed = true)
         onExistingWordDialogProceed = mockk(relaxed = true)
@@ -355,6 +357,42 @@ class AddWordScreenContentTest {
     }
 
     @Test
+    fun `confirming stored preview dialog invokes onPreviewRegenerate not onPreviewConfirmAdd`() {
+        setContent(
+            isPreviewVisible = true,
+            previewContent = AddWordPreviewContent(word = "Haus", translation = "House", isStoredTranslation = true),
+        )
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_preview_regenerate)).performClick()
+
+        verify(exactly = 1) { onPreviewRegenerate.invoke() }
+        verify { onPreviewConfirmAdd wasNot called }
+    }
+
+    @Test
+    fun `stored preview dialog shows stored title and regenerate label`() {
+        setContent(
+            isPreviewVisible = true,
+            previewContent = AddWordPreviewContent(word = "Haus", translation = "House", isStoredTranslation = true),
+        )
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_preview_stored_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.add_word_preview_regenerate)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `stored preview dialog shows spinner while regenerating`() {
+        setContent(
+            isPreviewVisible = true,
+            previewContent = AddWordPreviewContent(word = "Haus", translation = "House", isStoredTranslation = true),
+            isLoading = true,
+            loadingAction = AddWordLoadingAction.PREVIEW_REGENERATE,
+        )
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_preview_regenerate)).assertDoesNotExist()
+    }
+
+    @Test
     fun `cancelling preview dialog invokes onPreviewCancel`() {
         setContent(
             isPreviewVisible = true,
@@ -516,6 +554,7 @@ class AddWordScreenContentTest {
                 onPreviewClick = onPreviewClick,
                 onPreviewCancel = onPreviewCancel,
                 onPreviewConfirmAdd = onPreviewConfirmAdd,
+                onPreviewRegenerate = onPreviewRegenerate,
                 onAddClick = onAddClick,
                 onExistingWordDialogCancel = onExistingWordDialogCancel,
                 onExistingWordDialogProceed = onExistingWordDialogProceed,

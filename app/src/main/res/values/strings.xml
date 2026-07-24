@@ -243,8 +243,10 @@
     <string name="add_word_toggle_direction">Toggle translation direction</string>
     <string name="add_word_button_preview">Preview</string>
     <string name="add_word_preview_title">AI preview</string>
+    <string name="add_word_preview_stored_title">Saved translation — already in your list</string>
     <string name="add_word_preview_cancel">@string/action_cancel</string>
     <string name="add_word_preview_confirm">@string/action_add</string>
+    <string name="add_word_preview_regenerate">Re-Generate</string>
     <string name="add_word_existing_title">Word already exists</string>
     <string name="add_word_existing_message">
         You already have this word added. If you proceed, the word\'s progress will be reset and new translation will be saved. If you just want to edit it - you can do it from word list

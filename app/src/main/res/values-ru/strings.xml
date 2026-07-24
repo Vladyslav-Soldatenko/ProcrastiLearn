@@ -247,8 +247,10 @@
         <string name="add_word_toggle_direction">Переключить направление перевода</string>
         <string name="add_word_button_preview">Предпросмотр</string>
         <string name="add_word_preview_title">Предпросмотр ИИ</string>
+        <string name="add_word_preview_stored_title">Сохранённый перевод — уже в вашем списке</string>
         <string name="add_word_preview_cancel">@string/action_cancel</string>
         <string name="add_word_preview_confirm">@string/action_add</string>
+        <string name="add_word_preview_regenerate">Сгенерировать заново</string>
         <string name="add_word_existing_title">Слово уже существует</string>
         <string name="add_word_existing_message">
     У вас уже есть это слово. Если вы продолжите, прогресс слова будет сброшен, а новый перевод сохранён. Если вы просто хотите отредактировать его — сделайте это из списка слов

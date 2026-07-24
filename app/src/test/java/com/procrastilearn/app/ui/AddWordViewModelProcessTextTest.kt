@@ -11,6 +11,7 @@ import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.LanguagePair
 import com.procrastilearn.app.domain.model.PendingWord
+import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.DeletePendingWordUseCase
 import com.procrastilearn.app.domain.usecase.GenerateAiTranslationUseCase
@@ -135,6 +136,27 @@ class AddWordViewModelProcessTextTest {
             assertThat(state.previewContent?.word).isEqualTo("Haus")
             assertThat(state.previewContent?.translation).isEqualTo("House")
             assertThat(aiTranslationProvider.requests).hasSize(1)
+        }
+
+    @Test
+    fun `process text event with AI active shows stored translation without AI request for existing word`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            processTextEventBus.submit("Haus")
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.word).isEqualTo("Haus")
+            assertThat(state.isPreviewVisible).isTrue()
+            assertThat(state.previewContent?.isStoredTranslation).isTrue()
+            assertThat(state.previewContent?.translation).isEqualTo("Stored house")
+            assertThat(aiTranslationProvider.requests).isEmpty()
         }
 
     @Test
