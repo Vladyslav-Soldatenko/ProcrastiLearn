@@ -1,6 +1,8 @@
 package com.procrastilearn.app.ui
 
+import android.content.Context
 import com.google.common.truth.Truth.assertThat
+import com.procrastilearn.app.R
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
 import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
@@ -57,6 +59,7 @@ class AddWordViewModelProcessTextTest {
     private lateinit var pendingWordsFlow: MutableStateFlow<List<PendingWord>>
     private lateinit var aiTranslationProvider: FakeAiTranslationProvider
     private lateinit var processTextEventBus: ProcessTextEventBus
+    private lateinit var context: Context
 
     @Before
     fun setUp() {
@@ -83,6 +86,18 @@ class AddWordViewModelProcessTextTest {
                 mainDispatcherRule.testDispatcher,
             )
         processTextEventBus = ProcessTextEventBus()
+        context = mockk()
+        every { context.getString(R.string.add_word_error_word_required) } returns "Please enter a word."
+        every { context.getString(R.string.add_word_error_translation_required) } returns "Please enter a translation."
+        every { context.getString(R.string.add_word_error_preview_failed) } returns "Failed to generate preview"
+        every { context.getString(R.string.add_word_error_translation_failed) } returns "Failed to generate translation"
+        every { context.getString(R.string.add_word_error_update_failed) } returns "Failed to update word"
+        every { context.getString(R.string.add_word_error_add_failed) } returns "Failed to add word"
+        every { context.getString(R.string.add_word_error_lookup_failed) } returns "Failed to check existing words"
+        every { context.getString(R.string.add_word_success_added) } returns "Word added successfully!"
+        every { context.getString(R.string.add_word_success_updated) } returns "Word updated and progress reset!"
+        every { context.getString(R.string.add_word_success_pending) } returns
+            "Saved. Translation will be generated once you're back online."
 
         every { openAiStore.readOpenAiApiKey() } returns openAiKeyFlow
         every { openAiStore.readUseAiForTranslation() } returns useAiFlow
@@ -115,6 +130,7 @@ class AddWordViewModelProcessTextTest {
             observePendingWordsUseCase,
             deletePendingWordUseCase,
             connectivityObserver,
+            context,
             processTextEventBus,
         )
 

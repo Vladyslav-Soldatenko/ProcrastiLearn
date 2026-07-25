@@ -124,6 +124,16 @@
     <string name="add_word_error_translation_required">Please enter a translation.</string>
     <string name="add_word_toast_added">Word added.</string>
 
+    <!-- Add Word: success and error fallback messages -->
+    <string name="add_word_success_added">Word added successfully!</string>
+    <string name="add_word_success_updated">Word updated and progress reset!</string>
+    <string name="add_word_success_pending">Saved. Translation will be generated once you\'re back online.</string>
+    <string name="add_word_error_preview_failed">Failed to generate preview</string>
+    <string name="add_word_error_translation_failed">Failed to generate translation</string>
+    <string name="add_word_error_update_failed">Failed to update word</string>
+    <string name="add_word_error_add_failed">Failed to add word</string>
+    <string name="add_word_error_lookup_failed">Failed to check existing words</string>
+
     <!-- ─── Language selection ──────────────────────────────────────────────── -->
     <string name="language_name_english">English</string>
     <string name="language_name_russian">Russian</string>

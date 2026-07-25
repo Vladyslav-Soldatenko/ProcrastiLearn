@@ -1,6 +1,8 @@
 package com.procrastilearn.app.ui
 
+import android.content.Context
 import com.google.common.truth.Truth.assertThat
+import com.procrastilearn.app.R
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
 import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
@@ -61,6 +63,7 @@ class AddWordViewModelTest {
     private lateinit var pendingWordsFlow: MutableStateFlow<List<PendingWord>>
     private lateinit var languagePairFlow: MutableStateFlow<LanguagePair?>
     private lateinit var aiTranslationProvider: FakeAiTranslationProvider
+    private lateinit var context: Context
 
     @Before
     fun setUp() {
@@ -89,6 +92,18 @@ class AddWordViewModelTest {
                 languagePreferencesStore,
                 mainDispatcherRule.testDispatcher,
             )
+        context = mockk()
+        every { context.getString(R.string.add_word_error_word_required) } returns "Please enter a word."
+        every { context.getString(R.string.add_word_error_translation_required) } returns "Please enter a translation."
+        every { context.getString(R.string.add_word_error_preview_failed) } returns "Failed to generate preview"
+        every { context.getString(R.string.add_word_error_translation_failed) } returns "Failed to generate translation"
+        every { context.getString(R.string.add_word_error_update_failed) } returns "Failed to update word"
+        every { context.getString(R.string.add_word_error_add_failed) } returns "Failed to add word"
+        every { context.getString(R.string.add_word_error_lookup_failed) } returns "Failed to check existing words"
+        every { context.getString(R.string.add_word_success_added) } returns "Word added successfully!"
+        every { context.getString(R.string.add_word_success_updated) } returns "Word updated and progress reset!"
+        every { context.getString(R.string.add_word_success_pending) } returns
+            "Saved. Translation will be generated once you're back online."
 
         every { openAiStore.readOpenAiApiKey() } returns openAiKeyFlow
         every { openAiStore.readUseAiForTranslation() } returns useAiFlow
@@ -123,6 +138,7 @@ class AddWordViewModelTest {
             observePendingWordsUseCase,
             deletePendingWordUseCase,
             connectivityObserver,
+            context,
         )
 
     @Test
@@ -219,7 +235,7 @@ class AddWordViewModelTest {
             val viewModel = buildViewModel()
 
             viewModel.onAddClick()
-            assertThat(viewModel.uiState.value.wordError).isEqualTo("Please enter a word")
+            assertThat(viewModel.uiState.value.wordError).isEqualTo("Please enter a word.")
 
             viewModel.onWordChange("Haus")
 
@@ -235,7 +251,7 @@ class AddWordViewModelTest {
             viewModel.onWordChange("Haus")
             viewModel.onAddClick()
             advanceUntilIdle()
-            assertThat(viewModel.uiState.value.translationError).isEqualTo("Please enter a translation")
+            assertThat(viewModel.uiState.value.translationError).isEqualTo("Please enter a translation.")
 
             viewModel.onTranslationChange("House")
 
@@ -255,7 +271,7 @@ class AddWordViewModelTest {
             advanceUntilIdle()
 
             val state = viewModel.uiState.value
-            assertThat(state.translationError).isEqualTo("Please enter a translation")
+            assertThat(state.translationError).isEqualTo("Please enter a translation.")
             assertThat(state.isLoading).isFalse()
             coVerify(exactly = 0) { addVocabularyItemUseCase.invoke(any(), any()) }
         }
@@ -428,7 +444,7 @@ class AddWordViewModelTest {
 
             viewModel.onPreviewClick()
 
-            assertThat(viewModel.uiState.value.wordError).isEqualTo("Please enter a word")
+            assertThat(viewModel.uiState.value.wordError).isEqualTo("Please enter a word.")
             assertThat(viewModel.uiState.value.isPreviewVisible).isFalse()
         }
 
@@ -656,7 +672,7 @@ class AddWordViewModelTest {
             advanceUntilIdle()
 
             val state = viewModel.uiState.value
-            assertThat(state.translationError).isEqualTo("Please enter a translation")
+            assertThat(state.translationError).isEqualTo("Please enter a translation.")
             assertThat(state.errorMessage).isNull()
             assertThat(state.isSuccess).isFalse()
             coVerify(exactly = 0) { addVocabularyItemUseCase.invoke(any(), any()) }
@@ -819,8 +835,6 @@ class AddWordViewModelTest {
         assertThat(AddWordUiState().targetLanguageCode).isEqualTo("RU")
     }
 
-    // ----- Preview: existing word (stored translation, no AI call) -----
-
     @Test
     fun `onPreviewClick shows stored translation for existing word without AI request`() =
         runTest(mainDispatcherRule.testDispatcher) {
@@ -955,8 +969,6 @@ class AddWordViewModelTest {
             coVerify(exactly = 0) { getVocabularyItemByWordUseCase.invoke(any()) }
         }
 
-    // ----- Preview regenerate -----
-
     @Test
     fun `onPreviewRegenerate calls AI once and flips preview to generated`() =
         runTest(mainDispatcherRule.testDispatcher) {
@@ -1057,7 +1069,7 @@ class AddWordViewModelTest {
             advanceUntilIdle()
 
             val state = viewModel.uiState.value
-            assertThat(state.translationError).isEqualTo("Please enter a translation")
+            assertThat(state.translationError).isEqualTo("Please enter a translation.")
             assertThat(state.previewContent).isNull()
             assertThat(state.isPreviewVisible).isFalse()
         }
@@ -1146,8 +1158,6 @@ class AddWordViewModelTest {
             assertThat(state.isExistingWordDialogVisible).isTrue()
             assertThat(aiTranslationProvider.requests).hasSize(1)
         }
-
-    // ----- Add from a regenerated stored preview (acknowledged override) -----
 
     @Test
     fun `confirming regenerated preview overrides existing word without existing-word dialog`() =
@@ -1318,8 +1328,6 @@ class AddWordViewModelTest {
             assertThat(state.isPreviewVisible).isTrue()
             assertThat(state.previewContent).isNotNull()
         }
-
-    // ----- Add with AI on: duplicate check precedes the AI call -----
 
     @Test
     fun `onAddClick with AI on shows dialog immediately for existing word without AI request`() =
@@ -1541,8 +1549,6 @@ class AddWordViewModelTest {
             assertThat(aiTranslationProvider.requests.single().systemPrompt).isEqualTo("system prompt")
         }
 
-    // ----- Add with AI off -----
-
     @Test
     fun `onAddClick with AI off shows dialog immediately, proceed overrides with typed translation`() =
         runTest(mainDispatcherRule.testDispatcher) {
@@ -1566,8 +1572,6 @@ class AddWordViewModelTest {
             assertThat(aiTranslationProvider.requests).isEmpty()
             assertThat(viewModel.uiState.value.isSuccess).isTrue()
         }
-
-    // ----- Offline -----
 
     @Test
     fun `onAddClick offline in AI mode does not look up existing word`() =
