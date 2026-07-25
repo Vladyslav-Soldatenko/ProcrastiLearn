@@ -8,12 +8,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -71,8 +68,7 @@ class SettingsAnkiImportE2eTest {
         Log.d("SettingsAnkiImportE2eTest", "Using deckUri=$deckUri")
         prepareDocumentPickerResponse(deckUri)
 
-        dismissInitialPrompts()
-        completeLanguageSelection()
+        composeTestRule.dismissOnboardingIfPresent(targetContext)
         navigateToSettings()
         openImportAndSelectAnki()
 
@@ -137,41 +133,9 @@ class SettingsAnkiImportE2eTest {
             .respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, resultIntent))
     }
 
-    private fun dismissInitialPrompts() {
-        val notNow = targetContext.getString(R.string.action_not_now)
-        waitUntilNodeExists(hasText(notNow))
-        composeTestRule.onNodeWithText(notNow, useUnmergedTree = true).performClick()
-        composeTestRule.waitForIdle()
-
-        waitUntilNodeExists(hasText(notNow))
-        composeTestRule.onNodeWithText(notNow, useUnmergedTree = true).performClick()
-        composeTestRule.waitForIdle()
-    }
-
-    private fun completeLanguageSelection() {
-        val nativeFieldTag = "language_selection_native_field"
-        waitUntilNodeExists(hasText(targetContext.getString(R.string.language_selection_dialog_title)))
-
-        composeTestRule.onNodeWithTag(nativeFieldTag, useUnmergedTree = true).performClick()
-        composeTestRule.waitForIdle()
-        val nativeLanguageName = targetContext.getString(R.string.language_name_english)
-        composeTestRule.onNodeWithText(nativeLanguageName, useUnmergedTree = true).performClick()
-        composeTestRule.waitForIdle()
-
-        composeTestRule.onNodeWithTag("language_selection_target_field", useUnmergedTree = true).performClick()
-        composeTestRule.waitForIdle()
-        val targetLanguageName = targetContext.getString(R.string.language_name_russian)
-        composeTestRule.onNodeWithText(targetLanguageName, useUnmergedTree = true).performClick()
-        composeTestRule.waitForIdle()
-
-        val continueLabel = targetContext.getString(R.string.action_continue)
-        composeTestRule.onNodeWithText(continueLabel, useUnmergedTree = true).performClick()
-        composeTestRule.waitForIdle()
-    }
-
     private fun navigateToSettings() {
         val settingsLabel = targetContext.getString(R.string.nav_settings)
-        waitUntilNodeExists(hasText(settingsLabel))
+        composeTestRule.waitUntilNodeExists(hasText(settingsLabel), DEFAULT_TIMEOUT_MS)
         composeTestRule
             .onNodeWithContentDescription(settingsLabel, useUnmergedTree = true)
             .performClick()
@@ -180,14 +144,14 @@ class SettingsAnkiImportE2eTest {
 
     private fun openImportAndSelectAnki() {
         val importRow = targetContext.getString(R.string.settings_import_row)
-        waitUntilNodeExists(hasText(importRow),10000)
+        composeTestRule.waitUntilNodeExists(hasText(importRow), ROW_TIMEOUT_MS)
         composeTestRule.onNodeWithText(importRow, useUnmergedTree = true).performScrollTo()
         composeTestRule.onNodeWithText(importRow, useUnmergedTree = true).performClick()
 
         composeTestRule.waitForIdle()
 
         val ankiOption = targetContext.getString(R.string.settings_import_option_anki_apkg)
-        waitUntilNodeExists(hasText(ankiOption),10000)
+        composeTestRule.waitUntilNodeExists(hasText(ankiOption), ROW_TIMEOUT_MS)
         composeTestRule.onNodeWithText(ankiOption, useUnmergedTree = true).performClick()
     }
 
@@ -206,20 +170,6 @@ class SettingsAnkiImportE2eTest {
         return expectedVocabularyItems.all { it.word in actualWords }
     }
 
-    @OptIn(ExperimentalTestApi::class)
-    private fun waitUntilNodeExists(matcher: SemanticsMatcher, timeoutMillis: Long = DEFAULT_TIMEOUT_MS) {
-        composeTestRule.waitUntil(timeoutMillis) {
-            try {
-                composeTestRule.onNode(matcher, useUnmergedTree = true).fetchSemanticsNode()
-                true
-            } catch (_: AssertionError) {
-                false
-            } catch (_: IllegalStateException) {
-                false
-            }
-        }
-    }
-
     private fun databaseEntryPoint(): DatabaseEntryPoint =
         EntryPointAccessors.fromApplication(targetContext.applicationContext, DatabaseEntryPoint::class.java)
 
@@ -227,6 +177,7 @@ class SettingsAnkiImportE2eTest {
         private const val DECK_FILE_NAME = "procrastilearn-test-deck.apkg"
         private const val DEFAULT_TIMEOUT_MS = 50_000L
         private const val TIMEOUT_IMPORT_MS = 50_000L
+        private const val ROW_TIMEOUT_MS = 10_000L
         private const val ANKI_MIME_TYPE = "application/apkg"
 
         private val expectedVocabularyItems =
