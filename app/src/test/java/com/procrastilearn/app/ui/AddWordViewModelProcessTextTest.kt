@@ -1,6 +1,8 @@
 package com.procrastilearn.app.ui
 
+import android.content.Context
 import com.google.common.truth.Truth.assertThat
+import com.procrastilearn.app.R
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
 import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
@@ -11,6 +13,7 @@ import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.LanguagePair
 import com.procrastilearn.app.domain.model.PendingWord
+import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.DeletePendingWordUseCase
 import com.procrastilearn.app.domain.usecase.GenerateAiTranslationUseCase
@@ -56,6 +59,7 @@ class AddWordViewModelProcessTextTest {
     private lateinit var pendingWordsFlow: MutableStateFlow<List<PendingWord>>
     private lateinit var aiTranslationProvider: FakeAiTranslationProvider
     private lateinit var processTextEventBus: ProcessTextEventBus
+    private lateinit var context: Context
 
     @Before
     fun setUp() {
@@ -82,6 +86,18 @@ class AddWordViewModelProcessTextTest {
                 mainDispatcherRule.testDispatcher,
             )
         processTextEventBus = ProcessTextEventBus()
+        context = mockk()
+        every { context.getString(R.string.add_word_error_word_required) } returns "Please enter a word."
+        every { context.getString(R.string.add_word_error_translation_required) } returns "Please enter a translation."
+        every { context.getString(R.string.add_word_error_preview_failed) } returns "Failed to generate preview"
+        every { context.getString(R.string.add_word_error_translation_failed) } returns "Failed to generate translation"
+        every { context.getString(R.string.add_word_error_update_failed) } returns "Failed to update word"
+        every { context.getString(R.string.add_word_error_add_failed) } returns "Failed to add word"
+        every { context.getString(R.string.add_word_error_lookup_failed) } returns "Failed to check existing words"
+        every { context.getString(R.string.add_word_success_added) } returns "Word added successfully!"
+        every { context.getString(R.string.add_word_success_updated) } returns "Word updated and progress reset!"
+        every { context.getString(R.string.add_word_success_pending) } returns
+            "Saved. Translation will be generated once you're back online."
 
         every { openAiStore.readOpenAiApiKey() } returns openAiKeyFlow
         every { openAiStore.readUseAiForTranslation() } returns useAiFlow
@@ -114,6 +130,7 @@ class AddWordViewModelProcessTextTest {
             observePendingWordsUseCase,
             deletePendingWordUseCase,
             connectivityObserver,
+            context,
             processTextEventBus,
         )
 
@@ -135,6 +152,27 @@ class AddWordViewModelProcessTextTest {
             assertThat(state.previewContent?.word).isEqualTo("Haus")
             assertThat(state.previewContent?.translation).isEqualTo("House")
             assertThat(aiTranslationProvider.requests).hasSize(1)
+        }
+
+    @Test
+    fun `process text event with AI active shows stored translation without AI request for existing word`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            processTextEventBus.submit("Haus")
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.word).isEqualTo("Haus")
+            assertThat(state.isPreviewVisible).isTrue()
+            assertThat(state.previewContent?.isStoredTranslation).isTrue()
+            assertThat(state.previewContent?.translation).isEqualTo("Stored house")
+            assertThat(aiTranslationProvider.requests).isEmpty()
         }
 
     @Test

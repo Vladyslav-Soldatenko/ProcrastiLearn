@@ -77,7 +77,14 @@ private fun AddWordPreviewDialogContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = stringResource(R.string.add_word_preview_title),
+                    text =
+                        stringResource(
+                            if (previewContent.isStoredTranslation) {
+                                R.string.add_word_preview_stored_title
+                            } else {
+                                R.string.add_word_preview_title
+                            },
+                        ),
                     style = MaterialTheme.typography.labelLarge,
                     color = OverlayThemeTokens.colors.helpText,
                     modifier =
@@ -147,7 +154,16 @@ private fun AddWordPreviewDialogContent(
                                 color = MaterialTheme.colorScheme.onPrimary,
                             )
                         } else {
-                            Text(text = stringResource(R.string.add_word_preview_confirm))
+                            Text(
+                                text =
+                                    stringResource(
+                                        if (previewContent.isStoredTranslation) {
+                                            R.string.add_word_preview_regenerate
+                                        } else {
+                                            R.string.add_word_preview_confirm
+                                        },
+                                    ),
+                            )
                         }
                     }
                 }
@@ -259,6 +275,24 @@ private fun AddWordPreviewDialogContentPreview() {
                 AddWordPreviewContent(
                     word = "Haus",
                     translation = "House\nHome\nA building serving as human habitation.",
+                ),
+            isConfirmLoading = false,
+            onCancel = {},
+            onConfirm = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Add Word • Stored Preview Dialog")
+@Composable
+private fun AddWordStoredPreviewDialogContentPreview() {
+    MyApplicationTheme {
+        AddWordPreviewDialogContent(
+            previewContent =
+                AddWordPreviewContent(
+                    word = "Haus",
+                    translation = "House\nHome\nA building serving as human habitation.",
+                    isStoredTranslation = true,
                 ),
             isConfirmLoading = false,
             onCancel = {},

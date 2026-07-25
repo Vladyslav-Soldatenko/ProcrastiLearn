@@ -1,6 +1,8 @@
 package com.procrastilearn.app.ui
 
+import android.content.Context
 import com.google.common.truth.Truth.assertThat
+import com.procrastilearn.app.R
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
 import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
@@ -26,6 +28,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -60,6 +63,7 @@ class AddWordViewModelTest {
     private lateinit var pendingWordsFlow: MutableStateFlow<List<PendingWord>>
     private lateinit var languagePairFlow: MutableStateFlow<LanguagePair?>
     private lateinit var aiTranslationProvider: FakeAiTranslationProvider
+    private lateinit var context: Context
 
     @Before
     fun setUp() {
@@ -88,6 +92,18 @@ class AddWordViewModelTest {
                 languagePreferencesStore,
                 mainDispatcherRule.testDispatcher,
             )
+        context = mockk()
+        every { context.getString(R.string.add_word_error_word_required) } returns "Please enter a word."
+        every { context.getString(R.string.add_word_error_translation_required) } returns "Please enter a translation."
+        every { context.getString(R.string.add_word_error_preview_failed) } returns "Failed to generate preview"
+        every { context.getString(R.string.add_word_error_translation_failed) } returns "Failed to generate translation"
+        every { context.getString(R.string.add_word_error_update_failed) } returns "Failed to update word"
+        every { context.getString(R.string.add_word_error_add_failed) } returns "Failed to add word"
+        every { context.getString(R.string.add_word_error_lookup_failed) } returns "Failed to check existing words"
+        every { context.getString(R.string.add_word_success_added) } returns "Word added successfully!"
+        every { context.getString(R.string.add_word_success_updated) } returns "Word updated and progress reset!"
+        every { context.getString(R.string.add_word_success_pending) } returns
+            "Saved. Translation will be generated once you're back online."
 
         every { openAiStore.readOpenAiApiKey() } returns openAiKeyFlow
         every { openAiStore.readUseAiForTranslation() } returns useAiFlow
@@ -122,6 +138,7 @@ class AddWordViewModelTest {
             observePendingWordsUseCase,
             deletePendingWordUseCase,
             connectivityObserver,
+            context,
         )
 
     @Test
@@ -218,7 +235,7 @@ class AddWordViewModelTest {
             val viewModel = buildViewModel()
 
             viewModel.onAddClick()
-            assertThat(viewModel.uiState.value.wordError).isEqualTo("Please enter a word")
+            assertThat(viewModel.uiState.value.wordError).isEqualTo("Please enter a word.")
 
             viewModel.onWordChange("Haus")
 
@@ -234,7 +251,7 @@ class AddWordViewModelTest {
             viewModel.onWordChange("Haus")
             viewModel.onAddClick()
             advanceUntilIdle()
-            assertThat(viewModel.uiState.value.translationError).isEqualTo("Please enter a translation")
+            assertThat(viewModel.uiState.value.translationError).isEqualTo("Please enter a translation.")
 
             viewModel.onTranslationChange("House")
 
@@ -254,7 +271,7 @@ class AddWordViewModelTest {
             advanceUntilIdle()
 
             val state = viewModel.uiState.value
-            assertThat(state.translationError).isEqualTo("Please enter a translation")
+            assertThat(state.translationError).isEqualTo("Please enter a translation.")
             assertThat(state.isLoading).isFalse()
             coVerify(exactly = 0) { addVocabularyItemUseCase.invoke(any(), any()) }
         }
@@ -427,7 +444,7 @@ class AddWordViewModelTest {
 
             viewModel.onPreviewClick()
 
-            assertThat(viewModel.uiState.value.wordError).isEqualTo("Please enter a word")
+            assertThat(viewModel.uiState.value.wordError).isEqualTo("Please enter a word.")
             assertThat(viewModel.uiState.value.isPreviewVisible).isFalse()
         }
 
@@ -655,7 +672,7 @@ class AddWordViewModelTest {
             advanceUntilIdle()
 
             val state = viewModel.uiState.value
-            assertThat(state.translationError).isEqualTo("Please enter a translation")
+            assertThat(state.translationError).isEqualTo("Please enter a translation.")
             assertThat(state.errorMessage).isNull()
             assertThat(state.isSuccess).isFalse()
             coVerify(exactly = 0) { addVocabularyItemUseCase.invoke(any(), any()) }
@@ -818,13 +835,769 @@ class AddWordViewModelTest {
         assertThat(AddWordUiState().targetLanguageCode).isEqualTo("RU")
     }
 
+    @Test
+    fun `onPreviewClick shows stored translation for existing word without AI request`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isPreviewVisible).isTrue()
+            assertThat(state.previewContent?.translation).isEqualTo("Stored house")
+            assertThat(state.previewContent?.isStoredTranslation).isTrue()
+            assertThat(state.translation).isEqualTo("Stored house")
+            assertThat(state.isLoading).isFalse()
+            assertThat(state.loadingAction).isNull()
+            assertThat(aiTranslationProvider.requests).isEmpty()
+        }
+
+    @Test
+    fun `onPreviewClick matches existing word case-insensitively`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("haus") } returns existing
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onWordChange("haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.previewContent?.isStoredTranslation).isTrue()
+            assertThat(aiTranslationProvider.requests).isEmpty()
+        }
+
+    @Test
+    fun `onPreviewClick falls back to AI when existing item has blank translation`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "  ", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            aiTranslationProvider.nextTranslation = "House"
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.previewContent?.isStoredTranslation).isFalse()
+            assertThat(state.previewContent?.translation).isEqualTo("House")
+            assertThat(aiTranslationProvider.requests).hasSize(1)
+        }
+
+    @Test
+    fun `onPreviewClick posts error and skips AI call when lookup fails`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } throws IllegalStateException("db error")
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.errorMessage).isEqualTo("db error")
+            assertThat(state.isPreviewVisible).isFalse()
+            assertThat(state.previewContent).isNull()
+            assertThat(aiTranslationProvider.requests).isEmpty()
+        }
+
+    @Test
+    fun `onPreviewClick still generates via AI for a brand new word`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns null
+            aiTranslationProvider.nextTranslation = "House"
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.previewContent?.isStoredTranslation).isFalse()
+            assertThat(state.previewContent?.translation).isEqualTo("House")
+            assertThat(aiTranslationProvider.requests).hasSize(1)
+        }
+
+    @Test
+    fun `onPreviewClick offline does not look up existing word`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            onlineFlow.value = false
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { getVocabularyItemByWordUseCase.invoke(any()) }
+            assertThat(aiTranslationProvider.requests).isEmpty()
+        }
+
+    @Test
+    fun `onPreviewClick with AI off does not look up existing word`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { getVocabularyItemByWordUseCase.invoke(any()) }
+        }
+
+    @Test
+    fun `onPreviewRegenerate calls AI once and flips preview to generated`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            aiTranslationProvider.nextTranslation = "Fresh house"
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            viewModel.onPreviewRegenerate()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.previewContent?.isStoredTranslation).isFalse()
+            assertThat(state.previewContent?.translation).isEqualTo("Fresh house")
+            assertThat(state.translation).isEqualTo("Fresh house")
+            assertThat(state.isPreviewVisible).isTrue()
+            assertThat(aiTranslationProvider.requests).hasSize(1)
+        }
+
+    @Test
+    fun `onPreviewRegenerate shows loading action while in flight and keeps preview visible`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            val gate = CompletableDeferred<Unit>()
+            aiTranslationProvider.suspendUntil = gate
+            aiTranslationProvider.nextTranslation = "Fresh house"
+
+            viewModel.onPreviewRegenerate()
+            advanceUntilIdle()
+
+            var state = viewModel.uiState.value
+            assertThat(state.isLoading).isTrue()
+            assertThat(state.loadingAction).isEqualTo(AddWordLoadingAction.PREVIEW_REGENERATE)
+            assertThat(state.isPreviewVisible).isTrue()
+            assertThat(state.previewContent?.translation).isEqualTo("Stored house")
+
+            gate.complete(Unit)
+            advanceUntilIdle()
+
+            state = viewModel.uiState.value
+            assertThat(state.isLoading).isFalse()
+            assertThat(state.previewContent?.translation).isEqualTo("Fresh house")
+        }
+
+    @Test
+    fun `onPreviewRegenerate failure hides preview and posts error`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            aiTranslationProvider.nextError = IllegalStateException("nope")
+            viewModel.onPreviewRegenerate()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.errorMessage).isEqualTo("nope")
+            assertThat(state.isPreviewVisible).isFalse()
+            assertThat(state.previewContent).isNull()
+        }
+
+    @Test
+    fun `onPreviewRegenerate blank AI response clears preview without crash`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            aiTranslationProvider.nextTranslation = "   "
+            viewModel.onPreviewRegenerate()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.translationError).isEqualTo("Please enter a translation.")
+            assertThat(state.previewContent).isNull()
+            assertThat(state.isPreviewVisible).isFalse()
+        }
+
+    @Test
+    fun `onPreviewRegenerate no-ops without a visible preview`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onPreviewRegenerate()
+            advanceUntilIdle()
+
+            assertThat(aiTranslationProvider.requests).isEmpty()
+        }
+
+    @Test
+    fun `onPreviewRegenerate no-ops when offline`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            onlineFlow.value = false
+            advanceUntilIdle()
+
+            viewModel.onPreviewRegenerate()
+            advanceUntilIdle()
+
+            assertThat(aiTranslationProvider.requests).isEmpty()
+        }
+
+    @Test
+    fun `onPreviewRegenerate no-ops when AI toggled off`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            // Directly flip the pref flow to simulate AI being disabled elsewhere.
+            useAiFlow.value = false
+            advanceUntilIdle()
+
+            viewModel.onPreviewRegenerate()
+            advanceUntilIdle()
+
+            assertThat(aiTranslationProvider.requests).isEmpty()
+        }
+
+    @Test
+    fun `failed regenerate does not acknowledge duplicate, later add still prompts dialog`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            aiTranslationProvider.nextError = IllegalStateException("nope")
+            viewModel.onPreviewRegenerate()
+            advanceUntilIdle()
+
+            aiTranslationProvider.nextError = null
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isExistingWordDialogVisible).isTrue()
+            assertThat(aiTranslationProvider.requests).hasSize(1)
+        }
+
+    @Test
+    fun `confirming regenerated preview overrides existing word without existing-word dialog`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
+            aiTranslationProvider.nextTranslation = "Fresh house"
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+            viewModel.onPreviewRegenerate()
+            advanceUntilIdle()
+
+            viewModel.onPreviewConfirmAdd()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isExistingWordDialogVisible).isFalse()
+            assertThat(state.isSuccess).isTrue()
+            assertThat(state.successMessage).isEqualTo("Word updated and progress reset!")
+            assertThat(state.word).isEmpty()
+            assertThat(state.translation).isEmpty()
+            assertThat(state.previewContent).isNull()
+            assertThat(state.isPreviewVisible).isFalse()
+            coVerify(exactly = 1) { overrideVocabularyItemUseCase.invoke(existing, "Haus", "Fresh house") }
+            // Only the regenerate call; confirming does not issue another AI request.
+            assertThat(aiTranslationProvider.requests).hasSize(1)
+        }
+
+    @Test
+    fun `confirming regenerated preview override failure posts error and keeps dialog closed`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns
+                Result.failure(IllegalStateException("override failed"))
+            aiTranslationProvider.nextTranslation = "Fresh house"
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+            viewModel.onPreviewRegenerate()
+            advanceUntilIdle()
+
+            viewModel.onPreviewConfirmAdd()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.errorMessage).isEqualTo("override failed")
+            assertThat(state.isExistingWordDialogVisible).isFalse()
+            assertThat(state.isSuccess).isFalse()
+        }
+
+    @Test
+    fun `editing word after regenerating clears acknowledgment so a later add prompts again`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            aiTranslationProvider.nextTranslation = "Fresh house"
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+            viewModel.onPreviewRegenerate()
+            advanceUntilIdle()
+
+            // Simulate leaving and re-entering the same word.
+            viewModel.onWordChange("Baum")
+            viewModel.onWordChange("Haus")
+
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isExistingWordDialogVisible).isTrue()
+        }
+
+    @Test
+    fun `toggling ai off after regenerating clears acknowledgment`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            aiTranslationProvider.nextTranslation = "Fresh house"
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+            viewModel.onPreviewRegenerate()
+            advanceUntilIdle()
+
+            viewModel.onUseAiToggle(false)
+            useAiFlow.value = false
+            advanceUntilIdle()
+            viewModel.onTranslationChange("Дом")
+
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isExistingWordDialogVisible).isTrue()
+        }
+
+    @Test
+    fun `duplicate discovered at confirm time shows existing-word dialog and hides preview`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            // Word does not exist yet when previewed...
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns null
+            aiTranslationProvider.nextTranslation = "House"
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.previewContent?.isStoredTranslation).isFalse()
+
+            // ...but is added elsewhere by the time the user confirms.
+            val existing = VocabularyItem(id = 9, word = "Haus", translation = "Someone else's house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+
+            viewModel.onPreviewConfirmAdd()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isExistingWordDialogVisible).isTrue()
+            assertThat(state.isPreviewVisible).isFalse()
+            coVerify(exactly = 0) { addVocabularyItemUseCase.invoke(any(), any()) }
+        }
+
+    @Test
+    fun `cancelling existing-word dialog from a preview race restores the preview`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns null
+            aiTranslationProvider.nextTranslation = "House"
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onPreviewClick()
+            advanceUntilIdle()
+
+            val existing = VocabularyItem(id = 9, word = "Haus", translation = "Someone else's house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            viewModel.onPreviewConfirmAdd()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.isPreviewVisible).isFalse()
+
+            viewModel.onExistingWordDialogCancel()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isExistingWordDialogVisible).isFalse()
+            assertThat(state.isPreviewVisible).isTrue()
+            assertThat(state.previewContent).isNotNull()
+        }
+
+    @Test
+    fun `onAddClick with AI on shows dialog immediately for existing word without AI request`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isExistingWordDialogVisible).isTrue()
+            assertThat(state.existingWordDialogWord).isEqualTo("Haus")
+            assertThat(state.isLoading).isFalse()
+            assertThat(state.loadingAction).isNull()
+            assertThat(aiTranslationProvider.requests).isEmpty()
+        }
+
+    @Test
+    fun `proceeding with AI on generates translation once and overrides`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
+            aiTranslationProvider.nextTranslation = "Fresh house"
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            viewModel.onExistingWordDialogProceed()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.isExistingWordDialogVisible).isFalse()
+            assertThat(state.isExistingWordDialogLoading).isFalse()
+            assertThat(state.isSuccess).isTrue()
+            assertThat(state.successMessage).isEqualTo("Word updated and progress reset!")
+            assertThat(aiTranslationProvider.requests).hasSize(1)
+            coVerify(exactly = 1) { overrideVocabularyItemUseCase.invoke(existing, "Haus", "Fresh house") }
+        }
+
+    @Test
+    fun `dialog loading stays true while confirm-time AI request is in flight`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            val gate = CompletableDeferred<Unit>()
+            aiTranslationProvider.suspendUntil = gate
+            aiTranslationProvider.nextTranslation = "Fresh house"
+
+            viewModel.onExistingWordDialogProceed()
+            advanceUntilIdle()
+
+            var state = viewModel.uiState.value
+            assertThat(state.isExistingWordDialogVisible).isTrue()
+            assertThat(state.isExistingWordDialogLoading).isTrue()
+
+            gate.complete(Unit)
+            advanceUntilIdle()
+
+            state = viewModel.uiState.value
+            assertThat(state.isExistingWordDialogLoading).isFalse()
+            assertThat(state.isSuccess).isTrue()
+        }
+
+    @Test
+    fun `proceed with AI failure closes dialog, posts error, does not override`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            aiTranslationProvider.nextError = IllegalStateException("boom")
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            viewModel.onExistingWordDialogProceed()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.errorMessage).isEqualTo("boom")
+            assertThat(state.isExistingWordDialogVisible).isFalse()
+            assertThat(state.isExistingWordDialogLoading).isFalse()
+            coVerify(exactly = 0) { overrideVocabularyItemUseCase.invoke(any(), any(), any()) }
+        }
+
+    @Test
+    fun `proceed with blank AI response closes dialog, posts error, does not override`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            aiTranslationProvider.nextTranslation = "   "
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            viewModel.onExistingWordDialogProceed()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.errorMessage).isNotNull()
+            assertThat(state.isExistingWordDialogVisible).isFalse()
+            coVerify(exactly = 0) { overrideVocabularyItemUseCase.invoke(any(), any(), any()) }
+        }
+
+    @Test
+    fun `cancel on AI duplicate dialog issues no AI request and a later proceed is a no-op`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            viewModel.onExistingWordDialogCancel()
+            advanceUntilIdle()
+
+            viewModel.onExistingWordDialogProceed()
+            advanceUntilIdle()
+
+            assertThat(aiTranslationProvider.requests).isEmpty()
+            coVerify(exactly = 0) { overrideVocabularyItemUseCase.invoke(any(), any(), any()) }
+            assertThat(viewModel.uiState.value.isExistingWordDialogVisible).isFalse()
+        }
+
+    @Test
+    fun `onAddClick with AI on for a brand new word generates translation and adds`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns null
+            coEvery { addVocabularyItemUseCase.invoke(any(), any()) } returns Result.success(Unit)
+            aiTranslationProvider.nextTranslation = "House"
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            assertThat(aiTranslationProvider.requests).hasSize(1)
+            coVerify(exactly = 1) { addVocabularyItemUseCase.invoke("Haus", "House") }
+            assertThat(viewModel.uiState.value.isSuccess).isTrue()
+        }
+
+    @Test
+    fun `onAddClick with AI on posts error and skips AI call when lookup fails`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } throws IllegalStateException("db error")
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.errorMessage).isEqualTo("db error")
+            assertThat(state.isExistingWordDialogVisible).isFalse()
+            assertThat(aiTranslationProvider.requests).isEmpty()
+            coVerify(exactly = 0) { addVocabularyItemUseCase.invoke(any(), any()) }
+        }
+
+    @Test
+    fun `direction captured at click time is used for the confirm-time AI request`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            directionFlow.value = AiTranslationDirection.TARGET_TO_NATIVE
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
+            aiTranslationProvider.nextTranslation = "Fresh house"
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            // Direction changes after the dialog is already showing.
+            directionFlow.value = AiTranslationDirection.NATIVE_TO_TARGET
+            advanceUntilIdle()
+
+            viewModel.onExistingWordDialogProceed()
+            advanceUntilIdle()
+
+            assertThat(aiTranslationProvider.requests).hasSize(1)
+            assertThat(aiTranslationProvider.requests.single().systemPrompt).isEqualTo("system prompt")
+        }
+
+    @Test
+    fun `onAddClick with AI off shows dialog immediately, proceed overrides with typed translation`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
+            val viewModel = buildViewModel()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onTranslationChange("Дом")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.isExistingWordDialogVisible).isTrue()
+            assertThat(aiTranslationProvider.requests).isEmpty()
+
+            viewModel.onExistingWordDialogProceed()
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { overrideVocabularyItemUseCase.invoke(existing, "Haus", "Дом") }
+            assertThat(aiTranslationProvider.requests).isEmpty()
+            assertThat(viewModel.uiState.value.isSuccess).isTrue()
+        }
+
+    @Test
+    fun `onAddClick offline in AI mode does not look up existing word`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc"
+            useAiFlow.value = true
+            onlineFlow.value = false
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onWordChange("Haus")
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { getVocabularyItemByWordUseCase.invoke(any()) }
+        }
+
     private class FakeAiTranslationProvider : AiTranslationProvider {
         var nextTranslation: String = "House"
         var nextError: Throwable? = null
+        var suspendUntil: CompletableDeferred<Unit>? = null
         val requests = mutableListOf<AiTranslationRequest>()
 
         override suspend fun translate(request: AiTranslationRequest): String {
             requests += request
+            suspendUntil?.await()
             nextError?.let { throw it }
             return nextTranslation
         }

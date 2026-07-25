@@ -1,7 +1,9 @@
 package com.procrastilearn.app.ui
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.procrastilearn.app.R
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
 import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
@@ -17,6 +19,7 @@ import com.procrastilearn.app.domain.usecase.ObservePendingWordsUseCase
 import com.procrastilearn.app.domain.usecase.OverrideVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.QueuePendingWordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,10 +43,12 @@ class AddWordViewModel @Inject
         private val observePendingWordsUseCase: ObservePendingWordsUseCase,
         private val deletePendingWordUseCase: DeletePendingWordUseCase,
         private val connectivityObserver: NetworkConnectivityObserver,
+        @ApplicationContext private val context: Context,
         private val processTextEventBus: ProcessTextEventBus = ProcessTextEventBus(),
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(AddWordUiState())
         private var pendingOverride: PendingOverrideSubmission? = null
+        private var acknowledgedOverrideWord: String? = null
         val uiState: StateFlow<AddWordUiState> = _uiState.asStateFlow()
 
         init {
@@ -94,6 +99,8 @@ class AddWordViewModel @Inject
                     if (!text.isNullOrBlank()) {
                         val prefill = resolveProcessTextPrefill(openAiStore, text)
                         if (prefill != null) {
+                            acknowledgedOverrideWord = null
+                            pendingOverride = null
                             _uiState.value =
                                 _uiState.value.copy(
                                     word = prefill.word,
@@ -119,6 +126,7 @@ class AddWordViewModel @Inject
         }
 
         fun onWordChange(word: String) {
+            acknowledgedOverrideWord = null
             _uiState.value =
                 _uiState.value.copy(
                     word = word,
@@ -141,12 +149,15 @@ class AddWordViewModel @Inject
         fun onAddClick() {
             val currentState = _uiState.value
             if (currentState.word.isBlank()) {
-                _uiState.value = _uiState.value.copy(wordError = "Please enter a word")
+                _uiState.value = _uiState.value.copy(wordError = context.getString(R.string.add_word_error_word_required))
                 return
             }
 
             if (currentState.isAddLaterMode) {
-                queuePendingWord(currentState.word.trim(), currentState.translationDirection)
+                val pendingMessage = context.getString(R.string.add_word_success_pending)
+                viewModelScope.launch {
+                    queuePendingWord(queuePendingWordUseCase, _uiState, currentState.word.trim(), currentState.translationDirection, pendingMessage)
+                }
                 return
             }
 
@@ -163,23 +174,43 @@ class AddWordViewModel @Inject
                         isExistingWordDialogLoading = false,
                     )
 
-                val finalTranslation = resolveTranslationForAdd(currentState)
+                val word = currentState.word.trim()
 
-                if (finalTranslation.isBlank()) {
-                    _uiState.value =
-                        _uiState.value.copy(
-                            isLoading = false,
-                            translationError = "Please enter a translation",
-                            loadingAction = null,
-                        )
+                if (!currentState.aiModeActive) {
+                    val typedTranslation = currentState.translation
+                    if (typedTranslation.isBlank()) {
+                        setBlankTranslationError(_uiState, context.getString(R.string.add_word_error_translation_required))
+                        return@launch
+                    }
+                    handleWordSubmission(word = word, translation = typedTranslation.trim(), fromPreview = false)
                     return@launch
                 }
 
-                handleWordSubmission(
-                    word = currentState.word.trim(),
-                    translation = finalTranslation.trim(),
-                    fromPreview = false,
-                )
+                // AI mode: check for a duplicate before spending an AI request.
+                val lookupFailedMessage = context.getString(R.string.add_word_error_lookup_failed)
+                val existingItem =
+                    lookupExistingItem(getVocabularyItemByWordUseCase, _uiState, word, lookupFailedMessage)
+                        .getOrElse { return@launch }
+
+                if (existingItem != null) {
+                    promptExistingWordOverride(
+                        existingItem = existingItem,
+                        word = word,
+                        translation = null,
+                        direction = currentState.translationDirection,
+                        fromPreview = false,
+                    )
+                    return@launch
+                }
+
+                val finalTranslation = resolveTranslationForAdd(currentState)
+
+                if (finalTranslation.isBlank()) {
+                    setBlankTranslationError(_uiState, context.getString(R.string.add_word_error_translation_required))
+                    return@launch
+                }
+
+                submitNewVocabularyItem(word, finalTranslation.trim(), fromPreview = false)
             }
         }
 
@@ -204,27 +235,6 @@ class AddWordViewModel @Inject
             }
         }
 
-        private fun queuePendingWord(
-            word: String,
-            direction: AiTranslationDirection,
-        ) {
-            viewModelScope.launch {
-                queuePendingWordUseCase(word, direction)
-                _uiState.value =
-                    _uiState.value.copy(
-                        word = "",
-                        translation = "",
-                        wordError = null,
-                        translationError = null,
-                        errorMessage = null,
-                        isLoading = false,
-                        loadingAction = null,
-                        isSuccess = true,
-                        successMessage = PENDING_QUEUED_MESSAGE,
-                    )
-            }
-        }
-
         fun onDeletePendingWord(id: Long) {
             viewModelScope.launch { deletePendingWordUseCase(id) }
         }
@@ -241,6 +251,7 @@ class AddWordViewModel @Inject
         }
 
     fun onUseAiToggle(checked: Boolean) {
+        acknowledgedOverrideWord = null
         viewModelScope.launch { openAiStore.setUseAiForTranslation(checked) }
         _uiState.value =
             _uiState.value.copy(
@@ -251,6 +262,7 @@ class AddWordViewModel @Inject
     }
 
     fun onTranslationDirectionToggle() {
+        acknowledgedOverrideWord = null
         val current = _uiState.value.translationDirection
         val next =
             if (current == AiTranslationDirection.TARGET_TO_NATIVE) {
@@ -270,7 +282,7 @@ class AddWordViewModel @Inject
         fun onPreviewClick() {
             val currentState = _uiState.value
             if (currentState.word.isBlank()) {
-                _uiState.value = _uiState.value.copy(wordError = "Please enter a word")
+                _uiState.value = _uiState.value.copy(wordError = context.getString(R.string.add_word_error_word_required))
                 return
             }
             if (!currentState.aiModeActive) return
@@ -288,19 +300,77 @@ class AddWordViewModel @Inject
                         isPreviewVisible = false,
                     )
 
-                runCatching {
-                    generateAiTranslationUseCase(
-                        currentState.word.trim(),
-                        currentState.translationDirection,
-                    )
-                }.fold(
-                    onSuccess = { translation -> handlePreviewTranslationSuccess(currentState.word, translation) },
+                val word = currentState.word.trim()
+
+                // Check for a duplicate before spending an AI request: if the word is
+                // already saved, show its stored translation immediately instead.
+                val lookupFailedMessage = context.getString(R.string.add_word_error_lookup_failed)
+                val existingItem =
+                    lookupExistingItem(getVocabularyItemByWordUseCase, _uiState, word, lookupFailedMessage)
+                        .getOrElse { return@launch }
+
+                if (existingItem != null && existingItem.translation.isNotBlank()) {
+                    _uiState.value =
+                        _uiState.value.copy(
+                            isLoading = false,
+                            translation = existingItem.translation,
+                            previewContent =
+                                AddWordPreviewContent(
+                                    word = word,
+                                    translation = existingItem.translation,
+                                    isStoredTranslation = true,
+                                ),
+                            isPreviewVisible = true,
+                            loadingAction = null,
+                        )
+                    return@launch
+                }
+
+                runCatching { generateAiTranslationUseCase(word, currentState.translationDirection) }.fold(
+                    onSuccess = { translation ->
+                        handlePreviewTranslationSuccess(word, translation, isStoredTranslation = false)
+                    },
                     onFailure = { error ->
                         _uiState.value =
                             _uiState.value.copy(
                                 isLoading = false,
-                                errorMessage = error.message ?: "Failed to generate preview",
+                                errorMessage = error.message ?: context.getString(R.string.add_word_error_preview_failed),
                                 loadingAction = null,
+                            )
+                    },
+                )
+            }
+        }
+
+        fun onPreviewRegenerate() {
+            val currentState = _uiState.value
+            val preview = currentState.previewContent ?: return
+            if (!currentState.aiModeActive) return
+            if (!currentState.isOnline) return
+
+            viewModelScope.launch {
+                _uiState.value =
+                    _uiState.value.copy(
+                        isLoading = true,
+                        errorMessage = null,
+                        loadingAction = AddWordLoadingAction.PREVIEW_REGENERATE,
+                    )
+
+                runCatching {
+                    generateAiTranslationUseCase(preview.word, currentState.translationDirection)
+                }.fold(
+                    onSuccess = { translation ->
+                        acknowledgedOverrideWord = preview.word
+                        handlePreviewTranslationSuccess(preview.word, translation, isStoredTranslation = false)
+                    },
+                    onFailure = { error ->
+                        _uiState.value =
+                            _uiState.value.copy(
+                                isLoading = false,
+                                errorMessage = error.message ?: context.getString(R.string.add_word_error_preview_failed),
+                                loadingAction = null,
+                                previewContent = null,
+                                isPreviewVisible = false,
                             )
                     },
                 )
@@ -310,14 +380,17 @@ class AddWordViewModel @Inject
         private fun handlePreviewTranslationSuccess(
             word: String,
             translation: String,
+            isStoredTranslation: Boolean,
         ) {
             val sanitizedTranslation = translation.trim()
             if (sanitizedTranslation.isBlank()) {
                 _uiState.value =
                     _uiState.value.copy(
                         isLoading = false,
-                        translationError = "Please enter a translation",
+                        translationError = context.getString(R.string.add_word_error_translation_required),
                         loadingAction = null,
+                        previewContent = null,
+                        isPreviewVisible = false,
                     )
             } else {
                 _uiState.value =
@@ -328,6 +401,7 @@ class AddWordViewModel @Inject
                             AddWordPreviewContent(
                                 word = word.trim(),
                                 translation = sanitizedTranslation,
+                                isStoredTranslation = isStoredTranslation,
                             ),
                         isPreviewVisible = true,
                         loadingAction = null,
@@ -337,6 +411,7 @@ class AddWordViewModel @Inject
 
         fun onPreviewCancel() {
             pendingOverride = null
+            acknowledgedOverrideWord = null
             _uiState.value =
                 _uiState.value.copy(
                     word = "",
@@ -357,12 +432,15 @@ class AddWordViewModel @Inject
         }
 
         fun onExistingWordDialogCancel() {
+            val pending = pendingOverride
             pendingOverride = null
+            val restorePreview = pending?.fromPreview == true && _uiState.value.previewContent != null
             _uiState.value =
                 _uiState.value.copy(
                     isExistingWordDialogVisible = false,
                     isExistingWordDialogLoading = false,
                     existingWordDialogWord = null,
+                    isPreviewVisible = if (restorePreview) true else _uiState.value.isPreviewVisible,
                 )
         }
 
@@ -376,13 +454,28 @@ class AddWordViewModel @Inject
                         successMessage = null,
                     )
 
+                val translationFailedMessage = context.getString(R.string.add_word_error_translation_failed)
+                val translation =
+                    resolvePendingTranslation(
+                        generateAiTranslationUseCase,
+                        pending.word,
+                        pending.translation,
+                        pending.direction,
+                        translationFailedMessage,
+                    ).getOrElse { error ->
+                        pendingOverride = null
+                        closeExistingWordDialogWithError(_uiState, error.message ?: translationFailedMessage)
+                        return@launch
+                    }
+
                 overrideVocabularyItemUseCase(
                     existingItem = pending.existingItem,
                     newWord = pending.word,
-                    newTranslation = pending.translation,
+                    newTranslation = translation,
                 ).fold(
                     onSuccess = {
                         pendingOverride = null
+                        acknowledgedOverrideWord = null
                         _uiState.value =
                             _uiState.value.copy(
                                 isExistingWordDialogVisible = false,
@@ -393,20 +486,17 @@ class AddWordViewModel @Inject
                                 previewContent = null,
                                 isPreviewVisible = false,
                                 isSuccess = true,
-                                successMessage = OVERRIDE_SUCCESS_MESSAGE,
+                                successMessage = context.getString(R.string.add_word_success_updated),
                                 isLoading = false,
                                 loadingAction = null,
                             )
                     },
                     onFailure = { error ->
                         pendingOverride = null
-                        _uiState.value =
-                            _uiState.value.copy(
-                                isExistingWordDialogVisible = false,
-                                isExistingWordDialogLoading = false,
-                                existingWordDialogWord = null,
-                                errorMessage = error.message ?: "Failed to update word",
-                            )
+                        closeExistingWordDialogWithError(
+                            _uiState,
+                            error.message ?: context.getString(R.string.add_word_error_update_failed),
+                        )
                     },
                 )
             }
@@ -417,36 +507,72 @@ class AddWordViewModel @Inject
             translation: String,
             fromPreview: Boolean,
         ) {
+            val direction = _uiState.value.translationDirection
             val existingItem =
-                runCatching { getVocabularyItemByWordUseCase(word) }
-                    .getOrElse { error ->
-                        handleExistingItemLookupFailure(error)
-                        return
-                    }
+                lookupExistingItem(
+                    getVocabularyItemByWordUseCase,
+                    _uiState,
+                    word,
+                    context.getString(R.string.add_word_error_lookup_failed),
+                ).getOrElse { return }
 
             if (existingItem != null) {
-                promptExistingWordOverride(existingItem, word, translation, fromPreview)
+                if (isAcknowledgedOverride(word, acknowledgedOverrideWord)) {
+                    submitAcknowledgedOverride(existingItem, word, translation, fromPreview)
+                } else {
+                    promptExistingWordOverride(existingItem, word, translation, direction, fromPreview)
+                }
                 return
             }
 
             submitNewVocabularyItem(word, translation, fromPreview)
         }
 
-        private fun handleExistingItemLookupFailure(error: Throwable) {
-            _uiState.value =
-                _uiState.value.copy(
-                    isLoading = false,
-                    loadingAction = null,
-                    errorMessage = error.message ?: "Failed to check existing words",
-                    isExistingWordDialogVisible = false,
-                    isExistingWordDialogLoading = false,
-                )
+        private suspend fun submitAcknowledgedOverride(
+            existingItem: VocabularyItem,
+            word: String,
+            translation: String,
+            fromPreview: Boolean,
+        ) {
+            overrideVocabularyItemUseCase(existingItem, word, translation).fold(
+                onSuccess = {
+                    acknowledgedOverrideWord = null
+                    _uiState.value =
+                        _uiState.value.copy(
+                            isLoading = false,
+                            errorMessage = null,
+                            wordError = null,
+                            translationError = null,
+                            word = "",
+                            translation = "",
+                            previewContent = null,
+                            isPreviewVisible = false,
+                            isSuccess = true,
+                            successMessage = context.getString(R.string.add_word_success_updated),
+                            loadingAction = null,
+                            isExistingWordDialogVisible = false,
+                            isExistingWordDialogLoading = false,
+                            existingWordDialogWord = null,
+                        )
+                },
+                onFailure = { error ->
+                    acknowledgedOverrideWord = null
+                    _uiState.value =
+                        _uiState.value.copy(
+                            isLoading = false,
+                            loadingAction = null,
+                            errorMessage = error.message ?: context.getString(R.string.add_word_error_update_failed),
+                            isPreviewVisible = fromPreview && _uiState.value.previewContent != null,
+                        )
+                },
+            )
         }
 
         private fun promptExistingWordOverride(
             existingItem: VocabularyItem,
             word: String,
-            translation: String,
+            translation: String?,
+            direction: AiTranslationDirection,
             fromPreview: Boolean,
         ) {
             pendingOverride =
@@ -454,6 +580,7 @@ class AddWordViewModel @Inject
                     existingItem = existingItem,
                     word = word,
                     translation = translation,
+                    direction = direction,
                     fromPreview = fromPreview,
                 )
             _uiState.value =
@@ -464,6 +591,7 @@ class AddWordViewModel @Inject
                     isExistingWordDialogVisible = true,
                     existingWordDialogWord = word,
                     isExistingWordDialogLoading = false,
+                    isPreviewVisible = false,
                 )
         }
 
@@ -488,7 +616,7 @@ class AddWordViewModel @Inject
                             previewContent = null,
                             isPreviewVisible = false,
                             isSuccess = true,
-                            successMessage = DEFAULT_ADD_SUCCESS_MESSAGE,
+                            successMessage = context.getString(R.string.add_word_success_added),
                             loadingAction = null,
                             isExistingWordDialogVisible = false,
                             isExistingWordDialogLoading = false,
@@ -499,7 +627,7 @@ class AddWordViewModel @Inject
                     _uiState.value =
                         _uiState.value.copy(
                             isLoading = false,
-                            errorMessage = error.message ?: "Failed to add word",
+                            errorMessage = error.message ?: context.getString(R.string.add_word_error_add_failed),
                             loadingAction = null,
                             isPreviewVisible = fromPreview && _uiState.value.previewContent != null,
                         )
@@ -518,15 +646,10 @@ class AddWordViewModel @Inject
         private data class PendingOverrideSubmission(
             val existingItem: VocabularyItem,
             val word: String,
-            val translation: String,
+            val translation: String?,
+            val direction: AiTranslationDirection,
             val fromPreview: Boolean,
         )
-
-        companion object {
-            private const val DEFAULT_ADD_SUCCESS_MESSAGE = "Word added successfully!"
-            private const val OVERRIDE_SUCCESS_MESSAGE = "Word updated and progress reset!"
-            private const val PENDING_QUEUED_MESSAGE = "Saved. Translation will be generated once you're back online."
-        }
 
         fun onPreviewConfirmAdd() {
             val preview = _uiState.value.previewContent ?: return
@@ -580,6 +703,7 @@ data class AddWordUiState(
 data class AddWordPreviewContent(
     val word: String,
     val translation: String,
+    val isStoredTranslation: Boolean = false,
 )
 
 data class PendingWordUi(
@@ -591,7 +715,92 @@ enum class AddWordLoadingAction {
     ADD,
     PREVIEW,
     PREVIEW_CONFIRM,
+    PREVIEW_REGENERATE,
 }
+
+private fun isAcknowledgedOverride(
+    word: String,
+    acknowledgedWord: String?,
+): Boolean = acknowledgedWord?.equals(word, ignoreCase = true) == true
+
+private fun closeExistingWordDialogWithError(
+    uiState: MutableStateFlow<AddWordUiState>,
+    message: String,
+) {
+    uiState.value =
+        uiState.value.copy(
+            isExistingWordDialogVisible = false,
+            isExistingWordDialogLoading = false,
+            existingWordDialogWord = null,
+            errorMessage = message,
+        )
+}
+
+private fun setBlankTranslationError(
+    uiState: MutableStateFlow<AddWordUiState>,
+    message: String,
+) {
+    uiState.value =
+        uiState.value.copy(
+            isLoading = false,
+            translationError = message,
+            loadingAction = null,
+        )
+}
+
+private suspend fun queuePendingWord(
+    queuePendingWordUseCase: QueuePendingWordUseCase,
+    uiState: MutableStateFlow<AddWordUiState>,
+    word: String,
+    direction: AiTranslationDirection,
+    successMessage: String,
+) {
+    queuePendingWordUseCase(word, direction)
+    uiState.value =
+        uiState.value.copy(
+            word = "",
+            translation = "",
+            wordError = null,
+            translationError = null,
+            errorMessage = null,
+            isLoading = false,
+            loadingAction = null,
+            isSuccess = true,
+            successMessage = successMessage,
+        )
+}
+
+private suspend fun lookupExistingItem(
+    getVocabularyItemByWordUseCase: GetVocabularyItemByWordUseCase,
+    uiState: MutableStateFlow<AddWordUiState>,
+    word: String,
+    failureMessage: String,
+): Result<VocabularyItem?> =
+    runCatching { getVocabularyItemByWordUseCase(word) }
+        .onFailure { error ->
+            uiState.value =
+                uiState.value.copy(
+                    isLoading = false,
+                    loadingAction = null,
+                    errorMessage = error.message ?: failureMessage,
+                    isExistingWordDialogVisible = false,
+                    isExistingWordDialogLoading = false,
+                )
+        }
+
+private suspend fun resolvePendingTranslation(
+    generateAiTranslationUseCase: GenerateAiTranslationUseCase,
+    word: String,
+    translation: String?,
+    direction: AiTranslationDirection,
+    blankResultMessage: String,
+): Result<String> =
+    if (translation != null) {
+        Result.success(translation)
+    } else {
+        runCatching { generateAiTranslationUseCase(word, direction) }
+            .mapCatching { generated -> generated.trim().ifBlank { error(blankResultMessage) } }
+    }
 
 internal data class ProcessTextPrefill(
     val word: String,

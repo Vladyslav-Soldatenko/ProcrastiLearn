@@ -106,6 +106,7 @@ fun AddWordScreen(
         onPreviewClick = viewModel::onPreviewClick,
         onPreviewCancel = viewModel::onPreviewCancel,
         onPreviewConfirmAdd = viewModel::onPreviewConfirmAdd,
+        onPreviewRegenerate = viewModel::onPreviewRegenerate,
         onAddClick = viewModel::onAddClick,
         onExistingWordDialogCancel = viewModel::onExistingWordDialogCancel,
         onExistingWordDialogProceed = viewModel::onExistingWordDialogProceed,
@@ -147,6 +148,7 @@ internal fun AddWordContent(
     onPreviewClick: () -> Unit,
     onPreviewCancel: () -> Unit,
     onPreviewConfirmAdd: () -> Unit,
+    onPreviewRegenerate: () -> Unit,
     onAddClick: () -> Unit,
     onExistingWordDialogCancel: () -> Unit,
     onExistingWordDialogProceed: () -> Unit,
@@ -257,9 +259,14 @@ internal fun AddWordContent(
         if (isPreviewVisible && previewContent != null) {
             AddWordPreviewDialog(
                 previewContent = previewContent,
-                isConfirmLoading = isLoading && loadingAction == AddWordLoadingAction.PREVIEW_CONFIRM,
+                isConfirmLoading =
+                    isLoading &&
+                        (
+                            loadingAction == AddWordLoadingAction.PREVIEW_CONFIRM ||
+                                loadingAction == AddWordLoadingAction.PREVIEW_REGENERATE
+                        ),
                 onCancel = onPreviewCancel,
-                onConfirm = onPreviewConfirmAdd,
+                onConfirm = if (previewContent.isStoredTranslation) onPreviewRegenerate else onPreviewConfirmAdd,
             )
         }
 

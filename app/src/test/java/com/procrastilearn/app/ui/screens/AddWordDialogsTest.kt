@@ -115,6 +115,70 @@ class AddWordDialogsTest {
         }
     }
 
+    private val storedPreviewContent =
+        AddWordPreviewContent(
+            word = "Haus",
+            translation = "House\nHome\nA building",
+            isStoredTranslation = true,
+        )
+
+    @Test
+    fun `stored preview dialog displays stored title and regenerate label`() {
+        setStoredPreviewDialogContent()
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_preview_stored_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.add_word_preview_regenerate)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.add_word_preview_title)).assertDoesNotExist()
+        composeTestRule.onNodeWithText(string(R.string.add_word_preview_confirm)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `stored preview dialog displays word and stored translation`() {
+        setStoredPreviewDialogContent()
+
+        composeTestRule.onNodeWithText(storedPreviewContent.word).assertIsDisplayed()
+        composeTestRule.onNodeWithText(storedPreviewContent.translation).assertIsDisplayed()
+    }
+
+    @Test
+    fun `stored preview dialog clicking regenerate invokes onConfirm`() {
+        setStoredPreviewDialogContent()
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_preview_regenerate)).performClick()
+
+        verify(exactly = 1) { onConfirm.invoke() }
+        verify { onCancel wasNot called }
+    }
+
+    @Test
+    fun `stored preview dialog clicking cancel invokes onCancel`() {
+        setStoredPreviewDialogContent()
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_preview_cancel)).performClick()
+
+        verify(exactly = 1) { onCancel.invoke() }
+        verify { onConfirm wasNot called }
+    }
+
+    @Test
+    fun `stored preview dialog disables buttons while regenerating`() {
+        setStoredPreviewDialogContent(isConfirmLoading = true)
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_preview_regenerate)).assertDoesNotExist()
+        composeTestRule.onNodeWithText(string(R.string.add_word_preview_cancel)).assertIsNotEnabled()
+    }
+
+    private fun setStoredPreviewDialogContent(isConfirmLoading: Boolean = false) {
+        composeTestRule.setContent {
+            AddWordPreviewDialog(
+                previewContent = storedPreviewContent,
+                isConfirmLoading = isConfirmLoading,
+                onCancel = onCancel,
+                onConfirm = onConfirm,
+            )
+        }
+    }
+
     @Test
     fun `existing word dialog shows title and message`() {
         setExistingWordDialogContent(word = "Haus")
