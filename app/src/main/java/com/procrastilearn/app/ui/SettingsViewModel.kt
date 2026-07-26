@@ -5,8 +5,11 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.procrastilearn.app.data.export.UnsupportedSchemaVersionException
+import com.procrastilearn.app.data.export.VocabularyExportSerializer
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.mapper.toEntity
+import com.procrastilearn.app.data.local.mapper.toExportItem
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
@@ -29,8 +32,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
-import org.json.JSONObject
 import java.io.File
 import java.io.InputStream
 import javax.inject.Inject
@@ -169,39 +170,16 @@ class SettingsViewModel
             viewModelScope.launch(ioDispatcher) {
                 val ok =
                     try {
-                        val list = vocabularyDao.getAllVocabulary().first()
-                        val json =
-                            JSONArray().apply {
-                                list.forEach { e ->
-                                    put(
-                                        JSONObject().apply {
-                                            put("id", e.id)
-                                            put("word", e.word)
-                                            put("translation", e.translation)
-                                            put("createdAt", e.createdAt)
-                                            if (e.lastShownAt ==
-                                                null
-                                            ) {
-                                                put("lastShownAt", JSONObject.NULL)
-                                            } else {
-                                                put("lastShownAt", e.lastShownAt)
-                                            }
-                                            put("correctCount", e.correctCount)
-                                            put("incorrectCount", e.incorrectCount)
-                                            put("fsrsCardJson", e.fsrsCardJson)
-                                            put("fsrsDueAt", e.fsrsDueAt)
-                                        },
-                                    )
-                                }
-                            }
+                        val items = vocabularyDao.getAllVocabulary().first().map { it.toExportItem() }
+                        val encoded = VocabularyExportSerializer.encode(items)
 
                         context.contentResolver.openOutputStream(uri)?.use { out ->
                             out.writer(Charsets.UTF_8).use { writer ->
-                                writer.write(json.toString())
+                                writer.write(encoded)
                                 writer.flush()
                             }
+                            true
                         } ?: false
-                        true
                     } catch (t: Throwable) {
                         Log.e("SettingsViewModel", "Failed to export vocabulary to uri=$uri", t)
                         false
@@ -257,6 +235,13 @@ class SettingsViewModel
         ): VocabularyImportResult =
             try {
                 importFromStream(context, parser, uri, tempFile)
+            } catch (exception: UnsupportedSchemaVersionException) {
+                Log.e(
+                    "SettingsViewModel",
+                    "Refused to import a newer-than-supported export from uri=$uri",
+                    exception,
+                )
+                VocabularyImportResult.Failure(VocabularyImportFailureReason.UNSUPPORTED_SCHEMA_VERSION)
             } catch (exception: IllegalArgumentException) {
                 Log.e(
                     "SettingsViewModel",
@@ -347,4 +332,5 @@ enum class VocabularyImportFailureReason {
     UNSUPPORTED_FORMAT,
     FILE_ERROR,
     PARSE_ERROR,
+    UNSUPPORTED_SCHEMA_VERSION,
 }

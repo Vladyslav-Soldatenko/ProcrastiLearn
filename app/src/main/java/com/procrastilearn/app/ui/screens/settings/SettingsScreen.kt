@@ -142,6 +142,8 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                                 when (result.reason) {
                                     VocabularyImportFailureReason.UNSUPPORTED_FORMAT ->
                                         ctx.getString(R.string.settings_import_failure_format)
+                                    VocabularyImportFailureReason.UNSUPPORTED_SCHEMA_VERSION ->
+                                        ctx.getString(R.string.settings_import_failure_schema_version)
                                     VocabularyImportFailureReason.FILE_ERROR,
                                     VocabularyImportFailureReason.PARSE_ERROR,
                                     -> ctx.getString(R.string.settings_import_failure_generic)

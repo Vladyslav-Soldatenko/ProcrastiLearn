@@ -226,6 +226,7 @@
     <string name="settings_import_success">Imported %1$d cards</string>
     <string name="settings_import_failure_generic">Import failed</string>
     <string name="settings_import_failure_format">That format isn’t supported yet</string>
+    <string name="settings_import_failure_schema_version">This file was created by a newer version of ProcrastiLearn. Please update the app.</string>
 
     <!-- Export -->
     <string name="settings_export_row">Export</string>
