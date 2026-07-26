@@ -1,5 +1,8 @@
 package com.procrastilearn.app.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class VocabularyExportItem(
     val id: Long,
     val word: String,
