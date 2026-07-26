@@ -415,15 +415,16 @@ class SettingsViewModelTest {
 
             assertThat(completion.await()).isTrue()
             val payload = tempFile.readText()
-            assertThat(payload).contains("\"id\":1")
-            assertThat(payload).contains("\"word\":\"Haus\"")
-            assertThat(payload).contains("\"translation\":\"House\"")
-            assertThat(payload).contains("\"createdAt\":123")
-            assertThat(payload).contains("\"lastShownAt\":null")
-            assertThat(payload).contains("\"correctCount\":2")
-            assertThat(payload).contains("\"incorrectCount\":1")
-            assertThat(payload).contains("\"fsrsCardJson\":\"{\\\"c\\\":1}\"")
-            assertThat(payload).contains("\"fsrsDueAt\":456")
+            assertThat(payload).contains("\"schemaVersion\": 2")
+            assertThat(payload).contains("\"id\": 1")
+            assertThat(payload).contains("\"word\": \"Haus\"")
+            assertThat(payload).contains("\"translation\": \"House\"")
+            assertThat(payload).contains("\"createdAt\": 123")
+            assertThat(payload).doesNotContain("lastShownAt")
+            assertThat(payload).contains("\"correctCount\": 2")
+            assertThat(payload).contains("\"incorrectCount\": 1")
+            assertThat(payload).contains("\"fsrsCardJson\": \"{\\\"c\\\":1}\"")
+            assertThat(payload).contains("\"fsrsDueAt\": 456")
         }
 
     @Test

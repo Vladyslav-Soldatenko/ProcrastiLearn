@@ -227,6 +227,7 @@
         <string name="settings_import_success">Импортировано %1$d карточек</string>
         <string name="settings_import_failure_generic">Не удалось импортировать</string>
         <string name="settings_import_failure_format">Этот формат пока не поддерживается</string>
+        <string name="settings_import_failure_schema_version">Этот файл создан более новой версией ProcrastiLearn. Пожалуйста, обновите приложение.</string>
 
         <!-- Export -->
         <string name="settings_export_row">Экспорт</string>

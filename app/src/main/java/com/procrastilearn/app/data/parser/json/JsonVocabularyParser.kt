@@ -1,12 +1,14 @@
 package com.procrastilearn.app.data.parser.json
 
 import com.procrastilearn.app.R
+import com.procrastilearn.app.data.export.ImportOutcome
+import com.procrastilearn.app.data.export.UnsupportedSchemaVersionException
+import com.procrastilearn.app.data.export.VocabularyExportSerializer
 import com.procrastilearn.app.domain.model.VocabularyExportItem
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.parser.VocabularyExportParser
 import com.procrastilearn.app.domain.parser.VocabularyParser
-import org.json.JSONArray
-import org.json.JSONException
+import kotlinx.serialization.SerializationException
 import java.io.File
 import javax.inject.Inject
 
@@ -35,36 +37,16 @@ class JsonVocabularyParser @Inject constructor() : VocabularyParser, VocabularyE
         require(file.exists() && file.isFile) { "Cannot parse from ${file.path}: file does not exist." }
 
         val raw = file.readText(Charsets.UTF_8)
-        val jsonArray =
+        val outcome =
             try {
-                JSONArray(raw)
-            } catch (exception: JSONException) {
+                VocabularyExportSerializer.decode(raw)
+            } catch (exception: SerializationException) {
                 throw IllegalArgumentException("Invalid JSON export format.", exception)
             }
 
-        return buildList {
-            for (i in 0 until jsonArray.length()) {
-                val entry = jsonArray.getJSONObject(i)
-                val lastShownAt =
-                    if (entry.isNull("lastShownAt")) {
-                        null
-                    } else {
-                        entry.getLong("lastShownAt")
-                    }
-                add(
-                    VocabularyExportItem(
-                        id = entry.getLong("id"),
-                        word = entry.getString("word"),
-                        translation = entry.getString("translation"),
-                        createdAt = entry.getLong("createdAt"),
-                        lastShownAt = lastShownAt,
-                        correctCount = entry.getInt("correctCount"),
-                        incorrectCount = entry.getInt("incorrectCount"),
-                        fsrsCardJson = entry.getString("fsrsCardJson"),
-                        fsrsDueAt = entry.getLong("fsrsDueAt"),
-                    ),
-                )
-            }
+        return when (outcome) {
+            is ImportOutcome.Success -> outcome.items
+            is ImportOutcome.SchemaTooNew -> throw UnsupportedSchemaVersionException(outcome.schemaVersion)
         }
     }
 }

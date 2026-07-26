@@ -1,6 +1,7 @@
 plugins {
   id("com.android.application")
   id("org.jetbrains.kotlin.plugin.compose")
+  id("org.jetbrains.kotlin.plugin.serialization")
   id("com.google.devtools.ksp")
   id("com.google.dagger.hilt.android")
   id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
@@ -55,6 +56,7 @@ android {
 
   buildFeatures {
     compose = true
+    buildConfig = true
   }
   dependenciesInfo {
     includeInApk = false
@@ -74,6 +76,7 @@ dependencies {
   ksp(libs.androidx.appfunctions.compiler)
 
   implementation(libs.fsrs)
+  implementation(libs.kotlinx.serialization.json)
   implementation(libs.androidx.room.runtime)
   implementation(libs.androidx.room.ktx)
   androidTestImplementation(libs.androidx.room.testing)

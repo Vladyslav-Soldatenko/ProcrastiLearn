@@ -15,6 +15,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Export fixture immutability guard
+        run: |
+          git fetch origin master
+          changed=$(git diff --name-status origin/master...HEAD -- app/src/test/resources/exports/ | grep -v '^A' || true)
+          if [ -n "$changed" ]; then
+            echo "::error::Export fixtures are append-only — see app/src/test/resources/exports/README.md"
+            echo "$changed"
+            exit 1
+          fi
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4

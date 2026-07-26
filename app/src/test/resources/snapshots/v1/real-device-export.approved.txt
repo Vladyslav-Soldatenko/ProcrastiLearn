@@ -1,105 +1,31 @@
-package com.procrastilearn.app.data.parser.json
+correctCount: 1
+createdAt: 1785010756357
+fsrsCardJson: {"cardId":-1695638824,"difficulty":6.243132948566265,"due":"2026-07-25T20:36:29.260Z","lastReview":"2026-07-25T20:30:59.260Z","stability":1.1771,"state":"LEARNING","step":0}
+fsrsDueAt: 1785011789260
+id: 1
+incorrectCount: 0
+lastShownAt: 1785011459260
+translation: test123
+word: test
 
-import com.google.common.truth.Truth.assertThat
-import com.procrastilearn.app.domain.model.VocabularyExportItem
-import org.junit.runner.RunWith
-import org.junit.Test
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import java.io.File
+correctCount: 1
+createdAt: 1785010760751
+fsrsCardJson: {"cardId":-1695634391,"difficulty":4.884631634813845,"due":"2026-07-25T20:41:00.386080Z","lastReview":"2026-07-25T20:31:00.386080Z","stability":3.2602,"state":"LEARNING","step":1}
+fsrsDueAt: 1785012060386
+id: 2
+incorrectCount: 0
+lastShownAt: 1785011460386
+translation: bar
+word: foo
 
-@RunWith(RobolectricTestRunner::class)
-@Config(
-    sdk = [33],
-    manifest = Config.NONE,
-)
-class JsonVocabularyParserTest {
-    private val parser = JsonVocabularyParser()
-
-    @Test
-    fun `parseExport reads full export payload`() {
-        val tempFile = File.createTempFile("vocab", ".json")
-        tempFile.writeText(
-            """
-            [
-              {
-                "id": 1,
-                "word": "Haus",
-                "translation": "House",
-                "createdAt": 10,
-                "lastShownAt": null,
-                "correctCount": 2,
-                "incorrectCount": 1,
-                "fsrsCardJson": "{\"c\":1}",
-                "fsrsDueAt": 20
-              }
-            ]
-            """.trimIndent(),
-        )
-
-        val result = parser.parseExport(tempFile)
-
-        assertThat(result).containsExactly(
-            VocabularyExportItem(
-                id = 1,
-                word = "Haus",
-                translation = "House",
-                createdAt = 10,
-                lastShownAt = null,
-                correctCount = 2,
-                incorrectCount = 1,
-                fsrsCardJson = "{\"c\":1}",
-                fsrsDueAt = 20,
-            ),
-        )
-    }
-
-    @Test
-    fun `parseExport reads the real device v1 export unchanged`() {
-        val file = loadResource("exports/v1/real-device-export.json")
-
-        val result = parser.parseExport(file)
-
-        assertThat(result).containsExactly(*realDeviceExportItems().toTypedArray()).inOrder()
-    }
-
-    private fun loadResource(path: String): File {
-        val url =
-            checkNotNull(javaClass.classLoader?.getResource(path)) {
-                "Resource at $path was not found in the test resources."
-            }
-        return File(url.toURI())
-    }
-
-    @Suppress("LongMethod")
-    private fun realDeviceExportItems(): List<VocabularyExportItem> =
-        listOf(
-            VocabularyExportItem(
-                id = 1,
-                word = "test",
-                translation = """test123""",
-                createdAt = 1785010756357,
-                lastShownAt = 1785011459260,
-                correctCount = 1,
-                incorrectCount = 0,
-                fsrsCardJson = "{\"cardId\":-1695638824,\"difficulty\":6.243132948566265,\"due\":\"2026-07-25T20:36:29.260Z\",\"lastReview\":\"2026-07-25T20:30:59.260Z\",\"stability\":1.1771,\"state\":\"LEARNING\",\"step\":0}",
-                fsrsDueAt = 1785011789260,
-            ),
-            VocabularyExportItem(
-                id = 2,
-                word = "foo",
-                translation = """bar""",
-                createdAt = 1785010760751,
-                lastShownAt = 1785011460386,
-                correctCount = 1,
-                incorrectCount = 0,
-                fsrsCardJson = "{\"cardId\":-1695634391,\"difficulty\":4.884631634813845,\"due\":\"2026-07-25T20:41:00.386080Z\",\"lastReview\":\"2026-07-25T20:31:00.386080Z\",\"stability\":3.2602,\"state\":\"LEARNING\",\"step\":1}",
-                fsrsDueAt = 1785012060386,
-            ),
-            VocabularyExportItem(
-                id = 3,
-                word = "cat",
-                translation = """Транскрипция: /kæt/
+correctCount: 0
+createdAt: 1785010810566
+fsrsCardJson: {"cardId":-1695584574,"difficulty":7.0114,"due":"2026-07-25T20:32:09.180957Z","lastReview":"2026-07-25T20:31:09.180957Z","stability":0.2172,"state":"LEARNING","step":0}
+fsrsDueAt: 1785011529180
+id: 3
+incorrectCount: 1
+lastShownAt: 1785011469180
+translation: Транскрипция: /kæt/
 
 Нерегулярные формы: cats (мн.ч.)
 
@@ -123,18 +49,17 @@ class JsonVocabularyParserTest {
 7. She took a catnap after lunch.
 8. The catlicked the milk from the saucer.
 9. They built a cat tower for their pets.
-10. The catwalk showed models wearing avant-garde fashion.""",
-                createdAt = 1785010810566,
-                lastShownAt = 1785011469180,
-                correctCount = 0,
-                incorrectCount = 1,
-                fsrsCardJson = "{\"cardId\":-1695584574,\"difficulty\":7.0114,\"due\":\"2026-07-25T20:32:09.180957Z\",\"lastReview\":\"2026-07-25T20:31:09.180957Z\",\"stability\":0.2172,\"state\":\"LEARNING\",\"step\":0}",
-                fsrsDueAt = 1785011529180,
-            ),
-            VocabularyExportItem(
-                id = 4,
-                word = "кошка",
-                translation = """Английский перевод: cat
+10. The catwalk showed models wearing avant-garde fashion.
+word: cat
+
+correctCount: 0
+createdAt: 1785010837396
+fsrsCardJson: {"cardId":-1695557743,"difficulty":null,"due":"2026-07-25T20:20:37.394308Z","lastReview":null,"stability":null,"state":"LEARNING","step":0}
+fsrsDueAt: 0
+id: 4
+incorrectCount: 0
+lastShownAt: null
+translation: Английский перевод: cat
 
 Транскрипция: /kæt/
 
@@ -153,18 +78,17 @@ class JsonVocabularyParserTest {
 7. Our neighbor's cat visits every morning.
 8. The cat purred when I stroked its fur.
 9. Cats are known for their agility.
-10. He bought a new toy for his cat.""",
-                createdAt = 1785010837396,
-                lastShownAt = null,
-                correctCount = 0,
-                incorrectCount = 0,
-                fsrsCardJson = "{\"cardId\":-1695557743,\"difficulty\":null,\"due\":\"2026-07-25T20:20:37.394308Z\",\"lastReview\":null,\"stability\":null,\"state\":\"LEARNING\",\"step\":0}",
-                fsrsDueAt = 0,
-            ),
-            VocabularyExportItem(
-                id = 5,
-                word = "собака",
-                translation = """Китайский перевод: 狗
+10. He bought a new toy for his cat.
+word: кошка
+
+correctCount: 1
+createdAt: 1785010859128
+fsrsCardJson: {"cardId":-1695536013,"difficulty":2.482438522375997,"due":"2026-08-06T20:31:01.880409Z","lastReview":"2026-07-25T20:31:01.880409Z","stability":16.1507,"state":"REVIEW","step":null}
+fsrsDueAt: 1786048261880
+id: 5
+incorrectCount: 0
+lastShownAt: 1785011461880
+translation: Китайский перевод: 狗
 
 Транскрипция: /gǒu/
 
@@ -183,13 +107,5 @@ class JsonVocabularyParserTest {
 7. 狗在门口睡觉。 (/Gǒu zài ménkǒu shuìjiào/)
 8. 听见狗叫就知道有人来了。 (/Tīngjiàn gǒu jiào jiù zhīdào yǒu rén lái le/)
 9. 请不要打扰那只正在哺乳的小狗。 (/Qǐng búyào dǎrǎo nà zhī zhèngzài bǔrǔ de xiǎo gǒu/)
-10. 他把狗牵在绳子上。 (/Tā bǎ gǒu qiān zài shéngzi shàng/)""",
-                createdAt = 1785010859128,
-                lastShownAt = 1785011461880,
-                correctCount = 1,
-                incorrectCount = 0,
-                fsrsCardJson = "{\"cardId\":-1695536013,\"difficulty\":2.482438522375997,\"due\":\"2026-08-06T20:31:01.880409Z\",\"lastReview\":\"2026-07-25T20:31:01.880409Z\",\"stability\":16.1507,\"state\":\"REVIEW\",\"step\":null}",
-                fsrsDueAt = 1786048261880,
-            ),
-        )
-}
+10. 他把狗牵在绳子上。 (/Tā bǎ gǒu qiān zài shéngzi shàng/)
+word: собака

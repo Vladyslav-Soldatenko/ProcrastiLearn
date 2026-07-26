@@ -1,0 +1,13 @@
+schemaVersion : kotlin.Int : REQUIRED
+exportedAt : kotlin.Long : REQUIRED
+appVersion : kotlin.String : REQUIRED
+words : kotlin.collections.ArrayList : REQUIRED
+words[].id : kotlin.Long : REQUIRED
+words[].word : kotlin.String : REQUIRED
+words[].translation : kotlin.String : REQUIRED
+words[].createdAt : kotlin.Long : REQUIRED
+words[].lastShownAt : kotlin.Long? : REQUIRED
+words[].correctCount : kotlin.Int : REQUIRED
+words[].incorrectCount : kotlin.Int : REQUIRED
+words[].fsrsCardJson : kotlin.String : REQUIRED
+words[].fsrsDueAt : kotlin.Long : REQUIRED

@@ -37,3 +37,16 @@ fun VocabularyExportItem.toEntity(): VocabularyEntity =
         fsrsCardJson = fsrsCardJson,
         fsrsDueAt = fsrsDueAt,
     )
+
+fun VocabularyEntity.toExportItem(): VocabularyExportItem =
+    VocabularyExportItem(
+        id = id,
+        word = word,
+        translation = translation,
+        createdAt = createdAt,
+        lastShownAt = lastShownAt,
+        correctCount = correctCount,
+        incorrectCount = incorrectCount,
+        fsrsCardJson = fsrsCardJson,
+        fsrsDueAt = fsrsDueAt,
+    )
