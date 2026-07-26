@@ -10,7 +10,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.procrastilearn.app.R
 
-private const val ONBOARDING_STEP_TIMEOUT_MS = 5_000L
+private const val ONBOARDING_STEP_TIMEOUT_MS = 1_000L
 private const val NODE_POLL_INTERVAL_MS = 100L
 
 @OptIn(ExperimentalTestApi::class)
