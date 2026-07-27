@@ -78,16 +78,6 @@ interface VocabularyDao {
     )
     suspend fun getNearestDue(): VocabularyEntity?
 
-    // “New” is inferred by counts == 0 (legacy helper, unused outside this file - not
-    // updated to the fsrsDueAt-based "is new" definition since it has no live callers)
-    @Query(
-        """
-        SELECT COUNT(*) FROM vocabulary
-        WHERE correctCount = 0 AND incorrectCount = 0
-    """,
-    )
-    suspend fun countNew(): Int
-
     @Query(
         """
         SELECT * FROM vocabulary
@@ -200,27 +190,6 @@ interface VocabularyDao {
     """,
     )
     suspend fun getDueCards(now: Long): List<VocabularyEntity>
-
-    // Get new cards (never reviewed) - legacy helper, no live callers.
-    @Query(
-        """
-        SELECT * FROM vocabulary
-        WHERE correctCount = 0 AND incorrectCount = 0
-        ORDER BY id ASC
-        LIMIT :limit
-    """,
-    )
-    suspend fun getNewCards(limit: Int): List<VocabularyEntity>
-
-    // Count today's new cards studied - legacy helper, no live callers.
-    @Query(
-        """
-        SELECT COUNT(*) FROM vocabulary
-        WHERE lastShownAt >= :startOfDay
-        AND correctCount + incorrectCount = 1
-    """,
-    )
-    suspend fun countNewCardsStudiedToday(startOfDay: Long): Int
 
     // Get a single card by ID
     @Query("SELECT * FROM vocabulary WHERE id = :id LIMIT 1")

@@ -133,8 +133,6 @@ class VocabularyRepositoryBidirectionalTest {
             )
     }
 
-    // --- Introduction / seeding ---
-
     @Test
     fun `bidirectional card introduced forward-first when mode is BIDIRECTIONAL`() =
         runTest {
@@ -225,8 +223,6 @@ class VocabularyRepositoryBidirectionalTest {
             val now = vocabularyDao.getVocabularyById(id)!!.fsrsDueAt + 1
             assertThat(vocabularyDao.pickNextBackwardReviewCandidate(now)).isNull()
         }
-
-    // --- Quota ---
 
     @Test
     fun `newPerDay=0 blocks introducing a bidirectional card's forward direction`() =
@@ -327,8 +323,6 @@ class VocabularyRepositoryBidirectionalTest {
 
             assertThat(item.word).isEqualTo("run")
         }
-
-    // --- Mode / flag interaction matrix ---
 
     @Test
     fun `FORWARD mode with flag false is tested forward only baseline`() =
@@ -438,8 +432,6 @@ class VocabularyRepositoryBidirectionalTest {
             assertThat(vocabularyDao.pickNextForwardReviewCandidate(seededForwardDueAt + 1)?.id).isEqualTo(id)
         }
 
-    // --- Skip indicator ---
-
     @Test
     fun `observeBackwardOnlySkippedCount reflects forward-only cards right after switching to BACKWARD`() =
         runTest {
@@ -463,8 +455,6 @@ class VocabularyRepositoryBidirectionalTest {
                 cancelAndIgnoreRemainingEvents()
             }
         }
-
-    // --- Undo ---
 
     @Test
     fun `undoLastRating after a backward review restores all backward progress columns`() =
@@ -537,8 +527,6 @@ class VocabularyRepositoryBidirectionalTest {
 
             assertThat(result?.item?.direction).isEqualTo(StudyDirection.BACKWARD)
         }
-
-    // --- resetVocabularyProgress ---
 
     @Test
     fun `resetVocabularyProgress clears both forward and backward FSRS progress`() =
