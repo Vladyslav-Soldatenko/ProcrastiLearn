@@ -579,6 +579,71 @@ class DojoViewModelTest {
         }
 
     @Test
+    fun `empty state resolves when a new word is added elsewhere and only newTotalCount changes`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = true)
+            coEvery { getNextVocabularyItem.invoke() } returnsMany
+                listOf(Result.failure(NoAvailableItemsException()), Result.success(item))
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.hasNoWords).isTrue()
+
+            // A new word was inserted elsewhere (Add Word screen); this changes only the
+            // newTotalCount flow. Due count, day counters, and policy are all untouched.
+            newTotalCountFlow.value = 1
+
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.hasNoWords).isFalse()
+            assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(item)
+            coVerify(exactly = 2) { getNextVocabularyItem.invoke() }
+        }
+
+    @Test
+    fun `flashcard re-fetches when newTotalCount changes even though due count, counters, and policy are unchanged`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val first = VocabularyItem(id = 1, word = "first", translation = "первый", isNew = true)
+            val second = VocabularyItem(id = 2, word = "second", translation = "второй", isNew = true)
+            coEvery { getNextVocabularyItem.invoke() } returnsMany
+                listOf(Result.success(first), Result.success(second))
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(first)
+
+            newTotalCountFlow.value = newTotalCountFlow.value + 1
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(second)
+            coVerify(exactly = 2) { getNextVocabularyItem.invoke() }
+        }
+
+    @Test
+    fun `restored word survives the reactive re-fetch triggered by a newTotalCount change`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val current = VocabularyItem(id = 1, word = "current", translation = "текущий", isNew = true)
+            val restored = VocabularyItem(id = 99, word = "restored", translation = "восстановлен", isNew = false)
+            val someOtherWord = VocabularyItem(id = 2, word = "other", translation = "другой", isNew = true)
+            coEvery { getNextVocabularyItem.invoke() } returnsMany
+                listOf(Result.success(current), Result.success(someOtherWord))
+            coEvery { undoLastRating.invoke() } returns
+                Result.success(UndoResult(item = restored, revertedRating = Rating.EASY))
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onUndo()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(restored)
+
+            newTotalCountFlow.value = newTotalCountFlow.value + 1
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(restored)
+        }
+
+    @Test
     fun `empty state when NoAvailableItemsException`() =
         runTest(mainDispatcherRule.testDispatcher) {
             coEvery { getNextVocabularyItem.invoke() } returns Result.failure(NoAvailableItemsException())

@@ -2,11 +2,13 @@ package com.procrastilearn.app.ui.dojo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.data.local.dao.UndoSnapshotDao
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
 import com.procrastilearn.app.data.time.TimeTicker
+import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.model.includesBackward
 import com.procrastilearn.app.domain.model.includesForward
@@ -126,15 +128,17 @@ class DojoViewModel
         init {
             loadNextWord()
             // The current flashcard is otherwise only refreshed from here and after a
-            // local rating. If a due-count/quota change happens for any other reason
-            // (a review from the overlay, a quota raised in Settings), re-fetch so the
-            // card shown here can't go stale or get stuck on an outdated empty state.
+            // local rating. If a due-count/quota/new-word change happens for any other
+            // reason (a review from the overlay, a quota raised in Settings, a word
+            // added from the Add Word screen), re-fetch so the card shown here can't go
+            // stale or get stuck on an outdated empty state.
             viewModelScope.launch {
                 combine(
                     reviewsDueAndSkippedCount,
                     dayCountersStore.read(),
                     dayCountersStore.readPolicy(),
-                ) { due, counters, policy -> Triple(due, counters, policy) }
+                    newTotalCount,
+                ) { due, counters, policy, newTotal -> DueCountersSnapshot(due, counters, policy, newTotal) }
                     .drop(1)
                     .collect { loadNextWord() }
             }
@@ -237,5 +241,12 @@ class DojoViewModel
             val newQuotaRemaining: Int,
             val pendingReviewCount: Int,
             val skippedCardCount: Int,
+        )
+
+        private data class DueCountersSnapshot(
+            val dueAndSkipped: Pair<Int, Int>,
+            val counters: DayCounters,
+            val policy: LearningPreferencesConfig,
+            val newTotal: Int,
         )
     }
