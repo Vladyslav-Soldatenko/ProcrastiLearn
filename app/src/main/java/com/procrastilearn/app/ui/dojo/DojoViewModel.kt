@@ -7,8 +7,10 @@ import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
 import com.procrastilearn.app.data.time.TimeTicker
-import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.model.VocabularyItem
+import com.procrastilearn.app.domain.model.includesBackward
+import com.procrastilearn.app.domain.model.includesForward
+import com.procrastilearn.app.domain.model.isBackwardOnly
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
 import com.procrastilearn.app.domain.usecase.UndoLastRatingUseCase
@@ -66,11 +68,11 @@ class DojoViewModel
                     val due =
                         vocabularyDao.observeReviewsDueCount(
                             now,
-                            includeForward = policy.studyDirectionMode != StudyDirectionMode.BACKWARD,
-                            includeBackward = policy.studyDirectionMode != StudyDirectionMode.FORWARD,
+                            includeForward = policy.studyDirectionMode.includesForward,
+                            includeBackward = policy.studyDirectionMode.includesBackward,
                         )
                     val skipped =
-                        if (policy.studyDirectionMode == StudyDirectionMode.BACKWARD) {
+                        if (policy.studyDirectionMode.isBackwardOnly) {
                             vocabularyDao.observeBackwardOnlySkippedCount(now)
                         } else {
                             flowOf(0)
@@ -81,9 +83,7 @@ class DojoViewModel
 
         private val newTotalCount =
             dayCountersStore.readPolicy().flatMapLatest { policy ->
-                vocabularyDao.observeNewTotalCount(
-                    requireBidirectional = policy.studyDirectionMode == StudyDirectionMode.BACKWARD,
-                )
+                vocabularyDao.observeNewTotalCount(requireBidirectional = policy.studyDirectionMode.isBackwardOnly)
             }
         private val undoCount = undoSnapshotDao.observeCount()
 

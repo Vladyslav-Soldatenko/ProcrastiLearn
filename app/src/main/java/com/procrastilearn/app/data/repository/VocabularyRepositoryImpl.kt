@@ -12,9 +12,11 @@ import com.procrastilearn.app.data.local.mapper.toEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.StudyDirection
-import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.model.UndoResult
 import com.procrastilearn.app.domain.model.VocabularyItem
+import com.procrastilearn.app.domain.model.includesBackward
+import com.procrastilearn.app.domain.model.includesForward
+import com.procrastilearn.app.domain.model.isBackwardOnly
 import com.procrastilearn.app.domain.repository.VocabularyRepository
 import io.github.openspacedrepetition.Card
 import io.github.openspacedrepetition.Rating
@@ -284,9 +286,9 @@ class VocabularyRepositoryImpl
                 val counters = prefs.read().first()
                 val policy = prefs.readPolicy().first()
 
-                val includeForward = policy.studyDirectionMode != StudyDirectionMode.BACKWARD
-                val includeBackward = policy.studyDirectionMode != StudyDirectionMode.FORWARD
-                val backwardOnlyMode = policy.studyDirectionMode == StudyDirectionMode.BACKWARD
+                val includeForward = policy.studyDirectionMode.includesForward
+                val includeBackward = policy.studyDirectionMode.includesBackward
+                val backwardOnlyMode = policy.studyDirectionMode.isBackwardOnly
 
                 val totalNew = vocabularyDao.countNewTotal(requireBidirectional = backwardOnlyMode)
 
@@ -327,11 +329,7 @@ class VocabularyRepositoryImpl
 
                         // If we want a new now (ratio hit) or no reviews due, try new (within daily cap)
                         newRemaining > 0 && (wantNew || dueCount == 0) ->
-                            pickNewCandidate(
-                                totalNew = totalNew,
-                                requireBidirectional = backwardOnlyMode,
-                                introduceBackward = backwardOnlyMode,
-                            )
+                            pickNewCandidate(totalNew = totalNew, backwardOnlyMode = backwardOnlyMode)
 
                         // Don't fall back to random/upcoming if limits are reached
                         else -> null
@@ -350,9 +348,9 @@ class VocabularyRepositoryImpl
                 val counters = prefs.read().first()
                 val policy = prefs.readPolicy().first()
 
-                val includeForward = policy.studyDirectionMode != StudyDirectionMode.BACKWARD
-                val includeBackward = policy.studyDirectionMode != StudyDirectionMode.FORWARD
-                val backwardOnlyMode = policy.studyDirectionMode == StudyDirectionMode.BACKWARD
+                val includeForward = policy.studyDirectionMode.includesForward
+                val includeBackward = policy.studyDirectionMode.includesBackward
+                val backwardOnlyMode = policy.studyDirectionMode.isBackwardOnly
 
                 val totalNew = vocabularyDao.countNewTotal(requireBidirectional = backwardOnlyMode)
                 val newRemaining =
@@ -400,20 +398,20 @@ class VocabularyRepositoryImpl
         }
 
         // A row is always introduced forward unless the global mode is purely Backward, in
-        // which case it's introduced backward (and only bidirectional-flagged rows are
-        // eligible at all, via requireBidirectional).
+        // which case it's introduced backward and only bidirectional-flagged rows are
+        // eligible at all. Both restrictions are the same underlying condition, so they
+        // share the one flag rather than being passed as two params that must be kept in sync.
         private suspend fun pickNewCandidate(
             totalNew: Int,
-            requireBidirectional: Boolean,
-            introduceBackward: Boolean,
+            backwardOnlyMode: Boolean,
         ): PickedCandidate? {
             if (totalNew <= 0) return null
             val offset = kotlin.random.Random.nextInt(totalNew)
             val id =
-                vocabularyDao.pickNewIdByOffset(offset, requireBidirectional)
-                    ?: vocabularyDao.pickNewIdByOffset(0, requireBidirectional)
+                vocabularyDao.pickNewIdByOffset(offset, requireBidirectional = backwardOnlyMode)
+                    ?: vocabularyDao.pickNewIdByOffset(0, requireBidirectional = backwardOnlyMode)
                     ?: return null
-            return PickedCandidate(id, if (introduceBackward) StudyDirection.BACKWARD else StudyDirection.FORWARD)
+            return PickedCandidate(id, if (backwardOnlyMode) StudyDirection.BACKWARD else StudyDirection.FORWARD)
         }
 
         private suspend fun finalizePick(
