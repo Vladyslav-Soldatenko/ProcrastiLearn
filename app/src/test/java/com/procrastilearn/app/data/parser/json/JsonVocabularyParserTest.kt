@@ -55,6 +55,77 @@ class JsonVocabularyParserTest {
     }
 
     @Test
+    fun `parseExport reads bidirectional and backward fields when present in the payload`() {
+        val tempFile = File.createTempFile("vocab", ".json")
+        tempFile.writeText(
+            """
+            [
+              {
+                "id": 1,
+                "word": "run",
+                "translation": "бігати",
+                "createdAt": 10,
+                "lastShownAt": null,
+                "correctCount": 2,
+                "incorrectCount": 1,
+                "fsrsCardJson": "{\"c\":1}",
+                "fsrsDueAt": 20,
+                "bidirectional": true,
+                "backwardFsrsCardJson": "{\"c\":2}",
+                "backwardFsrsDueAt": 30,
+                "backwardCorrectCount": 4,
+                "backwardIncorrectCount": 5,
+                "backwardPromptOverride": "prompt",
+                "backwardAnswerOverride": "answer"
+              }
+            ]
+            """.trimIndent(),
+        )
+
+        val result = parser.parseExport(tempFile).single()
+
+        assertThat(result.bidirectional).isTrue()
+        assertThat(result.backwardFsrsCardJson).isEqualTo("{\"c\":2}")
+        assertThat(result.backwardFsrsDueAt).isEqualTo(30)
+        assertThat(result.backwardCorrectCount).isEqualTo(4)
+        assertThat(result.backwardIncorrectCount).isEqualTo(5)
+        assertThat(result.backwardPromptOverride).isEqualTo("prompt")
+        assertThat(result.backwardAnswerOverride).isEqualTo("answer")
+    }
+
+    @Test
+    fun `parseExport defaults bidirectional and backward fields when absent from the payload`() {
+        val tempFile = File.createTempFile("vocab", ".json")
+        tempFile.writeText(
+            """
+            [
+              {
+                "id": 1,
+                "word": "Haus",
+                "translation": "House",
+                "createdAt": 10,
+                "lastShownAt": null,
+                "correctCount": 2,
+                "incorrectCount": 1,
+                "fsrsCardJson": "{\"c\":1}",
+                "fsrsDueAt": 20
+              }
+            ]
+            """.trimIndent(),
+        )
+
+        val result = parser.parseExport(tempFile).single()
+
+        assertThat(result.bidirectional).isFalse()
+        assertThat(result.backwardFsrsCardJson).isEmpty()
+        assertThat(result.backwardFsrsDueAt).isEqualTo(0L)
+        assertThat(result.backwardCorrectCount).isEqualTo(0)
+        assertThat(result.backwardIncorrectCount).isEqualTo(0)
+        assertThat(result.backwardPromptOverride).isNull()
+        assertThat(result.backwardAnswerOverride).isNull()
+    }
+
+    @Test
     fun `parseExport reads the real device v1 export unchanged`() {
         val file = loadResource("exports/v1/real-device-export.json")
 

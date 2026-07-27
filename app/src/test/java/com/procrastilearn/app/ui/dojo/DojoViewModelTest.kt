@@ -9,6 +9,8 @@ import com.procrastilearn.app.data.repository.NoAvailableItemsException
 import com.procrastilearn.app.data.time.TimeTicker
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.StudyDirection
+import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.model.UndoResult
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
@@ -99,9 +101,10 @@ class DojoViewModelTest {
 
         every { dayCountersStore.read() } returns countersFlow
         every { dayCountersStore.readPolicy() } returns policyFlow
-        coEvery { vocabularyDao.countReviewsDue(any()) } returns 10
-        every { vocabularyDao.observeReviewsDueCount(any()) } returns dueCountFlow
-        every { vocabularyDao.observeNewTotalCount() } returns newTotalCountFlow
+        coEvery { vocabularyDao.countReviewsDue(any(), any(), any()) } returns 10
+        every { vocabularyDao.observeReviewsDueCount(any(), any(), any()) } returns dueCountFlow
+        every { vocabularyDao.observeNewTotalCount(any()) } returns newTotalCountFlow
+        every { vocabularyDao.observeBackwardOnlySkippedCount(any()) } returns MutableStateFlow(0)
         every { undoSnapshotDao.observeCount() } returns undoCountFlow
     }
 
@@ -385,6 +388,98 @@ class DojoViewModelTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) { saveDifficultyRating.invoke(42, Rating.GOOD) }
+        }
+
+    @Test
+    fun `difficulty selection passes the current item's direction to saveDifficultyRating`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item =
+                VocabularyItem(
+                    id = 42,
+                    word = "test",
+                    translation = "тест",
+                    isNew = true,
+                    direction = StudyDirection.BACKWARD,
+                )
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+            coEvery { saveDifficultyRating.invoke(any(), any(), any()) } returns Result.success(Unit)
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onDifficultySelected(Rating.GOOD)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { saveDifficultyRating.invoke(42, Rating.GOOD, StudyDirection.BACKWARD) }
+        }
+
+    @Test
+    fun `skippedCardCount reflects the DAO's live skip count when studyDirectionMode is BACKWARD`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+            val skippedFlow = MutableStateFlow(3)
+            every { vocabularyDao.observeBackwardOnlySkippedCount(any()) } returns skippedFlow
+            policyFlow.value = policyFlow.value.copy(studyDirectionMode = StudyDirectionMode.BACKWARD)
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.skippedCardCount).isEqualTo(3)
+
+            skippedFlow.value = 5
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.skippedCardCount).isEqualTo(5)
+        }
+
+    @Test
+    fun `skippedCardCount is 0 when studyDirectionMode is FORWARD`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.skippedCardCount).isEqualTo(0)
+        }
+
+    @Test
+    fun `skippedCardCount is 0 when studyDirectionMode is BIDIRECTIONAL`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+            policyFlow.value = policyFlow.value.copy(studyDirectionMode = StudyDirectionMode.BIDIRECTIONAL)
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.skippedCardCount).isEqualTo(0)
+        }
+
+    @Test
+    fun `reviewsDueCount and newTotalCount re-query when studyDirectionMode changes`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+            val forwardDueFlow = MutableStateFlow(10)
+            val backwardDueFlow = MutableStateFlow(2)
+            every { vocabularyDao.observeReviewsDueCount(any(), true, false) } returns forwardDueFlow
+            every { vocabularyDao.observeReviewsDueCount(any(), false, true) } returns backwardDueFlow
+            val forwardNewFlow = MutableStateFlow(20)
+            val backwardNewFlow = MutableStateFlow(4)
+            every { vocabularyDao.observeNewTotalCount(false) } returns forwardNewFlow
+            every { vocabularyDao.observeNewTotalCount(true) } returns backwardNewFlow
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(10)
+
+            policyFlow.value = policyFlow.value.copy(studyDirectionMode = StudyDirectionMode.BACKWARD)
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.pendingReviewCount).isEqualTo(2)
         }
 
     @Test

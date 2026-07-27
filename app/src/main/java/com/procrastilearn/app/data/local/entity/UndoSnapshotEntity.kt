@@ -17,12 +17,18 @@ data class UndoSnapshotEntity(
     val createdAt: Long,
     val snapshotDay: Int,
     val ratingName: String,
+    // Direction that was rated (StudyDirection.name)
+    val direction: String,
     // Row state before the rating
     val fsrsCardJson: String,
     val fsrsDueAt: Long,
     val lastShownAt: Long?,
     val correctCount: Int,
     val incorrectCount: Int,
+    val backwardFsrsCardJson: String,
+    val backwardFsrsDueAt: Long,
+    val backwardCorrectCount: Int,
+    val backwardIncorrectCount: Int,
     // Day-counter state before the rating
     val newShown: Int,
     val reviewShown: Int,

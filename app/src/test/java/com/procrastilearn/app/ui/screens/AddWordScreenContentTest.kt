@@ -12,6 +12,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.R
@@ -56,6 +57,10 @@ class AddWordScreenContentTest {
     private lateinit var onAddClick: () -> Unit
     private lateinit var onExistingWordDialogCancel: () -> Unit
     private lateinit var onExistingWordDialogProceed: () -> Unit
+    private lateinit var onBidirectionalToggle: (Boolean) -> Unit
+    private lateinit var onCustomizeBackwardToggle: () -> Unit
+    private lateinit var onBackwardPromptOverrideChange: (String) -> Unit
+    private lateinit var onBackwardAnswerOverrideChange: (String) -> Unit
 
     @Before
     fun setup() {
@@ -73,6 +78,10 @@ class AddWordScreenContentTest {
         onAddClick = mockk(relaxed = true)
         onExistingWordDialogCancel = mockk(relaxed = true)
         onExistingWordDialogProceed = mockk(relaxed = true)
+        onBidirectionalToggle = mockk(relaxed = true)
+        onCustomizeBackwardToggle = mockk(relaxed = true)
+        onBackwardPromptOverrideChange = mockk(relaxed = true)
+        onBackwardAnswerOverrideChange = mockk(relaxed = true)
     }
 
     private fun string(resId: Int) = context.getString(resId)
@@ -142,7 +151,7 @@ class AddWordScreenContentTest {
     fun `toggling ai checkbox invokes onUseAiToggle`() {
         setContent(openAiAvailable = true, useAiForTranslation = false)
 
-        composeTestRule.onNode(isToggleable()).performClick()
+        composeTestRule.onAllNodes(isToggleable())[0].performClick()
 
         verify(exactly = 1) { onUseAiToggle(true) }
     }
@@ -520,6 +529,11 @@ class AddWordScreenContentTest {
         isOnline: Boolean = true,
         isAddLaterMode: Boolean = false,
         pendingWords: List<PendingWordUi> = emptyList(),
+        showBidirectionalOption: Boolean = !(openAiAvailable && useAiForTranslation),
+        bidirectional: Boolean = false,
+        isCustomizingBackward: Boolean = false,
+        backwardPromptOverride: String = "",
+        backwardAnswerOverride: String = "",
     ) {
         composeTestRule.setContent {
             AddWordContent(
@@ -546,6 +560,11 @@ class AddWordScreenContentTest {
                 isOnline = isOnline,
                 isAddLaterMode = isAddLaterMode,
                 pendingWords = pendingWords,
+                showBidirectionalOption = showBidirectionalOption,
+                bidirectional = bidirectional,
+                isCustomizingBackward = isCustomizingBackward,
+                backwardPromptOverride = backwardPromptOverride,
+                backwardAnswerOverride = backwardAnswerOverride,
                 onDeletePendingWord = onDeletePendingWord,
                 onWordChange = onWordChange,
                 onTranslationChange = onTranslationChange,
@@ -558,7 +577,95 @@ class AddWordScreenContentTest {
                 onAddClick = onAddClick,
                 onExistingWordDialogCancel = onExistingWordDialogCancel,
                 onExistingWordDialogProceed = onExistingWordDialogProceed,
+                onBidirectionalToggle = onBidirectionalToggle,
+                onCustomizeBackwardToggle = onCustomizeBackwardToggle,
+                onBackwardPromptOverrideChange = onBackwardPromptOverrideChange,
+                onBackwardAnswerOverrideChange = onBackwardAnswerOverrideChange,
             )
         }
+    }
+
+    @Test
+    fun `bidirectional checkbox hidden when AI mode is active`() {
+        setContent(openAiAvailable = true, useAiForTranslation = true, showBidirectionalOption = false)
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_bidirectional_toggle)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `bidirectional checkbox visible when openAiAvailable is false`() {
+        setContent(openAiAvailable = false, showBidirectionalOption = true)
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_bidirectional_toggle)).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `bidirectional checkbox visible when openAiAvailable is true but AI toggle is off`() {
+        setContent(openAiAvailable = true, useAiForTranslation = false, showBidirectionalOption = true)
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_bidirectional_toggle)).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `customize backward card action hidden until bidirectional is checked`() {
+        setContent(bidirectional = false)
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_customize_backward_show)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `customize backward card fields hidden until the customize action is expanded`() {
+        setContent(bidirectional = true, isCustomizingBackward = false)
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_customize_backward_show)).performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.add_word_backward_prompt_label)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `customize backward card fields visible after expanding`() {
+        setContent(bidirectional = true, isCustomizingBackward = true)
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_backward_prompt_label)).performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.add_word_backward_answer_label)).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `toggling the bidirectional checkbox invokes onBidirectionalToggle`() {
+        setContent(bidirectional = false)
+
+        composeTestRule.onNode(isToggleable()).performScrollTo().performClick()
+
+        verify(exactly = 1) { onBidirectionalToggle(true) }
+    }
+
+    @Test
+    fun `clicking the customize action invokes onCustomizeBackwardToggle`() {
+        setContent(bidirectional = true, isCustomizingBackward = false)
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_customize_backward_show)).performScrollTo().performClick()
+
+        verify(exactly = 1) { onCustomizeBackwardToggle.invoke() }
+    }
+
+    @Test
+    fun `typing in the backward prompt override field invokes onBackwardPromptOverrideChange`() {
+        setContent(bidirectional = true, isCustomizingBackward = true)
+
+        composeTestRule
+            .onNodeWithText(string(R.string.add_word_backward_prompt_label))
+            .performTextInput("x")
+
+        verify(exactly = 1) { onBackwardPromptOverrideChange("x") }
+    }
+
+    @Test
+    fun `typing in the backward answer override field invokes onBackwardAnswerOverrideChange`() {
+        setContent(bidirectional = true, isCustomizingBackward = true)
+
+        composeTestRule
+            .onNodeWithText(string(R.string.add_word_backward_answer_label))
+            .performTextInput("y")
+
+        verify(exactly = 1) { onBackwardAnswerOverrideChange("y") }
     }
 }

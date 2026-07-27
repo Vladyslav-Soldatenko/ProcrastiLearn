@@ -9,6 +9,7 @@ import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.StudyPreferencesDataStore
+import com.procrastilearn.app.domain.model.StudyDirection
 import io.github.openspacedrepetition.Rating
 import io.github.openspacedrepetition.Scheduler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -92,7 +93,7 @@ class AddCardsForTodayIntegrationTest {
 
     private suspend fun reviewNextNewCard() {
         val item = repository.getNextVocabularyItem()
-        repository.reviewVocabularyItem(item.id, Rating.GOOD)
+        repository.reviewVocabularyItem(item.id, Rating.GOOD, StudyDirection.FORWARD)
     }
 
     @Test

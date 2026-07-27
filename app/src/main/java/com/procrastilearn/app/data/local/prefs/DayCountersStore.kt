@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.StudyDirectionMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -30,6 +31,7 @@ class DayCountersStore
             val NEW_PER_DAY_LIMIT = intPreferencesKey("new_per_day_limit")
             val REVIEW_PER_DAY_LIMIT = intPreferencesKey("review_per_day_limit")
             val OVERLAY_INTERVAL_TIME = intPreferencesKey("overlay_interval_time")
+            val STUDY_DIRECTION_MODE = stringPreferencesKey("study_direction_mode")
         }
 
         private companion object {
@@ -109,16 +111,24 @@ class DayCountersStore
         fun readPolicy(): Flow<LearningPreferencesConfig> =
             ds.data.map { p ->
                 val mixName = p[K.MIX_MODE] ?: MixMode.MIX.name
+                val directionName = p[K.STUDY_DIRECTION_MODE] ?: StudyDirectionMode.FORWARD.name
                 LearningPreferencesConfig(
                     newPerDay = p[K.NEW_PER_DAY_LIMIT] ?: DEFAULT_NEW_PER_DAY,
                     reviewPerDay = p[K.REVIEW_PER_DAY_LIMIT] ?: DEFAULT_REVIEW_PER_DAY,
                     overlayInterval = p[K.OVERLAY_INTERVAL_TIME] ?: DEFAULT_OVERLAY_INTERVAL_TIME,
                     mixMode = runCatching { MixMode.valueOf(mixName) }.getOrDefault(MixMode.MIX),
+                    studyDirectionMode =
+                        runCatching { StudyDirectionMode.valueOf(directionName) }
+                            .getOrDefault(StudyDirectionMode.FORWARD),
                 )
             }
 
         suspend fun setMixMode(mode: MixMode) {
             ds.edit { it[K.MIX_MODE] = mode.name }
+        }
+
+        suspend fun setStudyDirectionMode(mode: StudyDirectionMode) {
+            ds.edit { it[K.STUDY_DIRECTION_MODE] = mode.name }
         }
 
         suspend fun setNewPerDay(value: Int) {

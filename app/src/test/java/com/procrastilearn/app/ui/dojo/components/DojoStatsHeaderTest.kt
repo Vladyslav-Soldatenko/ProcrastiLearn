@@ -50,6 +50,20 @@ class DojoStatsHeaderTest {
     }
 
     @Test
+    fun `skipped badge hidden when skippedCardCount is zero`() {
+        setContent(newQuotaRemaining = 17, pendingReviewCount = 10, canUndo = false, skippedCardCount = 0)
+
+        composeTestRule.onNodeWithText(string(R.string.dojo_stats_skipped), substring = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun `skipped badge shown with count when skippedCardCount is positive`() {
+        setContent(newQuotaRemaining = 17, pendingReviewCount = 10, canUndo = false, skippedCardCount = 3)
+
+        composeTestRule.onNodeWithText("3 ${string(R.string.dojo_stats_skipped)}", substring = true).assertIsDisplayed()
+    }
+
+    @Test
     fun `undo button is disabled and inert when canUndo is false`() {
         setContent(newQuotaRemaining = 5, pendingReviewCount = 5, canUndo = false)
 
@@ -76,6 +90,7 @@ class DojoStatsHeaderTest {
         newQuotaRemaining: Int,
         pendingReviewCount: Int,
         canUndo: Boolean,
+        skippedCardCount: Int = 0,
     ) {
         composeTestRule.setContent {
             MyApplicationTheme {
@@ -84,6 +99,7 @@ class DojoStatsHeaderTest {
                     pendingReviewCount = pendingReviewCount,
                     canUndo = canUndo,
                     onUndo = onUndo,
+                    skippedCardCount = skippedCardCount,
                 )
             }
         }

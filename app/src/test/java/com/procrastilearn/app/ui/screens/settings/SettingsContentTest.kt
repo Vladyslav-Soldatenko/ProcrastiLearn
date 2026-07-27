@@ -16,6 +16,7 @@ import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import com.procrastilearn.app.testing.ComponentActivityRegistrationRule
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
@@ -95,6 +96,36 @@ class SettingsContentTest {
         composeTestRule.onNodeWithText(string(R.string.settings_study_mode_reviews_first)).performClick()
 
         assertThat(selectedMode).isEqualTo(MixMode.REVIEWS_FIRST)
+        // dialog dismissed after selection
+        composeTestRule.onNodeWithText(string(R.string.settings_new_cards_per_day_title)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `study direction settings item is displayed with the current mode`() {
+        setContent(studyDirectionMode = StudyDirectionMode.BACKWARD)
+
+        composeTestRule.onNodeWithText(string(R.string.settings_review_direction_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.settings_review_direction_backward)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `clicking the study direction item opens the study direction dialog`() {
+        setContent()
+
+        composeTestRule.onNodeWithText(string(R.string.settings_review_direction_title)).performClick()
+
+        composeTestRule.onNodeWithText(string(R.string.settings_review_direction_bidirectional)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `selecting a study direction option updates callback and closes dialog`() {
+        var selectedMode: StudyDirectionMode? = null
+        setContent(onStudyDirectionModeChange = { selectedMode = it })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_review_direction_title)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.settings_review_direction_backward)).performClick()
+
+        assertThat(selectedMode).isEqualTo(StudyDirectionMode.BACKWARD)
         // dialog dismissed after selection
         composeTestRule.onNodeWithText(string(R.string.settings_new_cards_per_day_title)).assertIsDisplayed()
     }
@@ -318,9 +349,11 @@ class SettingsContentTest {
 
         composeTestRule
             .onNodeWithText(context.getString(R.string.settings_openai_prompt_title, "DE", "FR"))
+            .performScrollTo()
             .assertIsDisplayed()
         composeTestRule
             .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_title, "FR", "DE"))
+            .performScrollTo()
             .assertIsDisplayed()
     }
 
@@ -338,6 +371,7 @@ class SettingsContentTest {
 
     private fun setContent(
         mixMode: MixMode = MixMode.MIX,
+        studyDirectionMode: StudyDirectionMode = StudyDirectionMode.FORWARD,
         newPerDay: Int = 10,
         availableNewCount: Int = 0,
         availableToAddToday: Int = 100,
@@ -353,6 +387,7 @@ class SettingsContentTest {
         onOverlayClick: () -> Unit = {},
         onA11yClick: () -> Unit = {},
         onMixModeChange: (MixMode) -> Unit = {},
+        onStudyDirectionModeChange: (StudyDirectionMode) -> Unit = {},
         onNewPerDayDialogOpen: () -> Unit = {},
         onNewPerDayChange: (Int) -> Unit = {},
         onAddCardsForToday: (Int) -> Unit = {},
@@ -372,6 +407,7 @@ class SettingsContentTest {
                     overlayGranted = overlayGranted,
                     a11yEnabled = a11yEnabled,
                     mixMode = mixMode,
+                    studyDirectionMode = studyDirectionMode,
                     newPerDay = newPerDay,
                     availableNewCount = availableNewCount,
                     availableToAddToday = availableToAddToday,
@@ -385,6 +421,7 @@ class SettingsContentTest {
                     onOverlayClick = onOverlayClick,
                     onA11yClick = onA11yClick,
                     onMixModeChange = onMixModeChange,
+                    onStudyDirectionModeChange = onStudyDirectionModeChange,
                     onNewPerDayDialogOpen = onNewPerDayDialogOpen,
                     onNewPerDayChange = onNewPerDayChange,
                     onAddCardsForToday = onAddCardsForToday,

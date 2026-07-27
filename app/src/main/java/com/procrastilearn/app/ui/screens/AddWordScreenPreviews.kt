@@ -145,6 +145,59 @@ private fun TranslationDirectionRowPreviewRuEn() {
     }
 }
 
+@Preview(showBackground = true, name = "Add Word • Bidirectional Customized")
+@Composable
+private fun AddWordContentPreviewBidirectionalCustomized() {
+    MyApplicationTheme {
+        AddWordContent(
+            onNavigateToList = {},
+            word = "run",
+            translation = "бігати",
+            wordError = null,
+            translationError = null,
+            isLoading = false,
+            errorMessage = null,
+            isSuccess = false,
+            successMessage = null,
+            openAiAvailable = false,
+            useAiForTranslation = false,
+            translationDirection = AiTranslationDirection.TARGET_TO_NATIVE,
+            nativeLanguageCode = "EN",
+            targetLanguageCode = "RU",
+            previewContent = null,
+            isPreviewVisible = false,
+            isExistingWordDialogVisible = false,
+            existingWordDialogWord = null,
+            isExistingWordDialogLoading = false,
+            loadingAction = null,
+            isOnline = true,
+            isAddLaterMode = false,
+            pendingWords = emptyList(),
+            showBidirectionalOption = true,
+            bidirectional = true,
+            isCustomizingBackward = true,
+            backwardPromptOverride = "як буде «бігати» англійською?",
+            backwardAnswerOverride = "to run",
+            onDeletePendingWord = {},
+            onWordChange = {},
+            onTranslationChange = {},
+            onUseAiToggle = {},
+            onTranslationDirectionToggle = {},
+            onPreviewClick = {},
+            onPreviewCancel = {},
+            onPreviewConfirmAdd = {},
+            onPreviewRegenerate = {},
+            onAddClick = {},
+            onExistingWordDialogCancel = {},
+            onExistingWordDialogProceed = {},
+            onBidirectionalToggle = {},
+            onCustomizeBackwardToggle = {},
+            onBackwardPromptOverrideChange = {},
+            onBackwardAnswerOverrideChange = {},
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun AddWordContentPreview() {

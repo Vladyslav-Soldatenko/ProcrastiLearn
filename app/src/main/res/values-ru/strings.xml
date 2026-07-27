@@ -50,6 +50,7 @@
         <!-- ─── Dojo (practice screen) ──────────────────────────────────────────── -->
         <string name="dojo_stats_new_remaining">новых</string>
         <string name="dojo_stats_reviews_due">к повторению</string>
+        <string name="dojo_stats_skipped">пропущено</string>
         <string name="dojo_empty_title">На сегодня всё готово!</string>
         <string name="dojo_empty_message">Вы прошли все доступные слова на сегодня. Возвращайтесь позже или измените дневные лимиты в настройках.</string>
         <string name="dojo_undo_content_description">Отменить последнюю оценку</string>
@@ -128,6 +129,15 @@
         <string name="add_word_error_add_failed">Не удалось добавить слово</string>
         <string name="add_word_error_lookup_failed">Не удалось проверить существующие слова</string>
 
+        <!-- Bidirectional review -->
+        <string name="add_word_bidirectional_toggle">Проверять в обе стороны</string>
+        <string name="add_word_customize_backward_show">Настроить обратную карточку</string>
+        <string name="add_word_customize_backward_hide">Скрыть настройку</string>
+        <string name="add_word_backward_prompt_label">Обратный вопрос</string>
+        <string name="add_word_backward_prompt_placeholder">Оставьте пустым, чтобы использовать перевод</string>
+        <string name="add_word_backward_answer_label">Обратный ответ</string>
+        <string name="add_word_backward_answer_placeholder">Оставьте пустым, чтобы использовать слово</string>
+
         <!-- ─── Language selection ──────────────────────────────────────────────── -->
         <string name="language_name_english">Английский</string>
         <string name="language_name_russian">Русский</string>
@@ -165,6 +175,15 @@
         <string name="settings_study_mode_mixed_desc">Смешивать новые и повторения</string>
         <string name="settings_study_mode_reviews_first_desc">Показывать все повторения перед новыми карточками</string>
         <string name="settings_study_mode_new_first_desc">Показывать новые карточки перед повторениями</string>
+
+        <!-- Review direction -->
+        <string name="settings_review_direction_title">Направление повторения</string>
+        <string name="settings_review_direction_forward">Прямое</string>
+        <string name="settings_review_direction_backward">Обратное</string>
+        <string name="settings_review_direction_bidirectional">В обе стороны</string>
+        <string name="settings_review_direction_forward_desc">Показывать слово, спрашивать перевод</string>
+        <string name="settings_review_direction_backward_desc">Показывать перевод, спрашивать слово</string>
+        <string name="settings_review_direction_bidirectional_desc">Смешивать оба направления для карточек с отметкой «Проверять в обе стороны»</string>
 
         <!-- Daily limits -->
         <string name="settings_add_cards_for_today_title">Добавить карточки на сегодня</string>

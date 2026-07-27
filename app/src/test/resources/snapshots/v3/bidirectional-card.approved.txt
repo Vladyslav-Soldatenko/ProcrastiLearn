@@ -1,0 +1,33 @@
+backwardAnswerOverride: null
+backwardCorrectCount: 0
+backwardFsrsCardJson: 
+backwardFsrsDueAt: 0
+backwardIncorrectCount: 0
+backwardPromptOverride: null
+bidirectional: false
+correctCount: 1
+createdAt: 1785010756357
+fsrsCardJson: {"cardId":-1695638824,"state":"LEARNING"}
+fsrsDueAt: 1785011789260
+id: 1
+incorrectCount: 0
+lastShownAt: 1785011459260
+translation: house
+word: haus
+
+backwardAnswerOverride: custom backward answer
+backwardCorrectCount: 1
+backwardFsrsCardJson: {"cardId":998877,"state":"LEARNING"}
+backwardFsrsDueAt: 1785012500000
+backwardIncorrectCount: 0
+backwardPromptOverride: custom backward prompt
+bidirectional: true
+correctCount: 2
+createdAt: 1785010760751
+fsrsCardJson: {"cardId":-1695634391,"state":"REVIEW"}
+fsrsDueAt: 1785012060386
+id: 2
+incorrectCount: 1
+lastShownAt: 1785011460386
+translation: бігати
+word: run

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 3,
+  "exportedAt": 1785100000000,
+  "appVersion": "1.4.0",
+  "words": [
+    {
+      "id": 1,
+      "word": "haus",
+      "translation": "house",
+      "createdAt": 1785010756357,
+      "lastShownAt": 1785011459260,
+      "correctCount": 1,
+      "incorrectCount": 0,
+      "fsrsCardJson": "{\"cardId\":-1695638824,\"state\":\"LEARNING\"}",
+      "fsrsDueAt": 1785011789260,
+      "bidirectional": false,
+      "backwardFsrsCardJson": "",
+      "backwardFsrsDueAt": 0,
+      "backwardCorrectCount": 0,
+      "backwardIncorrectCount": 0,
+      "backwardPromptOverride": null,
+      "backwardAnswerOverride": null
+    },
+    {
+      "id": 2,
+      "word": "run",
+      "translation": "бігати",
+      "createdAt": 1785010760751,
+      "lastShownAt": 1785011460386,
+      "correctCount": 2,
+      "incorrectCount": 1,
+      "fsrsCardJson": "{\"cardId\":-1695634391,\"state\":\"REVIEW\"}",
+      "fsrsDueAt": 1785012060386,
+      "bidirectional": true,
+      "backwardFsrsCardJson": "{\"cardId\":998877,\"state\":\"LEARNING\"}",
+      "backwardFsrsDueAt": 1785012500000,
+      "backwardCorrectCount": 1,
+      "backwardIncorrectCount": 0,
+      "backwardPromptOverride": "custom backward prompt",
+      "backwardAnswerOverride": "custom backward answer"
+    }
+  ]
+}

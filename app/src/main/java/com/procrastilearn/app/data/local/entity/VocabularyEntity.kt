@@ -11,6 +11,8 @@ import androidx.room.PrimaryKey
         Index(value = ["fsrsDueAt"]),
         Index(value = ["correctCount", "incorrectCount"]),
         Index(value = ["word"], unique = true),
+        Index(value = ["backwardFsrsDueAt"]),
+        Index(value = ["fsrsDueAt", "backwardFsrsDueAt"]),
     ],
 )
 data class VocabularyEntity(
@@ -25,4 +27,13 @@ data class VocabularyEntity(
     // FSRS
     val fsrsCardJson: String = "",
     val fsrsDueAt: Long = 0L,
+    // Bidirectional review: backward direction is scheduled independently on the same row.
+    val bidirectional: Boolean = false,
+    val backwardFsrsCardJson: String = "",
+    val backwardFsrsDueAt: Long = 0L,
+    val backwardCorrectCount: Int = 0,
+    val backwardIncorrectCount: Int = 0,
+    // null = derive backward prompt/answer by swapping translation/word at read time
+    val backwardPromptOverride: String? = null,
+    val backwardAnswerOverride: String? = null,
 )

@@ -128,6 +128,19 @@ class DojoScreenTest {
     }
 
     @Test
+    fun `shows skipped card count from state`() {
+        setContent(
+            DojoUiState(
+                vocabularyItem = sampleWord,
+                isLoading = false,
+                skippedCardCount = 3,
+            ),
+        )
+
+        composeTestRule.onNodeWithText("3 ${string(R.string.dojo_stats_skipped)}", substring = true).assertIsDisplayed()
+    }
+
+    @Test
     fun `undo button disabled when canUndo is false`() {
         setContent(DojoUiState(vocabularyItem = sampleWord, isLoading = false, canUndo = false))
 

@@ -16,6 +16,7 @@ import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.model.VocabularyExportItem
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.parser.VocabularyExportParser
@@ -38,6 +39,7 @@ import javax.inject.Inject
 
 data class SettingsUiState(
     val mixMode: MixMode = MixMode.MIX,
+    val studyDirectionMode: StudyDirectionMode = StudyDirectionMode.FORWARD,
     val newPerDay: Int = 10,
     val reviewPerDay: Int = 100,
     val overlayInterval: Int = 6,
@@ -49,7 +51,7 @@ data class SettingsUiState(
 )
 
 @HiltViewModel
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class SettingsViewModel
     @Inject
     constructor(
@@ -72,6 +74,7 @@ class SettingsViewModel
                 ) { policy, apiKey, prompt, reversePrompt, languagePair ->
                     SettingsUiState(
                         mixMode = policy.mixMode,
+                        studyDirectionMode = policy.studyDirectionMode,
                         newPerDay = policy.newPerDay,
                         reviewPerDay = policy.reviewPerDay,
                         overlayInterval = policy.overlayInterval,
@@ -118,6 +121,10 @@ class SettingsViewModel
 
         fun onMixModeChange(mode: MixMode) {
             viewModelScope.launch { dayCountersStore.setMixMode(mode) }
+        }
+
+        fun onStudyDirectionModeChange(mode: StudyDirectionMode) {
+            viewModelScope.launch { dayCountersStore.setStudyDirectionMode(mode) }
         }
 
         fun onNewPerDayChange(value: Int) {

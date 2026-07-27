@@ -52,6 +52,58 @@ class OverrideVocabularyItemUseCaseTest {
         }
 
     @Test
+    fun `invoke without new bidirectional or override args preserves the existing item's values`() =
+        runTest {
+            val bidirectionalItem =
+                existingItem.copy(
+                    bidirectional = true,
+                    backwardPromptOverride = "existing prompt",
+                    backwardAnswerOverride = "existing answer",
+                )
+            val capturedUpdate = slot<VocabularyItem>()
+            coEvery { repository.updateVocabularyItem(capture(capturedUpdate)) } just Runs
+            coEvery { repository.resetVocabularyProgress(any()) } just Runs
+
+            useCase(bidirectionalItem, "Wohnung", "Apartment")
+
+            assertThat(capturedUpdate.captured.bidirectional).isTrue()
+            assertThat(capturedUpdate.captured.backwardPromptOverride).isEqualTo("existing prompt")
+            assertThat(capturedUpdate.captured.backwardAnswerOverride).isEqualTo("existing answer")
+        }
+
+    @Test
+    fun `invoke with explicit bidirectional overrides the existing item's flag`() =
+        runTest {
+            val capturedUpdate = slot<VocabularyItem>()
+            coEvery { repository.updateVocabularyItem(capture(capturedUpdate)) } just Runs
+            coEvery { repository.resetVocabularyProgress(any()) } just Runs
+
+            useCase(existingItem, "Wohnung", "Apartment", bidirectional = true)
+
+            assertThat(capturedUpdate.captured.bidirectional).isTrue()
+        }
+
+    @Test
+    fun `invoke with explicit override text overrides the existing item's override fields`() =
+        runTest {
+            val capturedUpdate = slot<VocabularyItem>()
+            coEvery { repository.updateVocabularyItem(capture(capturedUpdate)) } just Runs
+            coEvery { repository.resetVocabularyProgress(any()) } just Runs
+
+            useCase(
+                existingItem,
+                "Wohnung",
+                "Apartment",
+                bidirectional = true,
+                backwardPromptOverride = " new prompt ",
+                backwardAnswerOverride = "new answer",
+            )
+
+            assertThat(capturedUpdate.captured.backwardPromptOverride).isEqualTo("new prompt")
+            assertThat(capturedUpdate.captured.backwardAnswerOverride).isEqualTo("new answer")
+        }
+
+    @Test
     fun `invoke returns failure when new word is blank`() =
         runTest {
             val result = useCase(existingItem, "   ", "Apartment")

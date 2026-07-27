@@ -44,4 +44,40 @@ class VocabularyExportEnvelopeTest {
 
         assertThat(decoded).isEqualTo(envelope)
     }
+
+    @Test
+    fun `envelope with a bidirectional item round trips every backward field`() {
+        val envelope =
+            VocabularyExportEnvelope(
+                schemaVersion = CURRENT_SCHEMA_VERSION,
+                exportedAt = 1785010756357,
+                appVersion = "1.3.1",
+                words =
+                    listOf(
+                        VocabularyExportItem(
+                            id = 2,
+                            word = "run",
+                            translation = "бігати",
+                            createdAt = 1785010756357,
+                            lastShownAt = 1785010756400,
+                            correctCount = 2,
+                            incorrectCount = 1,
+                            fsrsCardJson = "{\"fwd\":1}",
+                            fsrsDueAt = 1785010800000,
+                            bidirectional = true,
+                            backwardFsrsCardJson = "{\"bwd\":1}",
+                            backwardFsrsDueAt = 1785010900000,
+                            backwardCorrectCount = 3,
+                            backwardIncorrectCount = 4,
+                            backwardPromptOverride = "custom prompt",
+                            backwardAnswerOverride = "custom answer",
+                        ),
+                    ),
+            )
+
+        val encoded = json.encodeToString(envelope)
+        val decoded = json.decodeFromString<VocabularyExportEnvelope>(encoded)
+
+        assertThat(decoded).isEqualTo(envelope)
+    }
 }

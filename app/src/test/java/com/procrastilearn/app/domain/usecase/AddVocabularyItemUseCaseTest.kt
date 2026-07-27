@@ -47,6 +47,48 @@ class AddVocabularyItemUseCaseTest {
         }
 
     @Test
+    fun `invoke with default params behaves exactly as before`() =
+        runTest {
+            val capturedItem = slot<VocabularyItem>()
+            coEvery { repository.addVocabularyItem(capture(capturedItem)) } just Runs
+
+            useCase("Haus", "House")
+
+            assertThat(capturedItem.captured.bidirectional).isFalse()
+            assertThat(capturedItem.captured.backwardPromptOverride).isNull()
+            assertThat(capturedItem.captured.backwardAnswerOverride).isNull()
+        }
+
+    @Test
+    fun `invoke with bidirectional true persists the flag`() =
+        runTest {
+            val capturedItem = slot<VocabularyItem>()
+            coEvery { repository.addVocabularyItem(capture(capturedItem)) } just Runs
+
+            useCase("run", "бігати", bidirectional = true)
+
+            assertThat(capturedItem.captured.bidirectional).isTrue()
+        }
+
+    @Test
+    fun `invoke with backward overrides trims and nulls blank overrides`() =
+        runTest {
+            val capturedItem = slot<VocabularyItem>()
+            coEvery { repository.addVocabularyItem(capture(capturedItem)) } just Runs
+
+            useCase(
+                "run",
+                "бігати",
+                bidirectional = true,
+                backwardPromptOverride = " custom prompt ",
+                backwardAnswerOverride = "   ",
+            )
+
+            assertThat(capturedItem.captured.backwardPromptOverride).isEqualTo("custom prompt")
+            assertThat(capturedItem.captured.backwardAnswerOverride).isNull()
+        }
+
+    @Test
     fun `invoke returns failure when word empty`() =
         runTest {
             val result = useCase("   ", "translation")

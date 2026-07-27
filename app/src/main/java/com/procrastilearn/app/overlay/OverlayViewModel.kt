@@ -65,7 +65,7 @@ class OverlayViewModel
             Log.i("fsrs", "$rating selected for $current ")
 
             viewModelScope.launch {
-                saveDifficultyRating(current.id, rating)
+                saveDifficultyRating(current.id, rating, current.direction)
                 _uiState.update {
                     it.copy(
                         unlocked = true,

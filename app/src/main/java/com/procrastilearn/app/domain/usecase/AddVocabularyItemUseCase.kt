@@ -9,10 +9,13 @@ class AddVocabularyItemUseCase
     constructor(
         private val repository: VocabularyRepository,
     ) {
-        @Suppress("TooGenericExceptionCaught")
+        @Suppress("TooGenericExceptionCaught", "LongParameterList")
         suspend operator fun invoke(
             word: String,
             translation: String,
+            bidirectional: Boolean = false,
+            backwardPromptOverride: String? = null,
+            backwardAnswerOverride: String? = null,
         ): Result<Unit> {
             return try {
                 // Basic validation
@@ -25,6 +28,9 @@ class AddVocabularyItemUseCase
                         word = word.trim(),
                         translation = translation.trim(),
                         isNew = true,
+                        bidirectional = bidirectional,
+                        backwardPromptOverride = backwardPromptOverride?.trim()?.ifBlank { null },
+                        backwardAnswerOverride = backwardAnswerOverride?.trim()?.ifBlank { null },
                     )
 
                 repository.addVocabularyItem(vocabularyItem)

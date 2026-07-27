@@ -3,7 +3,7 @@ package com.procrastilearn.app.data.export
 import com.procrastilearn.app.domain.model.VocabularyExportItem
 import kotlinx.serialization.Serializable
 
-const val CURRENT_SCHEMA_VERSION = 2
+const val CURRENT_SCHEMA_VERSION = 3
 
 @Serializable
 data class VocabularyExportEnvelope(

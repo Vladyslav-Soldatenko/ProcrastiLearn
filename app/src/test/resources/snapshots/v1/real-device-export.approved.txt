@@ -1,3 +1,10 @@
+backwardAnswerOverride: null
+backwardCorrectCount: 0
+backwardFsrsCardJson: 
+backwardFsrsDueAt: 0
+backwardIncorrectCount: 0
+backwardPromptOverride: null
+bidirectional: false
 correctCount: 1
 createdAt: 1785010756357
 fsrsCardJson: {"cardId":-1695638824,"difficulty":6.243132948566265,"due":"2026-07-25T20:36:29.260Z","lastReview":"2026-07-25T20:30:59.260Z","stability":1.1771,"state":"LEARNING","step":0}
@@ -8,6 +15,13 @@ lastShownAt: 1785011459260
 translation: test123
 word: test
 
+backwardAnswerOverride: null
+backwardCorrectCount: 0
+backwardFsrsCardJson: 
+backwardFsrsDueAt: 0
+backwardIncorrectCount: 0
+backwardPromptOverride: null
+bidirectional: false
 correctCount: 1
 createdAt: 1785010760751
 fsrsCardJson: {"cardId":-1695634391,"difficulty":4.884631634813845,"due":"2026-07-25T20:41:00.386080Z","lastReview":"2026-07-25T20:31:00.386080Z","stability":3.2602,"state":"LEARNING","step":1}
@@ -18,6 +32,13 @@ lastShownAt: 1785011460386
 translation: bar
 word: foo
 
+backwardAnswerOverride: null
+backwardCorrectCount: 0
+backwardFsrsCardJson: 
+backwardFsrsDueAt: 0
+backwardIncorrectCount: 0
+backwardPromptOverride: null
+bidirectional: false
 correctCount: 0
 createdAt: 1785010810566
 fsrsCardJson: {"cardId":-1695584574,"difficulty":7.0114,"due":"2026-07-25T20:32:09.180957Z","lastReview":"2026-07-25T20:31:09.180957Z","stability":0.2172,"state":"LEARNING","step":0}
@@ -52,6 +73,13 @@ translation: Транскрипция: /kæt/
 10. The catwalk showed models wearing avant-garde fashion.
 word: cat
 
+backwardAnswerOverride: null
+backwardCorrectCount: 0
+backwardFsrsCardJson: 
+backwardFsrsDueAt: 0
+backwardIncorrectCount: 0
+backwardPromptOverride: null
+bidirectional: false
 correctCount: 0
 createdAt: 1785010837396
 fsrsCardJson: {"cardId":-1695557743,"difficulty":null,"due":"2026-07-25T20:20:37.394308Z","lastReview":null,"stability":null,"state":"LEARNING","step":0}
@@ -81,6 +109,13 @@ translation: Английский перевод: cat
 10. He bought a new toy for his cat.
 word: кошка
 
+backwardAnswerOverride: null
+backwardCorrectCount: 0
+backwardFsrsCardJson: 
+backwardFsrsDueAt: 0
+backwardIncorrectCount: 0
+backwardPromptOverride: null
+bidirectional: false
 correctCount: 1
 createdAt: 1785010859128
 fsrsCardJson: {"cardId":-1695536013,"difficulty":2.482438522375997,"due":"2026-08-06T20:31:01.880409Z","lastReview":"2026-07-25T20:31:01.880409Z","stability":16.1507,"state":"REVIEW","step":null}

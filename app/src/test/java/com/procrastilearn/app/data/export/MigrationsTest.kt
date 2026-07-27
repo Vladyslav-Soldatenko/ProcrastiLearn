@@ -58,4 +58,45 @@ class MigrationsTest {
 
         assertThat(migrated).isEqualTo(root)
     }
+
+    private val v2Envelope =
+        buildJsonObject {
+            put("schemaVersion", JsonPrimitive(2))
+            put("exportedAt", JsonPrimitive(1_700_000_000_000L))
+            put("appVersion", JsonPrimitive("1.2.0"))
+            put("words", bareV1Array)
+        }
+
+    @Test
+    fun `V2ToV3 re-stamps schemaVersion to 3 and preserves words unchanged`() {
+        val migrated = V2ToV3.migrate(v2Envelope)
+
+        assertThat(migrated.getValue("schemaVersion").jsonPrimitive.int).isEqualTo(3)
+        assertThat(migrated.getValue("words")).isEqualTo(bareV1Array)
+    }
+
+    @Test
+    fun `V2ToV3 preserves exportedAt and appVersion unchanged`() {
+        val migrated = V2ToV3.migrate(v2Envelope)
+
+        assertThat(migrated.getValue("exportedAt")).isEqualTo(v2Envelope.getValue("exportedAt"))
+        assertThat(migrated.getValue("appVersion")).isEqualTo(v2Envelope.getValue("appVersion"))
+    }
+
+    @Test
+    fun `migrate from 2 runs V2ToV3 and lands exactly on CURRENT_SCHEMA_VERSION`() {
+        val migrated = Migrations.migrate(v2Envelope, from = 2)
+
+        assertThat(migrated.getValue("schemaVersion").jsonPrimitive.int).isEqualTo(CURRENT_SCHEMA_VERSION)
+    }
+
+    @Test
+    fun `migrate from 1 chains V1ToV2 then V2ToV3 and lands on CURRENT_SCHEMA_VERSION`() {
+        val root = buildJsonObject { put("words", bareV1Array) }
+
+        val migrated = Migrations.migrate(root, from = 1)
+
+        assertThat(migrated.getValue("schemaVersion").jsonPrimitive.int).isEqualTo(CURRENT_SCHEMA_VERSION)
+        assertThat(migrated.getValue("words")).isEqualTo(bareV1Array)
+    }
 }

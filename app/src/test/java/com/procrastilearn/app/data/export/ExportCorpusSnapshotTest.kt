@@ -54,6 +54,13 @@ private fun List<VocabularyExportItem>.stableRender(): String = joinToString("\n
 
 private fun VocabularyExportItem.stableRender(): String =
     listOf(
+        "backwardAnswerOverride: ${backwardAnswerOverride ?: "null"}",
+        "backwardCorrectCount: $backwardCorrectCount",
+        "backwardFsrsCardJson: $backwardFsrsCardJson",
+        "backwardFsrsDueAt: $backwardFsrsDueAt",
+        "backwardIncorrectCount: $backwardIncorrectCount",
+        "backwardPromptOverride: ${backwardPromptOverride ?: "null"}",
+        "bidirectional: $bidirectional",
         "correctCount: $correctCount",
         "createdAt: $createdAt",
         "fsrsCardJson: $fsrsCardJson",
