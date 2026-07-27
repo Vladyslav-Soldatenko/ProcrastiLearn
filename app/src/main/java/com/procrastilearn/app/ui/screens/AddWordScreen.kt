@@ -180,16 +180,6 @@ internal fun AddWordContent(
                 .fillMaxSize()
                 .padding(16.dp),
     ) {
-        IconButton(
-            onClick = onNavigateToList,
-            modifier = Modifier.align(Alignment.TopEnd).zIndex(2f),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Default.List,
-                contentDescription = stringResource(R.string.add_word_view_list),
-                tint = MaterialTheme.colorScheme.primary,
-            )
-        }
         Column(
             modifier =
                 Modifier
@@ -197,25 +187,35 @@ internal fun AddWordContent(
                     .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(R.string.add_word_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.align(Alignment.Center),
+                )
+                IconButton(
+                    onClick = onNavigateToList,
+                    modifier = Modifier.align(Alignment.CenterEnd).zIndex(2f),
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.List,
+                        contentDescription = stringResource(R.string.add_word_view_list),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
 
-            // Title
-            Text(
-                text = stringResource(R.string.add_word_title),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Text(
                 text = stringResource(R.string.add_word_subtitle),
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             WordInputCard(
                 word = word,
