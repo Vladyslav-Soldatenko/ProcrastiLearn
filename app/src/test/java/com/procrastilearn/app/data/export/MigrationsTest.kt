@@ -102,9 +102,6 @@ class MigrationsTest {
 
     @Test
     fun `V2ToV3 migration decodes a genuine v2 payload with backward fields correctly defaulted`() {
-        // A real (schemaVersion=2) export, complete but predating the bidirectional fields
-        // entirely - unlike bareV1Array above, this has every field a v2 item actually needs
-        // so it can be decoded, not just shape-compared as raw JSON.
         val rawV2Json =
             """
             {

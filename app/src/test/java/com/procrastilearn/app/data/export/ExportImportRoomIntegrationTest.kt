@@ -43,13 +43,6 @@ class ExportImportRoomIntegrationTest {
             assertWithMessage(failures.joinToString("\n\n")).that(failures).isEmpty()
         }
 
-    // The generic corpus check above compares stored rows against outcome.items.map {
-    // it.toEntity() } - the same mapper under test - so it can't independently catch a bug
-    // in that mapper or in the decoder that both agree on a wrong value. This test instead
-    // imports a genuine schemaVersion=2 payload (predating the bidirectional fields) through
-    // the real decode -> map -> insert pipeline and asserts every resulting column against
-    // hardcoded expectations, so decoding and enrichment are both checked independently of
-    // whatever the production code happens to compute.
     @Test
     fun `importing a genuine v2 export enriches rows with correct default backward values`() =
         runTest {

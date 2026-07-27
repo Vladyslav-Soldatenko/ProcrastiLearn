@@ -41,8 +41,6 @@ class ExportRoundTripFuzzTest {
         val secondDecode = VocabularyExportSerializer.decode(reExported)
 
         assertThat(secondDecode).isEqualTo(firstDecode)
-        // v2 also predates the bidirectional fields - same guarantee as the v1 fixture,
-        // but exercising only the V2ToV3 migration step instead of the full v1->v2->v3 chain.
         assertBackwardFieldsAreDefaulted(firstDecode.items)
     }
 
