@@ -99,4 +99,46 @@ class MigrationsTest {
         assertThat(migrated.getValue("schemaVersion").jsonPrimitive.int).isEqualTo(CURRENT_SCHEMA_VERSION)
         assertThat(migrated.getValue("words")).isEqualTo(bareV1Array)
     }
+
+    @Test
+    fun `V2ToV3 migration decodes a genuine v2 payload with backward fields correctly defaulted`() {
+        // A real (schemaVersion=2) export, complete but predating the bidirectional fields
+        // entirely - unlike bareV1Array above, this has every field a v2 item actually needs
+        // so it can be decoded, not just shape-compared as raw JSON.
+        val rawV2Json =
+            """
+            {
+              "schemaVersion": 2,
+              "exportedAt": 1700000000000,
+              "appVersion": "1.2.0",
+              "words": [
+                {
+                  "id": 1,
+                  "word": "Baum",
+                  "translation": "tree",
+                  "createdAt": 1000,
+                  "lastShownAt": 2000,
+                  "correctCount": 3,
+                  "incorrectCount": 1,
+                  "fsrsCardJson": "{\"cardId\":42}",
+                  "fsrsDueAt": 5000
+                }
+              ]
+            }
+            """.trimIndent()
+
+        val outcome = VocabularyExportSerializer.decode(rawV2Json)
+
+        check(outcome is ImportOutcome.Success) { "Expected a successful decode, got $outcome" }
+        val item = outcome.items.single()
+        assertThat(item.word).isEqualTo("Baum")
+        assertThat(item.correctCount).isEqualTo(3)
+        assertThat(item.bidirectional).isFalse()
+        assertThat(item.backwardFsrsCardJson).isEmpty()
+        assertThat(item.backwardFsrsDueAt).isEqualTo(0L)
+        assertThat(item.backwardCorrectCount).isEqualTo(0)
+        assertThat(item.backwardIncorrectCount).isEqualTo(0)
+        assertThat(item.backwardPromptOverride).isNull()
+        assertThat(item.backwardAnswerOverride).isNull()
+    }
 }
