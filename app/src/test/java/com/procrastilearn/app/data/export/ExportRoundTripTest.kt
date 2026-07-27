@@ -23,17 +23,39 @@ class ExportRoundTripFuzzTest {
 
     @Test
     fun `upgrading a v1 export and re-exporting round trips through the current format`() {
-        val raw = File("src/test/resources/exports/v1/real-device-export.json").readText()
-        val firstDecode = VocabularyExportSerializer.decode(raw)
-        check(firstDecode is ImportOutcome.Success) { "Fixture no longer decodes: $firstDecode" }
+        val firstDecode = decodeFixtureOrFail("src/test/resources/exports/v1/real-device-export.json")
 
         val reExported = VocabularyExportSerializer.encode(firstDecode.items)
         val secondDecode = VocabularyExportSerializer.decode(reExported)
 
         assertThat(secondDecode).isEqualTo(firstDecode)
         // Legacy (pre-bidirectional) data must not spuriously acquire bidirectional state.
-        assertThat(firstDecode.items).isNotEmpty()
-        firstDecode.items.forEach { item ->
+        assertBackwardFieldsAreDefaulted(firstDecode.items)
+    }
+
+    @Test
+    fun `upgrading a v2 export and re-exporting round trips through the current format`() {
+        val firstDecode = decodeFixtureOrFail("src/test/resources/exports/v2/pre-bidirectional-export.json")
+
+        val reExported = VocabularyExportSerializer.encode(firstDecode.items)
+        val secondDecode = VocabularyExportSerializer.decode(reExported)
+
+        assertThat(secondDecode).isEqualTo(firstDecode)
+        // v2 also predates the bidirectional fields - same guarantee as the v1 fixture,
+        // but exercising only the V2ToV3 migration step instead of the full v1->v2->v3 chain.
+        assertBackwardFieldsAreDefaulted(firstDecode.items)
+    }
+
+    private fun decodeFixtureOrFail(path: String): ImportOutcome.Success {
+        val raw = File(path).readText()
+        val decoded = VocabularyExportSerializer.decode(raw)
+        check(decoded is ImportOutcome.Success) { "Fixture no longer decodes: $decoded" }
+        return decoded
+    }
+
+    private fun assertBackwardFieldsAreDefaulted(items: List<VocabularyExportItem>) {
+        assertThat(items).isNotEmpty()
+        items.forEach { item ->
             assertWithMessage("${item.word} should default to non-bidirectional")
                 .that(item.bidirectional)
                 .isFalse()
