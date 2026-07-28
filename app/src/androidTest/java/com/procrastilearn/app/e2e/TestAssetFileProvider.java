@@ -8,6 +8,8 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.os.ParcelFileDescriptor.AutoCloseOutputStream;
 import android.util.Log;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,13 +25,15 @@ public final class TestAssetFileProvider extends ContentProvider {
         return true;
     }
 
+    @Nullable
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         return "application/octet-stream";
     }
 
+    @NonNull
     @Override
-    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+    public ParcelFileDescriptor openFile(@NonNull Uri uri, @NonNull String mode) throws FileNotFoundException {
         Context providerContext = getContext();
         if (providerContext == null) {
             throw new FileNotFoundException("Missing provider context for " + uri.getPath());
@@ -85,29 +89,31 @@ public final class TestAssetFileProvider extends ContentProvider {
         return readSide;
     }
 
+    @Nullable
     @Override
     public Cursor query(
-        Uri uri,
-        String[] projection,
-        String selection,
-        String[] selectionArgs,
-        String sortOrder
+        @NonNull Uri uri,
+        @Nullable String[] projection,
+        @Nullable String selection,
+        @Nullable String[] selectionArgs,
+        @Nullable String sortOrder
     ) {
         return null;
     }
 
+    @Nullable
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, @NonNull ContentValues values) {
         return null;
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         return 0;
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NonNull Uri uri, @NonNull ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
         return 0;
     }
 }
