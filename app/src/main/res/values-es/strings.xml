@@ -49,7 +49,7 @@
     <string name="dojo_empty_title">¡Todo listo por hoy!</string>
     <string name="dojo_empty_message">Has completado todas las palabras disponibles por hoy. Vuelve más tarde o ajusta tus límites diarios en Ajustes.</string>
     <string name="dojo_undo_content_description">Deshacer última calificación</string>
-    <string name="dojo_undo_confirmation">Se deshizo %1$s para \"%2$s\"</string>
+    <string name="dojo_undo_confirmation">Se deshizo %1$s para “%2$s”</string>
 
     <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
     <string name="overlay_permission_title">Permitir superposición</string>
@@ -172,7 +172,7 @@
     <string name="settings_review_direction_bidirectional">Bidireccional</string>
     <string name="settings_review_direction_forward_desc">Muestra la palabra y pide la traducción</string>
     <string name="settings_review_direction_backward_desc">Muestra la traducción y pide la palabra</string>
-    <string name="settings_review_direction_bidirectional_desc">Combina ambas direcciones para las tarjetas marcadas como \"Practicar en ambos sentidos\"</string>
+    <string name="settings_review_direction_bidirectional_desc">Combina ambas direcciones para las tarjetas marcadas como “Practicar en ambos sentidos”</string>
 
     <!-- Daily limits -->
     <string name="settings_add_cards_for_today_title">Añadir tarjetas para hoy</string>

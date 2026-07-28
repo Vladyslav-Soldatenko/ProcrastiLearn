@@ -46,9 +46,9 @@
     <string name="dojo_stats_reviews_due">due</string>
     <string name="dojo_stats_skipped">skipped</string>
     <string name="dojo_empty_title">All done for now!</string>
-    <string name="dojo_empty_message">You\'ve completed all available words for today. Come back later or adjust your daily limits in Settings.</string>
+    <string name="dojo_empty_message">You’ve completed all available words for today. Come back later or adjust your daily limits in Settings.</string>
     <string name="dojo_undo_content_description">Undo last rating</string>
-    <string name="dojo_undo_confirmation">Undid %1$s for \"%2$s\"</string>
+    <string name="dojo_undo_confirmation">Undid %1$s for “%2$s”</string>
 
     <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
     <string name="overlay_permission_title">Allow overlay display</string>
@@ -108,7 +108,7 @@
     <!-- Add Word: success and error fallback messages -->
     <string name="add_word_success_added">Word added successfully!</string>
     <string name="add_word_success_updated">Word updated and progress reset!</string>
-    <string name="add_word_success_pending">Saved. Translation will be generated once you\'re back online.</string>
+    <string name="add_word_success_pending">Saved. Translation will be generated once you’re back online.</string>
     <string name="add_word_error_preview_failed">Failed to generate preview</string>
     <string name="add_word_error_translation_failed">Failed to generate translation</string>
     <string name="add_word_error_update_failed">Failed to update word</string>
@@ -168,7 +168,7 @@
     <string name="settings_review_direction_bidirectional">Bidirectional</string>
     <string name="settings_review_direction_forward_desc">Show word, ask for translation</string>
     <string name="settings_review_direction_backward_desc">Show translation, ask for word</string>
-    <string name="settings_review_direction_bidirectional_desc">Mix both directions for cards flagged \"Test both directions\"</string>
+    <string name="settings_review_direction_bidirectional_desc">Mix both directions for cards flagged “Test both directions”</string>
 
     <!-- Daily limits -->
     <string name="settings_add_cards_for_today_title">Add Cards For Today</string>
@@ -258,7 +258,7 @@
     <string name="add_word_preview_regenerate">Re-Generate</string>
     <string name="add_word_existing_title">Word already exists</string>
     <string name="add_word_existing_message">
-        You already have this word added. If you proceed, the word\'s progress will be reset and new translation will be saved. If you just want to edit it - you can do it from word list
+        You already have this word added. If you proceed, the word’s progress will be reset and new translation will be saved. If you just want to edit it - you can do it from word list
     </string>
     <string name="add_word_existing_cancel">@string/action_cancel</string>
     <string name="add_word_existing_proceed">@string/action_proceed</string>

@@ -2,7 +2,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <!-- ─── AppFunctions ────────────────────────────────────────────────────── -->
-    <string name="app_function_description">Aggiungi parole di vocabolario con traduzioni generate dall\'IA per l\'apprendimento con ripetizione dilazionata</string>
+    <string name="app_function_description">Aggiungi parole di vocabolario con traduzioni generate dall’IA per l’apprendimento con ripetizione dilazionata</string>
 
     <!-- ─── App / Brand ─────────────────────────────────────────────────────── -->
     <string name="app_name" translatable="false">ProcrastiLearn</string>
@@ -48,8 +48,8 @@
     <string name="dojo_stats_skipped">saltate</string>
     <string name="dojo_empty_title">Tutto fatto per ora!</string>
     <string name="dojo_empty_message">Hai completato tutte le parole disponibili per oggi. Torna più tardi oppure modifica i tuoi limiti giornalieri nelle Impostazioni.</string>
-    <string name="dojo_undo_content_description">Annulla l\'ultima valutazione</string>
-    <string name="dojo_undo_confirmation">Annullato \"%1$s\" per \"%2$s\"</string>
+    <string name="dojo_undo_content_description">Annulla l’ultima valutazione</string>
+    <string name="dojo_undo_confirmation">Annullato “%1$s” per “%2$s”</string>
 
     <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
     <string name="overlay_permission_title">Consenti la visualizzazione in overlay</string>
@@ -58,7 +58,7 @@
     </string>
 
     <!-- ─── Accessibility disclosure (A11y) ─────────────────────────────────── -->
-    <string name="a11y_disclosure_title">Perché ci serve l\'Accessibilità</string>
+    <string name="a11y_disclosure_title">Perché ci serve l’Accessibilità</string>
     <string name="a11y_disclosure_description">
         Questa app utilizza il permesso del Servizio di Accessibilità di Android per rilevare quando apri le app selezionate
         (ad es. TikTok, Reddit o qualsiasi altra app tu scelga), così da mostrarti un breve messaggio di apprendimento prima di continuare.
@@ -76,7 +76,7 @@
 
     <!-- Original paragraph -->
     <string name="a11y_disclosure_usage_details">
-        Solo per attivare l\'overlay di apprendimento per le app che hai selezionato.
+        Solo per attivare l’overlay di apprendimento per le app che hai selezionato.
         Puoi disattivarlo in qualsiasi momento dalle Impostazioni. Non vendiamo né condividiamo questi dati,
         che non lasciano mai il dispositivo.
     </string>
@@ -112,7 +112,7 @@
     <string name="add_word_success_added">Parola aggiunta con successo!</string>
     <string name="add_word_success_updated">Parola aggiornata e progressi reimpostati!</string>
     <string name="add_word_success_pending">Salvato. La traduzione verrà generata non appena tornerai online.</string>
-    <string name="add_word_error_preview_failed">Impossibile generare l\'anteprima</string>
+    <string name="add_word_error_preview_failed">Impossibile generare l’anteprima</string>
     <string name="add_word_error_translation_failed">Impossibile generare la traduzione</string>
     <string name="add_word_error_update_failed">Impossibile aggiornare la parola</string>
     <string name="add_word_error_add_failed">Impossibile aggiungere la parola</string>
@@ -172,7 +172,7 @@
     <string name="settings_review_direction_bidirectional">Bidirezionale</string>
     <string name="settings_review_direction_forward_desc">Mostra la parola, chiede la traduzione</string>
     <string name="settings_review_direction_backward_desc">Mostra la traduzione, chiede la parola</string>
-    <string name="settings_review_direction_bidirectional_desc">Alterna entrambe le direzioni per le carte contrassegnate come \"Verifica in entrambe le direzioni\"</string>
+    <string name="settings_review_direction_bidirectional_desc">Alterna entrambe le direzioni per le carte contrassegnate come “Verifica in entrambe le direzioni”</string>
 
     <!-- Daily limits -->
     <string name="settings_add_cards_for_today_title">Aggiungi carte per oggi</string>
@@ -182,8 +182,8 @@
     <string name="settings_reviews_per_day_title">Ripassi al giorno</string>
 
     <!-- Overlay interval -->
-    <string name="settings_overlay_interval_title">Mostra l\'overlay ogni X minuti</string>
-    <string name="settings_overlay_interval_headline">Mostra l\'overlay ogni X minuti mentre l\'app bloccata è aperta</string>
+    <string name="settings_overlay_interval_title">Mostra l’overlay ogni X minuti</string>
+    <string name="settings_overlay_interval_headline">Mostra l’overlay ogni X minuti mentre l’app bloccata è aperta</string>
 
     <string name="settings_overlay_headline">Permesso overlay</string>
     <string name="settings_overlay_support">
@@ -197,16 +197,16 @@
 
     <!-- About Us -->
     <string name="settings_about_us_row">Chi siamo</string>
-    <string name="settings_about_us_row_desc">Scopri di più sull\'app</string>
+    <string name="settings_about_us_row_desc">Scopri di più sull’app</string>
     <string name="settings_about_us_title">@string/settings_about_us_row</string>
     <string name="settings_about_us_intro">
-        ProcrastiLearn trasforma i momenti di distrazione in occasioni per imparare. Quando provi ad aprire un\'app selezionata, ti mostriamo prima una rapida sfida di vocabolario. Così impari qualcosa di nuovo tenendo a bada le distrazioni.
+        ProcrastiLearn trasforma i momenti di distrazione in occasioni per imparare. Quando provi ad aprire un’app selezionata, ti mostriamo prima una rapida sfida di vocabolario. Così impari qualcosa di nuovo tenendo a bada le distrazioni.
     </string>
     <string name="settings_about_us_mission_title">La nostra missione</string>
     <string name="settings_about_us_mission_body">
         Vogliamo aiutare le persone a riprendersi il proprio tempo e la propria attenzione, trasformando le abitudini quotidiane in occasioni per imparare qualcosa di nuovo.
     </string>
-    <string name="settings_about_us_who_title">Il team dietro l\'app</string>
+    <string name="settings_about_us_who_title">Il team dietro l’app</string>
     <string name="settings_about_us_who_body">
         ProcrastiLearn è sviluppata e mantenuta da uno sviluppatore indipendente appassionato di produttività e apprendimento delle lingue.
     </string>
@@ -220,15 +220,15 @@
 
     <!-- Import -->
     <string name="settings_import_row">Importa</string>
-    <string name="settings_import_row_desc">Aggiungi vocabolario da un\'altra app</string>
+    <string name="settings_import_row_desc">Aggiungi vocabolario da un’altra app</string>
     <string name="settings_import_option_anki_apkg">Mazzo Anki (.apkg)</string>
     <string name="settings_import_option_anki_apkg_desc">Analizza le carte esportate da Anki</string>
     <string name="settings_import_option_json">Esportazione JSON (.json)</string>
-    <string name="settings_import_option_json_desc">Importa un\'esportazione completa di ProcrastiLearn</string>
+    <string name="settings_import_option_json_desc">Importa un’esportazione completa di ProcrastiLearn</string>
     <string name="settings_import_success">Importate %1$d carte</string>
     <string name="settings_import_failure_generic">Importazione non riuscita</string>
     <string name="settings_import_failure_format">Questo formato non è ancora supportato</string>
-    <string name="settings_import_failure_schema_version">Questo file è stato creato con una versione più recente di ProcrastiLearn. Aggiorna l\'app.</string>
+    <string name="settings_import_failure_schema_version">Questo file è stato creato con una versione più recente di ProcrastiLearn. Aggiorna l’app.</string>
 
     <!-- Export -->
     <string name="settings_export_row">Esporta</string>
@@ -252,7 +252,7 @@
     <string name="settings_openai_prompt_placeholder_hint">Usa {{NATIVE_LANGUAGE}} e {{TARGET_LANGUAGE}} come segnaposto: vengono sostituiti automaticamente con le lingue selezionate quando viene generata una traduzione.</string>
 
     <!-- Add Word: AI translation toggle -->
-    <string name="add_word_use_ai_toggle">usa l\'IA per generare la traduzione</string>
+    <string name="add_word_use_ai_toggle">usa l’IA per generare la traduzione</string>
     <string name="add_word_toggle_direction">Inverti direzione della traduzione</string>
     <string name="add_word_button_preview">Anteprima</string>
     <string name="add_word_preview_title">Anteprima IA</string>
@@ -262,7 +262,7 @@
     <string name="add_word_preview_regenerate">Rigenera</string>
     <string name="add_word_existing_title">Parola già esistente</string>
     <string name="add_word_existing_message">
-        Hai già aggiunto questa parola. Se procedi, i progressi verranno reimpostati e verrà salvata la nuova traduzione. Se vuoi solo modificarla, puoi farlo dall\'elenco delle parole
+        Hai già aggiunto questa parola. Se procedi, i progressi verranno reimpostati e verrà salvata la nuova traduzione. Se vuoi solo modificarla, puoi farlo dall’elenco delle parole
     </string>
     <string name="add_word_existing_cancel">@string/action_cancel</string>
     <string name="add_word_existing_proceed">@string/action_proceed</string>
