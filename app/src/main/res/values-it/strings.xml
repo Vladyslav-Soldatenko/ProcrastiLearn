@@ -74,18 +74,11 @@
 
     <string name="a11y_disclosure_section_access">A cosa accediamo</string>
 
-    <!-- Keep your original paragraph for now (easy drop-in), but prefer the array below -->
     <string name="a11y_disclosure_access_details">
         • Quale app è attualmente sul tuo schermo.\n
         • NON leggiamo le tue password, i messaggi o il testo a schermo.\n
         • I tuoi dati non lasciano mai il dispositivo e non vengono mai venduti o condivisi.
     </string>
-
-    <string-array name="a11y_disclosure_access_points">
-        <item>Il pacchetto dell\'app e le informazioni sulla finestra, per sapere quale app è in primo piano.</item>
-        <item>Non leggiamo le tue password, i messaggi o il testo a schermo.</item>
-        <item>I dati restano sul dispositivo e non vengono venduti né condivisi.</item>
-    </string-array>
 
     <string name="a11y_disclosure_section_usage">Come viene utilizzato</string>
 

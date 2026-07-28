@@ -74,18 +74,11 @@
 
     <string name="a11y_disclosure_section_access">До чого ми маємо доступ</string>
 
-    <!-- Keep your original paragraph for now (easy drop-in), but prefer the array below -->
     <string name="a11y_disclosure_access_details">
         • Який додаток зараз на екрані.\n
         • Ми НЕ читаємо ваші паролі, повідомлення чи текст на екрані.\n
         • Ваші дані ніколи не залишають пристрій і не продаються та не передаються.
     </string>
-
-    <string-array name="a11y_disclosure_access_points">
-        <item>Інформація про пакет застосунку та вікна, щоб визначати, який додаток на передньому плані.</item>
-        <item>Ми не читаємо ваші паролі, повідомлення чи текст на екрані.</item>
-        <item>Дані залишаються на вашому пристрої й не продаються та не передаються.</item>
-    </string-array>
 
     <string name="a11y_disclosure_section_usage">Як це використовується</string>
 

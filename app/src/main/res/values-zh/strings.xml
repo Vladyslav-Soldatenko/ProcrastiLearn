@@ -69,14 +69,7 @@
 
     <string name="a11y_disclosure_section_access">我们会访问什么</string>
 
-    <!-- Keep your original paragraph for now (easy drop-in), but prefer the array below -->
     <string name="a11y_disclosure_access_details">• 当前屏幕上打开的是哪个应用。\n• 我们不会读取你的密码、消息或屏幕上的文字。\n• 你的数据不会离开设备，也绝不会被出售或分享。</string>
-
-    <string-array name="a11y_disclosure_access_points">
-        <item>应用包名和窗口信息，用于判断当前在前台运行的应用。</item>
-        <item>我们不会读取你的密码、消息或屏幕上的文字。</item>
-        <item>数据仅保存在你的设备上，不会被出售或分享。</item>
-    </string-array>
 
     <string name="a11y_disclosure_section_usage">如何使用</string>
 

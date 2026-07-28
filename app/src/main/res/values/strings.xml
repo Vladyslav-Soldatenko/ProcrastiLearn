@@ -74,18 +74,11 @@
 
     <string name="a11y_disclosure_section_access">What we access</string>
 
-    <!-- Keep your original paragraph for now (easy drop-in), but prefer the array below -->
     <string name="a11y_disclosure_access_details">
         • Which app is currently on your screen.\n
         • We do NOT read your passwords, messages, or on-screen text.\n
         • Your data never leaves your device and is never sold or shared.
     </string>
-
-    <string-array name="a11y_disclosure_access_points">
-        <item>App package and window info to know which app is in the foreground.</item>
-        <item>We do not read your passwords, messages, or on-screen text.</item>
-        <item>Data stays on your device and is not sold or shared.</item>
-    </string-array>
 
     <string name="a11y_disclosure_section_usage">How it’s used</string>
 

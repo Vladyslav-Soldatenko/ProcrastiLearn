@@ -71,18 +71,11 @@
 
         <string name="a11y_disclosure_section_access">К чему у нас есть доступ</string>
 
-        <!-- Keep your original paragraph for now (easy drop-in), but prefer the array below -->
         <string name="a11y_disclosure_access_details">
     • Какое приложение сейчас на экране.\n
     • Мы НЕ читаем ваши пароли, сообщения или текст на экране.\n
     • Ваши данные не покидают устройство и никогда не продаются и не передаются.
 </string>
-
-        <string-array name="a11y_disclosure_access_points">
-            <item>Сведения о пакете приложения и окнах, чтобы понимать, какое приложение на переднем плане.</item>
-            <item>Мы не читаем ваши пароли, сообщения или текст на экране.</item>
-            <item>Данные остаются на вашем устройстве и не продаются и не передаются.</item>
-        </string-array>
 
         <string name="a11y_disclosure_section_usage">Как мы это используем</string>
 

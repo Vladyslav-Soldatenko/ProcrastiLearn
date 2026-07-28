@@ -74,18 +74,11 @@
 
     <string name="a11y_disclosure_section_access">Ce à quoi nous accédons</string>
 
-    <!-- Keep your original paragraph for now (easy drop-in), but prefer the array below -->
     <string name="a11y_disclosure_access_details">
         • Quelle application est actuellement à l\'écran.\n
         • Nous ne lisons PAS vos mots de passe, messages ou texte affiché à l\'écran.\n
         • Vos données ne quittent jamais votre appareil et ne sont ni vendues ni partagées.
     </string>
-
-    <string-array name="a11y_disclosure_access_points">
-        <item>Le nom du paquet et les informations de fenêtre de l\'application au premier plan.</item>
-        <item>Nous ne lisons pas vos mots de passe, messages ou texte affiché à l\'écran.</item>
-        <item>Les données restent sur votre appareil et ne sont ni vendues ni partagées.</item>
-    </string-array>
 
     <string name="a11y_disclosure_section_usage">Comment elles sont utilisées</string>
 
