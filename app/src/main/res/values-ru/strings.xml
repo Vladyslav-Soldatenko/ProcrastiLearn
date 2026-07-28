@@ -19,13 +19,6 @@
     <string name="action_delete">Удалить</string>
     <string name="action_reset">Сбросить</string>
 
-        <!-- Back-compat aliases (so existing code keeps working) -->
-        <string name="overlay_permission_open_settings">@string/action_open_settings</string>
-        <string name="overlay_permission_not_now">@string/action_not_now</string>
-        <string name="add_word_button_add">@string/action_add</string>
-        <string name="word_list_delete">@string/action_delete</string>
-        <string name="add_word_view_list">@string/action_view_list</string>
-
         <!-- ─── Text selection context menu ─────────────────────────────────────── -->
         <string name="process_text_action">Добавить в ProcrastiLearn</string>
 

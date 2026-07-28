@@ -22,12 +22,12 @@ fun OverlayPermissionDialog(
         },
         confirmButton = {
             Button(onClick = onOpenSettings) {
-                Text(stringResource(R.string.overlay_permission_open_settings))
+                Text(stringResource(R.string.action_open_settings))
             }
         },
         dismissButton = {
             TextButton(onClick = onSkip) {
-                Text(stringResource(R.string.overlay_permission_not_now))
+                Text(stringResource(R.string.action_not_now))
             }
         },
     )

@@ -99,7 +99,7 @@ class AddWordScreenContentTest {
         setContent()
 
         composeTestRule
-            .onNodeWithContentDescription(string(R.string.add_word_view_list))
+            .onNodeWithContentDescription(string(R.string.action_view_list))
             .performClick()
 
         verify(exactly = 1) { onNavigateToList.invoke() }
@@ -233,7 +233,7 @@ class AddWordScreenContentTest {
     fun `clicking add button invokes onAddClick`() {
         setContent()
 
-        composeTestRule.onNodeWithText(string(R.string.add_word_button_add)).performScrollTo().performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_add)).performScrollTo().performClick()
 
         verify(exactly = 1) { onAddClick.invoke() }
     }
@@ -242,7 +242,7 @@ class AddWordScreenContentTest {
     fun `add button disabled while loading`() {
         setContent(isLoading = true, loadingAction = AddWordLoadingAction.ADD)
 
-        composeTestRule.onNodeWithText(string(R.string.add_word_button_add)).assertDoesNotExist()
+        composeTestRule.onNodeWithText(string(R.string.action_add)).assertDoesNotExist()
     }
 
     @Test
@@ -250,7 +250,7 @@ class AddWordScreenContentTest {
         setContent(isAddLaterMode = true)
 
         composeTestRule.onNodeWithText(string(R.string.add_word_button_add_later)).performScrollTo().assertIsDisplayed()
-        composeTestRule.onNodeWithText(string(R.string.add_word_button_add)).assertDoesNotExist()
+        composeTestRule.onNodeWithText(string(R.string.action_add)).assertDoesNotExist()
     }
 
     @Test

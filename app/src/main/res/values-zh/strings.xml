@@ -21,14 +21,6 @@
     <string name="action_cancel">取消</string>
     <string name="action_proceed">继续</string>
 
-
-    <!-- Back-compat aliases (so existing code keeps working) -->
-    <string name="overlay_permission_open_settings">@string/action_open_settings</string>
-    <string name="overlay_permission_not_now">@string/action_not_now</string>
-    <string name="add_word_button_add">@string/action_add</string>
-    <string name="word_list_delete">@string/action_delete</string>
-    <string name="add_word_view_list">@string/action_view_list</string>
-
     <!-- ─── Text selection context menu ─────────────────────────────────────── -->
     <string name="process_text_action">用 ProcrastiLearn 学习</string>
 
@@ -76,7 +68,6 @@
     <!-- Original paragraph -->
     <string name="a11y_disclosure_usage_details">仅用于为你选择的应用触发学习悬浮窗。你可以随时在设置中关闭此功能。我们不会出售或分享这些数据，它们不会离开你的设备。</string>
 
-
     <string name="a11y_disclosure_checkbox">我已了解并同意本应用出于上述目的使用无障碍服务权限。</string>
     <string name="a11y_disclosure_accept">接受&amp;继续</string>
     <string name="a11y_disclosure_decline">@string/action_not_now</string>
@@ -92,7 +83,6 @@
     <string name="add_word_icon_add">添加</string>
 
     <string name="edit_word_title">编辑单词</string>
-
 
     <!-- Prefer using a proper icon. Keep these for compatibility. -->
     <string name="add_word_success_icon" translatable="false">✓</string>
