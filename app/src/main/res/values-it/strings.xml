@@ -5,7 +5,6 @@
     <string name="app_function_description">Aggiungi parole di vocabolario con traduzioni generate dall’IA per l’apprendimento con ripetizione dilazionata</string>
 
     <!-- ─── App / Brand ─────────────────────────────────────────────────────── -->
-    <string name="app_name" translatable="false">ProcrastiLearn</string>
 
     <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
     <string name="action_open_settings">Apri impostazioni</string>
@@ -100,7 +99,6 @@
     <string name="edit_word_title">Modifica parola</string>
 
     <!-- Prefer using a proper icon. Keep these for compatibility. -->
-    <string name="add_word_success_icon" translatable="false">✓</string>
     <string name="add_word_success_default">Fatto!</string>
 
     <!-- Helpful validation/toast messages -->
@@ -216,7 +214,6 @@
     <string name="settings_about_us_contact_title">Contatti</string>
     <string name="settings_about_us_contact_body">Per domande o suggerimenti, scrivici a: Apocalypse_232@proton.me</string>
     <string name="settings_about_us_privacy">Informativa sulla privacy</string>
-    <string name="settings_privacy_policy_url" translatable="false">https://gist.github.com/Vladyslav-Soldatenko/adb5953ce000b9e8515d3dcd87773aef</string>
 
     <!-- Import -->
     <string name="settings_import_row">Importa</string>

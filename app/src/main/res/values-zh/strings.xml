@@ -5,7 +5,6 @@
     <string name="app_function_description">添加生词，通过 AI 生成翻译，用于间隔重复学习</string>
 
     <!-- ─── App / Brand ─────────────────────────────────────────────────────── -->
-    <string name="app_name" translatable="false">ProcrastiLearn</string>
 
     <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
     <string name="action_open_settings">打开设置</string>
@@ -85,7 +84,6 @@
     <string name="edit_word_title">编辑单词</string>
 
     <!-- Prefer using a proper icon. Keep these for compatibility. -->
-    <string name="add_word_success_icon" translatable="false">✓</string>
     <string name="add_word_success_default">成功！</string>
 
     <!-- Helpful validation/toast messages -->
@@ -191,7 +189,6 @@
     <string name="settings_about_us_contact_title">联系我们</string>
     <string name="settings_about_us_contact_body">如有问题或反馈，请联系：Apocalypse_232@proton.me</string>
     <string name="settings_about_us_privacy">隐私政策</string>
-    <string name="settings_privacy_policy_url" translatable="false">https://gist.github.com/Vladyslav-Soldatenko/adb5953ce000b9e8515d3dcd87773aef</string>
 
     <!-- Import -->
     <string name="settings_import_row">导入</string>
