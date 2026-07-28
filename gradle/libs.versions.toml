@@ -21,6 +21,14 @@ roomKtx = "2.8.4"
 roomRuntime = "2.8.4"
 roomTesting = "2.8.4"
 uiAutomator = "2.3.0"
+zstdJni = "1.5.7-6"
+kotlinxCoroutinesTest = "1.7.3"
+androidxTestCore = "1.5.0"
+androidxTestRunner = "1.5.2"
+mockk = "1.13.8"
+turbine = "1.0.0"
+truth = "1.1.5"
+robolectric = "4.16"
 
 [libraries]
 androidx-appfunctions = { group = "androidx.appfunctions", name = "appfunctions", version.ref = "appfunctions" }
@@ -54,6 +62,14 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 openai-java = { module = "com.openai:openai-java", version.ref = "openaiJava" }
 androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiAutomator" }
+zstd-jni = { module = "com.github.luben:zstd-jni", version.ref = "zstdJni" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+androidx-test-core = { module = "androidx.test:core", version.ref = "androidxTestCore" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidxTestRunner" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
