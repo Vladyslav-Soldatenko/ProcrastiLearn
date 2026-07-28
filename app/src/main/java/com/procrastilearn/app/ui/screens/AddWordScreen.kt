@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.procrastilearn.app.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
@@ -36,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -98,6 +101,11 @@ fun AddWordScreen(
         isOnline = uiState.isOnline,
         isAddLaterMode = uiState.isAddLaterMode,
         pendingWords = uiState.pendingWords,
+        showBidirectionalOption = uiState.showBidirectionalOption,
+        bidirectional = uiState.bidirectional,
+        isCustomizingBackward = uiState.isCustomizingBackward,
+        backwardPromptOverride = uiState.backwardPromptOverride,
+        backwardAnswerOverride = uiState.backwardAnswerOverride,
         onDeletePendingWord = viewModel::onDeletePendingWord,
         onWordChange = viewModel::onWordChange,
         onTranslationChange = viewModel::onTranslationChange,
@@ -110,6 +118,10 @@ fun AddWordScreen(
         onAddClick = viewModel::onAddClick,
         onExistingWordDialogCancel = viewModel::onExistingWordDialogCancel,
         onExistingWordDialogProceed = viewModel::onExistingWordDialogProceed,
+        onBidirectionalToggle = viewModel::onBidirectionalToggle,
+        onCustomizeBackwardToggle = viewModel::onCustomizeBackwardToggle,
+        onBackwardPromptOverrideChange = viewModel::onBackwardPromptOverrideChange,
+        onBackwardAnswerOverrideChange = viewModel::onBackwardAnswerOverrideChange,
     )
 }
 
@@ -152,6 +164,15 @@ internal fun AddWordContent(
     onAddClick: () -> Unit,
     onExistingWordDialogCancel: () -> Unit,
     onExistingWordDialogProceed: () -> Unit,
+    showBidirectionalOption: Boolean = true,
+    bidirectional: Boolean = false,
+    isCustomizingBackward: Boolean = false,
+    backwardPromptOverride: String = "",
+    backwardAnswerOverride: String = "",
+    onBidirectionalToggle: (Boolean) -> Unit = {},
+    onCustomizeBackwardToggle: () -> Unit = {},
+    onBackwardPromptOverrideChange: (String) -> Unit = {},
+    onBackwardAnswerOverrideChange: (String) -> Unit = {},
 ) {
     Box(
         modifier =
@@ -159,16 +180,6 @@ internal fun AddWordContent(
                 .fillMaxSize()
                 .padding(16.dp),
     ) {
-        IconButton(
-            onClick = onNavigateToList,
-            modifier = Modifier.align(Alignment.TopEnd).zIndex(2f),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Default.List,
-                contentDescription = stringResource(R.string.add_word_view_list),
-                tint = MaterialTheme.colorScheme.primary,
-            )
-        }
         Column(
             modifier =
                 Modifier
@@ -176,25 +187,35 @@ internal fun AddWordContent(
                     .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(R.string.add_word_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.align(Alignment.Center),
+                )
+                IconButton(
+                    onClick = onNavigateToList,
+                    modifier = Modifier.align(Alignment.CenterEnd).zIndex(2f),
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.List,
+                        contentDescription = stringResource(R.string.add_word_view_list),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
 
-            // Title
-            Text(
-                text = stringResource(R.string.add_word_title),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Text(
                 text = stringResource(R.string.add_word_subtitle),
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             WordInputCard(
                 word = word,
@@ -220,7 +241,21 @@ internal fun AddWordContent(
                 onTranslationChange = onTranslationChange,
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            BidirectionalOptionSection(
+                visible = showBidirectionalOption,
+                bidirectional = bidirectional,
+                isCustomizing = isCustomizingBackward,
+                backwardPromptOverride = backwardPromptOverride,
+                backwardAnswerOverride = backwardAnswerOverride,
+                onBidirectionalToggle = onBidirectionalToggle,
+                onCustomizeToggle = onCustomizeBackwardToggle,
+                onBackwardPromptOverrideChange = onBackwardPromptOverrideChange,
+                onBackwardAnswerOverrideChange = onBackwardAnswerOverrideChange,
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             ActionButtonsRow(
                 openAiAvailable = openAiAvailable,
@@ -435,6 +470,82 @@ private fun TranslationInputCard(
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                     ),
             )
+        }
+    }
+}
+
+@Suppress("LongParameterList")
+@Composable
+private fun BidirectionalOptionSection(
+    visible: Boolean,
+    bidirectional: Boolean,
+    isCustomizing: Boolean,
+    backwardPromptOverride: String,
+    backwardAnswerOverride: String,
+    onBidirectionalToggle: (Boolean) -> Unit,
+    onCustomizeToggle: () -> Unit,
+    onBackwardPromptOverrideChange: (String) -> Unit,
+    onBackwardAnswerOverrideChange: (String) -> Unit,
+) {
+    if (!visible) return
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Checkbox(
+                    checked = bidirectional,
+                    onCheckedChange = onBidirectionalToggle,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.add_word_bidirectional_toggle),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                )
+            }
+
+            if (bidirectional) {
+                TextButton(onClick = onCustomizeToggle) {
+                    Text(
+                        text =
+                            stringResource(
+                                if (isCustomizing) {
+                                    R.string.add_word_customize_backward_hide
+                                } else {
+                                    R.string.add_word_customize_backward_show
+                                },
+                            ),
+                    )
+                }
+
+                AnimatedVisibility(visible = isCustomizing) {
+                    Column {
+                        OutlinedTextField(
+                            value = backwardPromptOverride,
+                            onValueChange = onBackwardPromptOverrideChange,
+                            label = { Text(stringResource(R.string.add_word_backward_prompt_label)) },
+                            placeholder = { Text(stringResource(R.string.add_word_backward_prompt_placeholder)) },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = backwardAnswerOverride,
+                            onValueChange = onBackwardAnswerOverrideChange,
+                            label = { Text(stringResource(R.string.add_word_backward_answer_label)) },
+                            placeholder = { Text(stringResource(R.string.add_word_backward_answer_placeholder)) },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+            }
         }
     }
 }

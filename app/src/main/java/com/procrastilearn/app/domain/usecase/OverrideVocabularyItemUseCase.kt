@@ -9,10 +9,14 @@ class OverrideVocabularyItemUseCase
     constructor(
         private val repository: VocabularyRepository,
     ) {
+        @Suppress("LongParameterList")
         suspend operator fun invoke(
             existingItem: VocabularyItem,
             newWord: String,
             newTranslation: String,
+            bidirectional: Boolean = existingItem.bidirectional,
+            backwardPromptOverride: String? = existingItem.backwardPromptOverride,
+            backwardAnswerOverride: String? = existingItem.backwardAnswerOverride,
         ): Result<Unit> =
             runCatching {
                 val sanitizedWord = newWord.trim()
@@ -24,6 +28,9 @@ class OverrideVocabularyItemUseCase
                     existingItem.copy(
                         word = sanitizedWord,
                         translation = sanitizedTranslation,
+                        bidirectional = bidirectional,
+                        backwardPromptOverride = backwardPromptOverride?.trim()?.ifBlank { null },
+                        backwardAnswerOverride = backwardAnswerOverride?.trim()?.ifBlank { null },
                     )
                 repository.updateVocabularyItem(updatedItem)
                 repository.resetVocabularyProgress(updatedItem)

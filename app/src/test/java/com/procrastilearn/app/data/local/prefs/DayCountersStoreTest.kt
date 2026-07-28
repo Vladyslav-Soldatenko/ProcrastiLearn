@@ -4,8 +4,11 @@ import android.content.Context
 import android.content.ContextWrapper
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.StudyDirectionMode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -24,6 +27,7 @@ class DayCountersStoreTest {
     val temporaryFolder = TemporaryFolder()
 
     private lateinit var store: DayCountersStore
+    private lateinit var studyPreferences: StudyPreferencesDataStore
 
     @Before
     fun setUp() {
@@ -35,7 +39,8 @@ class DayCountersStoreTest {
 
                 override fun getApplicationContext(): Context = this
             }
-        store = DayCountersStore(StudyPreferencesDataStore(dataStoreContext))
+        studyPreferences = StudyPreferencesDataStore(dataStoreContext)
+        store = DayCountersStore(studyPreferences)
     }
 
     @Test
@@ -49,6 +54,30 @@ class DayCountersStoreTest {
             assertThat(policy.reviewPerDay).isEqualTo(99)
             assertThat(policy.overlayInterval).isEqualTo(0)
             assertThat(policy.mixMode).isEqualTo(MixMode.MIX)
+            assertThat(policy.studyDirectionMode).isEqualTo(StudyDirectionMode.FORWARD)
+        }
+
+    @Test
+    fun setStudyDirectionModePersistsAndIsReadBackCorrectly() =
+        runTest {
+            store.setStudyDirectionMode(StudyDirectionMode.BIDIRECTIONAL)
+
+            assertThat(store.readPolicy().first().studyDirectionMode).isEqualTo(StudyDirectionMode.BIDIRECTIONAL)
+
+            store.setStudyDirectionMode(StudyDirectionMode.BACKWARD)
+
+            assertThat(store.readPolicy().first().studyDirectionMode).isEqualTo(StudyDirectionMode.BACKWARD)
+        }
+
+    @Test
+    fun readPolicyFallsBackToForwardForACorruptedStudyDirectionModeString() =
+        runTest {
+            val key = stringPreferencesKey("study_direction_mode")
+            studyPreferences.ds.edit { it[key] = "NOT_A_REAL_MODE" }
+
+            val policy = store.readPolicy().first()
+
+            assertThat(policy.studyDirectionMode).isEqualTo(StudyDirectionMode.FORWARD)
         }
 
     @Test

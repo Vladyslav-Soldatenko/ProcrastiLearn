@@ -28,6 +28,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -114,7 +115,7 @@ class AddWordViewModelTest {
         coEvery { openAiStore.setUseAiForTranslation(any()) } just Runs
         coEvery { openAiStore.setAiTranslationDirection(any()) } just Runs
         coEvery { getVocabularyItemByWordUseCase.invoke(any()) } returns null
-        coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
+        coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns Result.success(Unit)
         every { connectivityObserver.observe() } returns onlineFlow
         every { observePendingWordsUseCase.invoke() } returns pendingWordsFlow
         coEvery { queuePendingWordUseCase.invoke(any(), any()) } just Runs
@@ -740,7 +741,7 @@ class AddWordViewModelTest {
                     isNew = false,
                 )
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
-            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns Result.success(Unit)
             val viewModel = buildViewModel()
 
             viewModel.onWordChange("Haus")
@@ -770,7 +771,7 @@ class AddWordViewModelTest {
                     isNew = false,
                 )
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
-            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns
                 Result.failure(IllegalStateException("override failed"))
             val viewModel = buildViewModel()
 
@@ -1166,7 +1167,7 @@ class AddWordViewModelTest {
             useAiFlow.value = true
             val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
-            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns Result.success(Unit)
             aiTranslationProvider.nextTranslation = "Fresh house"
             val viewModel = buildViewModel()
             advanceUntilIdle()
@@ -1199,7 +1200,7 @@ class AddWordViewModelTest {
             useAiFlow.value = true
             val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
-            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns
                 Result.failure(IllegalStateException("override failed"))
             aiTranslationProvider.nextTranslation = "Fresh house"
             val viewModel = buildViewModel()
@@ -1358,7 +1359,7 @@ class AddWordViewModelTest {
             useAiFlow.value = true
             val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
-            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns Result.success(Unit)
             aiTranslationProvider.nextTranslation = "Fresh house"
             val viewModel = buildViewModel()
             advanceUntilIdle()
@@ -1385,7 +1386,7 @@ class AddWordViewModelTest {
             useAiFlow.value = true
             val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
-            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns Result.success(Unit)
             val viewModel = buildViewModel()
             advanceUntilIdle()
             viewModel.onWordChange("Haus")
@@ -1432,7 +1433,7 @@ class AddWordViewModelTest {
             assertThat(state.errorMessage).isEqualTo("boom")
             assertThat(state.isExistingWordDialogVisible).isFalse()
             assertThat(state.isExistingWordDialogLoading).isFalse()
-            coVerify(exactly = 0) { overrideVocabularyItemUseCase.invoke(any(), any(), any()) }
+            coVerify(exactly = 0) { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) }
         }
 
     @Test
@@ -1455,7 +1456,7 @@ class AddWordViewModelTest {
             val state = viewModel.uiState.value
             assertThat(state.errorMessage).isNotNull()
             assertThat(state.isExistingWordDialogVisible).isFalse()
-            coVerify(exactly = 0) { overrideVocabularyItemUseCase.invoke(any(), any(), any()) }
+            coVerify(exactly = 0) { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) }
         }
 
     @Test
@@ -1478,7 +1479,7 @@ class AddWordViewModelTest {
             advanceUntilIdle()
 
             assertThat(aiTranslationProvider.requests).isEmpty()
-            coVerify(exactly = 0) { overrideVocabularyItemUseCase.invoke(any(), any(), any()) }
+            coVerify(exactly = 0) { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) }
             assertThat(viewModel.uiState.value.isExistingWordDialogVisible).isFalse()
         }
 
@@ -1530,7 +1531,7 @@ class AddWordViewModelTest {
             directionFlow.value = AiTranslationDirection.TARGET_TO_NATIVE
             val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
-            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns Result.success(Unit)
             aiTranslationProvider.nextTranslation = "Fresh house"
             val viewModel = buildViewModel()
             advanceUntilIdle()
@@ -1554,7 +1555,7 @@ class AddWordViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
-            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any()) } returns Result.success(Unit)
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns Result.success(Unit)
             val viewModel = buildViewModel()
 
             viewModel.onWordChange("Haus")
@@ -1587,6 +1588,191 @@ class AddWordViewModelTest {
             advanceUntilIdle()
 
             coVerify(exactly = 0) { getVocabularyItemByWordUseCase.invoke(any()) }
+        }
+
+    @Test
+    fun `showBidirectionalOption is true when AI mode is not active`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.showBidirectionalOption).isTrue()
+        }
+
+    @Test
+    fun `showBidirectionalOption is false when AI mode is active`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc123"
+            useAiFlow.value = true
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.showBidirectionalOption).isFalse()
+        }
+
+    @Test
+    fun `onBidirectionalToggle true sets bidirectional state`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onBidirectionalToggle(true)
+
+            assertThat(viewModel.uiState.value.bidirectional).isTrue()
+        }
+
+    @Test
+    fun `onBidirectionalToggle false collapses and clears the customize section`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onBidirectionalToggle(true)
+            viewModel.onCustomizeBackwardToggle()
+            viewModel.onBackwardPromptOverrideChange("prompt")
+            viewModel.onBackwardAnswerOverrideChange("answer")
+
+            viewModel.onBidirectionalToggle(false)
+
+            val state = viewModel.uiState.value
+            assertThat(state.bidirectional).isFalse()
+            assertThat(state.isCustomizingBackward).isFalse()
+            assertThat(state.backwardPromptOverride).isEmpty()
+            assertThat(state.backwardAnswerOverride).isEmpty()
+        }
+
+    @Test
+    fun `enabling AI mode while bidirectional is checked clears bidirectional and overrides`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            openAiKeyFlow.value = "abc123"
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onBidirectionalToggle(true)
+            viewModel.onCustomizeBackwardToggle()
+            viewModel.onBackwardPromptOverrideChange("prompt")
+
+            useAiFlow.value = true
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertThat(state.bidirectional).isFalse()
+            assertThat(state.isCustomizingBackward).isFalse()
+            assertThat(state.backwardPromptOverride).isEmpty()
+        }
+
+    @Test
+    fun `onCustomizeBackwardToggle toggles isCustomizingBackward`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onBidirectionalToggle(true)
+
+            viewModel.onCustomizeBackwardToggle()
+            assertThat(viewModel.uiState.value.isCustomizingBackward).isTrue()
+
+            viewModel.onCustomizeBackwardToggle()
+            assertThat(viewModel.uiState.value.isCustomizingBackward).isFalse()
+        }
+
+    @Test
+    fun `onBackwardPromptOverrideChange and onBackwardAnswerOverrideChange update state`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            viewModel.onBackwardPromptOverrideChange("custom prompt")
+            viewModel.onBackwardAnswerOverrideChange("custom answer")
+
+            assertThat(viewModel.uiState.value.backwardPromptOverride).isEqualTo("custom prompt")
+            assertThat(viewModel.uiState.value.backwardAnswerOverride).isEqualTo("custom answer")
+        }
+
+    @Test
+    fun `onAddClick with bidirectional checked and no overrides passes bidirectional true and null overrides`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val capturedBidirectional = slot<Boolean>()
+            coEvery {
+                addVocabularyItemUseCase.invoke(
+                    any(),
+                    any(),
+                    capture(capturedBidirectional),
+                    null,
+                    null,
+                )
+            } returns Result.success(Unit)
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("run")
+            viewModel.onTranslationChange("бігати")
+            viewModel.onBidirectionalToggle(true)
+
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            assertThat(capturedBidirectional.captured).isTrue()
+            coVerify(exactly = 1) { addVocabularyItemUseCase.invoke(any(), any(), true, null, null) }
+        }
+
+    @Test
+    fun `onAddClick with customized overrides passes trimmed override text`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val capturedPromptOverride = slot<String>()
+            val capturedAnswerOverride = slot<String>()
+            coEvery {
+                addVocabularyItemUseCase.invoke(
+                    any(),
+                    any(),
+                    any(),
+                    capture(capturedPromptOverride),
+                    capture(capturedAnswerOverride),
+                )
+            } returns Result.success(Unit)
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("run")
+            viewModel.onTranslationChange("бігати")
+            viewModel.onBidirectionalToggle(true)
+            viewModel.onCustomizeBackwardToggle()
+            viewModel.onBackwardPromptOverrideChange(" custom prompt ")
+            viewModel.onBackwardAnswerOverrideChange(" custom answer ")
+
+            viewModel.onAddClick()
+            advanceUntilIdle()
+
+            assertThat(capturedPromptOverride.captured).isEqualTo(" custom prompt ")
+            assertThat(capturedAnswerOverride.captured).isEqualTo(" custom answer ")
+        }
+
+    @Test
+    fun `submitting a duplicate word with bidirectional checked passes bidirectional through to the override use case`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val existing = VocabularyItem(id = 1L, word = "Haus", translation = "Old house", isNew = false)
+            coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
+            val capturedBidirectional = slot<Boolean>()
+            coEvery {
+                overrideVocabularyItemUseCase.invoke(
+                    any(),
+                    any(),
+                    any(),
+                    capture(capturedBidirectional),
+                    any(),
+                    any(),
+                )
+            } returns Result.success(Unit)
+
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onWordChange("Haus")
+            viewModel.onTranslationChange("House")
+            viewModel.onBidirectionalToggle(true)
+
+            viewModel.onAddClick()
+            advanceUntilIdle()
+            viewModel.onExistingWordDialogProceed()
+            advanceUntilIdle()
+
+            assertThat(capturedBidirectional.captured).isTrue()
         }
 
     private class FakeAiTranslationProvider : AiTranslationProvider {

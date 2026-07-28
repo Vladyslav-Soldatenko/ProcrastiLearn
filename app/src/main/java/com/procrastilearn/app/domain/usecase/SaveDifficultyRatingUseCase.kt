@@ -1,5 +1,6 @@
 package com.procrastilearn.app.domain.usecase
 
+import com.procrastilearn.app.domain.model.StudyDirection
 import com.procrastilearn.app.domain.repository.VocabularyRepository
 import io.github.openspacedrepetition.Rating
 import javax.inject.Inject
@@ -12,8 +13,9 @@ class SaveDifficultyRatingUseCase
         suspend operator fun invoke(
             vocabId: Long,
             rating: Rating,
+            direction: StudyDirection = StudyDirection.FORWARD,
         ): Result<Unit> =
             runCatching {
-                repository.reviewVocabularyItem(vocabId, rating)
+                repository.reviewVocabularyItem(vocabId, rating, direction)
             }
     }

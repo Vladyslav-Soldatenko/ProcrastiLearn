@@ -11,7 +11,7 @@ import com.procrastilearn.app.data.local.entity.VocabularyEntity
 
 @Database(
     entities = [VocabularyEntity::class, PendingWordEntity::class, UndoSnapshotEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {

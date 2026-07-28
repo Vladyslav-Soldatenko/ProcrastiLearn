@@ -23,14 +23,47 @@ class ExportRoundTripFuzzTest {
 
     @Test
     fun `upgrading a v1 export and re-exporting round trips through the current format`() {
-        val raw = File("src/test/resources/exports/v1/real-device-export.json").readText()
-        val firstDecode = VocabularyExportSerializer.decode(raw)
-        check(firstDecode is ImportOutcome.Success) { "Fixture no longer decodes: $firstDecode" }
+        val firstDecode = decodeFixtureOrFail("src/test/resources/exports/v1/real-device-export.json")
 
         val reExported = VocabularyExportSerializer.encode(firstDecode.items)
         val secondDecode = VocabularyExportSerializer.decode(reExported)
 
         assertThat(secondDecode).isEqualTo(firstDecode)
+        // Legacy (pre-bidirectional) data must not spuriously acquire bidirectional state.
+        assertBackwardFieldsAreDefaulted(firstDecode.items)
+    }
+
+    @Test
+    fun `upgrading a v2 export and re-exporting round trips through the current format`() {
+        val firstDecode = decodeFixtureOrFail("src/test/resources/exports/v2/pre-bidirectional-export.json")
+
+        val reExported = VocabularyExportSerializer.encode(firstDecode.items)
+        val secondDecode = VocabularyExportSerializer.decode(reExported)
+
+        assertThat(secondDecode).isEqualTo(firstDecode)
+        assertBackwardFieldsAreDefaulted(firstDecode.items)
+    }
+
+    private fun decodeFixtureOrFail(path: String): ImportOutcome.Success {
+        val raw = File(path).readText()
+        val decoded = VocabularyExportSerializer.decode(raw)
+        check(decoded is ImportOutcome.Success) { "Fixture no longer decodes: $decoded" }
+        return decoded
+    }
+
+    private fun assertBackwardFieldsAreDefaulted(items: List<VocabularyExportItem>) {
+        assertThat(items).isNotEmpty()
+        items.forEach { item ->
+            assertWithMessage("${item.word} should default to non-bidirectional")
+                .that(item.bidirectional)
+                .isFalse()
+            assertThat(item.backwardFsrsCardJson).isEmpty()
+            assertThat(item.backwardFsrsDueAt).isEqualTo(0L)
+            assertThat(item.backwardCorrectCount).isEqualTo(0)
+            assertThat(item.backwardIncorrectCount).isEqualTo(0)
+            assertThat(item.backwardPromptOverride).isNull()
+            assertThat(item.backwardAnswerOverride).isNull()
+        }
     }
 
     @Test
@@ -81,6 +114,13 @@ private fun randomItem(
         incorrectCount = random.nextInt(MAX_REVIEW_COUNT),
         fsrsCardJson = """{"cardId":${random.nextInt()}}""",
         fsrsDueAt = random.nextLong(MAX_TIMESTAMP),
+        bidirectional = random.nextBoolean(),
+        backwardFsrsCardJson = """{"backwardCardId":${random.nextInt()}}""",
+        backwardFsrsDueAt = random.nextLong(MAX_TIMESTAMP),
+        backwardCorrectCount = random.nextInt(MAX_REVIEW_COUNT),
+        backwardIncorrectCount = random.nextInt(MAX_REVIEW_COUNT),
+        backwardPromptOverride = if (random.nextBoolean()) "prompt-${random.nextInt(MAX_WORD_SUFFIX)}" else null,
+        backwardAnswerOverride = if (random.nextBoolean()) "answer-${random.nextInt(MAX_WORD_SUFFIX)}" else null,
     )
 
 private fun typicalItemJson(item: VocabularyExportItem): JsonObject =
@@ -94,6 +134,13 @@ private fun typicalItemJson(item: VocabularyExportItem): JsonObject =
         put("incorrectCount", JsonPrimitive(item.incorrectCount))
         put("fsrsCardJson", JsonPrimitive(item.fsrsCardJson))
         put("fsrsDueAt", JsonPrimitive(item.fsrsDueAt))
+        put("bidirectional", JsonPrimitive(item.bidirectional))
+        put("backwardFsrsCardJson", JsonPrimitive(item.backwardFsrsCardJson))
+        put("backwardFsrsDueAt", JsonPrimitive(item.backwardFsrsDueAt))
+        put("backwardCorrectCount", JsonPrimitive(item.backwardCorrectCount))
+        put("backwardIncorrectCount", JsonPrimitive(item.backwardIncorrectCount))
+        put("backwardPromptOverride", item.backwardPromptOverride?.let { JsonPrimitive(it) } ?: JsonNull)
+        put("backwardAnswerOverride", item.backwardAnswerOverride?.let { JsonPrimitive(it) } ?: JsonNull)
     }
 
 @OptIn(ExperimentalSerializationApi::class)

@@ -17,6 +17,7 @@ import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.LanguagePair
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.model.VocabularyExportItem
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.parser.VocabularyExportParser
@@ -277,6 +278,32 @@ class SettingsViewModelTest {
         }
 
     @Test
+    fun `uiState reflects studyDirectionMode from the policy`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            policyFlow.value = policyFlow.value.copy(studyDirectionMode = StudyDirectionMode.BIDIRECTIONAL)
+            val viewModel = buildViewModel()
+
+            viewModel.uiState.test {
+                awaitItem()
+                val hydrated = awaitItem()
+                assertThat(hydrated.studyDirectionMode).isEqualTo(StudyDirectionMode.BIDIRECTIONAL)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `onStudyDirectionModeChange delegates to store`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            coEvery { dayCountersStore.setStudyDirectionMode(any()) } returns Unit
+
+            viewModel.onStudyDirectionModeChange(StudyDirectionMode.BACKWARD)
+            advanceUntilIdle()
+
+            coVerify { dayCountersStore.setStudyDirectionMode(StudyDirectionMode.BACKWARD) }
+        }
+
+    @Test
     fun `onMixModeChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
@@ -415,7 +442,7 @@ class SettingsViewModelTest {
 
             assertThat(completion.await()).isTrue()
             val payload = tempFile.readText()
-            assertThat(payload).contains("\"schemaVersion\": 2")
+            assertThat(payload).contains("\"schemaVersion\": 3")
             assertThat(payload).contains("\"id\": 1")
             assertThat(payload).contains("\"word\": \"Haus\"")
             assertThat(payload).contains("\"translation\": \"House\"")

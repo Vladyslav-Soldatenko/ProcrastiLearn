@@ -1,6 +1,7 @@
 package com.procrastilearn.app.domain.usecase
 
 import com.google.common.truth.Truth.assertThat
+import com.procrastilearn.app.domain.model.StudyDirection
 import com.procrastilearn.app.domain.repository.VocabularyRepository
 import io.github.openspacedrepetition.Rating
 import io.mockk.Runs
@@ -38,6 +39,26 @@ class SaveDifficultyRatingUseCaseTest {
 
             assertThat(result.isSuccess).isTrue()
             coVerify(exactly = 1) { repository.reviewVocabularyItem(42L, Rating.GOOD) }
+        }
+
+    @Test
+    fun `invoke forwards the FORWARD direction argument to the repository unchanged`() =
+        runTest {
+            coEvery { repository.reviewVocabularyItem(any(), any(), any()) } just Runs
+
+            useCase(42L, Rating.GOOD, StudyDirection.FORWARD)
+
+            coVerify(exactly = 1) { repository.reviewVocabularyItem(42L, Rating.GOOD, StudyDirection.FORWARD) }
+        }
+
+    @Test
+    fun `invoke forwards the BACKWARD direction argument to the repository unchanged`() =
+        runTest {
+            coEvery { repository.reviewVocabularyItem(any(), any(), any()) } just Runs
+
+            useCase(42L, Rating.GOOD, StudyDirection.BACKWARD)
+
+            coVerify(exactly = 1) { repository.reviewVocabularyItem(42L, Rating.GOOD, StudyDirection.BACKWARD) }
         }
 
     @Test

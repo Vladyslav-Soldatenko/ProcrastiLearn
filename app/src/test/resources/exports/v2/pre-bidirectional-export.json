@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 2,
+  "exportedAt": 1750000000000,
+  "appVersion": "1.1.0",
+  "words": [
+    {
+      "id": 1,
+      "word": "Apfel",
+      "translation": "apple",
+      "createdAt": 1749000000000,
+      "lastShownAt": 1749500000000,
+      "correctCount": 4,
+      "incorrectCount": 1,
+      "fsrsCardJson": "{\"cardId\":123456,\"state\":\"REVIEW\"}",
+      "fsrsDueAt": 1750500000000
+    },
+    {
+      "id": 2,
+      "word": "lernen",
+      "translation": "to learn",
+      "createdAt": 1749100000000,
+      "lastShownAt": null,
+      "correctCount": 0,
+      "incorrectCount": 0,
+      "fsrsCardJson": "",
+      "fsrsDueAt": 0
+    }
+  ]
+}

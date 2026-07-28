@@ -14,6 +14,7 @@ data class DojoUiState(
     // Undo state
     val canUndo: Boolean = false,
     val undoEvent: UndoEvent? = null,
+    val skippedCardCount: Int = 0,
 ) {
     val hasNoWords: Boolean get() = vocabularyItem == null && !isLoading
 }

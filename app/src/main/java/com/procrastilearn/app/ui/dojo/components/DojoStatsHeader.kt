@@ -32,6 +32,7 @@ fun DojoStatsHeader(
     modifier: Modifier = Modifier,
     canUndo: Boolean = false,
     onUndo: () -> Unit = {},
+    skippedCardCount: Int = 0,
 ) {
     Box(
         modifier =
@@ -89,6 +90,14 @@ fun DojoStatsHeader(
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurface,
             )
+
+            if (skippedCardCount > 0) {
+                Text(
+                    text = " · $skippedCardCount ${stringResource(R.string.dojo_stats_skipped)}",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }

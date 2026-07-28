@@ -2,6 +2,7 @@ package com.procrastilearn.app.data.export
 
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
@@ -40,6 +41,56 @@ class ExportImportRoomIntegrationTest {
         runTest {
             val failures = corpusFiles().mapNotNull { checkImport(it) }
             assertWithMessage(failures.joinToString("\n\n")).that(failures).isEmpty()
+        }
+
+    @Test
+    fun `importing a genuine v2 export enriches rows with correct default backward values`() =
+        runTest {
+            val dao = database.vocabularyDao()
+            val rawV2Json =
+                """
+                {
+                  "schemaVersion": 2,
+                  "exportedAt": 1700000000000,
+                  "appVersion": "1.2.0",
+                  "words": [
+                    {
+                      "id": 1,
+                      "word": "Baum",
+                      "translation": "tree",
+                      "createdAt": 1000,
+                      "lastShownAt": 2000,
+                      "correctCount": 3,
+                      "incorrectCount": 1,
+                      "fsrsCardJson": "{\"cardId\":42}",
+                      "fsrsDueAt": 5000
+                    }
+                  ]
+                }
+                """.trimIndent()
+
+            val outcome = VocabularyExportSerializer.decode(rawV2Json)
+            check(outcome is ImportOutcome.Success) { "Expected a successful decode, got $outcome" }
+            dao.insertAllVocabulary(outcome.items.map { it.toEntity() })
+
+            val stored = dao.getAllVocabulary().first().single()
+
+            // Original (pre-bidirectional) fields carried through unchanged.
+            assertThat(stored.word).isEqualTo("Baum")
+            assertThat(stored.translation).isEqualTo("tree")
+            assertThat(stored.correctCount).isEqualTo(3)
+            assertThat(stored.incorrectCount).isEqualTo(1)
+            assertThat(stored.fsrsCardJson).isEqualTo("{\"cardId\":42}")
+            assertThat(stored.fsrsDueAt).isEqualTo(5000L)
+
+            // New columns enriched with the correct defaults.
+            assertThat(stored.bidirectional).isFalse()
+            assertThat(stored.backwardFsrsCardJson).isEmpty()
+            assertThat(stored.backwardFsrsDueAt).isEqualTo(0L)
+            assertThat(stored.backwardCorrectCount).isEqualTo(0)
+            assertThat(stored.backwardIncorrectCount).isEqualTo(0)
+            assertThat(stored.backwardPromptOverride).isNull()
+            assertThat(stored.backwardAnswerOverride).isNull()
         }
 
     private fun corpusFiles(): List<File> {

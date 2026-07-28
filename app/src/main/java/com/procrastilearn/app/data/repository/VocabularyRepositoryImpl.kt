@@ -11,8 +11,12 @@ import com.procrastilearn.app.data.local.mapper.toDomain
 import com.procrastilearn.app.data.local.mapper.toEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.StudyDirection
 import com.procrastilearn.app.domain.model.UndoResult
 import com.procrastilearn.app.domain.model.VocabularyItem
+import com.procrastilearn.app.domain.model.includesBackward
+import com.procrastilearn.app.domain.model.includesForward
+import com.procrastilearn.app.domain.model.isBackwardOnly
 import com.procrastilearn.app.domain.repository.VocabularyRepository
 import io.github.openspacedrepetition.Card
 import io.github.openspacedrepetition.Rating
@@ -33,6 +37,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val UNDO_STACK_CAP = 3
+
+// How far past the first-ever review of a bidirectional card its other direction's due
+// date is seeded, so the just-answered card's opposite direction doesn't immediately
+// re-surface in the very next pick.
+private const val BACKWARD_SEED_BUFFER_MILLIS = 10 * 60 * 1000L
 
 private fun todayStamp(): Int =
     LocalDate
@@ -78,6 +87,9 @@ class VocabularyRepositoryImpl
                         existingEntity.copy(
                             word = item.word,
                             translation = item.translation,
+                            bidirectional = item.bidirectional,
+                            backwardPromptOverride = item.backwardPromptOverride,
+                            backwardAnswerOverride = item.backwardAnswerOverride,
                         )
                     vocabularyDao.updateVocabulary(updatedEntity)
                     undoSnapshotDao.deleteForVocab(item.id)
@@ -101,11 +113,15 @@ class VocabularyRepositoryImpl
                         incorrectCount = 0,
                         fsrsCardJson = resetCardJson,
                         fsrsDueAt = 0L,
+                        backwardCorrectCount = 0,
+                        backwardIncorrectCount = 0,
+                        backwardFsrsCardJson = resetCardJson,
+                        backwardFsrsDueAt = 0L,
                     )
                 vocabularyDao.updateVocabulary(resetEntity)
                 undoSnapshotDao.deleteForVocab(item.id)
                 if (currentItem.value?.id == item.id) {
-                    currentItem.value = resetEntity.toDomain()
+                    currentItem.value = resetEntity.toDomain(currentItem.value?.direction ?: StudyDirection.FORWARD)
                 }
             }
 
@@ -114,22 +130,30 @@ class VocabularyRepositoryImpl
         override fun getAllVocabulary(): Flow<List<VocabularyItem>> =
             vocabularyDao.getAllVocabulary().map { list -> list.map { it.toDomain() } }
 
+        override fun observeBackwardOnlySkippedCount(): Flow<Int> =
+            vocabularyDao.observeBackwardOnlySkippedCount(System.currentTimeMillis())
+
+        @Suppress("LongMethod")
         override suspend fun reviewVocabularyItem(
             id: Long,
             rating: Rating,
+            direction: StudyDirection,
         ): Unit =
             withContext(io) {
                 reviewMutex.withLock {
-                    Log.i("fsrs", "reviewng $id")
                     val entity =
                         vocabularyDao.getVocabularyById(id)
                             ?: throw IllegalArgumentException("Vocabulary $id not found")
 
+                    val wasRowNew = entity.fsrsDueAt == 0L && entity.backwardFsrsDueAt == 0L
+
+                    val cardJsonBefore =
+                        if (direction == StudyDirection.FORWARD) entity.fsrsCardJson else entity.backwardFsrsCardJson
                     val card =
-                        if (entity.fsrsCardJson.isBlank()) {
+                        if (cardJsonBefore.isBlank()) {
                             Card.builder().build()
                         } else {
-                            Card.fromJson(entity.fsrsCardJson)
+                            Card.fromJson(cardJsonBefore)
                         }
 
                     val result = scheduler.reviewCard(card, rating)
@@ -142,6 +166,11 @@ class VocabularyRepositoryImpl
                     val incCorrect = if (rating == Rating.AGAIN) 0 else 1
                     val incIncorrect = if (rating == Rating.AGAIN) 1 else 0
 
+                    // Only ever seed the other direction on a row's first-ever exposure, and
+                    // only when the card is flagged bidirectional.
+                    val shouldSeedOther = wasRowNew && entity.bidirectional
+                    val seedDueAt = reviewedAt + BACKWARD_SEED_BUFFER_MILLIS
+
                     val counters = prefs.read().first()
                     val snapshot =
                         UndoSnapshotEntity(
@@ -149,35 +178,57 @@ class VocabularyRepositoryImpl
                             createdAt = System.currentTimeMillis(),
                             snapshotDay = todayStamp(),
                             ratingName = rating.name,
+                            direction = direction.name,
                             fsrsCardJson = entity.fsrsCardJson,
                             fsrsDueAt = entity.fsrsDueAt,
                             lastShownAt = entity.lastShownAt,
                             correctCount = entity.correctCount,
                             incorrectCount = entity.incorrectCount,
+                            backwardFsrsCardJson = entity.backwardFsrsCardJson,
+                            backwardFsrsDueAt = entity.backwardFsrsDueAt,
+                            backwardCorrectCount = entity.backwardCorrectCount,
+                            backwardIncorrectCount = entity.backwardIncorrectCount,
                             newShown = counters.newShown,
                             reviewShown = counters.reviewShown,
                             reviewsSinceLastNew = counters.reviewsSinceLastNew,
                         )
 
                     appDatabase.withTransaction {
-                        vocabularyDao.applyFsrsReview(
-                            id = id,
-                            cardJson = updatedCard.toJson(),
-                            dueAt = nextDue,
-                            reviewedAt = reviewedAt,
-                            incCorrect = incCorrect,
-                            incIncorrect = incIncorrect,
-                        )
+                        when (direction) {
+                            StudyDirection.FORWARD ->
+                                vocabularyDao.applyFsrsReview(
+                                    id = id,
+                                    cardJson = updatedCard.toJson(),
+                                    dueAt = nextDue,
+                                    reviewedAt = reviewedAt,
+                                    incCorrect = incCorrect,
+                                    incIncorrect = incIncorrect,
+                                    seedOtherDirection = shouldSeedOther,
+                                    seedDueAt = seedDueAt,
+                                )
+                            StudyDirection.BACKWARD ->
+                                vocabularyDao.applyBackwardFsrsReview(
+                                    id = id,
+                                    cardJson = updatedCard.toJson(),
+                                    dueAt = nextDue,
+                                    reviewedAt = reviewedAt,
+                                    incCorrect = incCorrect,
+                                    incIncorrect = incIncorrect,
+                                    seedOtherDirection = shouldSeedOther,
+                                    seedDueAt = seedDueAt,
+                                )
+                        }
                         undoSnapshotDao.insert(snapshot)
                         undoSnapshotDao.trimToLast(UNDO_STACK_CAP)
                     }
 
                     // IMPORTANT: Clear current item after review to force new item on next call
                     currentItem.value = null
-                    // Update day counters based on card type at *display* time
-                    val isNew = (entity.correctCount == 0 && entity.incorrectCount == 0)
-                    if (isNew) prefs.markNewShown() else prefs.markReviewShown()
-                    Log.i("FSRS", "Reviewed $id as $rating; next due at $nextDue")
+                    // Update day counters based on whether the *row* was new at display time,
+                    // regardless of which direction was rated - a row only ever consumes a
+                    // new-slot once, on its first-ever exposure in either direction.
+                    if (wasRowNew) prefs.markNewShown() else prefs.markReviewShown()
+                    Log.i("FSRS", "Reviewed $id ($direction) as $rating; next due at $nextDue")
                 }
             }
 
@@ -194,6 +245,10 @@ class VocabularyRepositoryImpl
                             lastShownAt = snapshot.lastShownAt,
                             correctCount = snapshot.correctCount,
                             incorrectCount = snapshot.incorrectCount,
+                            backwardCardJson = snapshot.backwardFsrsCardJson,
+                            backwardDueAt = snapshot.backwardFsrsDueAt,
+                            backwardCorrectCount = snapshot.backwardCorrectCount,
+                            backwardIncorrectCount = snapshot.backwardIncorrectCount,
                         )
                         undoSnapshotDao.deleteById(snapshot.id)
                     }
@@ -206,10 +261,12 @@ class VocabularyRepositoryImpl
                         )
                     }
 
+                    val restoredDirection =
+                        runCatching { StudyDirection.valueOf(snapshot.direction) }.getOrDefault(StudyDirection.FORWARD)
                     val restoredEntity =
                         vocabularyDao.getVocabularyById(snapshot.vocabId)
                             ?: return@withLock null
-                    val restoredItem = restoredEntity.toDomain()
+                    val restoredItem = restoredEntity.toDomain(restoredDirection)
                     currentItem.value = restoredItem
                     UndoResult(
                         item = restoredItem,
@@ -225,20 +282,27 @@ class VocabularyRepositoryImpl
             withContext(io) {
                 val now = System.currentTimeMillis()
                 ensureDay()
-                Log.i("fsrs", "before counters")
                 // Read day counters once
                 val counters = prefs.read().first()
                 val policy = prefs.readPolicy().first()
-                val totalNew = vocabularyDao.countNewTotal()
 
-                Log.i("fsrs", counters.toString())
+                val includeForward = policy.studyDirectionMode.includesForward
+                val includeBackward = policy.studyDirectionMode.includesBackward
+                val backwardOnlyMode = policy.studyDirectionMode.isBackwardOnly
+
+                val totalNew = vocabularyDao.countNewTotal(requireBidirectional = backwardOnlyMode)
+
                 val newRemaining =
                     (policy.newPerDay + counters.extraNewToday - counters.newShown).coerceAtLeast(0)
                 val reviewRemaining = (policy.reviewPerDay - counters.reviewShown).coerceAtLeast(0)
 
                 // 1) Check due reviews (incl. learning due now via FSRS dueAt)
-                val dueCount = if (reviewRemaining > 0) vocabularyDao.countReviewsDue(now) else 0
-                Log.i("fsrs", "newRemaining=$newRemaining, dueCount=$dueCount, prefs=$prefs.")
+                val dueCount =
+                    if (reviewRemaining > 0) {
+                        vocabularyDao.countReviewsDue(now, includeForward, includeBackward)
+                    } else {
+                        0
+                    }
                 // Check if we've hit limits and have nothing to show
                 if (newRemaining == 0 && dueCount == 0) {
                     throw NoAvailableItemsException()
@@ -258,29 +322,22 @@ class VocabularyRepositoryImpl
                             )
                     }
 
-                val pickId: Long? =
+                val picked: PickedCandidate? =
                     when {
                         // Prefer due reviews unless we explicitly want new right now
-                        dueCount > 0 && !wantNew -> vocabularyDao.pickNextReviewId(now)
+                        dueCount > 0 && !wantNew -> pickEarliestDue(now, includeForward, includeBackward)
 
                         // If we want a new now (ratio hit) or no reviews due, try new (within daily cap)
-                        newRemaining > 0 && (wantNew || dueCount == 0) -> {
-                            if (totalNew > 0) {
-                                val offset = kotlin.random.Random.nextInt(totalNew) // O(1) sampler
-                                vocabularyDao.pickNewIdByOffset(offset)
-                                    ?: vocabularyDao.pickNewIdByOffset(0)
-                            } else {
-                                null
-                            }
-                        }
+                        newRemaining > 0 && (wantNew || dueCount == 0) ->
+                            pickNewCandidate(totalNew = totalNew, backwardOnlyMode = backwardOnlyMode)
 
                         // Don't fall back to random/upcoming if limits are reached
                         else -> null
                     }
 
-                val chosenId = pickId ?: throw NoAvailableItemsException()
+                val chosen = picked ?: throw NoAvailableItemsException()
 
-                return@withContext finalizePick(chosenId)
+                return@withContext finalizePick(chosen.id, chosen.direction)
             }
 
         override suspend fun hasAvailableItems(): Boolean =
@@ -290,13 +347,23 @@ class VocabularyRepositoryImpl
 
                 val counters = prefs.read().first()
                 val policy = prefs.readPolicy().first()
-                val totalNew = vocabularyDao.countNewTotal()
+
+                val includeForward = policy.studyDirectionMode.includesForward
+                val includeBackward = policy.studyDirectionMode.includesBackward
+                val backwardOnlyMode = policy.studyDirectionMode.isBackwardOnly
+
+                val totalNew = vocabularyDao.countNewTotal(requireBidirectional = backwardOnlyMode)
                 val newRemaining =
                     (policy.newPerDay + counters.extraNewToday - counters.newShown).coerceAtLeast(0)
                 val reviewRemaining = (policy.reviewPerDay - counters.reviewShown).coerceAtLeast(0)
 
                 // Check if there are due reviews
-                val dueCount = if (reviewRemaining > 0) vocabularyDao.countReviewsDue(now) else 0
+                val dueCount =
+                    if (reviewRemaining > 0) {
+                        vocabularyDao.countReviewsDue(now, includeForward, includeBackward)
+                    } else {
+                        0
+                    }
 
                 // We have items available if:
                 // 1. There are reviews due, OR
@@ -308,11 +375,53 @@ class VocabularyRepositoryImpl
                 }
             }
 
-        private suspend fun finalizePick(id: Long): VocabularyItem {
+        private data class PickedCandidate(
+            val id: Long,
+            val direction: StudyDirection,
+        )
+
+        private suspend fun pickEarliestDue(
+            now: Long,
+            includeForward: Boolean,
+            includeBackward: Boolean,
+        ): PickedCandidate? {
+            val forward = if (includeForward) vocabularyDao.pickNextForwardReviewCandidate(now) else null
+            val backward = if (includeBackward) vocabularyDao.pickNextBackwardReviewCandidate(now) else null
+            return when {
+                forward == null && backward == null -> null
+                backward == null -> PickedCandidate(forward!!.id, StudyDirection.FORWARD)
+                forward == null -> PickedCandidate(backward.id, StudyDirection.BACKWARD)
+                // Ties resolve to forward.
+                forward.dueAt <= backward.dueAt -> PickedCandidate(forward.id, StudyDirection.FORWARD)
+                else -> PickedCandidate(backward.id, StudyDirection.BACKWARD)
+            }
+        }
+
+        // A row is always introduced forward unless the global mode is purely Backward, in
+        // which case it's introduced backward and only bidirectional-flagged rows are
+        // eligible at all. Both restrictions are the same underlying condition, so they
+        // share the one flag rather than being passed as two params that must be kept in sync.
+        private suspend fun pickNewCandidate(
+            totalNew: Int,
+            backwardOnlyMode: Boolean,
+        ): PickedCandidate? {
+            if (totalNew <= 0) return null
+            val offset = kotlin.random.Random.nextInt(totalNew)
+            val id =
+                vocabularyDao.pickNewIdByOffset(offset, requireBidirectional = backwardOnlyMode)
+                    ?: vocabularyDao.pickNewIdByOffset(0, requireBidirectional = backwardOnlyMode)
+                    ?: return null
+            return PickedCandidate(id, if (backwardOnlyMode) StudyDirection.BACKWARD else StudyDirection.FORWARD)
+        }
+
+        private suspend fun finalizePick(
+            id: Long,
+            direction: StudyDirection,
+        ): VocabularyItem {
             val entity = vocabularyDao.getVocabularyById(id)
             check(entity != null) { "Picked id $id not found" }
 
-            val item = entity.ensureFsrs().toDomain()
+            val item = entity.ensureFsrs(direction).toDomain(direction)
             currentItem.value = item
             return item
         }
@@ -343,9 +452,19 @@ class VocabularyRepositoryImpl
         }
 
         // --- existing helpers unchanged ---
-        private fun VocabularyEntity.ensureFsrs(): VocabularyEntity {
-            if (fsrsCardJson.isNotBlank()) return this
-            val card = Card.builder().build()
-            return copy(fsrsCardJson = card.toJson(), fsrsDueAt = 0L)
-        }
+        private fun VocabularyEntity.ensureFsrs(direction: StudyDirection): VocabularyEntity =
+            when (direction) {
+                StudyDirection.FORWARD ->
+                    if (fsrsCardJson.isNotBlank()) {
+                        this
+                    } else {
+                        copy(fsrsCardJson = Card.builder().build().toJson(), fsrsDueAt = 0L)
+                    }
+                StudyDirection.BACKWARD ->
+                    if (backwardFsrsCardJson.isNotBlank()) {
+                        this
+                    } else {
+                        copy(backwardFsrsCardJson = Card.builder().build().toJson(), backwardFsrsDueAt = 0L)
+                    }
+            }
     }

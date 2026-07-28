@@ -99,6 +99,7 @@ internal fun DojoScreen(
                     pendingReviewCount = uiState.pendingReviewCount,
                     canUndo = uiState.canUndo,
                     onUndo = onUndo,
+                    skippedCardCount = uiState.skippedCardCount,
                 )
 
                 // Content area

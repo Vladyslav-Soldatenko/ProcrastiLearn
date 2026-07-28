@@ -2,18 +2,24 @@ package com.procrastilearn.app.ui.dojo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.data.local.dao.UndoSnapshotDao
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
 import com.procrastilearn.app.data.time.TimeTicker
+import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.VocabularyItem
+import com.procrastilearn.app.domain.model.includesBackward
+import com.procrastilearn.app.domain.model.includesForward
+import com.procrastilearn.app.domain.model.isBackwardOnly
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
 import com.procrastilearn.app.domain.usecase.UndoLastRatingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.openspacedrepetition.Rating
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,6 +28,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
@@ -52,12 +59,34 @@ class DojoViewModel
         private var pendingRestoredItem: VocabularyItem? = null
 
         private val dueCountRefreshRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+        private val nowSource = merge(timeTicker.nowTicks(), dueCountRefreshRequests.map { timeTicker.now() })
 
-        private val reviewsDueCount =
-            merge(timeTicker.nowTicks(), dueCountRefreshRequests.map { timeTicker.now() })
-                .flatMapLatest { now -> vocabularyDao.observeReviewsDueCount(now) }
+        // Due count and the backward-only skip count both depend on (now, policy) and are
+        // combined into one flow so baseState's own combine() stays within the 5-flow
+        // typed overload of kotlinx.coroutines' combine().
+        private val reviewsDueAndSkippedCount =
+            combine(nowSource, dayCountersStore.readPolicy()) { now, policy -> now to policy }
+                .flatMapLatest { (now, policy) ->
+                    val due =
+                        vocabularyDao.observeReviewsDueCount(
+                            now,
+                            includeForward = policy.studyDirectionMode.includesForward,
+                            includeBackward = policy.studyDirectionMode.includesBackward,
+                        )
+                    val skipped =
+                        if (policy.studyDirectionMode.isBackwardOnly) {
+                            vocabularyDao.observeBackwardOnlySkippedCount(now)
+                        } else {
+                            flowOf(0)
+                        }
+                    combine(due, skipped) { dueValue, skippedValue -> dueValue to skippedValue }
+                }
                 .distinctUntilChanged()
-        private val newTotalCount = vocabularyDao.observeNewTotalCount()
+
+        private val newTotalCount =
+            dayCountersStore.readPolicy().flatMapLatest { policy ->
+                vocabularyDao.observeNewTotalCount(requireBidirectional = policy.studyDirectionMode.isBackwardOnly)
+            }
         private val undoCount = undoSnapshotDao.observeCount()
 
         private val baseState =
@@ -65,9 +94,10 @@ class DojoViewModel
                 flashcardState,
                 dayCountersStore.read(),
                 dayCountersStore.readPolicy(),
-                reviewsDueCount,
+                reviewsDueAndSkippedCount,
                 newTotalCount,
-            ) { flashcard, counters, policy, pendingReviews, newTotal ->
+            ) { flashcard, counters, policy, dueAndSkipped, newTotal ->
+                val (pendingReviews, skippedCount) = dueAndSkipped
                 // Capped at newTotal: the quota can never claim more new cards exist
                 // than are actually left unseen in the deck.
                 val newQuotaRemaining =
@@ -78,7 +108,7 @@ class DojoViewModel
                 val reviewQuotaRemaining = (policy.reviewPerDay - counters.reviewShown).coerceAtLeast(0)
                 val pendingReviewCount = if (reviewQuotaRemaining > 0) pendingReviews else 0
 
-                BaseDojoState(flashcard, newQuotaRemaining, pendingReviewCount)
+                BaseDojoState(flashcard, newQuotaRemaining, pendingReviewCount, skippedCount)
             }
 
         val uiState: StateFlow<DojoUiState> =
@@ -91,21 +121,24 @@ class DojoViewModel
                     pendingReviewCount = base.pendingReviewCount,
                     canUndo = undoCountValue > 0,
                     undoEvent = event,
+                    skippedCardCount = base.skippedCardCount,
                 )
             }.stateIn(viewModelScope, SharingStarted.Eagerly, DojoUiState(isLoading = true))
 
         init {
             loadNextWord()
             // The current flashcard is otherwise only refreshed from here and after a
-            // local rating. If a due-count/quota change happens for any other reason
-            // (a review from the overlay, a quota raised in Settings), re-fetch so the
-            // card shown here can't go stale or get stuck on an outdated empty state.
+            // local rating. If a due-count/quota/new-word change happens for any other
+            // reason (a review from the overlay, a quota raised in Settings, a word
+            // added from the Add Word screen), re-fetch so the card shown here can't go
+            // stale or get stuck on an outdated empty state.
             viewModelScope.launch {
                 combine(
-                    reviewsDueCount,
+                    reviewsDueAndSkippedCount,
                     dayCountersStore.read(),
                     dayCountersStore.readPolicy(),
-                ) { due, counters, policy -> Triple(due, counters, policy) }
+                    newTotalCount,
+                ) { due, counters, policy, newTotal -> DueCountersSnapshot(due, counters, policy, newTotal) }
                     .drop(1)
                     .collect { loadNextWord() }
             }
@@ -122,14 +155,10 @@ class DojoViewModel
             }
 
             viewModelScope.launch {
-                saveDifficultyRating(current.id, rating)
+                saveDifficultyRating(current.id, rating, current.direction)
                 dueCountRefreshRequests.emit(Unit)
-                // Re-rating clears the pin: the next loadNextWord() should fetch for real.
                 pendingRestoredItem = null
-                // Reset showAnswer for next card
                 flashcardState.value = flashcardState.value.copy(showAnswer = false)
-                // Load next word; reviewsDueCount/counters will also react to the write
-                // this rating just made, via the combine() in init{}.
                 loadNextWord()
             }
         }
@@ -211,5 +240,13 @@ class DojoViewModel
             val flashcard: FlashcardState,
             val newQuotaRemaining: Int,
             val pendingReviewCount: Int,
+            val skippedCardCount: Int,
+        )
+
+        private data class DueCountersSnapshot(
+            val dueAndSkipped: Pair<Int, Int>,
+            val counters: DayCounters,
+            val policy: LearningPreferencesConfig,
+            val newTotal: Int,
         )
     }

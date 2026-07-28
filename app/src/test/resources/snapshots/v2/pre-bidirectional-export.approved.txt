@@ -1,0 +1,33 @@
+backwardAnswerOverride: null
+backwardCorrectCount: 0
+backwardFsrsCardJson: 
+backwardFsrsDueAt: 0
+backwardIncorrectCount: 0
+backwardPromptOverride: null
+bidirectional: false
+correctCount: 4
+createdAt: 1749000000000
+fsrsCardJson: {"cardId":123456,"state":"REVIEW"}
+fsrsDueAt: 1750500000000
+id: 1
+incorrectCount: 1
+lastShownAt: 1749500000000
+translation: apple
+word: Apfel
+
+backwardAnswerOverride: null
+backwardCorrectCount: 0
+backwardFsrsCardJson: 
+backwardFsrsDueAt: 0
+backwardIncorrectCount: 0
+backwardPromptOverride: null
+bidirectional: false
+correctCount: 0
+createdAt: 1749100000000
+fsrsCardJson: 
+fsrsDueAt: 0
+id: 2
+incorrectCount: 0
+lastShownAt: null
+translation: to learn
+word: lernen

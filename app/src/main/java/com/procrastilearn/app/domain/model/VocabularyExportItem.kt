@@ -13,4 +13,11 @@ data class VocabularyExportItem(
     val incorrectCount: Int,
     val fsrsCardJson: String,
     val fsrsDueAt: Long,
+    val bidirectional: Boolean = false,
+    val backwardFsrsCardJson: String = "",
+    val backwardFsrsDueAt: Long = 0L,
+    val backwardCorrectCount: Int = 0,
+    val backwardIncorrectCount: Int = 0,
+    val backwardPromptOverride: String? = null,
+    val backwardAnswerOverride: String? = null,
 )

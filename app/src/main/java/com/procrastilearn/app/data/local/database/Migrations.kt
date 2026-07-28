@@ -52,3 +52,29 @@ val MIGRATION_2_3 =
             )
         }
     }
+
+val MIGRATION_3_4 =
+    object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `vocabulary` ADD COLUMN `bidirectional` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `vocabulary` ADD COLUMN `backwardFsrsCardJson` TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE `vocabulary` ADD COLUMN `backwardFsrsDueAt` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `vocabulary` ADD COLUMN `backwardCorrectCount` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `vocabulary` ADD COLUMN `backwardIncorrectCount` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `vocabulary` ADD COLUMN `backwardPromptOverride` TEXT")
+            db.execSQL("ALTER TABLE `vocabulary` ADD COLUMN `backwardAnswerOverride` TEXT")
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_vocabulary_backwardFsrsDueAt` ON `vocabulary` (`backwardFsrsDueAt`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_vocabulary_fsrsDueAt_backwardFsrsDueAt` " +
+                    "ON `vocabulary` (`fsrsDueAt`, `backwardFsrsDueAt`)",
+            )
+
+            db.execSQL("ALTER TABLE `undo_snapshot` ADD COLUMN `direction` TEXT NOT NULL DEFAULT 'FORWARD'")
+            db.execSQL("ALTER TABLE `undo_snapshot` ADD COLUMN `backwardFsrsCardJson` TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE `undo_snapshot` ADD COLUMN `backwardFsrsDueAt` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `undo_snapshot` ADD COLUMN `backwardCorrectCount` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `undo_snapshot` ADD COLUMN `backwardIncorrectCount` INTEGER NOT NULL DEFAULT 0")
+        }
+    }

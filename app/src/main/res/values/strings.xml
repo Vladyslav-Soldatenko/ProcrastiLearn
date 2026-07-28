@@ -53,6 +53,7 @@
     <!-- ─── Dojo (practice screen) ──────────────────────────────────────────── -->
     <string name="dojo_stats_new_remaining">new</string>
     <string name="dojo_stats_reviews_due">due</string>
+    <string name="dojo_stats_skipped">skipped</string>
     <string name="dojo_empty_title">All done for now!</string>
     <string name="dojo_empty_message">You\'ve completed all available words for today. Come back later or adjust your daily limits in Settings.</string>
     <string name="dojo_undo_content_description">Undo last rating</string>
@@ -134,6 +135,15 @@
     <string name="add_word_error_add_failed">Failed to add word</string>
     <string name="add_word_error_lookup_failed">Failed to check existing words</string>
 
+    <!-- Bidirectional review -->
+    <string name="add_word_bidirectional_toggle">Test both directions</string>
+    <string name="add_word_customize_backward_show">Customize reverse card</string>
+    <string name="add_word_customize_backward_hide">Hide customization</string>
+    <string name="add_word_backward_prompt_label">Reverse prompt</string>
+    <string name="add_word_backward_prompt_placeholder">Leave blank to use the translation</string>
+    <string name="add_word_backward_answer_label">Reverse answer</string>
+    <string name="add_word_backward_answer_placeholder">Leave blank to use the word</string>
+
     <!-- ─── Language selection ──────────────────────────────────────────────── -->
     <string name="language_name_english">English</string>
     <string name="language_name_russian">Russian</string>
@@ -171,6 +181,15 @@
     <string name="settings_study_mode_mixed_desc">Mix new and review cards</string>
     <string name="settings_study_mode_reviews_first_desc">Show all reviews before new cards</string>
     <string name="settings_study_mode_new_first_desc">Show new cards before reviews</string>
+
+    <!-- Review direction -->
+    <string name="settings_review_direction_title">Review Direction</string>
+    <string name="settings_review_direction_forward">Forward</string>
+    <string name="settings_review_direction_backward">Backward</string>
+    <string name="settings_review_direction_bidirectional">Bidirectional</string>
+    <string name="settings_review_direction_forward_desc">Show word, ask for translation</string>
+    <string name="settings_review_direction_backward_desc">Show translation, ask for word</string>
+    <string name="settings_review_direction_bidirectional_desc">Mix both directions for cards flagged \"Test both directions\"</string>
 
     <!-- Daily limits -->
     <string name="settings_add_cards_for_today_title">Add Cards For Today</string>

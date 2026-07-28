@@ -3,6 +3,7 @@ package com.procrastilearn.app.overlay
 import android.util.Log
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
+import com.procrastilearn.app.domain.model.StudyDirection
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
@@ -154,6 +155,30 @@ class OverlayViewModelTest {
             assertThat(state.showAnswer).isFalse()
             assertThat(state.vocabularyItem).isEqualTo(item)
             coVerify(exactly = 1) { saveDifficultyRating.invoke(item.id, Rating.EASY) }
+        }
+
+    @Test
+    fun `onDifficultySelected passes the current item's direction to saveDifficultyRating`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val item =
+                VocabularyItem(
+                    id = 7,
+                    word = "бігати",
+                    translation = "run",
+                    isNew = false,
+                    direction = StudyDirection.BACKWARD,
+                )
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+            coEvery { saveDifficultyRating.invoke(any(), any(), any()) } returns Result.success(Unit)
+
+            val viewModel = buildViewModel()
+            viewModel.onOverlayOpened()
+            advanceUntilIdle()
+
+            viewModel.onDifficultySelected(Rating.GOOD)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { saveDifficultyRating.invoke(item.id, Rating.GOOD, StudyDirection.BACKWARD) }
         }
 
     @Test

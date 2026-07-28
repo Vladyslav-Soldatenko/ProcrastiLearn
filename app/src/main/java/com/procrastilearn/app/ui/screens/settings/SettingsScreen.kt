@@ -40,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import com.procrastilearn.app.ui.SettingsViewModel
 import com.procrastilearn.app.ui.VocabularyImportFailureReason
@@ -55,6 +56,8 @@ import com.procrastilearn.app.ui.screens.settings.components.LanguagePairSetting
 import com.procrastilearn.app.ui.screens.settings.components.MixModeDialog
 import com.procrastilearn.app.ui.screens.settings.components.MixModeSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NewPerDaySettingsItem
+import com.procrastilearn.app.ui.screens.settings.components.StudyDirectionDialog
+import com.procrastilearn.app.ui.screens.settings.components.StudyDirectionSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NumberInputDialog
 import com.procrastilearn.app.ui.screens.settings.components.OpenAiApiKeySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.OpenAiPromptSettingsItem
@@ -74,6 +77,8 @@ sealed interface DialogState {
     object None : DialogState
 
     object MixMode : DialogState
+
+    object StudyDirection : DialogState
 
     object AddCardsForToday : DialogState
 
@@ -162,6 +167,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             overlayGranted = permissionStates.overlayGranted,
             a11yEnabled = permissionStates.a11yEnabled,
             mixMode = state.mixMode,
+            studyDirectionMode = state.studyDirectionMode,
             newPerDay = state.newPerDay,
             availableNewCount = availableNewCount,
             availableToAddToday = availableToAddToday,
@@ -175,6 +181,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             onOverlayClick = { openOverlaySettings(ctx) },
             onA11yClick = { openAccessibilitySettings(ctx) },
             onMixModeChange = viewModel::onMixModeChange,
+            onStudyDirectionModeChange = viewModel::onStudyDirectionModeChange,
             onNewPerDayDialogOpen = viewModel::loadAvailableNewCount,
             onNewPerDayChange = viewModel::onNewPerDayChange,
             onAddCardsForToday = viewModel::onAddCardsForToday,
@@ -217,6 +224,7 @@ internal fun SettingsContent(
     overlayGranted: Boolean,
     a11yEnabled: Boolean,
     mixMode: MixMode,
+    studyDirectionMode: StudyDirectionMode = StudyDirectionMode.FORWARD,
     newPerDay: Int,
     availableNewCount: Int = 0,
     availableToAddToday: Int = 0,
@@ -230,6 +238,7 @@ internal fun SettingsContent(
     onOverlayClick: () -> Unit,
     onA11yClick: () -> Unit,
     onMixModeChange: (MixMode) -> Unit,
+    onStudyDirectionModeChange: (StudyDirectionMode) -> Unit = {},
     onNewPerDayDialogOpen: () -> Unit = {},
     onNewPerDayChange: (Int) -> Unit,
     onAddCardsForToday: (Int) -> Unit = {},
@@ -264,6 +273,13 @@ internal fun SettingsContent(
             MixModeSettingsItem(
                 mixMode = mixMode,
                 onClick = { dialogState = DialogState.MixMode },
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            StudyDirectionSettingsItem(
+                mode = studyDirectionMode,
+                onClick = { dialogState = DialogState.StudyDirection },
             )
 
             Spacer(Modifier.height(4.dp))
@@ -365,6 +381,16 @@ internal fun SettingsContent(
                 currentMode = mixMode,
                 onModeSelected = {
                     onMixModeChange(it)
+                    dialogState = DialogState.None
+                },
+                onDismiss = { dialogState = DialogState.None },
+            )
+        }
+        DialogState.StudyDirection -> {
+            StudyDirectionDialog(
+                currentMode = studyDirectionMode,
+                onModeSelected = {
+                    onStudyDirectionModeChange(it)
                     dialogState = DialogState.None
                 },
                 onDismiss = { dialogState = DialogState.None },

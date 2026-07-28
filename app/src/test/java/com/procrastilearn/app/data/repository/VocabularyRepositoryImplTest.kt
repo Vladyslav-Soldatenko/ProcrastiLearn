@@ -13,6 +13,7 @@ import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.StudyDirection
 import com.procrastilearn.app.domain.model.VocabularyItem
 import io.github.openspacedrepetition.Card
 import io.github.openspacedrepetition.Rating
@@ -270,6 +271,7 @@ class VocabularyRepositoryImplTest {
                 translation = "old",
                 correctCount = 2,
                 incorrectCount = 1,
+                fsrsDueAt = 1_000L,
             )
 
             repository.getAllVocabulary().test {
@@ -291,7 +293,7 @@ class VocabularyRepositoryImplTest {
             coEvery { dayCountersStore.read() } returns
                 flowOf(DayCounters(yyyymmdd = todayStamp(), newShown = 0, reviewShown = 0, reviewsSinceLastNew = 0))
 
-            repository.reviewVocabularyItem(id, Rating.GOOD)
+            repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
 
             val entity = vocabularyDao.getVocabularyById(id)
             assertThat(entity?.correctCount).isEqualTo(1)
@@ -319,7 +321,7 @@ class VocabularyRepositoryImplTest {
             coEvery { dayCountersStore.read() } returns
                 flowOf(DayCounters(yyyymmdd = todayStamp(), newShown = 0, reviewShown = 2, reviewsSinceLastNew = 1))
 
-            repository.reviewVocabularyItem(id, Rating.GOOD)
+            repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
 
             val entity = vocabularyDao.getVocabularyById(id)
             assertThat(entity?.correctCount).isEqualTo(3)

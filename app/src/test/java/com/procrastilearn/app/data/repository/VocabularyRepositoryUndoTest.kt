@@ -13,6 +13,7 @@ import com.procrastilearn.app.data.local.entity.UndoSnapshotEntity
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.StudyPreferencesDataStore
+import com.procrastilearn.app.domain.model.StudyDirection
 import io.github.openspacedrepetition.Card
 import io.github.openspacedrepetition.Rating
 import io.github.openspacedrepetition.Scheduler
@@ -117,7 +118,7 @@ class VocabularyRepositoryUndoTest {
         runTest {
             val id = insertVocab("lernen")
 
-            repository.reviewVocabularyItem(id, Rating.GOOD)
+            repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
 
             assertThat(undoSnapshotDao.count()).isEqualTo(1)
             val snapshot = undoSnapshotDao.peekLatest()
@@ -135,7 +136,7 @@ class VocabularyRepositoryUndoTest {
         runTest {
             val id = insertVocab("lesen")
 
-            repository.reviewVocabularyItem(id, Rating.EASY)
+            repository.reviewVocabularyItem(id, Rating.EASY, StudyDirection.FORWARD)
             val ratedEntity = vocabularyDao.getVocabularyById(id)!!
             assertThat(ratedEntity.correctCount).isEqualTo(1)
 
@@ -166,7 +167,7 @@ class VocabularyRepositoryUndoTest {
                     lastShownAt = now - 100_000L,
                 )
 
-            repository.reviewVocabularyItem(id, Rating.AGAIN)
+            repository.reviewVocabularyItem(id, Rating.AGAIN, StudyDirection.FORWARD)
             val ratedEntity = vocabularyDao.getVocabularyById(id)!!
             assertThat(ratedEntity.incorrectCount).isEqualTo(2)
 
@@ -185,7 +186,7 @@ class VocabularyRepositoryUndoTest {
     fun `undoLastRating deletes the consumed snapshot`() =
         runTest {
             val id = insertVocab("gehen")
-            repository.reviewVocabularyItem(id, Rating.GOOD)
+            repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
             assertThat(undoSnapshotDao.count()).isEqualTo(1)
 
             repository.undoLastRating()
@@ -197,7 +198,7 @@ class VocabularyRepositoryUndoTest {
     fun `undoLastRating sets restored item as current item`() =
         runTest {
             val id = insertVocab("sehen")
-            repository.reviewVocabularyItem(id, Rating.GOOD)
+            repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
 
             repository.undoLastRating()
 
@@ -212,7 +213,7 @@ class VocabularyRepositoryUndoTest {
         runTest {
             val id = insertVocab("laufen")
 
-            repository.reviewVocabularyItem(id, Rating.GOOD)
+            repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
             assertThat(dayCountersStore.read().first().newShown).isEqualTo(1)
 
             repository.undoLastRating()
@@ -235,11 +236,16 @@ class VocabularyRepositoryUndoTest {
                     createdAt = System.currentTimeMillis() - 86_400_000L,
                     snapshotDay = todayStamp() - 1,
                     ratingName = Rating.EASY.name,
+                    direction = StudyDirection.FORWARD.name,
                     fsrsCardJson = "",
                     fsrsDueAt = 0L,
                     lastShownAt = null,
                     correctCount = 0,
                     incorrectCount = 0,
+                    backwardFsrsCardJson = "",
+                    backwardFsrsDueAt = 0L,
+                    backwardCorrectCount = 0,
+                    backwardIncorrectCount = 0,
                     newShown = 0,
                     reviewShown = 0,
                     reviewsSinceLastNew = 0,
@@ -278,7 +284,7 @@ class VocabularyRepositoryUndoTest {
             val id = insertVocab("kaufen")
             dayCountersStore.addExtraNewToday(5, availableNew = 100)
 
-            repository.reviewVocabularyItem(id, Rating.GOOD)
+            repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
             repository.undoLastRating()
 
             assertThat(dayCountersStore.read().first().extraNewToday).isEqualTo(5)
@@ -288,7 +294,7 @@ class VocabularyRepositoryUndoTest {
     fun `undo stack keeps only the last three ratings`() =
         runTest {
             val ids = (1..4).map { insertVocab("word$it") }
-            ids.forEach { repository.reviewVocabularyItem(it, Rating.GOOD) }
+            ids.forEach { repository.reviewVocabularyItem(it, Rating.GOOD, StudyDirection.FORWARD) }
 
             assertThat(undoSnapshotDao.count()).isEqualTo(3)
 
@@ -306,11 +312,11 @@ class VocabularyRepositoryUndoTest {
         runTest {
             val id = insertVocab("machen")
 
-            repository.reviewVocabularyItem(id, Rating.GOOD)
+            repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
             val afterFirst = vocabularyDao.getVocabularyById(id)!!
             val countersAfterFirst = dayCountersStore.read().first()
 
-            repository.reviewVocabularyItem(id, Rating.EASY)
+            repository.reviewVocabularyItem(id, Rating.EASY, StudyDirection.FORWARD)
             assertThat(vocabularyDao.getVocabularyById(id)!!.correctCount).isEqualTo(2)
 
             // First undo reverts the *second* rating -> back to the post-first-rating state.
@@ -332,7 +338,7 @@ class VocabularyRepositoryUndoTest {
     fun `editing a word after rating it prunes its undo snapshot`() =
         runTest {
             val id = insertVocab("essen")
-            repository.reviewVocabularyItem(id, Rating.GOOD)
+            repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
             assertThat(undoSnapshotDao.count()).isEqualTo(1)
 
             repository.updateVocabularyItem(
@@ -352,7 +358,7 @@ class VocabularyRepositoryUndoTest {
     fun `resetting progress after rating prunes its undo snapshot`() =
         runTest {
             val id = insertVocab("trinken")
-            repository.reviewVocabularyItem(id, Rating.GOOD)
+            repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
 
             repository.resetVocabularyProgress(
                 com.procrastilearn.app.domain.model.VocabularyItem(
@@ -370,7 +376,7 @@ class VocabularyRepositoryUndoTest {
     fun `deleting a word after rating it prunes its undo snapshot`() =
         runTest {
             val id = insertVocab("fahren")
-            repository.reviewVocabularyItem(id, Rating.GOOD)
+            repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
 
             repository.deleteVocabularyItem(
                 com.procrastilearn.app.domain.model.VocabularyItem(
@@ -389,8 +395,8 @@ class VocabularyRepositoryUndoTest {
         runTest {
             val keepId = insertVocab("bleiben")
             val deleteId = insertVocab("gehen weg")
-            repository.reviewVocabularyItem(keepId, Rating.GOOD)
-            repository.reviewVocabularyItem(deleteId, Rating.GOOD)
+            repository.reviewVocabularyItem(keepId, Rating.GOOD, StudyDirection.FORWARD)
+            repository.reviewVocabularyItem(deleteId, Rating.GOOD, StudyDirection.FORWARD)
             assertThat(undoSnapshotDao.count()).isEqualTo(2)
 
             repository.deleteVocabularyItem(
@@ -413,7 +419,7 @@ class VocabularyRepositoryUndoTest {
                 assertThat(awaitItem()).isEqualTo(0)
 
                 val id = insertVocab("wissen")
-                repository.reviewVocabularyItem(id, Rating.GOOD)
+                repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
                 assertThat(awaitItem()).isEqualTo(1)
 
                 repository.undoLastRating()

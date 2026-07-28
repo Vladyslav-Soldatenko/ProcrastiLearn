@@ -22,8 +22,20 @@ object V1ToV2 : SchemaMigration {
         }
 }
 
+object V2ToV3 : SchemaMigration {
+    private const val TARGET_SCHEMA_VERSION = 3
+
+    override fun migrate(root: JsonObject): JsonObject =
+        buildJsonObject {
+            put("schemaVersion", JsonPrimitive(TARGET_SCHEMA_VERSION))
+            put("exportedAt", root.getValue("exportedAt"))
+            put("appVersion", root.getValue("appVersion"))
+            put("words", root.getValue("words"))
+        }
+}
+
 object Migrations {
-    private val steps: Map<Int, SchemaMigration> = mapOf(1 to V1ToV2)
+    private val steps: Map<Int, SchemaMigration> = mapOf(1 to V1ToV2, 2 to V2ToV3)
 
     fun migrate(
         root: JsonObject,

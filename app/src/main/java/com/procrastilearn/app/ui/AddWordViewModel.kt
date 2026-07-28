@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "LargeClass", "TooManyFunctions")
 class AddWordViewModel @Inject
     constructor(
         private val addVocabularyItemUseCase: AddVocabularyItemUseCase,
@@ -68,7 +68,8 @@ class AddWordViewModel @Inject
                         targetLanguage = languagePair?.target ?: Language.RUSSIAN,
                     )
                 }.collectLatest { combined ->
-                    _uiState.value =
+                    val aiModeNowActive = combined.hasKey && combined.useAi
+                    val updated =
                         _uiState.value.copy(
                             openAiAvailable = combined.hasKey,
                             useAiForTranslation = combined.useAi,
@@ -76,6 +77,9 @@ class AddWordViewModel @Inject
                             nativeLanguageCode = combined.nativeLanguage.code.uppercase(),
                             targetLanguageCode = combined.targetLanguage.code.uppercase(),
                         )
+                    // AI mode hides the bidirectional checkbox entirely, so its state
+                    // shouldn't silently linger and get submitted once it flips on.
+                    _uiState.value = if (aiModeNowActive) updated.withBidirectionalCleared() else updated
                 }
             }
 
@@ -279,7 +283,23 @@ class AddWordViewModel @Inject
             )
     }
 
-        fun onPreviewClick() {
+        fun onBidirectionalToggle(checked: Boolean) {
+            _uiState.value = _uiState.value.withBidirectionalToggle(checked)
+        }
+
+        fun onCustomizeBackwardToggle() {
+            _uiState.value = _uiState.value.copy(isCustomizingBackward = !_uiState.value.isCustomizingBackward)
+        }
+
+        fun onBackwardPromptOverrideChange(value: String) {
+            _uiState.value = _uiState.value.copy(backwardPromptOverride = value)
+        }
+
+        fun onBackwardAnswerOverrideChange(value: String) {
+            _uiState.value = _uiState.value.copy(backwardAnswerOverride = value)
+        }
+
+    fun onPreviewClick() {
             val currentState = _uiState.value
             if (currentState.word.isBlank()) {
                 _uiState.value = _uiState.value.copy(wordError = context.getString(R.string.add_word_error_word_required))
@@ -413,22 +433,23 @@ class AddWordViewModel @Inject
             pendingOverride = null
             acknowledgedOverrideWord = null
             _uiState.value =
-                _uiState.value.copy(
-                    word = "",
-                    translation = "",
-                    previewContent = null,
-                    isPreviewVisible = false,
-                    errorMessage = null,
-                    wordError = null,
-                    translationError = null,
-                    isLoading = false,
-                    loadingAction = null,
-                    isSuccess = false,
-                    successMessage = null,
-                    isExistingWordDialogVisible = false,
-                    existingWordDialogWord = null,
-                    isExistingWordDialogLoading = false,
-                )
+                _uiState.value
+                    .copy(
+                        word = "",
+                        translation = "",
+                        previewContent = null,
+                        isPreviewVisible = false,
+                        errorMessage = null,
+                        wordError = null,
+                        translationError = null,
+                        isLoading = false,
+                        loadingAction = null,
+                        isSuccess = false,
+                        successMessage = null,
+                        isExistingWordDialogVisible = false,
+                        existingWordDialogWord = null,
+                        isExistingWordDialogLoading = false,
+                    ).withBidirectionalCleared()
         }
 
         fun onExistingWordDialogCancel() {
@@ -444,6 +465,7 @@ class AddWordViewModel @Inject
                 )
         }
 
+        @Suppress("LongMethod")
         fun onExistingWordDialogProceed() {
             val pending = pendingOverride ?: return
             viewModelScope.launch {
@@ -468,28 +490,33 @@ class AddWordViewModel @Inject
                         return@launch
                     }
 
+                val currentState = _uiState.value
                 overrideVocabularyItemUseCase(
                     existingItem = pending.existingItem,
                     newWord = pending.word,
                     newTranslation = translation,
+                    bidirectional = currentState.bidirectional,
+                    backwardPromptOverride = currentState.backwardPromptOverride.ifBlank { null },
+                    backwardAnswerOverride = currentState.backwardAnswerOverride.ifBlank { null },
                 ).fold(
                     onSuccess = {
                         pendingOverride = null
                         acknowledgedOverrideWord = null
                         _uiState.value =
-                            _uiState.value.copy(
-                                isExistingWordDialogVisible = false,
-                                isExistingWordDialogLoading = false,
-                                existingWordDialogWord = null,
-                                word = "",
-                                translation = "",
-                                previewContent = null,
-                                isPreviewVisible = false,
-                                isSuccess = true,
-                                successMessage = context.getString(R.string.add_word_success_updated),
-                                isLoading = false,
-                                loadingAction = null,
-                            )
+                            _uiState.value
+                                .copy(
+                                    isExistingWordDialogVisible = false,
+                                    isExistingWordDialogLoading = false,
+                                    existingWordDialogWord = null,
+                                    word = "",
+                                    translation = "",
+                                    previewContent = null,
+                                    isPreviewVisible = false,
+                                    isSuccess = true,
+                                    successMessage = context.getString(R.string.add_word_success_updated),
+                                    isLoading = false,
+                                    loadingAction = null,
+                                ).withBidirectionalCleared()
                     },
                     onFailure = { error ->
                         pendingOverride = null
@@ -534,26 +561,35 @@ class AddWordViewModel @Inject
             translation: String,
             fromPreview: Boolean,
         ) {
-            overrideVocabularyItemUseCase(existingItem, word, translation).fold(
+            val currentState = _uiState.value
+            overrideVocabularyItemUseCase(
+                existingItem = existingItem,
+                newWord = word,
+                newTranslation = translation,
+                bidirectional = currentState.bidirectional,
+                backwardPromptOverride = currentState.backwardPromptOverride.ifBlank { null },
+                backwardAnswerOverride = currentState.backwardAnswerOverride.ifBlank { null },
+            ).fold(
                 onSuccess = {
                     acknowledgedOverrideWord = null
                     _uiState.value =
-                        _uiState.value.copy(
-                            isLoading = false,
-                            errorMessage = null,
-                            wordError = null,
-                            translationError = null,
-                            word = "",
-                            translation = "",
-                            previewContent = null,
-                            isPreviewVisible = false,
-                            isSuccess = true,
-                            successMessage = context.getString(R.string.add_word_success_updated),
-                            loadingAction = null,
-                            isExistingWordDialogVisible = false,
-                            isExistingWordDialogLoading = false,
-                            existingWordDialogWord = null,
-                        )
+                        _uiState.value
+                            .copy(
+                                isLoading = false,
+                                errorMessage = null,
+                                wordError = null,
+                                translationError = null,
+                                word = "",
+                                translation = "",
+                                previewContent = null,
+                                isPreviewVisible = false,
+                                isSuccess = true,
+                                successMessage = context.getString(R.string.add_word_success_updated),
+                                loadingAction = null,
+                                isExistingWordDialogVisible = false,
+                                isExistingWordDialogLoading = false,
+                                existingWordDialogWord = null,
+                            ).withBidirectionalCleared()
                 },
                 onFailure = { error ->
                     acknowledgedOverrideWord = null
@@ -600,28 +636,33 @@ class AddWordViewModel @Inject
             translation: String,
             fromPreview: Boolean,
         ) {
+            val currentState = _uiState.value
             addVocabularyItemUseCase(
                 word = word,
                 translation = translation,
+                bidirectional = currentState.bidirectional,
+                backwardPromptOverride = currentState.backwardPromptOverride.ifBlank { null },
+                backwardAnswerOverride = currentState.backwardAnswerOverride.ifBlank { null },
             ).fold(
                 onSuccess = {
                     _uiState.value =
-                        _uiState.value.copy(
-                            isLoading = false,
-                            errorMessage = null,
-                            wordError = null,
-                            translationError = null,
-                            word = "",
-                            translation = "",
-                            previewContent = null,
-                            isPreviewVisible = false,
-                            isSuccess = true,
-                            successMessage = context.getString(R.string.add_word_success_added),
-                            loadingAction = null,
-                            isExistingWordDialogVisible = false,
-                            isExistingWordDialogLoading = false,
-                            existingWordDialogWord = null,
-                        )
+                        _uiState.value
+                            .copy(
+                                isLoading = false,
+                                errorMessage = null,
+                                wordError = null,
+                                translationError = null,
+                                word = "",
+                                translation = "",
+                                previewContent = null,
+                                isPreviewVisible = false,
+                                isSuccess = true,
+                                successMessage = context.getString(R.string.add_word_success_added),
+                                loadingAction = null,
+                                isExistingWordDialogVisible = false,
+                                isExistingWordDialogLoading = false,
+                                existingWordDialogWord = null,
+                            ).withBidirectionalCleared()
                 },
                 onFailure = { error ->
                     _uiState.value =
@@ -695,10 +736,34 @@ data class AddWordUiState(
     val loadingAction: AddWordLoadingAction? = null,
     val isOnline: Boolean = true,
     val pendingWords: List<PendingWordUi> = emptyList(),
+    val bidirectional: Boolean = false,
+    val isCustomizingBackward: Boolean = false,
+    val backwardPromptOverride: String = "",
+    val backwardAnswerOverride: String = "",
 ) {
     val aiModeActive: Boolean get() = openAiAvailable && useAiForTranslation
     val isAddLaterMode: Boolean get() = aiModeActive && !isOnline
+    val showBidirectionalOption: Boolean get() = !aiModeActive
 }
+
+// The bidirectional checkbox + reverse-card customization fields are reset together in
+// several places (unchecking, AI mode turning on, submission success) - centralized here
+// instead of repeating the same four-field copy() at each call site.
+private fun AddWordUiState.withBidirectionalCleared(): AddWordUiState =
+    copy(
+        bidirectional = false,
+        isCustomizingBackward = false,
+        backwardPromptOverride = "",
+        backwardAnswerOverride = "",
+    )
+
+private fun AddWordUiState.withBidirectionalToggle(checked: Boolean): AddWordUiState =
+    copy(
+        bidirectional = checked,
+        isCustomizingBackward = if (checked) isCustomizingBackward else false,
+        backwardPromptOverride = if (checked) backwardPromptOverride else "",
+        backwardAnswerOverride = if (checked) backwardAnswerOverride else "",
+    )
 
 data class AddWordPreviewContent(
     val word: String,
