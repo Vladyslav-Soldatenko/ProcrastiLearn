@@ -21,14 +21,6 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_proceed">Proceed</string>
 
-
-    <!-- Back-compat aliases (so existing code keeps working) -->
-    <string name="overlay_permission_open_settings">@string/action_open_settings</string>
-    <string name="overlay_permission_not_now">@string/action_not_now</string>
-    <string name="add_word_button_add">@string/action_add</string>
-    <string name="word_list_delete">@string/action_delete</string>
-    <string name="add_word_view_list">@string/action_view_list</string>
-
     <!-- ─── Text selection context menu ─────────────────────────────────────── -->
     <string name="process_text_action">ProcrastiLearn this</string>
 
@@ -74,18 +66,11 @@
 
     <string name="a11y_disclosure_section_access">What we access</string>
 
-    <!-- Keep your original paragraph for now (easy drop-in), but prefer the array below -->
     <string name="a11y_disclosure_access_details">
         • Which app is currently on your screen.\n
         • We do NOT read your passwords, messages, or on-screen text.\n
         • Your data never leaves your device and is never sold or shared.
     </string>
-
-    <string-array name="a11y_disclosure_access_points">
-        <item>App package and window info to know which app is in the foreground.</item>
-        <item>We do not read your passwords, messages, or on-screen text.</item>
-        <item>Data stays on your device and is not sold or shared.</item>
-    </string-array>
 
     <string name="a11y_disclosure_section_usage">How it’s used</string>
 
@@ -95,7 +80,6 @@
         You can turn this off anytime in Settings. We don’t sell or share this data,
         it never leaves your device.
     </string>
-
 
     <string name="a11y_disclosure_checkbox">
         I understand and agree to allow this app to use the Accessibility Service permission for this purpose.
@@ -114,7 +98,6 @@
     <string name="add_word_icon_add">Add</string>
 
     <string name="edit_word_title">Edit Word</string>
-
 
     <!-- Prefer using a proper icon. Keep these for compatibility. -->
     <string name="add_word_success_icon" translatable="false">✓</string>

@@ -1,0 +1,315 @@
+<resources xmlns:tools="http://schemas.android.com/tools"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- ─── AppFunctions ────────────────────────────────────────────────────── -->
+    <string name="app_function_description">Додавайте слова з перекладами, згенерованими ШІ, для навчання за методом інтервального повторення</string>
+
+    <!-- ─── App / Brand ─────────────────────────────────────────────────────── -->
+    <string name="app_name" translatable="false">ProcrastiLearn</string>
+
+    <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
+    <string name="action_open_settings">Відкрити налаштування</string>
+    <string name="action_not_now">Не зараз</string>
+    <string name="action_accept">Прийняти</string>
+    <string name="action_continue">Продовжити</string>
+    <string name="action_view_list">Переглянути список</string>
+    <string name="action_add">Додати</string>
+    <string name="action_delete">Видалити</string>
+    <string name="action_edit">Редагувати</string>
+    <string name="action_reset">Скинути</string>
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Скасувати</string>
+    <string name="action_proceed">Продовжити</string>
+
+    <!-- ─── Text selection context menu ─────────────────────────────────────── -->
+    <string name="process_text_action">Додати в ProcrastiLearn</string>
+
+    <!-- ─── Navigation ──────────────────────────────────────────────────────── -->
+    <string name="nav_apps">Додатки</string>
+    <string name="nav_add_word">Додати слово</string>
+    <string name="nav_dojo">Додзьо</string>
+    <string name="nav_settings">Налаштування</string>
+
+    <!-- ─── Learning flow ───────────────────────────────────────────────────── -->
+    <string name="learning_no_word">Слово не завантажено</string>
+    <string name="learning_no_translation">Переклад не завантажено</string>
+    <string name="learning_show_translation">Показати переклад</string>
+    <string name="learning_question">Наскільки добре ви це знали?</string>
+
+    <!-- Ratings -->
+    <string name="rating_again">Знову</string>
+    <string name="rating_hard">Важко</string>
+    <string name="rating_good">Добре</string>
+    <string name="rating_easy">Легко</string>
+
+    <!-- ─── Dojo (practice screen) ──────────────────────────────────────────── -->
+    <string name="dojo_stats_new_remaining">нових</string>
+    <string name="dojo_stats_reviews_due">на повторення</string>
+    <string name="dojo_stats_skipped">пропущено</string>
+    <string name="dojo_empty_title">На сьогодні все готово!</string>
+    <string name="dojo_empty_message">Ви опрацювали всі доступні слова на сьогодні. Поверніться пізніше або змініть денні ліміти в налаштуваннях.</string>
+    <string name="dojo_undo_content_description">Скасувати останню оцінку</string>
+    <string name="dojo_undo_confirmation">Скасовано «%1$s» для «%2$s»</string>
+
+    <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
+    <string name="overlay_permission_title">Дозволити показ поверх інших вікон</string>
+    <string name="overlay_permission_message">
+        Цьому додатку потрібен дозвіл, щоб показувати оверлей поверх інших додатків.
+    </string>
+
+    <!-- ─── Accessibility disclosure (A11y) ─────────────────────────────────── -->
+    <string name="a11y_disclosure_title">Навіщо нам потрібні спеціальні можливості</string>
+    <string name="a11y_disclosure_description">
+        Цей додаток використовує дозвіл служби спеціальних можливостей Android, щоб визначати, коли ви відкриваєте вибрані додатки
+        (наприклад, TikTok, Reddit чи будь-які інші за вашим вибором), і показувати коротке навчальне завдання перед тим, як ви продовжите.
+    </string>
+
+    <string name="a11y_disclosure_section_access">До чого ми маємо доступ</string>
+
+    <string name="a11y_disclosure_access_details">
+        • Який додаток зараз на екрані.\n
+        • Ми НЕ читаємо ваші паролі, повідомлення чи текст на екрані.\n
+        • Ваші дані ніколи не залишають пристрій і не продаються та не передаються.
+    </string>
+
+    <string name="a11y_disclosure_section_usage">Як це використовується</string>
+
+    <!-- Original paragraph -->
+    <string name="a11y_disclosure_usage_details">
+        Лише щоб показувати навчальний оверлей для вибраних вами додатків.
+        Ви можете вимкнути це будь-коли в налаштуваннях. Ми не продаємо і не передаємо ці дані,
+        вони не залишають ваш пристрій.
+    </string>
+
+    <string name="a11y_disclosure_checkbox">
+        Я розумію і погоджуюся надати цьому додатку доступ до служби спеціальних можливостей для цієї мети.
+    </string>
+    <string name="a11y_disclosure_accept">Прийняти й продовжити</string>
+    <string name="a11y_disclosure_decline">@string/action_not_now</string>
+    <string name="a11y_disclosure_privacy">Політика конфіденційності та деталі</string>
+
+    <!-- ─── Add Word ────────────────────────────────────────────────────────── -->
+    <string name="add_word_title">Додати нове слово</string>
+    <string name="add_word_subtitle">Розширюйте свій словниковий запас</string>
+    <string name="add_word_label_word">Слово</string>
+    <string name="add_word_placeholder_word">Введіть слово</string>
+    <string name="add_word_label_translation">Переклад</string>
+    <string name="add_word_placeholder_translation">Введіть переклад (можна в кілька рядків)</string>
+    <string name="add_word_icon_add">Додати</string>
+
+    <string name="edit_word_title">Редагувати слово</string>
+
+    <!-- Prefer using a proper icon. Keep these for compatibility. -->
+    <string name="add_word_success_icon" translatable="false">✓</string>
+    <string name="add_word_success_default">Готово!</string>
+
+    <!-- Helpful validation/toast messages -->
+    <string name="add_word_error_word_required">Будь ласка, введіть слово.</string>
+    <string name="add_word_error_translation_required">Будь ласка, введіть переклад.</string>
+    <string name="add_word_toast_added">Слово додано.</string>
+
+    <!-- Add Word: success and error fallback messages -->
+    <string name="add_word_success_added">Слово успішно додано!</string>
+    <string name="add_word_success_updated">Слово оновлено, прогрес скинуто!</string>
+    <string name="add_word_success_pending">Збережено. Переклад буде згенеровано, коли ви знову опинитеся в мережі.</string>
+    <string name="add_word_error_preview_failed">Не вдалося згенерувати попередній перегляд</string>
+    <string name="add_word_error_translation_failed">Не вдалося згенерувати переклад</string>
+    <string name="add_word_error_update_failed">Не вдалося оновити слово</string>
+    <string name="add_word_error_add_failed">Не вдалося додати слово</string>
+    <string name="add_word_error_lookup_failed">Не вдалося перевірити наявні слова</string>
+
+    <!-- Bidirectional review -->
+    <string name="add_word_bidirectional_toggle">Перевіряти в обидва боки</string>
+    <string name="add_word_customize_backward_show">Налаштувати зворотну картку</string>
+    <string name="add_word_customize_backward_hide">Приховати налаштування</string>
+    <string name="add_word_backward_prompt_label">Зворотне питання</string>
+    <string name="add_word_backward_prompt_placeholder">Залиште порожнім, щоб використати переклад</string>
+    <string name="add_word_backward_answer_label">Зворотна відповідь</string>
+    <string name="add_word_backward_answer_placeholder">Залиште порожнім, щоб використати слово</string>
+
+    <!-- ─── Language selection ──────────────────────────────────────────────── -->
+    <string name="language_name_english">Англійська</string>
+    <string name="language_name_russian">Російська</string>
+    <string name="language_name_spanish">Іспанська</string>
+    <string name="language_name_french">Французька</string>
+    <string name="language_name_german">Німецька</string>
+    <string name="language_name_italian">Італійська</string>
+    <string name="language_name_portuguese">Португальська</string>
+    <string name="language_name_chinese">Китайська (мандаринська)</string>
+
+    <string name="language_selection_dialog_title">Виберіть свої мови</string>
+    <string name="language_selection_subtitle">Виберіть мову, якою ви розмовляєте, і мову, яку хочете вивчати. Це можна змінити пізніше в налаштуваннях.</string>
+    <string name="language_selection_native_label">Я розмовляю</string>
+    <string name="language_selection_target_label">Я хочу вивчити</string>
+    <string name="language_selection_same_language_error">Рідна та цільова мови мають відрізнятися</string>
+
+    <!-- ─── Settings ────────────────────────────────────────────────────────── -->
+    <string name="settings_title">Налаштування</string>
+
+    <!-- Section headers -->
+    <string name="settings_section_study_reviews">Навчання і повторення</string>
+    <string name="settings_section_ai_features">Функції ШІ (потрібен API-ключ)</string>
+    <string name="settings_section_permissions">Дозволи</string>
+    <string name="settings_section_data_about">Дані та про додаток</string>
+
+    <!-- Language pair -->
+    <string name="settings_language_pair_title">Мовна пара</string>
+    <string name="settings_language_pair_desc">%1$s → %2$s</string>
+
+    <!-- Study mode -->
+    <string name="settings_study_mode_title">Режим навчання</string>
+    <string name="settings_study_mode_mixed">Змішаний</string>
+    <string name="settings_study_mode_reviews_first">Спочатку повторення</string>
+    <string name="settings_study_mode_new_first">Спочатку нові</string>
+    <string name="settings_study_mode_mixed_desc">Змішувати нові картки та повторення</string>
+    <string name="settings_study_mode_reviews_first_desc">Показувати всі повторення перед новими картками</string>
+    <string name="settings_study_mode_new_first_desc">Показувати нові картки перед повтореннями</string>
+
+    <!-- Review direction -->
+    <string name="settings_review_direction_title">Напрямок повторення</string>
+    <string name="settings_review_direction_forward">Прямий</string>
+    <string name="settings_review_direction_backward">Зворотний</string>
+    <string name="settings_review_direction_bidirectional">В обидва боки</string>
+    <string name="settings_review_direction_forward_desc">Показувати слово, питати переклад</string>
+    <string name="settings_review_direction_backward_desc">Показувати переклад, питати слово</string>
+    <string name="settings_review_direction_bidirectional_desc">Змішувати обидва напрямки для карток із позначкою «Перевіряти в обидва боки»</string>
+
+    <!-- Daily limits -->
+    <string name="settings_add_cards_for_today_title">Додати картки на сьогодні</string>
+    <string name="settings_add_cards_for_today_dialog_title">Додати картки на сьогодні (Доступно нових: %1$d)</string>
+    <string name="settings_new_cards_per_day_title">Нових карток на день</string>
+    <string name="settings_new_cards_per_day_dialog_title">Нових карток на день (Доступно нових: %1$d)</string>
+    <string name="settings_reviews_per_day_title">Повторень на день</string>
+
+    <!-- Overlay interval -->
+    <string name="settings_overlay_interval_title">Показувати оверлей кожні X хвилин</string>
+    <string name="settings_overlay_interval_headline">Показувати оверлей кожні X хвилин, поки відкрито заблокований додаток</string>
+
+    <string name="settings_overlay_headline">Дозвіл на оверлей</string>
+    <string name="settings_overlay_support">
+        Потрібен, щоб показувати навчальну картку поверх вибраних додатків.
+    </string>
+
+    <string name="settings_a11y_headline">Навчальний шлюз (спеціальні можливості)</string>
+    <string name="settings_a11y_support">
+        Визначає вибрані додатки на передньому плані, щоб показати навчальну картку.
+    </string>
+
+    <!-- About Us -->
+    <string name="settings_about_us_row">Про нас</string>
+    <string name="settings_about_us_row_desc">Дізнайтеся більше про додаток</string>
+    <string name="settings_about_us_title">Про нас</string>
+    <string name="settings_about_us_intro">
+        ProcrastiLearn перетворює моменти відволікання на можливості для навчання. Коли ви намагаєтеся відкрити вибраний додаток, ми спершу показуємо коротке словникове завдання. Так ви здобуваєте знання, тримаючи відволікання під контролем.
+    </string>
+    <string name="settings_about_us_mission_title">Наша місія</string>
+    <string name="settings_about_us_mission_body">
+        Ми хочемо допомогти людям повернути свій час і увагу, перетворюючи повсякденні звички на нагоду дізнатися щось нове.
+    </string>
+    <string name="settings_about_us_who_title">Хто ми</string>
+    <string name="settings_about_us_who_body">
+        ProcrastiLearn створює та підтримує незалежний розробник, який захоплюється продуктивністю та вивченням мов.
+    </string>
+    <string name="settings_about_us_values_title">Наші цінності</string>
+    <string name="settings_about_us_values_simplicity">Простота: мінімалістичний дизайн без зайвих відволікань.</string>
+    <string name="settings_about_us_values_growth">Зростання: маленькі кроки щодня складаються у стійкий прогрес.</string>
+    <string name="settings_about_us_contact_title">Контакти</string>
+    <string name="settings_about_us_contact_body">Якщо у вас є запитання чи відгуки, звертайтеся: Apocalypse_232@proton.me</string>
+    <string name="settings_about_us_privacy">Політика конфіденційності</string>
+    <string name="settings_privacy_policy_url" translatable="false">https://gist.github.com/Vladyslav-Soldatenko/adb5953ce000b9e8515d3dcd87773aef</string>
+
+    <!-- Import -->
+    <string name="settings_import_row">Імпорт</string>
+    <string name="settings_import_row_desc">Додайте слова з іншого додатка</string>
+    <string name="settings_import_option_anki_apkg">Колода Anki (.apkg)</string>
+    <string name="settings_import_option_anki_apkg_desc">Розбір карток, експортованих з Anki</string>
+    <string name="settings_import_option_json">Експорт JSON (.json)</string>
+    <string name="settings_import_option_json_desc">Імпорт повного експорту ProcrastiLearn</string>
+    <string name="settings_import_success">Імпортовано %1$d карток</string>
+    <string name="settings_import_failure_generic">Не вдалося виконати імпорт</string>
+    <string name="settings_import_failure_format">Цей формат поки не підтримується</string>
+    <string name="settings_import_failure_schema_version">Цей файл створено новішою версією ProcrastiLearn. Будь ласка, оновіть додаток.</string>
+
+    <!-- Export -->
+    <string name="settings_export_row">Експорт</string>
+    <string name="settings_export_row_desc">Експортувати весь словник у файл JSON</string>
+    <string name="settings_export_success">Експорт завершено</string>
+    <string name="settings_export_failure">Не вдалося виконати експорт</string>
+
+    <!-- OpenAI API Key -->
+    <string name="settings_openai_api_key_title">Ключ OpenAI API</string>
+    <string name="settings_openai_api_key_dialog_title">Введіть ключ OpenAI API</string>
+    <string name="settings_openai_api_key_not_set">Не задано</string>
+    <string name="settings_openai_api_key_set">Збережено</string>
+    <string name="settings_openai_prompt_title">Промпт ШІ %1$s-&gt;%2$s</string>
+    <string name="settings_openai_prompt_dialog_title">Редагувати промпт ШІ %1$s-&gt;%2$s</string>
+    <string name="settings_openai_prompt_default">Використовується стандартний промпт %1$s-&gt;%2$s</string>
+    <string name="settings_openai_prompt_custom">Збережено власний промпт %1$s-&gt;%2$s</string>
+    <string name="settings_openai_reverse_prompt_title">Промпт ШІ %1$s-&gt;%2$s</string>
+    <string name="settings_openai_reverse_prompt_dialog_title">Редагувати промпт ШІ %1$s-&gt;%2$s</string>
+    <string name="settings_openai_reverse_prompt_default">Використовується стандартний промпт %1$s-&gt;%2$s</string>
+    <string name="settings_openai_reverse_prompt_custom">Збережено власний промпт %1$s-&gt;%2$s</string>
+    <string name="settings_openai_prompt_placeholder_hint">Використовуйте {{NATIVE_LANGUAGE}} і {{TARGET_LANGUAGE}} як плейсхолдери — під час генерації перекладу вони автоматично заміняться на вибрані вами мови.</string>
+
+    <!-- Add Word: AI translation toggle -->
+    <string name="add_word_use_ai_toggle">використовувати ШІ для генерації перекладу</string>
+    <string name="add_word_toggle_direction">Змінити напрямок перекладу</string>
+    <string name="add_word_button_preview">Попередній перегляд</string>
+    <string name="add_word_preview_title">Попередній перегляд ШІ</string>
+    <string name="add_word_preview_stored_title">Збережений переклад — уже у вашому списку</string>
+    <string name="add_word_preview_cancel">@string/action_cancel</string>
+    <string name="add_word_preview_confirm">@string/action_add</string>
+    <string name="add_word_preview_regenerate">Згенерувати знову</string>
+    <string name="add_word_existing_title">Слово вже існує</string>
+    <string name="add_word_existing_message">
+        Це слово вже додано. Якщо ви продовжите, прогрес слова буде скинуто, а новий переклад збережено. Якщо ви просто хочете відредагувати його — зробіть це зі списку слів
+    </string>
+    <string name="add_word_existing_cancel">@string/action_cancel</string>
+    <string name="add_word_existing_proceed">@string/action_proceed</string>
+
+    <!-- Add Word: offline AI queueing -->
+    <string name="add_word_button_add_later">Додати пізніше</string>
+    <string name="add_word_pending_title">Очікувані переклади</string>
+    <string name="add_word_pending_delete">Видалити слово, що очікує</string>
+
+    <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
+    <string name="word_list_title">Мій словник</string>
+    <string name="word_list_navigate_back">Назад до додавання слова</string>
+    <string name="word_list_empty">Ще не додано жодного слова</string>
+    <string name="word_list_delete_confirm_title">Видалити слово</string>
+    <string name="word_list_delete_confirm_message">
+        Видалити <xliff:g id="word_name">%1$s</xliff:g> зі списку?
+    </string>
+    <string name="word_list_reset">Скинути прогрес</string>
+    <string name="word_list_reset_confirm_title">Скинути прогрес</string>
+    <string name="word_list_reset_confirm_message">
+        Скинути прогрес вивчення для <xliff:g id="word_name">%1$s</xliff:g>?
+    </string>
+    <string name="word_list_more_actions">Додаткові дії</string>
+    <string name="word_list_search_label">Пошук</string>
+    <string name="word_list_search_placeholder">Пошук слів</string>
+    <string name="word_list_search_no_results">Збігів не знайдено</string>
+
+    <!-- ─── Apps list ──────────────────────────────────────────────────────── -->
+    <string name="apps_list_enable_procrastilearn_title">увімкнути ProcrastiLearn</string>
+    <string name="apps_list_error_message">Помилка: <xliff:g id="error_message">%1$s</xliff:g></string>
+
+    <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
+    <string name="cd_add_word">Додати слово</string>
+    <string name="cd_delete_word">Видалити слово</string>
+    <string name="cd_show_translation">Показати переклад</string>
+
+    <!-- Plurals -->
+    <plurals name="cards_count">
+        <item quantity="one">%d картка</item>
+        <item quantity="few">%d картки</item>
+        <item quantity="many">%d карток</item>
+        <item quantity="other">%d картки</item>
+    </plurals>
+    <plurals name="overlay_minutes_interval">
+        <item quantity="one">Кожну %d хвилину</item>
+        <item quantity="few">Кожні %d хвилини</item>
+        <item quantity="many">Кожні %d хвилин</item>
+        <item quantity="other">Кожні %d хвилини</item>
+    </plurals>
+</resources>

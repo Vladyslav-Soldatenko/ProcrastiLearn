@@ -201,7 +201,7 @@ internal fun AddWordContent(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Default.List,
-                        contentDescription = stringResource(R.string.add_word_view_list),
+                        contentDescription = stringResource(R.string.action_view_list),
                         tint = MaterialTheme.colorScheme.primary,
                     )
                 }
@@ -642,7 +642,7 @@ private fun ActionButtonsRow(
                             if (isAddLaterMode) {
                                 R.string.add_word_button_add_later
                             } else {
-                                R.string.add_word_button_add
+                                R.string.action_add
                             },
                         ),
                     style = MaterialTheme.typography.titleMedium,
