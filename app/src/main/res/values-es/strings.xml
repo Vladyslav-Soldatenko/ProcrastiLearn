@@ -15,7 +15,6 @@
     <string name="action_delete">Eliminar</string>
     <string name="action_edit">Editar</string>
     <string name="action_reset">Restablecer</string>
-    <string name="action_accept">Aceptar</string>
     <string name="action_ok">Aceptar</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_proceed">@string/action_continue</string>
@@ -104,7 +103,6 @@
     <!-- Helpful validation/toast messages -->
     <string name="add_word_error_word_required">Escribe una palabra.</string>
     <string name="add_word_error_translation_required">Escribe una traducción.</string>
-    <string name="add_word_toast_added">Palabra añadida.</string>
 
     <!-- Add Word: success and error fallback messages -->
     <string name="add_word_success_added">¡Palabra añadida correctamente!</string>
@@ -139,7 +137,6 @@
     <string name="language_selection_subtitle">Elige el idioma que hablas y el que quieres aprender. Puedes cambiarlo más tarde en Ajustes.</string>
     <string name="language_selection_native_label">Hablo</string>
     <string name="language_selection_target_label">Quiero aprender</string>
-    <string name="language_selection_same_language_error">El idioma nativo y el de aprendizaje deben ser diferentes</string>
 
     <!-- ─── Settings ────────────────────────────────────────────────────────── -->
     <string name="settings_title">@string/nav_settings</string>
@@ -277,7 +274,6 @@
     <string name="word_list_delete_confirm_message">
         ¿Eliminar <xliff:g id="word_name">%1$s</xliff:g> de tu lista?
     </string>
-    <string name="word_list_reset">@string/word_list_reset_confirm_title</string>
     <string name="word_list_reset_confirm_title">Restablecer progreso</string>
     <string name="word_list_reset_confirm_message">
         ¿Restablecer el progreso de aprendizaje de <xliff:g id="word_name">%1$s</xliff:g>?
@@ -292,9 +288,6 @@
     <string name="apps_list_error_message">Error: <xliff:g id="error_message">%1$s</xliff:g></string>
 
     <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
-    <string name="cd_add_word">Añadir palabra</string>
-    <string name="cd_delete_word">Eliminar palabra</string>
-    <string name="cd_show_translation">Mostrar traducción</string>
 
     <!-- Plurals -->
     <plurals name="cards_count">

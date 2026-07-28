@@ -15,7 +15,6 @@
     <string name="action_delete">Видалити</string>
     <string name="action_edit">Редагувати</string>
     <string name="action_reset">Скинути</string>
-    <string name="action_accept">Прийняти</string>
     <string name="action_ok">OK</string>
     <string name="action_cancel">Скасувати</string>
     <string name="action_proceed">@string/action_continue</string>
@@ -104,7 +103,6 @@
     <!-- Helpful validation/toast messages -->
     <string name="add_word_error_word_required">Будь ласка, введіть слово.</string>
     <string name="add_word_error_translation_required">Будь ласка, введіть переклад.</string>
-    <string name="add_word_toast_added">Слово додано.</string>
 
     <!-- Add Word: success and error fallback messages -->
     <string name="add_word_success_added">Слово успішно додано!</string>
@@ -139,7 +137,6 @@
     <string name="language_selection_subtitle">Виберіть мову, якою ви розмовляєте, і мову, яку хочете вивчати. Це можна змінити пізніше в налаштуваннях.</string>
     <string name="language_selection_native_label">Я розмовляю</string>
     <string name="language_selection_target_label">Я хочу вивчити</string>
-    <string name="language_selection_same_language_error">Рідна та цільова мови мають відрізнятися</string>
 
     <!-- ─── Settings ────────────────────────────────────────────────────────── -->
     <string name="settings_title">@string/nav_settings</string>
@@ -277,7 +274,6 @@
     <string name="word_list_delete_confirm_message">
         Видалити <xliff:g id="word_name">%1$s</xliff:g> зі списку?
     </string>
-    <string name="word_list_reset">@string/word_list_reset_confirm_title</string>
     <string name="word_list_reset_confirm_title">Скинути прогрес</string>
     <string name="word_list_reset_confirm_message">
         Скинути прогрес вивчення для <xliff:g id="word_name">%1$s</xliff:g>?
@@ -292,9 +288,6 @@
     <string name="apps_list_error_message">Помилка: <xliff:g id="error_message">%1$s</xliff:g></string>
 
     <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
-    <string name="cd_add_word">Додати слово</string>
-    <string name="cd_delete_word">Видалити слово</string>
-    <string name="cd_show_translation">Показати переклад</string>
 
     <!-- Plurals -->
     <plurals name="cards_count">
