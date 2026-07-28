@@ -10,7 +10,6 @@
     <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
     <string name="action_open_settings">Open Settings</string>
     <string name="action_not_now">Not now</string>
-    <string name="action_accept">Accept</string>
     <string name="action_continue">Continue</string>
     <string name="action_view_list">View List</string>
     <string name="action_add">Add</string>
@@ -100,13 +99,11 @@
     <string name="edit_word_title">Edit Word</string>
 
     <!-- Prefer using a proper icon. Keep these for compatibility. -->
-    <string name="add_word_success_icon" translatable="false">✓</string>
     <string name="add_word_success_default">Success!</string>
 
     <!-- Helpful validation/toast messages -->
     <string name="add_word_error_word_required">Please enter a word.</string>
     <string name="add_word_error_translation_required">Please enter a translation.</string>
-    <string name="add_word_toast_added">Word added.</string>
 
     <!-- Add Word: success and error fallback messages -->
     <string name="add_word_success_added">Word added successfully!</string>
@@ -141,7 +138,6 @@
     <string name="language_selection_subtitle">Pick the language you speak and the one you want to learn. You can change this later in Settings.</string>
     <string name="language_selection_native_label">I speak</string>
     <string name="language_selection_target_label">I want to learn</string>
-    <string name="language_selection_same_language_error">Native and target languages must be different</string>
 
     <!-- ─── Settings ────────────────────────────────────────────────────────── -->
     <string name="settings_title">Settings</string>
@@ -280,7 +276,6 @@
     <string name="word_list_delete_confirm_message">
         Delete <xliff:g id="word_name">%1$s</xliff:g> from your list?
     </string>
-    <string name="word_list_reset">Reset progress</string>
     <string name="word_list_reset_confirm_title">Reset progress</string>
     <string name="word_list_reset_confirm_message">
         Reset learning progress for <xliff:g id="word_name">%1$s</xliff:g>?
@@ -293,11 +288,6 @@
     <!-- ─── Apps list ──────────────────────────────────────────────────────── -->
     <string name="apps_list_enable_procrastilearn_title">Enable procrastilearn</string>
     <string name="apps_list_error_message">Error: <xliff:g id="error_message">%1$s</xliff:g></string>
-
-    <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
-    <string name="cd_add_word">Add word</string>
-    <string name="cd_delete_word">Delete word</string>
-    <string name="cd_show_translation">Show translation</string>
 
     <!-- Plurals -->
     <plurals name="cards_count">

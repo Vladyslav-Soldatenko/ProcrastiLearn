@@ -7,7 +7,6 @@
         <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
         <string name="action_open_settings">Открыть настройки</string>
         <string name="action_not_now">Не сейчас</string>
-        <string name="action_accept">Принять</string>
         <string name="action_continue">Продолжить</string>
         <string name="action_view_list">Просмотреть список</string>
         <string name="action_add">Добавить</string>
@@ -97,13 +96,11 @@
          <string name="edit_word_title">Редактировать слово</string>
 
         <!-- Prefer using a proper icon. Keep these for compatibility. -->
-        <string name="add_word_success_icon" translatable="false">✓</string>
         <string name="add_word_success_default">Готово!</string>
 
         <!-- Helpful validation/toast messages -->
         <string name="add_word_error_word_required">Введите слово.</string>
         <string name="add_word_error_translation_required">Введите перевод.</string>
-        <string name="add_word_toast_added">Слово добавлено.</string>
 
         <!-- Add Word: success and error fallback messages -->
         <string name="add_word_success_added">Слово успешно добавлено!</string>
@@ -138,7 +135,6 @@
         <string name="language_selection_subtitle">Выберите язык, на котором вы говорите, и язык, который хотите изучать. Это можно изменить позже в настройках.</string>
         <string name="language_selection_native_label">Я говорю на</string>
         <string name="language_selection_target_label">Я хочу изучить</string>
-        <string name="language_selection_same_language_error">Родной и изучаемый языки должны отличаться</string>
 
         <!-- ─── Settings ────────────────────────────────────────────────────────── -->
         <string name="settings_title">Настройки</string>
@@ -246,7 +242,6 @@
         <string name="word_list_empty">Вы ещё не добавили слов</string>
         <string name="word_list_delete_confirm_title">Удалить слово</string>
         <string name="word_list_delete_confirm_message">Удалить %1$s из списка?</string>
-        <string name="word_list_reset">Сбросить прогресс</string>
         <string name="word_list_reset_confirm_title">Сбросить прогресс</string>
         <string name="word_list_reset_confirm_message">Сбросить прогресс изучения для %1$s?</string>
         <string name="word_list_more_actions">Дополнительные действия</string>
@@ -278,11 +273,6 @@
         <string name="add_word_button_add_later">Добавить позже</string>
         <string name="add_word_pending_title">Ожидающие переводы</string>
         <string name="add_word_pending_delete">Удалить ожидающее слово</string>
-
-        <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
-        <string name="cd_add_word">Добавить слово</string>
-        <string name="cd_delete_word">Удалить слово</string>
-        <string name="cd_show_translation">Показать перевод</string>
 
         <!-- Plurals -->
         <plurals name="cards_count">
