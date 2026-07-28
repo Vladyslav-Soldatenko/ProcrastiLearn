@@ -2,7 +2,6 @@
 
 <string name="app_function_description">Добавляйте слова с переводами, сгенерированными ИИ, для обучения с интервальным повторением</string>
 
-<string name="app_name" translatable="false">ProcrastiLearn</string>
 
         <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
         <string name="action_open_settings">Открыть настройки</string>
@@ -97,7 +96,6 @@
          <string name="edit_word_title">Редактировать слово</string>
 
         <!-- Prefer using a proper icon. Keep these for compatibility. -->
-        <string name="add_word_success_icon" translatable="false">✓</string>
         <string name="add_word_success_default">Готово!</string>
 
         <!-- Helpful validation/toast messages -->
@@ -220,7 +218,6 @@
         <string name="settings_about_us_contact_title">Контакты</string>
         <string name="settings_about_us_contact_body">Если у вас есть вопросы или обратная связь, пишите на: Apocalypse_232@proton.me</string>
         <string name="settings_about_us_privacy">Политика конфиденциальности</string>
-        <string name="settings_privacy_policy_url" translatable="false">https://gist.github.com/Vladyslav-Soldatenko/adb5953ce000b9e8515d3dcd87773aef</string>
 
         <!-- Import -->
         <string name="settings_import_row">Импорт</string>
