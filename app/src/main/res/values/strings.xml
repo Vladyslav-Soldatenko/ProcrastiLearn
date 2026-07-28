@@ -94,7 +94,7 @@
     <string name="add_word_placeholder_word">Enter the word</string>
     <string name="add_word_label_translation">Translation</string>
     <string name="add_word_placeholder_translation">Enter the translation (multi-line)</string>
-    <string name="add_word_icon_add">Add</string>
+    <string name="add_word_icon_add">@string/action_add</string>
 
     <string name="edit_word_title">Edit Word</string>
 
@@ -140,7 +140,7 @@
     <string name="language_selection_target_label">I want to learn</string>
 
     <!-- ─── Settings ────────────────────────────────────────────────────────── -->
-    <string name="settings_title">Settings</string>
+    <string name="settings_title">@string/nav_settings</string>
 
     <!-- Section headers -->
     <string name="settings_section_study_reviews">Study &amp; Reviews</string>
@@ -194,7 +194,7 @@
     <!-- About Us -->
     <string name="settings_about_us_row">About us</string>
     <string name="settings_about_us_row_desc">Learn more about the app</string>
-    <string name="settings_about_us_title">About Us</string>
+    <string name="settings_about_us_title">@string/settings_about_us_row</string>
     <string name="settings_about_us_intro">
         ProcrastiLearn turns distracting moments into learning opportunities. When you try to open a selected app, we show you a quick vocabulary challenge first. This way, you build knowledge while keeping distractions in check.
     </string>
@@ -241,10 +241,10 @@
     <string name="settings_openai_prompt_dialog_title">Edit AI %1$s-&gt;%2$s prompt</string>
     <string name="settings_openai_prompt_default">Using default %1$s-&gt;%2$s prompt</string>
     <string name="settings_openai_prompt_custom">Custom %1$s-&gt;%2$s prompt saved</string>
-    <string name="settings_openai_reverse_prompt_title">AI %1$s-&gt;%2$s prompt</string>
-    <string name="settings_openai_reverse_prompt_dialog_title">Edit AI %1$s-&gt;%2$s prompt</string>
-    <string name="settings_openai_reverse_prompt_default">Using default %1$s-&gt;%2$s prompt</string>
-    <string name="settings_openai_reverse_prompt_custom">Custom %1$s-&gt;%2$s prompt saved</string>
+    <string name="settings_openai_reverse_prompt_title">@string/settings_openai_prompt_title</string>
+    <string name="settings_openai_reverse_prompt_dialog_title">@string/settings_openai_prompt_dialog_title</string>
+    <string name="settings_openai_reverse_prompt_default">@string/settings_openai_prompt_default</string>
+    <string name="settings_openai_reverse_prompt_custom">@string/settings_openai_prompt_custom</string>
     <string name="settings_openai_prompt_placeholder_hint">Use {{NATIVE_LANGUAGE}} and {{TARGET_LANGUAGE}} as placeholders — they are automatically replaced with your selected languages when a translation is generated.</string>
 
     <!-- Add Word: AI translation toggle -->
@@ -253,7 +253,7 @@
     <string name="add_word_button_preview">Preview</string>
     <string name="add_word_preview_title">AI preview</string>
     <string name="add_word_preview_stored_title">Saved translation — already in your list</string>
-    <string name="add_word_preview_cancel">@string/action_cancel</string>
+    <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
     <string name="add_word_preview_confirm">@string/action_add</string>
     <string name="add_word_preview_regenerate">Re-Generate</string>
     <string name="add_word_existing_title">Word already exists</string>

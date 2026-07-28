@@ -10,16 +10,16 @@
     <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
     <string name="action_open_settings">Відкрити налаштування</string>
     <string name="action_not_now">Не зараз</string>
-    <string name="action_accept">Прийняти</string>
     <string name="action_continue">Продовжити</string>
     <string name="action_view_list">Переглянути список</string>
     <string name="action_add">Додати</string>
     <string name="action_delete">Видалити</string>
     <string name="action_edit">Редагувати</string>
     <string name="action_reset">Скинути</string>
+    <string name="action_accept">Прийняти</string>
     <string name="action_ok">OK</string>
     <string name="action_cancel">Скасувати</string>
-    <string name="action_proceed">Продовжити</string>
+    <string name="action_proceed">@string/action_continue</string>
 
     <!-- ─── Text selection context menu ─────────────────────────────────────── -->
     <string name="process_text_action">Додати в ProcrastiLearn</string>
@@ -95,7 +95,7 @@
     <string name="add_word_placeholder_word">Введіть слово</string>
     <string name="add_word_label_translation">Переклад</string>
     <string name="add_word_placeholder_translation">Введіть переклад (можна в кілька рядків)</string>
-    <string name="add_word_icon_add">Додати</string>
+    <string name="add_word_icon_add">@string/action_add</string>
 
     <string name="edit_word_title">Редагувати слово</string>
 
@@ -144,7 +144,7 @@
     <string name="language_selection_same_language_error">Рідна та цільова мови мають відрізнятися</string>
 
     <!-- ─── Settings ────────────────────────────────────────────────────────── -->
-    <string name="settings_title">Налаштування</string>
+    <string name="settings_title">@string/nav_settings</string>
 
     <!-- Section headers -->
     <string name="settings_section_study_reviews">Навчання і повторення</string>
@@ -198,7 +198,7 @@
     <!-- About Us -->
     <string name="settings_about_us_row">Про нас</string>
     <string name="settings_about_us_row_desc">Дізнайтеся більше про додаток</string>
-    <string name="settings_about_us_title">Про нас</string>
+    <string name="settings_about_us_title">@string/settings_about_us_row</string>
     <string name="settings_about_us_intro">
         ProcrastiLearn перетворює моменти відволікання на можливості для навчання. Коли ви намагаєтеся відкрити вибраний додаток, ми спершу показуємо коротке словникове завдання. Так ви здобуваєте знання, тримаючи відволікання під контролем.
     </string>
@@ -245,10 +245,10 @@
     <string name="settings_openai_prompt_dialog_title">Редагувати промпт ШІ %1$s-&gt;%2$s</string>
     <string name="settings_openai_prompt_default">Використовується стандартний промпт %1$s-&gt;%2$s</string>
     <string name="settings_openai_prompt_custom">Збережено власний промпт %1$s-&gt;%2$s</string>
-    <string name="settings_openai_reverse_prompt_title">Промпт ШІ %1$s-&gt;%2$s</string>
-    <string name="settings_openai_reverse_prompt_dialog_title">Редагувати промпт ШІ %1$s-&gt;%2$s</string>
-    <string name="settings_openai_reverse_prompt_default">Використовується стандартний промпт %1$s-&gt;%2$s</string>
-    <string name="settings_openai_reverse_prompt_custom">Збережено власний промпт %1$s-&gt;%2$s</string>
+    <string name="settings_openai_reverse_prompt_title">@string/settings_openai_prompt_title</string>
+    <string name="settings_openai_reverse_prompt_dialog_title">@string/settings_openai_prompt_dialog_title</string>
+    <string name="settings_openai_reverse_prompt_default">@string/settings_openai_prompt_default</string>
+    <string name="settings_openai_reverse_prompt_custom">@string/settings_openai_prompt_custom</string>
     <string name="settings_openai_prompt_placeholder_hint">Використовуйте {{NATIVE_LANGUAGE}} і {{TARGET_LANGUAGE}} як плейсхолдери — під час генерації перекладу вони автоматично заміняться на вибрані вами мови.</string>
 
     <!-- Add Word: AI translation toggle -->
@@ -257,7 +257,7 @@
     <string name="add_word_button_preview">Попередній перегляд</string>
     <string name="add_word_preview_title">Попередній перегляд ШІ</string>
     <string name="add_word_preview_stored_title">Збережений переклад — уже у вашому списку</string>
-    <string name="add_word_preview_cancel">@string/action_cancel</string>
+    <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
     <string name="add_word_preview_confirm">@string/action_add</string>
     <string name="add_word_preview_regenerate">Згенерувати знову</string>
     <string name="add_word_existing_title">Слово вже існує</string>
@@ -280,7 +280,7 @@
     <string name="word_list_delete_confirm_message">
         Видалити <xliff:g id="word_name">%1$s</xliff:g> зі списку?
     </string>
-    <string name="word_list_reset">Скинути прогрес</string>
+    <string name="word_list_reset">@string/word_list_reset_confirm_title</string>
     <string name="word_list_reset_confirm_title">Скинути прогрес</string>
     <string name="word_list_reset_confirm_message">
         Скинути прогрес вивчення для <xliff:g id="word_name">%1$s</xliff:g>?
