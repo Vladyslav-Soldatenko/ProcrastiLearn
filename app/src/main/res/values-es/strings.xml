@@ -1,0 +1,328 @@
+<resources xmlns:tools="http://schemas.android.com/tools"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- ─── AppFunctions ────────────────────────────────────────────────────── -->
+    <string name="app_function_description">Añade palabras de vocabulario con traducciones generadas por IA para el aprendizaje con repetición espaciada</string>
+
+    <!-- ─── App / Brand ─────────────────────────────────────────────────────── -->
+    <string name="app_name" translatable="false">ProcrastiLearn</string>
+
+    <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
+    <string name="action_open_settings">Abrir ajustes</string>
+    <string name="action_not_now">Ahora no</string>
+    <string name="action_accept">Aceptar</string>
+    <string name="action_continue">Continuar</string>
+    <string name="action_view_list">Ver lista</string>
+    <string name="action_add">Añadir</string>
+    <string name="action_delete">Eliminar</string>
+    <string name="action_edit">Editar</string>
+    <string name="action_reset">Restablecer</string>
+    <string name="action_ok">Aceptar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_proceed">Continuar</string>
+
+
+    <!-- Back-compat aliases (so existing code keeps working) -->
+    <string name="overlay_permission_open_settings">@string/action_open_settings</string>
+    <string name="overlay_permission_not_now">@string/action_not_now</string>
+    <string name="add_word_button_add">@string/action_add</string>
+    <string name="word_list_delete">@string/action_delete</string>
+    <string name="add_word_view_list">@string/action_view_list</string>
+
+    <!-- ─── Text selection context menu ─────────────────────────────────────── -->
+    <string name="process_text_action">ProcrastiLearn esto</string>
+
+    <!-- ─── Navigation ──────────────────────────────────────────────────────── -->
+    <string name="nav_apps">Apps</string>
+    <string name="nav_add_word">Añadir palabra</string>
+    <string name="nav_dojo">Dojo</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <!-- ─── Learning flow ───────────────────────────────────────────────────── -->
+    <string name="learning_no_word">No hay ninguna palabra cargada</string>
+    <string name="learning_no_translation">No hay ninguna traducción cargada</string>
+    <string name="learning_show_translation">Mostrar traducción</string>
+    <string name="learning_question">¿Qué tan bien lo sabías?</string>
+
+    <!-- Ratings -->
+    <string name="rating_again">Otra vez</string>
+    <string name="rating_hard">Difícil</string>
+    <string name="rating_good">Bien</string>
+    <string name="rating_easy">Fácil</string>
+
+    <!-- ─── Dojo (practice screen) ──────────────────────────────────────────── -->
+    <string name="dojo_stats_new_remaining">nuevas</string>
+    <string name="dojo_stats_reviews_due">pendientes</string>
+    <string name="dojo_stats_skipped">omitidas</string>
+    <string name="dojo_empty_title">¡Todo listo por hoy!</string>
+    <string name="dojo_empty_message">Has completado todas las palabras disponibles por hoy. Vuelve más tarde o ajusta tus límites diarios en Ajustes.</string>
+    <string name="dojo_undo_content_description">Deshacer última calificación</string>
+    <string name="dojo_undo_confirmation">Se deshizo %1$s para \"%2$s\"</string>
+
+    <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
+    <string name="overlay_permission_title">Permitir superposición</string>
+    <string name="overlay_permission_message">
+        Esta app necesita permiso para mostrar una superposición sobre otras apps.
+    </string>
+
+    <!-- ─── Accessibility disclosure (A11y) ─────────────────────────────────── -->
+    <string name="a11y_disclosure_title">Por qué necesitamos Accesibilidad</string>
+    <string name="a11y_disclosure_description">
+        Esta app usa el permiso del Servicio de Accesibilidad de Android para detectar cuándo abres las apps seleccionadas
+        (como TikTok, Reddit o cualquier otra que elijas) y así mostrarte un breve recordatorio de aprendizaje antes de continuar.
+    </string>
+
+    <string name="a11y_disclosure_section_access">A qué accedemos</string>
+
+    <!-- Keep your original paragraph for now (easy drop-in), but prefer the array below -->
+    <string name="a11y_disclosure_access_details">
+        • Qué app está actualmente en tu pantalla.\n
+        • NO leemos tus contraseñas, mensajes ni el texto en pantalla.\n
+        • Tus datos nunca salen de tu dispositivo y nunca se venden ni se comparten.
+    </string>
+
+    <string-array name="a11y_disclosure_access_points">
+        <item>Información del paquete y la ventana de la app para saber cuál está en primer plano.</item>
+        <item>No leemos tus contraseñas, mensajes ni el texto en pantalla.</item>
+        <item>Tus datos se quedan en tu dispositivo y no se venden ni se comparten.</item>
+    </string-array>
+
+    <string name="a11y_disclosure_section_usage">Cómo se usa</string>
+
+    <!-- Original paragraph -->
+    <string name="a11y_disclosure_usage_details">
+        Solo para activar la superposición de aprendizaje en las apps que seleccionaste.
+        Puedes desactivarlo cuando quieras desde Ajustes. No vendemos ni compartimos estos datos,
+        nunca salen de tu dispositivo.
+    </string>
+
+
+    <string name="a11y_disclosure_checkbox">
+        Entiendo y acepto que esta app use el permiso del Servicio de Accesibilidad para este fin.
+    </string>
+    <string name="a11y_disclosure_accept">Aceptar y continuar</string>
+    <string name="a11y_disclosure_decline">@string/action_not_now</string>
+    <string name="a11y_disclosure_privacy">Política de privacidad y detalles</string>
+
+    <!-- ─── Add Word ────────────────────────────────────────────────────────── -->
+    <string name="add_word_title">Añadir palabra nueva</string>
+    <string name="add_word_subtitle">Amplía tu vocabulario</string>
+    <string name="add_word_label_word">Palabra</string>
+    <string name="add_word_placeholder_word">Escribe la palabra</string>
+    <string name="add_word_label_translation">Traducción</string>
+    <string name="add_word_placeholder_translation">Escribe la traducción (varias líneas)</string>
+    <string name="add_word_icon_add">Añadir</string>
+
+    <string name="edit_word_title">Editar palabra</string>
+
+
+    <!-- Prefer using a proper icon. Keep these for compatibility. -->
+    <string name="add_word_success_icon" translatable="false">✓</string>
+    <string name="add_word_success_default">¡Listo!</string>
+
+    <!-- Helpful validation/toast messages -->
+    <string name="add_word_error_word_required">Escribe una palabra.</string>
+    <string name="add_word_error_translation_required">Escribe una traducción.</string>
+    <string name="add_word_toast_added">Palabra añadida.</string>
+
+    <!-- Add Word: success and error fallback messages -->
+    <string name="add_word_success_added">¡Palabra añadida correctamente!</string>
+    <string name="add_word_success_updated">¡Palabra actualizada y progreso reiniciado!</string>
+    <string name="add_word_success_pending">Guardado. La traducción se generará cuando vuelvas a estar en línea.</string>
+    <string name="add_word_error_preview_failed">No se pudo generar la vista previa</string>
+    <string name="add_word_error_translation_failed">No se pudo generar la traducción</string>
+    <string name="add_word_error_update_failed">No se pudo actualizar la palabra</string>
+    <string name="add_word_error_add_failed">No se pudo añadir la palabra</string>
+    <string name="add_word_error_lookup_failed">No se pudo comprobar las palabras existentes</string>
+
+    <!-- Bidirectional review -->
+    <string name="add_word_bidirectional_toggle">Practicar en ambos sentidos</string>
+    <string name="add_word_customize_backward_show">Personalizar tarjeta inversa</string>
+    <string name="add_word_customize_backward_hide">Ocultar personalización</string>
+    <string name="add_word_backward_prompt_label">Pregunta inversa</string>
+    <string name="add_word_backward_prompt_placeholder">Déjalo en blanco para usar la traducción</string>
+    <string name="add_word_backward_answer_label">Respuesta inversa</string>
+    <string name="add_word_backward_answer_placeholder">Déjalo en blanco para usar la palabra</string>
+
+    <!-- ─── Language selection ──────────────────────────────────────────────── -->
+    <string name="language_name_english">Inglés</string>
+    <string name="language_name_russian">Ruso</string>
+    <string name="language_name_spanish">Español</string>
+    <string name="language_name_french">Francés</string>
+    <string name="language_name_german">Alemán</string>
+    <string name="language_name_italian">Italiano</string>
+    <string name="language_name_portuguese">Portugués</string>
+    <string name="language_name_chinese">Chino (mandarín)</string>
+
+    <string name="language_selection_dialog_title">Elige tus idiomas</string>
+    <string name="language_selection_subtitle">Elige el idioma que hablas y el que quieres aprender. Puedes cambiarlo más tarde en Ajustes.</string>
+    <string name="language_selection_native_label">Hablo</string>
+    <string name="language_selection_target_label">Quiero aprender</string>
+    <string name="language_selection_same_language_error">El idioma nativo y el de aprendizaje deben ser diferentes</string>
+
+    <!-- ─── Settings ────────────────────────────────────────────────────────── -->
+    <string name="settings_title">Ajustes</string>
+
+    <!-- Section headers -->
+    <string name="settings_section_study_reviews">Estudio y repasos</string>
+    <string name="settings_section_ai_features">Funciones de IA (requiere clave de API)</string>
+    <string name="settings_section_permissions">Permisos</string>
+    <string name="settings_section_data_about">Datos e información</string>
+
+    <!-- Language pair -->
+    <string name="settings_language_pair_title">Par de idiomas</string>
+    <string name="settings_language_pair_desc">%1$s → %2$s</string>
+
+    <!-- Study mode -->
+    <string name="settings_study_mode_title">Modo de estudio</string>
+    <string name="settings_study_mode_mixed">Mixto</string>
+    <string name="settings_study_mode_reviews_first">Repasos primero</string>
+    <string name="settings_study_mode_new_first">Nuevas primero</string>
+    <string name="settings_study_mode_mixed_desc">Combina tarjetas nuevas y de repaso</string>
+    <string name="settings_study_mode_reviews_first_desc">Muestra todos los repasos antes que las tarjetas nuevas</string>
+    <string name="settings_study_mode_new_first_desc">Muestra las tarjetas nuevas antes que los repasos</string>
+
+    <!-- Review direction -->
+    <string name="settings_review_direction_title">Dirección del repaso</string>
+    <string name="settings_review_direction_forward">Directa</string>
+    <string name="settings_review_direction_backward">Inversa</string>
+    <string name="settings_review_direction_bidirectional">Bidireccional</string>
+    <string name="settings_review_direction_forward_desc">Muestra la palabra y pide la traducción</string>
+    <string name="settings_review_direction_backward_desc">Muestra la traducción y pide la palabra</string>
+    <string name="settings_review_direction_bidirectional_desc">Combina ambas direcciones para las tarjetas marcadas como \"Practicar en ambos sentidos\"</string>
+
+    <!-- Daily limits -->
+    <string name="settings_add_cards_for_today_title">Añadir tarjetas para hoy</string>
+    <string name="settings_add_cards_for_today_dialog_title">Añadir tarjetas para hoy (nuevas disponibles: %1$d)</string>
+    <string name="settings_new_cards_per_day_title">Tarjetas nuevas por día</string>
+    <string name="settings_new_cards_per_day_dialog_title">Tarjetas nuevas por día (nuevas disponibles: %1$d)</string>
+    <string name="settings_reviews_per_day_title">Repasos por día</string>
+
+    <!-- Overlay interval -->
+    <string name="settings_overlay_interval_title">Mostrar superposición cada X minutos</string>
+    <string name="settings_overlay_interval_headline">Mostrar superposición cada X minutos mientras la app bloqueada esté abierta</string>
+
+    <string name="settings_overlay_headline">Permiso de superposición</string>
+    <string name="settings_overlay_support">
+        Necesario para mostrar la tarjeta de aprendizaje sobre las apps seleccionadas.
+    </string>
+
+    <string name="settings_a11y_headline">Filtro de aprendizaje (Accesibilidad)</string>
+    <string name="settings_a11y_support">
+        Detecta las apps seleccionadas en primer plano para activar la tarjeta de aprendizaje.
+    </string>
+
+    <!-- About Us -->
+    <string name="settings_about_us_row">Sobre nosotros</string>
+    <string name="settings_about_us_row_desc">Más información sobre la app</string>
+    <string name="settings_about_us_title">Sobre nosotros</string>
+    <string name="settings_about_us_intro">
+        ProcrastiLearn convierte los momentos de distracción en oportunidades de aprendizaje. Cuando intentas abrir una app seleccionada, te mostramos primero un breve reto de vocabulario. Así, aprendes mientras mantienes las distracciones bajo control.
+    </string>
+    <string name="settings_about_us_mission_title">Nuestra misión</string>
+    <string name="settings_about_us_mission_body">
+        Queremos ayudar a las personas a recuperar su tiempo y su atención, convirtiendo los hábitos cotidianos en oportunidades para aprender algo nuevo.
+    </string>
+    <string name="settings_about_us_who_title">Quiénes somos</string>
+    <string name="settings_about_us_who_body">
+        ProcrastiLearn está creada y mantenida por un desarrollador independiente apasionado por la productividad y el aprendizaje de idiomas.
+    </string>
+    <string name="settings_about_us_values_title">Nuestros valores</string>
+    <string name="settings_about_us_values_simplicity">Simplicidad: diseño minimalista y sin distracciones.</string>
+    <string name="settings_about_us_values_growth">Crecimiento: pequeños pasos cada día suman un progreso duradero.</string>
+    <string name="settings_about_us_contact_title">Contacto</string>
+    <string name="settings_about_us_contact_body">Si tienes preguntas o comentarios, escríbenos a: Apocalypse_232@proton.me</string>
+    <string name="settings_about_us_privacy">Política de privacidad</string>
+    <string name="settings_privacy_policy_url" translatable="false">https://gist.github.com/Vladyslav-Soldatenko/adb5953ce000b9e8515d3dcd87773aef</string>
+
+    <!-- Import -->
+    <string name="settings_import_row">Importar</string>
+    <string name="settings_import_row_desc">Añade vocabulario desde otra app</string>
+    <string name="settings_import_option_anki_apkg">Mazo de Anki (.apkg)</string>
+    <string name="settings_import_option_anki_apkg_desc">Analiza las tarjetas exportadas desde Anki</string>
+    <string name="settings_import_option_json">Exportación JSON (.json)</string>
+    <string name="settings_import_option_json_desc">Importa una exportación completa de ProcrastiLearn</string>
+    <string name="settings_import_success">Se importaron %1$d tarjetas</string>
+    <string name="settings_import_failure_generic">Error al importar</string>
+    <string name="settings_import_failure_format">Ese formato aún no es compatible</string>
+    <string name="settings_import_failure_schema_version">Este archivo se creó con una versión más reciente de ProcrastiLearn. Actualiza la app.</string>
+
+    <!-- Export -->
+    <string name="settings_export_row">Exportar</string>
+    <string name="settings_export_row_desc">Exporta todo el vocabulario a un archivo JSON</string>
+    <string name="settings_export_success">Exportación completada</string>
+    <string name="settings_export_failure">Error al exportar</string>
+
+    <!-- OpenAI API Key -->
+    <string name="settings_openai_api_key_title">Clave de API de OpenAI</string>
+    <string name="settings_openai_api_key_dialog_title">Introduce la clave de API de OpenAI</string>
+    <string name="settings_openai_api_key_not_set">No configurada</string>
+    <string name="settings_openai_api_key_set">Guardada</string>
+    <string name="settings_openai_prompt_title">Instrucción de IA %1$s-&gt;%2$s</string>
+    <string name="settings_openai_prompt_dialog_title">Editar instrucción de IA %1$s-&gt;%2$s</string>
+    <string name="settings_openai_prompt_default">Usando la instrucción predeterminada %1$s-&gt;%2$s</string>
+    <string name="settings_openai_prompt_custom">Instrucción personalizada %1$s-&gt;%2$s guardada</string>
+    <string name="settings_openai_reverse_prompt_title">Instrucción de IA %1$s-&gt;%2$s</string>
+    <string name="settings_openai_reverse_prompt_dialog_title">Editar instrucción de IA %1$s-&gt;%2$s</string>
+    <string name="settings_openai_reverse_prompt_default">Usando la instrucción predeterminada %1$s-&gt;%2$s</string>
+    <string name="settings_openai_reverse_prompt_custom">Instrucción personalizada %1$s-&gt;%2$s guardada</string>
+    <string name="settings_openai_prompt_placeholder_hint">Usa {{NATIVE_LANGUAGE}} y {{TARGET_LANGUAGE}} como marcadores de posición: se sustituyen automáticamente por los idiomas que elegiste cuando se genera una traducción.</string>
+
+    <!-- Add Word: AI translation toggle -->
+    <string name="add_word_use_ai_toggle">usar IA para generar la traducción</string>
+    <string name="add_word_toggle_direction">Cambiar dirección de la traducción</string>
+    <string name="add_word_button_preview">Vista previa</string>
+    <string name="add_word_preview_title">Vista previa de la IA</string>
+    <string name="add_word_preview_stored_title">Traducción guardada: ya está en tu lista</string>
+    <string name="add_word_preview_cancel">@string/action_cancel</string>
+    <string name="add_word_preview_confirm">@string/action_add</string>
+    <string name="add_word_preview_regenerate">Regenerar</string>
+    <string name="add_word_existing_title">La palabra ya existe</string>
+    <string name="add_word_existing_message">
+        Ya tienes esta palabra añadida. Si continúas, se reiniciará su progreso y se guardará la nueva traducción. Si solo quieres editarla, puedes hacerlo desde la lista de palabras
+    </string>
+    <string name="add_word_existing_cancel">@string/action_cancel</string>
+    <string name="add_word_existing_proceed">@string/action_proceed</string>
+
+    <!-- Add Word: offline AI queueing -->
+    <string name="add_word_button_add_later">Añadir más tarde</string>
+    <string name="add_word_pending_title">Traducciones pendientes</string>
+    <string name="add_word_pending_delete">Quitar palabra pendiente</string>
+
+    <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
+    <string name="word_list_title">Mi vocabulario</string>
+    <string name="word_list_navigate_back">Volver a añadir palabra</string>
+    <string name="word_list_empty">Aún no has añadido palabras</string>
+    <string name="word_list_delete_confirm_title">Eliminar palabra</string>
+    <string name="word_list_delete_confirm_message">
+        ¿Eliminar <xliff:g id="word_name">%1$s</xliff:g> de tu lista?
+    </string>
+    <string name="word_list_reset">Restablecer progreso</string>
+    <string name="word_list_reset_confirm_title">Restablecer progreso</string>
+    <string name="word_list_reset_confirm_message">
+        ¿Restablecer el progreso de aprendizaje de <xliff:g id="word_name">%1$s</xliff:g>?
+    </string>
+    <string name="word_list_more_actions">Más acciones</string>
+    <string name="word_list_search_label">Buscar</string>
+    <string name="word_list_search_placeholder">Buscar palabras</string>
+    <string name="word_list_search_no_results">No se encontraron resultados</string>
+
+    <!-- ─── Apps list ──────────────────────────────────────────────────────── -->
+    <string name="apps_list_enable_procrastilearn_title">Activar ProcrastiLearn</string>
+    <string name="apps_list_error_message">Error: <xliff:g id="error_message">%1$s</xliff:g></string>
+
+    <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
+    <string name="cd_add_word">Añadir palabra</string>
+    <string name="cd_delete_word">Eliminar palabra</string>
+    <string name="cd_show_translation">Mostrar traducción</string>
+
+    <!-- Plurals -->
+    <plurals name="cards_count">
+        <item quantity="one">%d tarjeta</item>
+        <item quantity="other">%d tarjetas</item>
+    </plurals>
+    <plurals name="overlay_minutes_interval">
+        <item quantity="one">Cada %d minuto</item>
+        <item quantity="other">Cada %d minutos</item>
+    </plurals>
+</resources>
