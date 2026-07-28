@@ -67,6 +67,14 @@ android {
     checkReleaseBuilds = true
     abortOnError = true
     error += setOf("MissingTranslation", "ExtraTranslation")
+    checkDependencies = true
+    checkTestSources = true
+    checkAllWarnings = true
+    textReport = true
+    htmlReport = true
+    warningsAsErrors = true
+    sarifReport = true
+    baseline = file("lint-baseline.xml")
   }
 }
 
