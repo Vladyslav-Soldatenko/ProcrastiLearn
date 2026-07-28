@@ -46,29 +46,29 @@
     <string name="dojo_stats_new_remaining">nouveaux</string>
     <string name="dojo_stats_reviews_due">à réviser</string>
     <string name="dojo_stats_skipped">ignorés</string>
-    <string name="dojo_empty_title">Tout est fait pour l\'instant !</string>
-    <string name="dojo_empty_message">Vous avez terminé tous les mots disponibles pour aujourd\'hui. Revenez plus tard ou ajustez vos limites quotidiennes dans les paramètres.</string>
+    <string name="dojo_empty_title">Tout est fait pour l’instant !</string>
+    <string name="dojo_empty_message">Vous avez terminé tous les mots disponibles pour aujourd’hui. Revenez plus tard ou ajustez vos limites quotidiennes dans les paramètres.</string>
     <string name="dojo_undo_content_description">Annuler la dernière évaluation</string>
     <string name="dojo_undo_confirmation">Évaluation « %1$s » annulée pour « %2$s »</string>
 
     <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
-    <string name="overlay_permission_title">Autoriser l\'affichage en superposition</string>
+    <string name="overlay_permission_title">Autoriser l’affichage en superposition</string>
     <string name="overlay_permission_message">
-        Cette application a besoin de l\'autorisation d\'afficher une superposition par-dessus les autres applications.
+        Cette application a besoin de l’autorisation d’afficher une superposition par-dessus les autres applications.
     </string>
 
     <!-- ─── Accessibility disclosure (A11y) ─────────────────────────────────── -->
-    <string name="a11y_disclosure_title">Pourquoi nous avons besoin de l\'accessibilité</string>
+    <string name="a11y_disclosure_title">Pourquoi nous avons besoin de l’accessibilité</string>
     <string name="a11y_disclosure_description">
-        Cette application utilise l\'autorisation du service d\'accessibilité Android pour détecter quand vous ouvrez les applications sélectionnées
-        (par exemple TikTok, Reddit ou toute autre application de votre choix) afin d\'afficher un court exercice d\'apprentissage avant de continuer.
+        Cette application utilise l’autorisation du service d’accessibilité Android pour détecter quand vous ouvrez les applications sélectionnées
+        (par exemple TikTok, Reddit ou toute autre application de votre choix) afin d’afficher un court exercice d’apprentissage avant de continuer.
     </string>
 
     <string name="a11y_disclosure_section_access">Ce à quoi nous accédons</string>
 
     <string name="a11y_disclosure_access_details">
-        • Quelle application est actuellement à l\'écran.\n
-        • Nous ne lisons PAS vos mots de passe, messages ou texte affiché à l\'écran.\n
+        • Quelle application est actuellement à l’écran.\n
+        • Nous ne lisons PAS vos mots de passe, messages ou texte affiché à l’écran.\n
         • Vos données ne quittent jamais votre appareil et ne sont ni vendues ni partagées.
     </string>
 
@@ -76,13 +76,13 @@
 
     <!-- Original paragraph -->
     <string name="a11y_disclosure_usage_details">
-        Uniquement pour déclencher la superposition d\'apprentissage pour les applications que vous avez sélectionnées.
+        Uniquement pour déclencher la superposition d’apprentissage pour les applications que vous avez sélectionnées.
         Vous pouvez désactiver cette fonction à tout moment dans les paramètres. Nous ne vendons ni ne partageons ces données,
         elles ne quittent jamais votre appareil.
     </string>
 
     <string name="a11y_disclosure_checkbox">
-        Je comprends et j\'accepte que cette application utilise l\'autorisation du service d\'accessibilité à cette fin.
+        Je comprends et j’accepte que cette application utilise l’autorisation du service d’accessibilité à cette fin.
     </string>
     <string name="a11y_disclosure_accept">Accepter &amp; continuer</string>
     <string name="a11y_disclosure_decline">@string/action_not_now</string>
@@ -112,10 +112,10 @@
     <string name="add_word_success_added">Mot ajouté avec succès !</string>
     <string name="add_word_success_updated">Mot mis à jour et progression réinitialisée !</string>
     <string name="add_word_success_pending">Enregistré. La traduction sera générée dès que vous serez de nouveau en ligne.</string>
-    <string name="add_word_error_preview_failed">Échec de la génération de l\'aperçu</string>
+    <string name="add_word_error_preview_failed">Échec de la génération de l’aperçu</string>
     <string name="add_word_error_translation_failed">Échec de la génération de la traduction</string>
     <string name="add_word_error_update_failed">Échec de la mise à jour du mot</string>
-    <string name="add_word_error_add_failed">Échec de l\'ajout du mot</string>
+    <string name="add_word_error_add_failed">Échec de l’ajout du mot</string>
     <string name="add_word_error_lookup_failed">Échec de la vérification des mots existants</string>
 
     <!-- Bidirectional review -->
@@ -157,10 +157,10 @@
     <string name="settings_language_pair_desc">%1$s → %2$s</string>
 
     <!-- Study mode -->
-    <string name="settings_study_mode_title">Mode d\'étude</string>
+    <string name="settings_study_mode_title">Mode d’étude</string>
     <string name="settings_study_mode_mixed">Mixte</string>
-    <string name="settings_study_mode_reviews_first">Révisions d\'abord</string>
-    <string name="settings_study_mode_new_first">Nouveaux d\'abord</string>
+    <string name="settings_study_mode_reviews_first">Révisions d’abord</string>
+    <string name="settings_study_mode_new_first">Nouveaux d’abord</string>
     <string name="settings_study_mode_mixed_desc">Mélanger nouvelles cartes et révisions</string>
     <string name="settings_study_mode_reviews_first_desc">Afficher toutes les révisions avant les nouvelles cartes</string>
     <string name="settings_study_mode_new_first_desc">Afficher les nouvelles cartes avant les révisions</string>
@@ -175,40 +175,40 @@
     <string name="settings_review_direction_bidirectional_desc">Mélanger les deux sens pour les cartes marquées « Tester dans les deux sens »</string>
 
     <!-- Daily limits -->
-    <string name="settings_add_cards_for_today_title">Ajouter des cartes pour aujourd\'hui</string>
-    <string name="settings_add_cards_for_today_dialog_title">Ajouter des cartes pour aujourd\'hui (nouvelles disponibles : %1$d)</string>
+    <string name="settings_add_cards_for_today_title">Ajouter des cartes pour aujourd’hui</string>
+    <string name="settings_add_cards_for_today_dialog_title">Ajouter des cartes pour aujourd’hui (nouvelles disponibles : %1$d)</string>
     <string name="settings_new_cards_per_day_title">Nouvelles cartes par jour</string>
     <string name="settings_new_cards_per_day_dialog_title">Nouvelles cartes par jour (nouvelles disponibles : %1$d)</string>
     <string name="settings_reviews_per_day_title">Révisions par jour</string>
 
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">Afficher la superposition toutes les X minutes</string>
-    <string name="settings_overlay_interval_headline">Afficher la superposition toutes les X minutes tant que l\'application bloquée est ouverte</string>
+    <string name="settings_overlay_interval_headline">Afficher la superposition toutes les X minutes tant que l’application bloquée est ouverte</string>
 
     <string name="settings_overlay_headline">Autorisation de superposition</string>
     <string name="settings_overlay_support">
-        Nécessaire pour afficher la carte d\'apprentissage par-dessus les applications sélectionnées.
+        Nécessaire pour afficher la carte d’apprentissage par-dessus les applications sélectionnées.
     </string>
 
-    <string name="settings_a11y_headline">Verrou d\'apprentissage (Accessibilité)</string>
+    <string name="settings_a11y_headline">Verrou d’apprentissage (Accessibilité)</string>
     <string name="settings_a11y_support">
-        Détecte les applications sélectionnées au premier plan pour déclencher la carte d\'apprentissage.
+        Détecte les applications sélectionnées au premier plan pour déclencher la carte d’apprentissage.
     </string>
 
     <!-- About Us -->
     <string name="settings_about_us_row">À propos de nous</string>
-    <string name="settings_about_us_row_desc">En savoir plus sur l\'application</string>
+    <string name="settings_about_us_row_desc">En savoir plus sur l’application</string>
     <string name="settings_about_us_title">@string/settings_about_us_row</string>
     <string name="settings_about_us_intro">
-        ProcrastiLearn transforme vos moments de distraction en occasions d\'apprendre. Lorsque vous essayez d\'ouvrir une application sélectionnée, nous vous proposons d\'abord un petit défi de vocabulaire. Ainsi, vous enrichissez vos connaissances tout en gardant vos distractions sous contrôle.
+        ProcrastiLearn transforme vos moments de distraction en occasions d’apprendre. Lorsque vous essayez d’ouvrir une application sélectionnée, nous vous proposons d’abord un petit défi de vocabulaire. Ainsi, vous enrichissez vos connaissances tout en gardant vos distractions sous contrôle.
     </string>
     <string name="settings_about_us_mission_title">Notre mission</string>
     <string name="settings_about_us_mission_body">
-        Nous voulons aider chacun à reprendre le contrôle de son temps et de son attention en transformant les habitudes quotidiennes en occasions d\'apprendre quelque chose de nouveau.
+        Nous voulons aider chacun à reprendre le contrôle de son temps et de son attention en transformant les habitudes quotidiennes en occasions d’apprendre quelque chose de nouveau.
     </string>
     <string name="settings_about_us_who_title">Qui sommes-nous</string>
     <string name="settings_about_us_who_body">
-        ProcrastiLearn est conçu et maintenu par un développeur indépendant passionné de productivité et d\'apprentissage des langues.
+        ProcrastiLearn est conçu et maintenu par un développeur indépendant passionné de productivité et d’apprentissage des langues.
     </string>
     <string name="settings_about_us_values_title">Nos valeurs</string>
     <string name="settings_about_us_values_simplicity">Simplicité : un design épuré, sans distraction.</string>
@@ -226,15 +226,15 @@
     <string name="settings_import_option_json">Export JSON (.json)</string>
     <string name="settings_import_option_json_desc">Importer un export complet de ProcrastiLearn</string>
     <string name="settings_import_success">%1$d cartes importées</string>
-    <string name="settings_import_failure_generic">Échec de l\'importation</string>
-    <string name="settings_import_failure_format">Ce format n\'est pas encore pris en charge</string>
-    <string name="settings_import_failure_schema_version">Ce fichier a été créé par une version plus récente de ProcrastiLearn. Veuillez mettre à jour l\'application.</string>
+    <string name="settings_import_failure_generic">Échec de l’importation</string>
+    <string name="settings_import_failure_format">Ce format n’est pas encore pris en charge</string>
+    <string name="settings_import_failure_schema_version">Ce fichier a été créé par une version plus récente de ProcrastiLearn. Veuillez mettre à jour l’application.</string>
 
     <!-- Export -->
     <string name="settings_export_row">Exporter</string>
     <string name="settings_export_row_desc">Exporter tout le vocabulaire dans un fichier JSON</string>
     <string name="settings_export_success">Exportation terminée</string>
-    <string name="settings_export_failure">Échec de l\'exportation</string>
+    <string name="settings_export_failure">Échec de l’exportation</string>
 
     <!-- OpenAI API Key -->
     <string name="settings_openai_api_key_title">Clé API OpenAI</string>
@@ -249,10 +249,10 @@
     <string name="settings_openai_reverse_prompt_dialog_title">@string/settings_openai_prompt_dialog_title</string>
     <string name="settings_openai_reverse_prompt_default">@string/settings_openai_prompt_default</string>
     <string name="settings_openai_reverse_prompt_custom">@string/settings_openai_prompt_custom</string>
-    <string name="settings_openai_prompt_placeholder_hint">Utilisez {{NATIVE_LANGUAGE}} et {{TARGET_LANGUAGE}} comme espaces réservés — ils sont automatiquement remplacés par les langues que vous avez sélectionnées lors de la génération d\'une traduction.</string>
+    <string name="settings_openai_prompt_placeholder_hint">Utilisez {{NATIVE_LANGUAGE}} et {{TARGET_LANGUAGE}} comme espaces réservés — ils sont automatiquement remplacés par les langues que vous avez sélectionnées lors de la génération d’une traduction.</string>
 
     <!-- Add Word: AI translation toggle -->
-    <string name="add_word_use_ai_toggle">utiliser l\'IA pour générer la traduction</string>
+    <string name="add_word_use_ai_toggle">utiliser l’IA pour générer la traduction</string>
     <string name="add_word_toggle_direction">Inverser le sens de traduction</string>
     <string name="add_word_button_preview">Aperçu</string>
     <string name="add_word_preview_title">Aperçu IA</string>
@@ -274,7 +274,7 @@
 
     <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
     <string name="word_list_title">Mon vocabulaire</string>
-    <string name="word_list_navigate_back">Retour à l\'ajout de mot</string>
+    <string name="word_list_navigate_back">Retour à l’ajout de mot</string>
     <string name="word_list_empty">Aucun mot ajouté pour le moment</string>
     <string name="word_list_delete_confirm_title">Supprimer le mot</string>
     <string name="word_list_delete_confirm_message">
@@ -283,9 +283,9 @@
     <string name="word_list_reset">@string/word_list_reset_confirm_title</string>
     <string name="word_list_reset_confirm_title">Réinitialiser la progression</string>
     <string name="word_list_reset_confirm_message">
-        Réinitialiser la progression d\'apprentissage de <xliff:g id="word_name">%1$s</xliff:g> ?
+        Réinitialiser la progression d’apprentissage de <xliff:g id="word_name">%1$s</xliff:g> ?
     </string>
-    <string name="word_list_more_actions">Plus d\'actions</string>
+    <string name="word_list_more_actions">Plus d’actions</string>
     <string name="word_list_search_label">Rechercher</string>
     <string name="word_list_search_placeholder">Rechercher des mots</string>
     <string name="word_list_search_no_results">Aucun résultat trouvé</string>
