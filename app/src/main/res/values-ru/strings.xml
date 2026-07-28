@@ -13,7 +13,7 @@
         <string name="action_edit">Редактировать</string>
         <string name="action_ok">ОК</string>
         <string name="action_cancel">Отмена</string>
-        <string name="action_proceed">Продолжить</string>
+        <string name="action_proceed">@string/action_continue</string>
 
     <string name="action_delete">Удалить</string>
     <string name="action_reset">Сбросить</string>
@@ -92,7 +92,7 @@
         <string name="add_word_placeholder_word">Введите слово</string>
         <string name="add_word_label_translation">Перевод</string>
         <string name="add_word_placeholder_translation">Введите перевод (в несколько строк)</string>
-        <string name="add_word_icon_add">Добавить</string>
+        <string name="add_word_icon_add">@string/action_add</string>
          <string name="edit_word_title">Редактировать слово</string>
 
         <!-- Prefer using a proper icon. Keep these for compatibility. -->
@@ -137,7 +137,7 @@
         <string name="language_selection_target_label">Я хочу изучить</string>
 
         <!-- ─── Settings ────────────────────────────────────────────────────────── -->
-        <string name="settings_title">Настройки</string>
+        <string name="settings_title">@string/nav_settings</string>
 
         <!-- Section headers -->
         <string name="settings_section_study_reviews">Обучение и повторы</string>
@@ -185,10 +185,10 @@
         <string name="settings_openai_prompt_dialog_title">Измените промпт AI %1$s-&gt;%2$s</string>
         <string name="settings_openai_prompt_default">Используется промпт %1$s-&gt;%2$s по умолчанию</string>
         <string name="settings_openai_prompt_custom">Пользовательский промпт %1$s-&gt;%2$s сохранён</string>
-        <string name="settings_openai_reverse_prompt_title">Промпт AI %1$s-&gt;%2$s</string>
-        <string name="settings_openai_reverse_prompt_dialog_title">Измените промпт AI %1$s-&gt;%2$s</string>
-        <string name="settings_openai_reverse_prompt_default">Используется промпт %1$s-&gt;%2$s по умолчанию</string>
-        <string name="settings_openai_reverse_prompt_custom">Пользовательский промпт %1$s-&gt;%2$s сохранён</string>
+        <string name="settings_openai_reverse_prompt_title">@string/settings_openai_prompt_title</string>
+        <string name="settings_openai_reverse_prompt_dialog_title">@string/settings_openai_prompt_dialog_title</string>
+        <string name="settings_openai_reverse_prompt_default">@string/settings_openai_prompt_default</string>
+        <string name="settings_openai_reverse_prompt_custom">@string/settings_openai_prompt_custom</string>
         <string name="settings_openai_prompt_placeholder_hint">Используйте плейсхолдеры {{NATIVE_LANGUAGE}} и {{TARGET_LANGUAGE}} — при генерации перевода они автоматически заменяются на выбранные вами языки.</string>
 
         <string name="settings_overlay_headline">Разрешение на оверлей</string>
@@ -204,7 +204,7 @@
         <!-- About Us -->
         <string name="settings_about_us_row">О нас</string>
         <string name="settings_about_us_row_desc">Узнайте больше о приложении</string>
-        <string name="settings_about_us_title">О нас</string>
+        <string name="settings_about_us_title">@string/settings_about_us_row</string>
         <string name="settings_about_us_intro">ProcrastiLearn превращает отвлекающие моменты в возможности для обучения. Когда вы пытаетесь открыть выбранное приложение, мы сначала показываем короткое задание по словарю. Так вы пополняете знания и держите отвлечения под контролем.</string>
         <string name="settings_about_us_mission_title">Наша миссия</string>
         <string name="settings_about_us_mission_body">Мы хотим помочь людям вернуть своё время и внимание, превращая повседневные привычки в возможность узнать что‑то новое.</string>
@@ -259,7 +259,7 @@
         <string name="add_word_button_preview">Предпросмотр</string>
         <string name="add_word_preview_title">Предпросмотр ИИ</string>
         <string name="add_word_preview_stored_title">Сохранённый перевод — уже в вашем списке</string>
-        <string name="add_word_preview_cancel">@string/action_cancel</string>
+        <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
         <string name="add_word_preview_confirm">@string/action_add</string>
         <string name="add_word_preview_regenerate">Сгенерировать заново</string>
         <string name="add_word_existing_title">Слово уже существует</string>

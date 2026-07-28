@@ -10,16 +10,16 @@
     <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
     <string name="action_open_settings">打开设置</string>
     <string name="action_not_now">暂不</string>
-    <string name="action_accept">接受</string>
     <string name="action_continue">继续</string>
     <string name="action_view_list">查看列表</string>
     <string name="action_add">添加</string>
     <string name="action_delete">删除</string>
     <string name="action_edit">编辑</string>
     <string name="action_reset">重置</string>
+    <string name="action_accept">接受</string>
     <string name="action_ok">确定</string>
     <string name="action_cancel">取消</string>
-    <string name="action_proceed">继续</string>
+    <string name="action_proceed">@string/action_continue</string>
 
     <!-- ─── Text selection context menu ─────────────────────────────────────── -->
     <string name="process_text_action">用 ProcrastiLearn 学习</string>
@@ -80,7 +80,7 @@
     <string name="add_word_placeholder_word">输入单词</string>
     <string name="add_word_label_translation">翻译</string>
     <string name="add_word_placeholder_translation">输入翻译（支持多行）</string>
-    <string name="add_word_icon_add">添加</string>
+    <string name="add_word_icon_add">@string/action_add</string>
 
     <string name="edit_word_title">编辑单词</string>
 
@@ -129,7 +129,7 @@
     <string name="language_selection_same_language_error">母语和目标语言不能相同</string>
 
     <!-- ─── Settings ────────────────────────────────────────────────────────── -->
-    <string name="settings_title">设置</string>
+    <string name="settings_title">@string/nav_settings</string>
 
     <!-- Section headers -->
     <string name="settings_section_study_reviews">学习&amp;复习</string>
@@ -179,7 +179,7 @@
     <!-- About Us -->
     <string name="settings_about_us_row">关于我们</string>
     <string name="settings_about_us_row_desc">了解更多应用信息</string>
-    <string name="settings_about_us_title">关于我们</string>
+    <string name="settings_about_us_title">@string/settings_about_us_row</string>
     <string name="settings_about_us_intro">ProcrastiLearn 把容易分心的时刻变成学习机会。当你尝试打开所选应用时，我们会先给你一个简短的词汇挑战。这样你既能积累知识，又能控制分心。</string>
     <string name="settings_about_us_mission_title">我们的使命</string>
     <string name="settings_about_us_mission_body">我们希望通过把日常习惯转变为学习新知识的机会，帮助人们重新掌控自己的时间和注意力。</string>
@@ -220,10 +220,10 @@
     <string name="settings_openai_prompt_dialog_title">编辑 AI %1$s-&gt;%2$s 提示词</string>
     <string name="settings_openai_prompt_default">正在使用默认的 %1$s-&gt;%2$s 提示词</string>
     <string name="settings_openai_prompt_custom">已保存自定义 %1$s-&gt;%2$s 提示词</string>
-    <string name="settings_openai_reverse_prompt_title">AI %1$s-&gt;%2$s 提示词</string>
-    <string name="settings_openai_reverse_prompt_dialog_title">编辑 AI %1$s-&gt;%2$s 提示词</string>
-    <string name="settings_openai_reverse_prompt_default">正在使用默认的 %1$s-&gt;%2$s 提示词</string>
-    <string name="settings_openai_reverse_prompt_custom">已保存自定义 %1$s-&gt;%2$s 提示词</string>
+    <string name="settings_openai_reverse_prompt_title">@string/settings_openai_prompt_title</string>
+    <string name="settings_openai_reverse_prompt_dialog_title">@string/settings_openai_prompt_dialog_title</string>
+    <string name="settings_openai_reverse_prompt_default">@string/settings_openai_prompt_default</string>
+    <string name="settings_openai_reverse_prompt_custom">@string/settings_openai_prompt_custom</string>
     <string name="settings_openai_prompt_placeholder_hint">使用 {{NATIVE_LANGUAGE}} 和 {{TARGET_LANGUAGE}} 作为占位符——生成翻译时，它们会自动替换为你所选的语言。</string>
 
     <!-- Add Word: AI translation toggle -->
@@ -232,7 +232,7 @@
     <string name="add_word_button_preview">预览</string>
     <string name="add_word_preview_title">AI 预览</string>
     <string name="add_word_preview_stored_title">已保存的翻译——已在你的列表中</string>
-    <string name="add_word_preview_cancel">@string/action_cancel</string>
+    <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
     <string name="add_word_preview_confirm">@string/action_add</string>
     <string name="add_word_preview_regenerate">重新生成</string>
     <string name="add_word_existing_title">单词已存在</string>
@@ -251,7 +251,7 @@
     <string name="word_list_empty">还没有添加任何单词</string>
     <string name="word_list_delete_confirm_title">删除单词</string>
     <string name="word_list_delete_confirm_message">确定要从列表中删除「<xliff:g id="word_name">%1$s</xliff:g>」吗？</string>
-    <string name="word_list_reset">重置进度</string>
+    <string name="word_list_reset">@string/word_list_reset_confirm_title</string>
     <string name="word_list_reset_confirm_title">重置进度</string>
     <string name="word_list_reset_confirm_message">确定要重置「<xliff:g id="word_name">%1$s</xliff:g>」的学习进度吗？</string>
     <string name="word_list_more_actions">更多操作</string>

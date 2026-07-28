@@ -10,13 +10,13 @@
     <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
     <string name="action_open_settings">Apri impostazioni</string>
     <string name="action_not_now">Non ora</string>
-    <string name="action_accept">Accetta</string>
     <string name="action_continue">Continua</string>
     <string name="action_view_list">Visualizza elenco</string>
     <string name="action_add">Aggiungi</string>
     <string name="action_delete">Elimina</string>
     <string name="action_edit">Modifica</string>
     <string name="action_reset">Reimposta</string>
+    <string name="action_accept">Accetta</string>
     <string name="action_ok">OK</string>
     <string name="action_cancel">Annulla</string>
     <string name="action_proceed">Procedi</string>
@@ -95,7 +95,7 @@
     <string name="add_word_placeholder_word">Inserisci la parola</string>
     <string name="add_word_label_translation">Traduzione</string>
     <string name="add_word_placeholder_translation">Inserisci la traduzione (più righe)</string>
-    <string name="add_word_icon_add">Aggiungi</string>
+    <string name="add_word_icon_add">@string/action_add</string>
 
     <string name="edit_word_title">Modifica parola</string>
 
@@ -144,7 +144,7 @@
     <string name="language_selection_same_language_error">La lingua madre e quella da imparare devono essere diverse</string>
 
     <!-- ─── Settings ────────────────────────────────────────────────────────── -->
-    <string name="settings_title">Impostazioni</string>
+    <string name="settings_title">@string/nav_settings</string>
 
     <!-- Section headers -->
     <string name="settings_section_study_reviews">Studio e ripassi</string>
@@ -198,7 +198,7 @@
     <!-- About Us -->
     <string name="settings_about_us_row">Chi siamo</string>
     <string name="settings_about_us_row_desc">Scopri di più sull\'app</string>
-    <string name="settings_about_us_title">Chi siamo</string>
+    <string name="settings_about_us_title">@string/settings_about_us_row</string>
     <string name="settings_about_us_intro">
         ProcrastiLearn trasforma i momenti di distrazione in occasioni per imparare. Quando provi ad aprire un\'app selezionata, ti mostriamo prima una rapida sfida di vocabolario. Così impari qualcosa di nuovo tenendo a bada le distrazioni.
     </string>
@@ -245,10 +245,10 @@
     <string name="settings_openai_prompt_dialog_title">Modifica prompt IA %1$s-&gt;%2$s</string>
     <string name="settings_openai_prompt_default">Utilizzo del prompt predefinito %1$s-&gt;%2$s</string>
     <string name="settings_openai_prompt_custom">Prompt personalizzato %1$s-&gt;%2$s salvato</string>
-    <string name="settings_openai_reverse_prompt_title">Prompt IA %1$s-&gt;%2$s</string>
-    <string name="settings_openai_reverse_prompt_dialog_title">Modifica prompt IA %1$s-&gt;%2$s</string>
-    <string name="settings_openai_reverse_prompt_default">Utilizzo del prompt predefinito %1$s-&gt;%2$s</string>
-    <string name="settings_openai_reverse_prompt_custom">Prompt personalizzato %1$s-&gt;%2$s salvato</string>
+    <string name="settings_openai_reverse_prompt_title">@string/settings_openai_prompt_title</string>
+    <string name="settings_openai_reverse_prompt_dialog_title">@string/settings_openai_prompt_dialog_title</string>
+    <string name="settings_openai_reverse_prompt_default">@string/settings_openai_prompt_default</string>
+    <string name="settings_openai_reverse_prompt_custom">@string/settings_openai_prompt_custom</string>
     <string name="settings_openai_prompt_placeholder_hint">Usa {{NATIVE_LANGUAGE}} e {{TARGET_LANGUAGE}} come segnaposto: vengono sostituiti automaticamente con le lingue selezionate quando viene generata una traduzione.</string>
 
     <!-- Add Word: AI translation toggle -->
@@ -257,7 +257,7 @@
     <string name="add_word_button_preview">Anteprima</string>
     <string name="add_word_preview_title">Anteprima IA</string>
     <string name="add_word_preview_stored_title">Traduzione salvata: già presente nel tuo elenco</string>
-    <string name="add_word_preview_cancel">@string/action_cancel</string>
+    <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
     <string name="add_word_preview_confirm">@string/action_add</string>
     <string name="add_word_preview_regenerate">Rigenera</string>
     <string name="add_word_existing_title">Parola già esistente</string>
@@ -280,7 +280,7 @@
     <string name="word_list_delete_confirm_message">
         Eliminare <xliff:g id="word_name">%1$s</xliff:g> dal tuo elenco?
     </string>
-    <string name="word_list_reset">Reimposta progressi</string>
+    <string name="word_list_reset">@string/word_list_reset_confirm_title</string>
     <string name="word_list_reset_confirm_title">Reimposta progressi</string>
     <string name="word_list_reset_confirm_message">
         Reimpostare i progressi di apprendimento per <xliff:g id="word_name">%1$s</xliff:g>?
