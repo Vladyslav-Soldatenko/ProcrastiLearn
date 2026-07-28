@@ -15,7 +15,6 @@
     <string name="action_delete">Supprimer</string>
     <string name="action_edit">Modifier</string>
     <string name="action_reset">Réinitialiser</string>
-    <string name="action_accept">Accepter</string>
     <string name="action_ok">OK</string>
     <string name="action_cancel">Annuler</string>
     <string name="action_proceed">Poursuivre</string>
@@ -104,7 +103,6 @@
     <!-- Helpful validation/toast messages -->
     <string name="add_word_error_word_required">Veuillez saisir un mot.</string>
     <string name="add_word_error_translation_required">Veuillez saisir une traduction.</string>
-    <string name="add_word_toast_added">Mot ajouté.</string>
 
     <!-- Add Word: success and error fallback messages -->
     <string name="add_word_success_added">Mot ajouté avec succès !</string>
@@ -139,7 +137,6 @@
     <string name="language_selection_subtitle">Choisissez la langue que vous parlez et celle que vous souhaitez apprendre. Vous pourrez modifier ce choix plus tard dans les paramètres.</string>
     <string name="language_selection_native_label">Je parle</string>
     <string name="language_selection_target_label">Je veux apprendre</string>
-    <string name="language_selection_same_language_error">La langue maternelle et la langue cible doivent être différentes</string>
 
     <!-- ─── Settings ────────────────────────────────────────────────────────── -->
     <string name="settings_title">@string/nav_settings</string>
@@ -277,7 +274,6 @@
     <string name="word_list_delete_confirm_message">
         Supprimer <xliff:g id="word_name">%1$s</xliff:g> de votre liste ?
     </string>
-    <string name="word_list_reset">@string/word_list_reset_confirm_title</string>
     <string name="word_list_reset_confirm_title">Réinitialiser la progression</string>
     <string name="word_list_reset_confirm_message">
         Réinitialiser la progression d’apprentissage de <xliff:g id="word_name">%1$s</xliff:g> ?
@@ -292,9 +288,6 @@
     <string name="apps_list_error_message">Erreur : <xliff:g id="error_message">%1$s</xliff:g></string>
 
     <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
-    <string name="cd_add_word">Ajouter un mot</string>
-    <string name="cd_delete_word">Supprimer le mot</string>
-    <string name="cd_show_translation">Afficher la traduction</string>
 
     <!-- Plurals -->
     <plurals name="cards_count">

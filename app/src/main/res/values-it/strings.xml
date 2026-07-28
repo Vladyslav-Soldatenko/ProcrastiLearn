@@ -15,7 +15,6 @@
     <string name="action_delete">Elimina</string>
     <string name="action_edit">Modifica</string>
     <string name="action_reset">Reimposta</string>
-    <string name="action_accept">Accetta</string>
     <string name="action_ok">OK</string>
     <string name="action_cancel">Annulla</string>
     <string name="action_proceed">Procedi</string>
@@ -104,7 +103,6 @@
     <!-- Helpful validation/toast messages -->
     <string name="add_word_error_word_required">Inserisci una parola.</string>
     <string name="add_word_error_translation_required">Inserisci una traduzione.</string>
-    <string name="add_word_toast_added">Parola aggiunta.</string>
 
     <!-- Add Word: success and error fallback messages -->
     <string name="add_word_success_added">Parola aggiunta con successo!</string>
@@ -139,7 +137,6 @@
     <string name="language_selection_subtitle">Scegli la lingua che parli e quella che vuoi imparare. Potrai cambiarle in seguito dalle Impostazioni.</string>
     <string name="language_selection_native_label">Parlo</string>
     <string name="language_selection_target_label">Voglio imparare</string>
-    <string name="language_selection_same_language_error">La lingua madre e quella da imparare devono essere diverse</string>
 
     <!-- ─── Settings ────────────────────────────────────────────────────────── -->
     <string name="settings_title">@string/nav_settings</string>
@@ -277,7 +274,6 @@
     <string name="word_list_delete_confirm_message">
         Eliminare <xliff:g id="word_name">%1$s</xliff:g> dal tuo elenco?
     </string>
-    <string name="word_list_reset">@string/word_list_reset_confirm_title</string>
     <string name="word_list_reset_confirm_title">Reimposta progressi</string>
     <string name="word_list_reset_confirm_message">
         Reimpostare i progressi di apprendimento per <xliff:g id="word_name">%1$s</xliff:g>?
@@ -292,9 +288,6 @@
     <string name="apps_list_error_message">Errore: <xliff:g id="error_message">%1$s</xliff:g></string>
 
     <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
-    <string name="cd_add_word">Aggiungi parola</string>
-    <string name="cd_delete_word">Elimina parola</string>
-    <string name="cd_show_translation">Mostra traduzione</string>
 
     <!-- Plurals -->
     <plurals name="cards_count">

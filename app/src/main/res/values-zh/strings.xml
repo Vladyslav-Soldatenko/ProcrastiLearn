@@ -15,7 +15,6 @@
     <string name="action_delete">删除</string>
     <string name="action_edit">编辑</string>
     <string name="action_reset">重置</string>
-    <string name="action_accept">接受</string>
     <string name="action_ok">确定</string>
     <string name="action_cancel">取消</string>
     <string name="action_proceed">@string/action_continue</string>
@@ -89,7 +88,6 @@
     <!-- Helpful validation/toast messages -->
     <string name="add_word_error_word_required">请输入单词。</string>
     <string name="add_word_error_translation_required">请输入翻译。</string>
-    <string name="add_word_toast_added">单词已添加。</string>
 
     <!-- Add Word: success and error fallback messages -->
     <string name="add_word_success_added">单词添加成功！</string>
@@ -124,7 +122,6 @@
     <string name="language_selection_subtitle">选择你使用的语言和想学习的语言，之后可在设置中修改。</string>
     <string name="language_selection_native_label">我使用的语言</string>
     <string name="language_selection_target_label">我想学习的语言</string>
-    <string name="language_selection_same_language_error">母语和目标语言不能相同</string>
 
     <!-- ─── Settings ────────────────────────────────────────────────────────── -->
     <string name="settings_title">@string/nav_settings</string>
@@ -248,7 +245,6 @@
     <string name="word_list_empty">还没有添加任何单词</string>
     <string name="word_list_delete_confirm_title">删除单词</string>
     <string name="word_list_delete_confirm_message">确定要从列表中删除「<xliff:g id="word_name">%1$s</xliff:g>」吗？</string>
-    <string name="word_list_reset">@string/word_list_reset_confirm_title</string>
     <string name="word_list_reset_confirm_title">重置进度</string>
     <string name="word_list_reset_confirm_message">确定要重置「<xliff:g id="word_name">%1$s</xliff:g>」的学习进度吗？</string>
     <string name="word_list_more_actions">更多操作</string>
@@ -261,9 +257,6 @@
     <string name="apps_list_error_message">错误：<xliff:g id="error_message">%1$s</xliff:g></string>
 
     <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
-    <string name="cd_add_word">添加单词</string>
-    <string name="cd_delete_word">删除单词</string>
-    <string name="cd_show_translation">显示翻译</string>
 
     <!-- Plurals -->
     <plurals name="cards_count">
