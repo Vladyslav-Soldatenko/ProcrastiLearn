@@ -4,4 +4,5 @@
     <issue id="MemberExtensionConflict" severity="ignore" />
     <issue id="AndroidGradlePluginVersion" severity="ignore" />
     <issue id="NewerVersionAvailable" severity="ignore" />
+    <issue id="UnusedAttribute" severity="ignore" />
 </lint>
