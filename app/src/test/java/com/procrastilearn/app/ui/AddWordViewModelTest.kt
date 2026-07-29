@@ -6,6 +6,7 @@ import com.procrastilearn.app.R
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
 import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
+import com.procrastilearn.app.data.local.prefs.TranslationPreferences
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
 import com.procrastilearn.app.domain.model.AiTranslationDirection
@@ -89,8 +90,7 @@ class AddWordViewModelTest {
         generateAiTranslationUseCase =
             GenerateAiTranslationUseCase(
                 aiTranslationProvider,
-                openAiStore,
-                languagePreferencesStore,
+                TranslationPreferences(openAiStore, languagePreferencesStore),
                 mainDispatcherRule.testDispatcher,
             )
         context = mockk()

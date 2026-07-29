@@ -7,12 +7,16 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.R
 import com.procrastilearn.app.data.counter.DayCounters
+import com.procrastilearn.app.data.export.VocabularyImportFailureReason
+import com.procrastilearn.app.data.export.VocabularyImportResult
+import com.procrastilearn.app.data.export.VocabularyTransferManager
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
+import com.procrastilearn.app.data.local.prefs.TranslationPreferences
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.LanguagePair
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
@@ -122,12 +126,15 @@ class SettingsViewModelTest {
     private fun buildViewModel(parsers: Set<VocabularyParser> = setOf(defaultParser)): SettingsViewModel =
         SettingsViewModel(
             dayCountersStore = dayCountersStore,
-            openAiStore = openAiStore,
-            languagePreferencesStore = languagePreferencesStore,
+            translationPreferences = TranslationPreferences(openAiStore, languagePreferencesStore),
             vocabularyDao = vocabularyDao,
-            vocabularyRepository = vocabularyRepository,
-            parsers = parsers,
-            ioDispatcher = mainDispatcherRule.testDispatcher,
+            transferManager =
+                VocabularyTransferManager(
+                    vocabularyDao = vocabularyDao,
+                    vocabularyRepository = vocabularyRepository,
+                    parsers = parsers,
+                    ioDispatcher = mainDispatcherRule.testDispatcher,
+                ),
         )
 
     @Test

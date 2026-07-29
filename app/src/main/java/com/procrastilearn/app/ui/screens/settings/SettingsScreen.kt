@@ -46,8 +46,8 @@ import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import com.procrastilearn.app.ui.SettingsViewModel
-import com.procrastilearn.app.ui.VocabularyImportFailureReason
-import com.procrastilearn.app.ui.VocabularyImportResult
+import com.procrastilearn.app.data.export.VocabularyImportFailureReason
+import com.procrastilearn.app.data.export.VocabularyImportResult
 import com.procrastilearn.app.ui.screens.settings.components.AboutUsDialog
 import com.procrastilearn.app.ui.screens.settings.components.AboutUsSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.AccessibilityPermissionItem
