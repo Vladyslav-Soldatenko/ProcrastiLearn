@@ -77,7 +77,6 @@ class VocabularyRepositoryBidirectionalTest {
         assertThat(thrown).isNotNull()
     }
 
-    @Suppress("LongParameterList")
     private suspend fun insertVocabulary(
         word: String,
         bidirectional: Boolean = false,

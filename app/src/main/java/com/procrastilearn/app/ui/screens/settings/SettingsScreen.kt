@@ -228,7 +228,6 @@ private fun SettingsTopBar() {
 }
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-@Suppress("LongParameterList", "LongMethod")
 @Composable
 internal fun SettingsContent(
     modifier: Modifier = Modifier,

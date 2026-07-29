@@ -263,7 +263,6 @@ private fun DifficultyButtons(
     }
 }
 
-@Suppress("LongParameterList")
 @Composable
 private fun DifficultyButton(
     text: String,

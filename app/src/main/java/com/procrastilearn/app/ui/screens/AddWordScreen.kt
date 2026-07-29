@@ -125,7 +125,6 @@ fun AddWordScreen(
     )
 }
 
-@Suppress("LongParameterList")
 @Composable
 internal fun AddWordContent(
     onNavigateToList: () -> Unit,
@@ -474,7 +473,6 @@ private fun TranslationInputCard(
     }
 }
 
-@Suppress("LongParameterList")
 @Composable
 private fun BidirectionalOptionSection(
     visible: Boolean,

@@ -9,7 +9,7 @@ class AddVocabularyItemUseCase
     constructor(
         private val repository: VocabularyRepository,
     ) {
-        @Suppress("TooGenericExceptionCaught", "LongParameterList")
+        @Suppress("TooGenericExceptionCaught")
         suspend operator fun invoke(
             word: String,
             translation: String,

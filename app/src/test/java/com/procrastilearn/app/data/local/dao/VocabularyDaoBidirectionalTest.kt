@@ -37,7 +37,6 @@ class VocabularyDaoBidirectionalTest {
         database.close()
     }
 
-    @Suppress("LongParameterList")
     private suspend fun insert(
         word: String,
         bidirectional: Boolean = false,

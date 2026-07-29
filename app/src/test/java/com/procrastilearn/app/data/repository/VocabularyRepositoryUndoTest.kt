@@ -82,7 +82,6 @@ class VocabularyRepositoryUndoTest {
 
     private fun todayStamp(): Int = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE).toInt()
 
-    @Suppress("LongParameterList")
     private suspend fun insertVocab(
         word: String,
         translation: String = word,
