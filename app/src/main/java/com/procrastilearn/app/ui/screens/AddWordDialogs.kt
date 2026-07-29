@@ -160,7 +160,7 @@ private fun AddWordPreviewDialogContent(
                                         if (previewContent.isStoredTranslation) {
                                             R.string.add_word_preview_regenerate
                                         } else {
-                                            R.string.add_word_preview_confirm
+                                            R.string.action_add
                                         },
                                     ),
                             )

@@ -91,7 +91,6 @@
         <string name="add_word_placeholder_word">Введите слово</string>
         <string name="add_word_label_translation">Перевод</string>
         <string name="add_word_placeholder_translation">Введите перевод (в несколько строк)</string>
-        <string name="add_word_icon_add">@string/action_add</string>
          <string name="edit_word_title">Редактировать слово</string>
 
         <!-- Prefer using a proper icon. Keep these for compatibility. -->
@@ -223,7 +222,6 @@
         <string name="settings_import_option_anki_apkg_desc">Импорт карточек, экспортированных из Anki</string>
         <string name="settings_import_option_json">Экспорт JSON (.json)</string>
         <string name="settings_import_option_json_desc">Импорт полного экспорта ProcrastiLearn</string>
-        <string name="settings_import_success">Импортировано %1$d карточек</string>
         <string name="settings_import_failure_generic">Не удалось импортировать</string>
         <string name="settings_import_failure_format">Этот формат пока не поддерживается</string>
         <string name="settings_import_failure_schema_version">Этот файл создан более новой версией ProcrastiLearn. Пожалуйста, обновите приложение.</string>
@@ -258,7 +256,6 @@
         <string name="add_word_preview_title">Предпросмотр ИИ</string>
         <string name="add_word_preview_stored_title">Сохранённый перевод — уже в вашем списке</string>
         <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
-        <string name="add_word_preview_confirm">@string/action_add</string>
         <string name="add_word_preview_regenerate">Сгенерировать заново</string>
         <string name="add_word_existing_title">Слово уже существует</string>
         <string name="add_word_existing_message">
@@ -273,6 +270,12 @@
         <string name="add_word_pending_delete">Удалить ожидающее слово</string>
 
         <!-- Plurals -->
+        <plurals name="settings_import_success">
+            <item quantity="one">Импортирована %1$d карточка</item>
+            <item quantity="few">Импортировано %1$d карточки</item>
+            <item quantity="many">Импортировано %1$d карточек</item>
+            <item quantity="other">Импортировано %1$d карточки</item>
+        </plurals>
         <plurals name="cards_count">
             <item quantity="one">%d карточка</item>
             <item quantity="few">%d карточки</item>

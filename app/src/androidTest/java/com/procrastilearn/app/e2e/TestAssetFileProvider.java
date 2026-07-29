@@ -7,21 +7,17 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.os.ParcelFileDescriptor.AutoCloseOutputStream;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.List;
 
 public final class TestAssetFileProvider extends ContentProvider {
-    private static final String TAG = "TestAssetFileProvider";
-
     @Override
     public boolean onCreate() {
-        Context ctx = getContext();
-        Log.d(TAG, "onCreate context=" + (ctx != null ? ctx.getPackageName() : "null"));
         return true;
     }
 
@@ -48,11 +44,6 @@ public final class TestAssetFileProvider extends ContentProvider {
             builder.append(segments.get(i));
         }
         final String assetPath = builder.toString();
-        Log.d(
-            TAG,
-            "openFile uri=" + uri + " mode=" + mode + " providerPkg=" + providerContext.getPackageName()
-                + " assetPath=" + assetPath
-        );
 
         final InputStream assetStream;
         try {
@@ -80,7 +71,7 @@ public final class TestAssetFileProvider extends ContentProvider {
                             output.write(buffer, 0, count);
                         }
                     } catch (IOException ioException) {
-                        Log.e(TAG, "Failed to stream asset " + assetPath, ioException);
+                        throw new UncheckedIOException("Failed to stream asset " + assetPath, ioException);
                     }
                 },
                 "TestAssetFileProvider-" + assetPath

@@ -749,7 +749,7 @@ data class AddWordUiState(
 // The bidirectional checkbox + reverse-card customization fields are reset together in
 // several places (unchecking, AI mode turning on, submission success) - centralized here
 // instead of repeating the same four-field copy() at each call site.
-private fun AddWordUiState.withBidirectionalCleared(): AddWordUiState =
+internal fun AddWordUiState.withBidirectionalCleared(): AddWordUiState =
     copy(
         bidirectional = false,
         isCustomizingBackward = false,
@@ -757,7 +757,7 @@ private fun AddWordUiState.withBidirectionalCleared(): AddWordUiState =
         backwardAnswerOverride = "",
     )
 
-private fun AddWordUiState.withBidirectionalToggle(checked: Boolean): AddWordUiState =
+internal fun AddWordUiState.withBidirectionalToggle(checked: Boolean): AddWordUiState =
     copy(
         bidirectional = checked,
         isCustomizingBackward = if (checked) isCustomizingBackward else false,
@@ -783,12 +783,12 @@ enum class AddWordLoadingAction {
     PREVIEW_REGENERATE,
 }
 
-private fun isAcknowledgedOverride(
+internal fun isAcknowledgedOverride(
     word: String,
     acknowledgedWord: String?,
 ): Boolean = acknowledgedWord?.equals(word, ignoreCase = true) == true
 
-private fun closeExistingWordDialogWithError(
+internal fun closeExistingWordDialogWithError(
     uiState: MutableStateFlow<AddWordUiState>,
     message: String,
 ) {
@@ -801,7 +801,7 @@ private fun closeExistingWordDialogWithError(
         )
 }
 
-private fun setBlankTranslationError(
+internal fun setBlankTranslationError(
     uiState: MutableStateFlow<AddWordUiState>,
     message: String,
 ) {
@@ -813,7 +813,7 @@ private fun setBlankTranslationError(
         )
 }
 
-private suspend fun queuePendingWord(
+internal suspend fun queuePendingWord(
     queuePendingWordUseCase: QueuePendingWordUseCase,
     uiState: MutableStateFlow<AddWordUiState>,
     word: String,
@@ -835,7 +835,7 @@ private suspend fun queuePendingWord(
         )
 }
 
-private suspend fun lookupExistingItem(
+internal suspend fun lookupExistingItem(
     getVocabularyItemByWordUseCase: GetVocabularyItemByWordUseCase,
     uiState: MutableStateFlow<AddWordUiState>,
     word: String,
@@ -853,7 +853,7 @@ private suspend fun lookupExistingItem(
                 )
         }
 
-private suspend fun resolvePendingTranslation(
+internal suspend fun resolvePendingTranslation(
     generateAiTranslationUseCase: GenerateAiTranslationUseCase,
     word: String,
     translation: String?,

@@ -50,9 +50,9 @@ class ExportCorpusSnapshotTest {
         }
 }
 
-private fun List<VocabularyExportItem>.stableRender(): String = joinToString("\n\n") { it.stableRender() }
+internal fun List<VocabularyExportItem>.stableRender(): String = joinToString("\n\n") { it.stableRender() }
 
-private fun VocabularyExportItem.stableRender(): String =
+internal fun VocabularyExportItem.stableRender(): String =
     listOf(
         "backwardAnswerOverride: ${backwardAnswerOverride ?: "null"}",
         "backwardCorrectCount: $backwardCorrectCount",

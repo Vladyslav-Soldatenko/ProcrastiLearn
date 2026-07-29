@@ -2,7 +2,6 @@ package com.procrastilearn.app.ui
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.export.UnsupportedSchemaVersionException
@@ -168,7 +167,7 @@ class SettingsViewModel
          * Export all vocabulary rows (full DB fields) as a JSON array to the given [uri].
          * Calls [onComplete] on the main thread with success/failure.
          */
-        @Suppress("TooGenericExceptionCaught")
+        @Suppress("TooGenericExceptionCaught", "SwallowedException")
         fun exportVocabularyToUri(
             context: Context,
             uri: Uri,
@@ -188,7 +187,6 @@ class SettingsViewModel
                             true
                         } ?: false
                     } catch (t: Throwable) {
-                        Log.e("SettingsViewModel", "Failed to export vocabulary to uri=$uri", t)
                         false
                     }
 
@@ -223,17 +221,13 @@ class SettingsViewModel
                         tempFile.delete()
                     }
 
-                Log.d(
-                    "SettingsViewModel",
-                    "importVocabularyFromUri optionId=$optionId uri=$uri result=$result",
-                )
                 withContext(Dispatchers.Main) {
                     onComplete(result)
                 }
             }
         }
 
-        @Suppress("TooGenericExceptionCaught")
+        @Suppress("TooGenericExceptionCaught", "SwallowedException")
         private suspend fun performImport(
             context: Context,
             parser: VocabularyParser,
@@ -243,25 +237,10 @@ class SettingsViewModel
             try {
                 importFromStream(context, parser, uri, tempFile)
             } catch (exception: UnsupportedSchemaVersionException) {
-                Log.e(
-                    "SettingsViewModel",
-                    "Refused to import a newer-than-supported export from uri=$uri",
-                    exception,
-                )
                 VocabularyImportResult.Failure(VocabularyImportFailureReason.UNSUPPORTED_SCHEMA_VERSION)
             } catch (exception: IllegalArgumentException) {
-                Log.e(
-                    "SettingsViewModel",
-                    "Failed to parse imported vocabulary from uri=$uri",
-                    exception,
-                )
                 VocabularyImportResult.Failure(VocabularyImportFailureReason.PARSE_ERROR)
             } catch (throwable: Throwable) {
-                Log.e(
-                    "SettingsViewModel",
-                    "Failed to import vocabulary from uri=$uri",
-                    throwable,
-                )
                 VocabularyImportResult.Failure(VocabularyImportFailureReason.FILE_ERROR)
             }
 
@@ -273,13 +252,8 @@ class SettingsViewModel
         ): VocabularyImportResult {
             val inputStream = context.contentResolver.openInputStream(uri)
             if (inputStream == null) {
-                Log.w(
-                    "SettingsViewModel",
-                    "openInputStream returned null for uri=$uri with resolver=${context.contentResolver}",
-                )
                 return VocabularyImportResult.Failure(VocabularyImportFailureReason.FILE_ERROR)
             }
-            Log.d("SettingsViewModel", "openInputStream succeeded for uri=$uri")
             copyToTempFile(inputStream, tempFile)
             return parseAndImport(parser, tempFile)
         }

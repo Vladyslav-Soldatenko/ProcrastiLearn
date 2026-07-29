@@ -78,7 +78,6 @@
     <string name="add_word_placeholder_word">输入单词</string>
     <string name="add_word_label_translation">翻译</string>
     <string name="add_word_placeholder_translation">输入翻译（支持多行）</string>
-    <string name="add_word_icon_add">@string/action_add</string>
 
     <string name="edit_word_title">编辑单词</string>
 
@@ -194,7 +193,6 @@
     <string name="settings_import_option_anki_apkg_desc">解析从 Anki 导出的卡片</string>
     <string name="settings_import_option_json">JSON 导出文件（.json）</string>
     <string name="settings_import_option_json_desc">导入完整的 ProcrastiLearn 导出文件</string>
-    <string name="settings_import_success">已导入 %1$d 张卡片</string>
     <string name="settings_import_failure_generic">导入失败</string>
     <string name="settings_import_failure_format">暂不支持该文件格式</string>
     <string name="settings_import_failure_schema_version">此文件由更新版本的 ProcrastiLearn 创建，请更新应用后重试。</string>
@@ -227,7 +225,6 @@
     <string name="add_word_preview_title">AI 预览</string>
     <string name="add_word_preview_stored_title">已保存的翻译——已在你的列表中</string>
     <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
-    <string name="add_word_preview_confirm">@string/action_add</string>
     <string name="add_word_preview_regenerate">重新生成</string>
     <string name="add_word_existing_title">单词已存在</string>
     <string name="add_word_existing_message">你已经添加过这个单词。如果继续，该单词的学习进度将被重置，并保存新的翻译。如果你只是想编辑它，可以在单词列表中进行。</string>
@@ -259,6 +256,9 @@
     <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
 
     <!-- Plurals -->
+    <plurals name="settings_import_success">
+        <item quantity="other">已导入 %1$d 张卡片</item>
+    </plurals>
     <plurals name="cards_count">
         <item quantity="other">%d 张卡片</item>
     </plurals>

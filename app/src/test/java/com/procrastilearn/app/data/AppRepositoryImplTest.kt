@@ -117,6 +117,7 @@ class AppRepositoryImplTest {
             assertThat(apps.map { it.packageName }).containsExactly("com.example.safe")
         }
 
+    @Suppress("NewApi")
     private fun arrangeQueryIntentActivitiesNewApi(resolveInfos: List<ResolveInfo>) {
         every {
             packageManager.queryIntentActivities(

@@ -632,7 +632,7 @@ private fun ActionButtonsRow(
             } else {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.add_word_icon_add),
+                    contentDescription = stringResource(R.string.action_add),
                     modifier = Modifier.size(24.dp),
                 )
                 Spacer(modifier = Modifier.width(8.dp))

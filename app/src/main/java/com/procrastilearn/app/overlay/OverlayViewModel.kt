@@ -1,6 +1,5 @@
 package com.procrastilearn.app.overlay
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
@@ -61,8 +60,6 @@ class OverlayViewModel
             if (current == null) {
                 throw NoSuchElementException("current word is null")
             }
-
-            Log.i("fsrs", "$rating selected for $current ")
 
             viewModelScope.launch {
                 saveDifficultyRating(current.id, rating, current.direction)

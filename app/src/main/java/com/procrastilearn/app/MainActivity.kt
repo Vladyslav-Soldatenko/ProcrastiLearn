@@ -42,7 +42,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private val Context.dataStore by preferencesDataStore("app_prefs")
+internal val Context.dataStore by preferencesDataStore("app_prefs")
 private val KEY_ACCESSIBILITY_SKIPPED = booleanPreferencesKey("accessibility_skipped")
 private val KEY_OVERLAY_SKIPPED = booleanPreferencesKey("overlay_skipped")
 

@@ -1,7 +1,6 @@
 package com.procrastilearn.app.data.parser.anki
 
 import android.database.sqlite.SQLiteDatabase
-import android.util.Log
 import androidx.core.text.HtmlCompat
 import com.github.luben.zstd.ZstdInputStream
 import com.procrastilearn.app.R
@@ -116,13 +115,8 @@ class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
         val compressedBytes = zipStream.readBytes()
         val target = File(tempDir, "collection-$priority.anki2")
         val decompressed = runCatching { decompressZstd(ByteArrayInputStream(compressedBytes), target) }
-        decompressed.onFailure { throwable ->
+        decompressed.onFailure {
             target.delete()
-            Log.w(
-                "AnkiApkgVocabularyParser",
-                "Failed to decompress collection.anki21b, will fall back to legacy DB",
-                throwable,
-            )
         }
         if (decompressed.isSuccess) {
             state.extractedDb = target
@@ -172,11 +166,6 @@ class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
                         parseVocabularyItem(rawFields, noteModelsByMid[mid])?.let(::add)
                     }
                 }
-            }.also { items ->
-                Log.d(
-                    "AnkiApkgVocabularyParser",
-                    "Parsed ${items.size} vocabulary items from ${databaseFile.name}",
-                )
             }
         }
     }
@@ -215,8 +204,7 @@ class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
                     }
                 }
             }
-        }.getOrElse { throwable ->
-            Log.w("AnkiApkgVocabularyParser", "Failed to read note types from col.models", throwable)
+        }.getOrElse {
             emptyMap()
         }
 

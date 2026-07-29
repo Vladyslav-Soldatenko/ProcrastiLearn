@@ -93,7 +93,6 @@
     <string name="add_word_placeholder_word">Escribe la palabra</string>
     <string name="add_word_label_translation">Traducción</string>
     <string name="add_word_placeholder_translation">Escribe la traducción (varias líneas)</string>
-    <string name="add_word_icon_add">@string/action_add</string>
 
     <string name="edit_word_title">Editar palabra</string>
 
@@ -219,7 +218,6 @@
     <string name="settings_import_option_anki_apkg_desc">Analiza las tarjetas exportadas desde Anki</string>
     <string name="settings_import_option_json">Exportación JSON (.json)</string>
     <string name="settings_import_option_json_desc">Importa una exportación completa de ProcrastiLearn</string>
-    <string name="settings_import_success">Se importaron %1$d tarjetas</string>
     <string name="settings_import_failure_generic">Error al importar</string>
     <string name="settings_import_failure_format">Ese formato aún no es compatible</string>
     <string name="settings_import_failure_schema_version">Este archivo se creó con una versión más reciente de ProcrastiLearn. Actualiza la app.</string>
@@ -252,7 +250,6 @@
     <string name="add_word_preview_title">Vista previa de la IA</string>
     <string name="add_word_preview_stored_title">Traducción guardada: ya está en tu lista</string>
     <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
-    <string name="add_word_preview_confirm">@string/action_add</string>
     <string name="add_word_preview_regenerate">Regenerar</string>
     <string name="add_word_existing_title">La palabra ya existe</string>
     <string name="add_word_existing_message">
@@ -290,12 +287,19 @@
     <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
 
     <!-- Plurals -->
+    <plurals name="settings_import_success">
+        <item quantity="one">Se importó %1$d tarjeta</item>
+        <item quantity="many">Se importaron %1$d tarjetas</item>
+        <item quantity="other">Se importaron %1$d tarjetas</item>
+    </plurals>
     <plurals name="cards_count">
         <item quantity="one">%d tarjeta</item>
+        <item quantity="many">%d tarjetas</item>
         <item quantity="other">%d tarjetas</item>
     </plurals>
     <plurals name="overlay_minutes_interval">
         <item quantity="one">Cada %d minuto</item>
+        <item quantity="many">Cada %d minutos</item>
         <item quantity="other">Cada %d minutos</item>
     </plurals>
 </resources>

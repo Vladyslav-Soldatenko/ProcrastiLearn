@@ -93,7 +93,6 @@
     <string name="add_word_placeholder_word">Введіть слово</string>
     <string name="add_word_label_translation">Переклад</string>
     <string name="add_word_placeholder_translation">Введіть переклад (можна в кілька рядків)</string>
-    <string name="add_word_icon_add">@string/action_add</string>
 
     <string name="edit_word_title">Редагувати слово</string>
 
@@ -219,7 +218,6 @@
     <string name="settings_import_option_anki_apkg_desc">Розбір карток, експортованих з Anki</string>
     <string name="settings_import_option_json">Експорт JSON (.json)</string>
     <string name="settings_import_option_json_desc">Імпорт повного експорту ProcrastiLearn</string>
-    <string name="settings_import_success">Імпортовано %1$d карток</string>
     <string name="settings_import_failure_generic">Не вдалося виконати імпорт</string>
     <string name="settings_import_failure_format">Цей формат поки не підтримується</string>
     <string name="settings_import_failure_schema_version">Цей файл створено новішою версією ProcrastiLearn. Будь ласка, оновіть додаток.</string>
@@ -252,7 +250,6 @@
     <string name="add_word_preview_title">Попередній перегляд ШІ</string>
     <string name="add_word_preview_stored_title">Збережений переклад — уже у вашому списку</string>
     <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
-    <string name="add_word_preview_confirm">@string/action_add</string>
     <string name="add_word_preview_regenerate">Згенерувати знову</string>
     <string name="add_word_existing_title">Слово вже існує</string>
     <string name="add_word_existing_message">
@@ -290,6 +287,12 @@
     <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
 
     <!-- Plurals -->
+    <plurals name="settings_import_success">
+        <item quantity="one">Імпортовано %1$d картку</item>
+        <item quantity="few">Імпортовано %1$d картки</item>
+        <item quantity="many">Імпортовано %1$d карток</item>
+        <item quantity="other">Імпортовано %1$d картки</item>
+    </plurals>
     <plurals name="cards_count">
         <item quantity="one">%d картка</item>
         <item quantity="few">%d картки</item>

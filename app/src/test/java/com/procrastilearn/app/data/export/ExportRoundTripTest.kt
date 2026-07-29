@@ -90,7 +90,7 @@ class ExportRoundTripFuzzTest {
     }
 }
 
-private fun randomSubsets(
+internal fun randomSubsets(
     droppableKeys: List<String>,
     random: Random,
 ): List<Set<String>> {
@@ -100,7 +100,7 @@ private fun randomSubsets(
     }
 }
 
-private fun randomItem(
+internal fun randomItem(
     random: Random,
     id: Long,
 ): VocabularyExportItem =
@@ -123,7 +123,7 @@ private fun randomItem(
         backwardAnswerOverride = if (random.nextBoolean()) "answer-${random.nextInt(MAX_WORD_SUFFIX)}" else null,
     )
 
-private fun typicalItemJson(item: VocabularyExportItem): JsonObject =
+internal fun typicalItemJson(item: VocabularyExportItem): JsonObject =
     buildJsonObject {
         put("id", JsonPrimitive(item.id))
         put("word", JsonPrimitive(item.word))
@@ -144,7 +144,7 @@ private fun typicalItemJson(item: VocabularyExportItem): JsonObject =
     }
 
 @OptIn(ExperimentalSerializationApi::class)
-private fun droppableItemFields(): List<String> {
+internal fun droppableItemFields(): List<String> {
     val descriptor = VocabularyExportItem.serializer().descriptor
     return (0 until descriptor.elementsCount)
         .filter { descriptor.isElementOptional(it) || descriptor.getElementDescriptor(it).isNullable }

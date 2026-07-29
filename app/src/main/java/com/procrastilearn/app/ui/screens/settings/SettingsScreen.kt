@@ -145,7 +145,11 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                     val message =
                         when (result) {
                             is VocabularyImportResult.Success ->
-                                ctx.getString(R.string.settings_import_success, result.importedCount)
+                                ctx.resources.getQuantityString(
+                                    R.plurals.settings_import_success,
+                                    result.importedCount,
+                                    result.importedCount,
+                                )
                             is VocabularyImportResult.Failure ->
                                 when (result.reason) {
                                     VocabularyImportFailureReason.UNSUPPORTED_FORMAT ->

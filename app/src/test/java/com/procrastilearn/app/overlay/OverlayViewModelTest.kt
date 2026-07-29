@@ -1,6 +1,5 @@
 package com.procrastilearn.app.overlay
 
-import android.util.Log
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
 import com.procrastilearn.app.domain.model.StudyDirection
@@ -12,10 +11,7 @@ import io.github.openspacedrepetition.Rating
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -35,8 +31,6 @@ class OverlayViewModelTest {
 
     @Before
     fun setUp() {
-        mockkStatic(Log::class)
-        every { Log.i(any(), any()) } returns 0
         getNextVocabularyItem = mockk()
         saveDifficultyRating = mockk()
     }
@@ -44,7 +38,6 @@ class OverlayViewModelTest {
     @After
     fun tearDown() {
         clearAllMocks()
-        unmockkStatic(Log::class)
     }
 
     private fun buildViewModel(): OverlayViewModel = OverlayViewModel(getNextVocabularyItem, saveDifficultyRating)

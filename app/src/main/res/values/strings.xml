@@ -94,7 +94,6 @@
     <string name="add_word_placeholder_word">Enter the word</string>
     <string name="add_word_label_translation">Translation</string>
     <string name="add_word_placeholder_translation">Enter the translation (multi-line)</string>
-    <string name="add_word_icon_add">@string/action_add</string>
 
     <string name="edit_word_title">Edit Word</string>
 
@@ -221,7 +220,6 @@
     <string name="settings_import_option_anki_apkg_desc">Parse cards exported from Anki</string>
     <string name="settings_import_option_json">JSON export (.json)</string>
     <string name="settings_import_option_json_desc">Import a full ProcrastiLearn export</string>
-    <string name="settings_import_success">Imported %1$d cards</string>
     <string name="settings_import_failure_generic">Import failed</string>
     <string name="settings_import_failure_format">That format isn’t supported yet</string>
     <string name="settings_import_failure_schema_version">This file was created by a newer version of ProcrastiLearn. Please update the app.</string>
@@ -254,7 +252,6 @@
     <string name="add_word_preview_title">AI preview</string>
     <string name="add_word_preview_stored_title">Saved translation — already in your list</string>
     <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
-    <string name="add_word_preview_confirm">@string/action_add</string>
     <string name="add_word_preview_regenerate">Re-Generate</string>
     <string name="add_word_existing_title">Word already exists</string>
     <string name="add_word_existing_message">
@@ -290,6 +287,10 @@
     <string name="apps_list_error_message">Error: <xliff:g id="error_message">%1$s</xliff:g></string>
 
     <!-- Plurals -->
+    <plurals name="settings_import_success">
+        <item quantity="one">Imported %1$d card</item>
+        <item quantity="other">Imported %1$d cards</item>
+    </plurals>
     <plurals name="cards_count">
         <item quantity="one">%d card</item>
         <item quantity="other">%d cards</item>

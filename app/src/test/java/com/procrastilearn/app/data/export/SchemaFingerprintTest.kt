@@ -54,7 +54,7 @@ class SchemaFingerprintTest {
         VocabularyExportEnvelope.serializer().descriptor.fingerprint()
 }
 
-private data class FingerprintEntry(
+internal data class FingerprintEntry(
     val name: String,
     val type: String,
     val optional: Boolean,
@@ -63,7 +63,7 @@ private data class FingerprintEntry(
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private fun SerialDescriptor.fingerprint(prefix: String = ""): List<FingerprintEntry> =
+internal fun SerialDescriptor.fingerprint(prefix: String = ""): List<FingerprintEntry> =
     buildList {
         for (i in 0 until elementsCount) {
             val name = prefix + getElementName(i)

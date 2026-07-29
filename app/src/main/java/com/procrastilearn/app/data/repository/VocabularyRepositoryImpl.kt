@@ -1,6 +1,5 @@
 package com.procrastilearn.app.data.repository
 
-import android.util.Log
 import androidx.room.withTransaction
 import com.procrastilearn.app.data.local.dao.UndoSnapshotDao
 import com.procrastilearn.app.data.local.dao.VocabularyDao
@@ -43,7 +42,7 @@ private const val UNDO_STACK_CAP = 3
 // re-surface in the very next pick.
 private const val BACKWARD_SEED_BUFFER_MILLIS = 10 * 60 * 1000L
 
-private fun todayStamp(): Int =
+internal fun todayStamp(): Int =
     LocalDate
         .now()
         .format(DateTimeFormatter.BASIC_ISO_DATE)
@@ -228,7 +227,6 @@ class VocabularyRepositoryImpl
                     // regardless of which direction was rated - a row only ever consumes a
                     // new-slot once, on its first-ever exposure in either direction.
                     if (wasRowNew) prefs.markNewShown() else prefs.markReviewShown()
-                    Log.i("FSRS", "Reviewed $id ($direction) as $rating; next due at $nextDue")
                 }
             }
 

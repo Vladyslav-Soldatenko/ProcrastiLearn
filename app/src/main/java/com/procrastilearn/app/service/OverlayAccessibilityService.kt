@@ -8,7 +8,6 @@ import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.os.SystemClock
 import android.provider.Settings
-import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
@@ -20,7 +19,6 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
-import com.procrastilearn.app.data.repository.NoAvailableItemsException
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
 import com.procrastilearn.app.domain.repository.VocabularyRepository
@@ -113,14 +111,12 @@ class OverlayAccessibilityService : AccessibilityService() {
         serviceScope.launch {
             appPreferencesRepository.getBlockedApps().collect { apps ->
                 blockedPackages = apps
-                Log.d("OverlayService", "Blocked packages updated: $blockedPackages")
             }
         }
 
         serviceScope.launch {
             appPreferencesRepository.isProcrastilearnEnabled().collect { enabled ->
                 if (!enabled && isProcrastilearnEnabled) {
-                    Log.d("OverlayService", "ProcrastiLearn disabled – ending active gate session if any")
                     if (gateActive) {
                         endGateSession()
                     } else {
@@ -129,14 +125,12 @@ class OverlayAccessibilityService : AccessibilityService() {
                 }
 
                 isProcrastilearnEnabled = enabled
-                Log.d("OverlayService", "ProcrastiLearn enabled updated: $isProcrastilearnEnabled")
             }
         }
 
         serviceScope.launch {
             dayCountersStore.readPolicy().collect { config ->
                 overlayIntervalMinutes = config.overlayInterval
-                Log.d("OverlayService", "Overlay interval updated: $overlayIntervalMinutes minutes")
             }
         }
     }
@@ -158,11 +152,8 @@ class OverlayAccessibilityService : AccessibilityService() {
         // Use the package from the event directly instead of querying
         val topPackage = pkg // CHANGED: Use event package directly
 
-        Log.d("OverlayService", "Event from package: $topPackage")
-
         if (!isProcrastilearnEnabled) {
             if (gateActive) {
-                Log.d("OverlayService", "ProcrastiLearn disabled. Ending gate session for $topPackage")
                 endGateSession()
             }
             lastTopPackage = topPackage
@@ -171,17 +162,10 @@ class OverlayAccessibilityService : AccessibilityService() {
 
         // Check if this is a blocked app
         if (topPackage in blockedPackages) {
-            Log.d(
-                "OverlayService",
-                "Blocked app detected: $topPackage, gateActive=$gateActive, lastTopPackage=$lastTopPackage",
-            )
-
             if (!gateActive) {
-                Log.d("OverlayService", "Starting new gate session for $topPackage")
                 startGateSession(topPackage)
             } else if (lastTopPackage != topPackage) {
                 // Different blocked app - restart session
-                Log.d("OverlayService", "Switching to different blocked app: $lastTopPackage -> $topPackage")
                 endGateSession()
                 startGateSession(topPackage)
             }
@@ -191,7 +175,6 @@ class OverlayAccessibilityService : AccessibilityService() {
         } else if (topPackage !in ignoredPackages) {
             // User navigated to a non-blocked, non-ignored app
             if (gateActive) {
-                Log.d("OverlayService", "Leaving blocked app, ending gate session")
                 endGateSession()
             }
             lastTopPackage = topPackage
@@ -224,7 +207,6 @@ class OverlayAccessibilityService : AccessibilityService() {
                 MaterialTheme(colorScheme = darkColorScheme()) {
                     OverlayScreen(
                         onUnlock = {
-                            Log.d("OverlayService", "User unlocked overlay")
                             onUnlock()
                             // Start timer after unlock and after hideOverlay() has been called
                             startIntervalTimer()
@@ -239,11 +221,9 @@ class OverlayAccessibilityService : AccessibilityService() {
 
     private fun startGateSession(pkg: String) {
         if (!isProcrastilearnEnabled) {
-            Log.d("OverlayService", "ProcrastiLearn disabled, not starting gate session for $pkg")
             return
         }
         if (gateActive && gatedPackage == pkg && overlayView != null) {
-            Log.d("OverlayService", "Gate session already active for $pkg with overlay showing")
             return
         }
 
@@ -255,78 +235,49 @@ class OverlayAccessibilityService : AccessibilityService() {
                     gatedPackage = pkg
                     showOverlay(item)
                     // Don't start timer here - it will be started after unlock
-                    Log.d("OverlayService", "Gate session started for $pkg, overlay shown")
-                }.onFailure { error ->
-                    when (error) {
-                        is NoAvailableItemsException ->
-                            Log.i(
-                                "OverlayService",
-                                "No vocabulary items available (limits reached), not showing overlay",
-                            )
-                        else ->
-                            Log.e("OverlayService", "Failed to load first word, not showing overlay", error)
-                    }
-                }
+                }.onFailure { }
         }
     }
 
     internal fun startIntervalTimer() {
         if (!isProcrastilearnEnabled) {
-            Log.d("OverlayService", "ProcrastiLearn disabled, skipping interval timer start")
             return
         }
 
         intervalTimerJob?.cancel()
-        Log.d(
-            "OverlayService",
-            "Starting interval timer: intervalMinutes=$overlayIntervalMinutes," +
-                " overlayView=${overlayView != null}, gateActive=$gateActive",
-        )
 
         // Don't start timer if interval is 0 or overlay is currently showing
         if (overlayIntervalMinutes <= 0) {
-            Log.d("OverlayService", "Timer not started: interval is 0 or negative")
             return
         }
 
         if (overlayView != null) {
-            Log.d("OverlayService", "Timer not started: overlay is currently showing")
             return
         }
 
         intervalTimerJob =
             serviceScope.launch {
                 val delayMs = overlayIntervalMinutes * SECONDS_PER_MINUTE * MILLIS_PER_SECOND
-                Log.d("OverlayService", "Timer started, will fire in $overlayIntervalMinutes minutes ($delayMs ms)")
 
                 delay(delayMs)
-
-                Log.d("OverlayService", "Timer fired! gateActive=$gateActive, gatedPackage=$gatedPackage")
 
                 // If we're still in an active gate session, show the overlay
                 // Trust the gateActive state rather than re-querying the current package
                 if (isProcrastilearnEnabled && gateActive && gatedPackage != null) {
-                    Log.d("OverlayService", "Still in gate session for $gatedPackage, showing overlay again")
                     // Load the next word before re-showing so the first frame already has it.
                     getNextVocabularyItemUseCase()
                         .onSuccess { item -> showOverlay(item) }
-                        .onFailure {
-                            Log.d("OverlayService", "No vocabulary items available, not showing overlay")
-                        }
-                } else {
-                    Log.d("OverlayService", "Gate not active or no gated package, not showing overlay")
+                        .onFailure { }
                 }
             }
     }
 
     private fun stopIntervalTimer() {
-        Log.d("OverlayService", "Stopping interval timer")
         intervalTimerJob?.cancel()
         intervalTimerJob = null
     }
 
     private fun endGateSession() {
-        Log.d("OverlayService", "Ending gate session")
         hideOverlay()
         stopIntervalTimer()
         gateActive = false
@@ -345,15 +296,12 @@ class OverlayAccessibilityService : AccessibilityService() {
 
     private fun showOverlay(initialItem: VocabularyItem) {
         if (!isProcrastilearnEnabled) {
-            Log.d("OverlayService", "ProcrastiLearn disabled, not showing overlay")
             return
         }
         if (overlayView != null) {
-            Log.d("OverlayService", "Overlay already showing, not creating new one")
             return
         }
 
-        Log.d("OverlayService", "Creating and showing overlay")
         val owner = ServiceLifecycleOwner()
         lifecycleOwner = owner
         overlayView =
@@ -363,7 +311,6 @@ class OverlayAccessibilityService : AccessibilityService() {
                 onUnlock = {
                     // Mark this app as unlocked for current session
                     gatedPackage?.let { pkg ->
-                        Log.d("OverlayService", "Hiding overlay and bringing $pkg to front")
                         hideOverlay()
                         bringToFront(pkg)
                     }
@@ -387,19 +334,16 @@ class OverlayAccessibilityService : AccessibilityService() {
             }
 
         windowManager?.addView(overlayView, params)
-        Log.d("OverlayService", "Overlay added to window manager")
         requestAudioFocus()
     }
 
+    @Suppress("SwallowedException")
     private fun hideOverlay() {
-        Log.d("OverlayService", "Hiding overlay")
         overlayView?.let {
             try {
                 windowManager?.removeView(it)
-                Log.d("OverlayService", "Overlay removed from window manager")
             } catch (e: IllegalArgumentException) {
                 // View not attached to window or already removed
-                Log.w("OverlayService", "Overlay remove called on a non-attached view", e)
             }
         }
         releaseAudioFocus()
@@ -408,16 +352,16 @@ class OverlayAccessibilityService : AccessibilityService() {
         lifecycleOwner = null
     }
 
+    @Suppress("SwallowedException")
     private fun bringToFront(pkg: String) {
         try {
             val intent = packageManager.getLaunchIntentForPackage(pkg) ?: return
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
-            Log.d("OverlayService", "Brought $pkg to front")
         } catch (e: android.content.ActivityNotFoundException) {
-            Log.e("OverlayService", "Launch activity for $pkg not found", e)
+            // App may have been uninstalled or launch intent revoked between check and launch
         } catch (e: SecurityException) {
-            Log.e("OverlayService", "Security exception launching $pkg", e)
+            // App may refuse external launch (e.g. exported=false activity)
         }
     }
 
@@ -441,22 +385,19 @@ class OverlayAccessibilityService : AccessibilityService() {
                         .build(),
                 ).build()
 
-        val result = manager.requestAudioFocus(focusRequest)
-        Log.i("OverlayService", "Audio focus request result: $result")
+        manager.requestAudioFocus(focusRequest)
         this.focusRequest = focusRequest
     }
 
     private fun releaseAudioFocus() {
         focusRequest?.let { request ->
             audioManager?.abandonAudioFocusRequest(request)
-            Log.i("OverlayService", "Audio focus abandoned")
         }
         focusRequest = null
         audioManager = null
     }
 
     override fun onDestroy() {
-        Log.d("OverlayService", "Service destroying")
         hideOverlay()
         stopIntervalTimer()
         serviceScope.cancel()

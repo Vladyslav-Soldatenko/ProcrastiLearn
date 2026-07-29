@@ -7,7 +7,6 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -65,7 +64,6 @@ class SettingsAnkiImportE2eTest {
     @Test
     fun importAnkiDeck_addsVocabularyItems() {
         val deckUri = stagedDeckUri()
-        Log.d("SettingsAnkiImportE2eTest", "Using deckUri=$deckUri")
         prepareDocumentPickerResponse(deckUri)
 
         composeTestRule.dismissOnboardingIfPresent(targetContext)
@@ -76,7 +74,6 @@ class SettingsAnkiImportE2eTest {
             runBlocking { hasImportedExpectedItems() }
         }
         val actualItems = runBlocking { loadImportedItems() }
-        Log.i("Fooi", actualItems.toString())
 
         val actualByWord = actualItems.associateBy { it.word }
 
