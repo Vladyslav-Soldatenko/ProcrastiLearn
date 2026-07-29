@@ -2,7 +2,6 @@ package com.procrastilearn.app.ui.dojo
 
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.counter.DayCounters
-import com.procrastilearn.app.data.local.dao.UndoSnapshotDao
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
@@ -45,7 +44,6 @@ class DojoViewModelTest {
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var dayCountersStore: DayCountersStore
     private lateinit var undoLastRating: UndoLastRatingUseCase
-    private lateinit var undoSnapshotDao: UndoSnapshotDao
 
     private lateinit var countersFlow: MutableStateFlow<DayCounters>
     private lateinit var policyFlow: MutableStateFlow<LearningPreferencesConfig>
@@ -70,7 +68,6 @@ class DojoViewModelTest {
         vocabularyDao = mockk()
         dayCountersStore = mockk()
         undoLastRating = mockk()
-        undoSnapshotDao = mockk()
 
         // Default flows
         countersFlow =
@@ -105,7 +102,7 @@ class DojoViewModelTest {
         every { vocabularyDao.observeReviewsDueCount(any(), any(), any()) } returns dueCountFlow
         every { vocabularyDao.observeNewTotalCount(any()) } returns newTotalCountFlow
         every { vocabularyDao.observeBackwardOnlySkippedCount(any()) } returns MutableStateFlow(0)
-        every { undoSnapshotDao.observeCount() } returns undoCountFlow
+        every { undoLastRating.observeUndoCount() } returns undoCountFlow
     }
 
     @After
@@ -117,11 +114,9 @@ class DojoViewModelTest {
         DojoViewModel(
             getNextVocabularyItem,
             saveDifficultyRating,
-            vocabularyDao,
             dayCountersStore,
             undoLastRating,
-            undoSnapshotDao,
-            fakeTimeTicker,
+            DojoCountersSource(vocabularyDao, dayCountersStore, fakeTimeTicker),
         )
 
     @Test

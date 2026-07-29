@@ -1,5 +1,6 @@
 package com.procrastilearn.app.domain.usecase
 
+import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.domain.model.UndoResult
 import com.procrastilearn.app.domain.model.VocabularyItem
@@ -8,7 +9,10 @@ import io.github.openspacedrepetition.Rating
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -64,5 +68,21 @@ class UndoLastRatingUseCaseTest {
 
             assertThat(result.isFailure).isTrue()
             assertThat(result.exceptionOrNull()).isEqualTo(error)
+        }
+
+    @Test
+    fun `observeUndoCount delegates to the repository's flow`() =
+        runTest {
+            val undoCountFlow = MutableStateFlow(0)
+            every { repository.observeUndoCount() } returns undoCountFlow
+
+            useCase.observeUndoCount().test {
+                assertThat(awaitItem()).isEqualTo(0)
+
+                undoCountFlow.value = 2
+                assertThat(awaitItem()).isEqualTo(2)
+                cancelAndIgnoreRemainingEvents()
+            }
+            verify { repository.observeUndoCount() }
         }
 }
