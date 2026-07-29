@@ -358,7 +358,7 @@ class AddWordScreenContentTest {
 
         // The preview dialog's confirm label shares text ("Add") with the screen's Add
         // button, which stays composed underneath the dialog; target the last match.
-        val confirmButtons = composeTestRule.onAllNodesWithText(string(R.string.add_word_preview_confirm))
+        val confirmButtons = composeTestRule.onAllNodesWithText(string(R.string.action_add))
         confirmButtons[confirmButtons.fetchSemanticsNodes().size - 1].performClick()
 
         verify(exactly = 1) { onPreviewConfirmAdd.invoke() }
