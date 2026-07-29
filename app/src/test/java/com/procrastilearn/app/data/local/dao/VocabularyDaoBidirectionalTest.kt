@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
+import com.procrastilearn.app.data.local.entity.VocabularyFsrsState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -180,8 +181,7 @@ class VocabularyDaoBidirectionalTest {
                     cardJson = "card",
                     dueAt = now - 1000,
                     reviewedAt = now,
-                    incCorrect = 1,
-                    incIncorrect = 0,
+                    wasCorrect = true,
                 )
 
                 assertThat(awaitItem()).isEqualTo(1)
@@ -200,8 +200,7 @@ class VocabularyDaoBidirectionalTest {
                 cardJson = "card",
                 dueAt = now + 1000,
                 reviewedAt = now,
-                incCorrect = 1,
-                incIncorrect = 0,
+                wasCorrect = true,
                 seedOtherDirection = true,
                 seedDueAt = now + 5000,
             )
@@ -220,8 +219,7 @@ class VocabularyDaoBidirectionalTest {
                 cardJson = "card",
                 dueAt = now + 1000,
                 reviewedAt = now,
-                incCorrect = 1,
-                incIncorrect = 0,
+                wasCorrect = true,
                 seedOtherDirection = true,
                 seedDueAt = now + 5000,
             )
@@ -240,8 +238,7 @@ class VocabularyDaoBidirectionalTest {
                 cardJson = "card",
                 dueAt = now + 1000,
                 reviewedAt = now,
-                incCorrect = 1,
-                incIncorrect = 0,
+                wasCorrect = true,
                 seedOtherDirection = false,
                 seedDueAt = now + 5000,
             )
@@ -260,8 +257,7 @@ class VocabularyDaoBidirectionalTest {
                 cardJson = "card",
                 dueAt = now + 1000,
                 reviewedAt = now,
-                incCorrect = 1,
-                incIncorrect = 0,
+                wasCorrect = true,
                 seedOtherDirection = true,
                 seedDueAt = now + 5000,
             )
@@ -280,8 +276,7 @@ class VocabularyDaoBidirectionalTest {
                 cardJson = "card",
                 dueAt = now + 1000,
                 reviewedAt = now,
-                incCorrect = 1,
-                incIncorrect = 0,
+                wasCorrect = true,
                 seedOtherDirection = true,
                 seedDueAt = now + 5000,
             )
@@ -300,8 +295,7 @@ class VocabularyDaoBidirectionalTest {
                 cardJson = "card",
                 dueAt = now + 1000,
                 reviewedAt = now,
-                incCorrect = 1,
-                incIncorrect = 0,
+                wasCorrect = true,
                 seedOtherDirection = false,
                 seedDueAt = now + 5000,
             )
@@ -315,16 +309,21 @@ class VocabularyDaoBidirectionalTest {
             val id = insert("word", bidirectional = true, fsrsDueAt = 500L, backwardFsrsDueAt = 600L)
 
             dao.restoreFsrsState(
-                id = id,
-                cardJson = "restored-fwd",
-                dueAt = 111L,
-                lastShownAt = null,
-                correctCount = 2,
-                incorrectCount = 3,
-                backwardCardJson = "restored-bwd",
-                backwardDueAt = 222L,
-                backwardCorrectCount = 4,
-                backwardIncorrectCount = 5,
+                VocabularyFsrsStateRestore(
+                    id = id,
+                    fsrsState =
+                        VocabularyFsrsState(
+                            fsrsCardJson = "restored-fwd",
+                            fsrsDueAt = 111L,
+                            lastShownAt = null,
+                            correctCount = 2,
+                            incorrectCount = 3,
+                            backwardFsrsCardJson = "restored-bwd",
+                            backwardFsrsDueAt = 222L,
+                            backwardCorrectCount = 4,
+                            backwardIncorrectCount = 5,
+                        ),
+                ),
             )
 
             val entity = dao.getVocabularyById(id)!!

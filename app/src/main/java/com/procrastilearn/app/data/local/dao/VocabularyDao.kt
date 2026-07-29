@@ -2,16 +2,25 @@ package com.procrastilearn.app.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Embedded
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
+import com.procrastilearn.app.data.local.entity.VocabularyFsrsState
 import kotlinx.coroutines.flow.Flow
 
 data class DueCandidate(
     val id: Long,
     val dueAt: Long,
+)
+
+// Partial-entity shape for [VocabularyDao.restoreFsrsState]: the primary key plus the
+// full FSRS state to write back verbatim (an absolute restore, not an increment).
+data class VocabularyFsrsStateRestore(
+    val id: Long,
+    @Embedded val fsrsState: VocabularyFsrsState,
 )
 
 @Suppress("TooManyFunctions")
@@ -92,7 +101,6 @@ interface VocabularyDao {
     // the backward direction has never been introduced (backwardFsrsDueAt = 0), seeds it
     // to [seedDueAt] so it later surfaces as an ordinary due review rather than staying
     // dormant forever or requiring separate "new" bookkeeping.
-    @Suppress("LongParameterList")
     @Query(
         """
         UPDATE vocabulary
@@ -100,8 +108,8 @@ interface VocabularyDao {
             fsrsCardJson = :cardJson,
             fsrsDueAt = :dueAt,
             lastShownAt = :reviewedAt,
-            correctCount = correctCount + :incCorrect,
-            incorrectCount = incorrectCount + :incIncorrect,
+            correctCount = correctCount + (CASE WHEN :wasCorrect = 1 THEN 1 ELSE 0 END),
+            incorrectCount = incorrectCount + (CASE WHEN :wasCorrect = 1 THEN 0 ELSE 1 END),
             backwardFsrsDueAt = CASE
                 WHEN :seedOtherDirection = 1 AND backwardFsrsDueAt = 0 THEN :seedDueAt
                 ELSE backwardFsrsDueAt
@@ -114,15 +122,13 @@ interface VocabularyDao {
         cardJson: String,
         dueAt: Long,
         reviewedAt: Long,
-        incCorrect: Int,
-        incIncorrect: Int,
+        wasCorrect: Boolean,
         seedOtherDirection: Boolean = false,
         seedDueAt: Long = 0L,
     )
 
     // Symmetric twin of [applyFsrsReview] for the backward direction: on first-ever
     // introduction it can seed the forward direction's due date instead.
-    @Suppress("LongParameterList")
     @Query(
         """
         UPDATE vocabulary
@@ -130,8 +136,8 @@ interface VocabularyDao {
             backwardFsrsCardJson = :cardJson,
             backwardFsrsDueAt = :dueAt,
             lastShownAt = :reviewedAt,
-            backwardCorrectCount = backwardCorrectCount + :incCorrect,
-            backwardIncorrectCount = backwardIncorrectCount + :incIncorrect,
+            backwardCorrectCount = backwardCorrectCount + (CASE WHEN :wasCorrect = 1 THEN 1 ELSE 0 END),
+            backwardIncorrectCount = backwardIncorrectCount + (CASE WHEN :wasCorrect = 1 THEN 0 ELSE 1 END),
             fsrsDueAt = CASE
                 WHEN :seedOtherDirection = 1 AND fsrsDueAt = 0 THEN :seedDueAt
                 ELSE fsrsDueAt
@@ -144,43 +150,17 @@ interface VocabularyDao {
         cardJson: String,
         dueAt: Long,
         reviewedAt: Long,
-        incCorrect: Int,
-        incIncorrect: Int,
+        wasCorrect: Boolean,
         seedOtherDirection: Boolean = false,
         seedDueAt: Long = 0L,
     )
 
     // Restore both directions' full state to an absolute prior value (undo). A single
     // review can have seeded the other direction, so undo must revert both atomically.
-    @Suppress("LongParameterList")
-    @Query(
-        """
-        UPDATE vocabulary
-        SET
-            fsrsCardJson = :cardJson,
-            fsrsDueAt = :dueAt,
-            lastShownAt = :lastShownAt,
-            correctCount = :correctCount,
-            incorrectCount = :incorrectCount,
-            backwardFsrsCardJson = :backwardCardJson,
-            backwardFsrsDueAt = :backwardDueAt,
-            backwardCorrectCount = :backwardCorrectCount,
-            backwardIncorrectCount = :backwardIncorrectCount
-        WHERE id = :id
-    """,
-    )
-    suspend fun restoreFsrsState(
-        id: Long,
-        cardJson: String,
-        dueAt: Long,
-        lastShownAt: Long?,
-        correctCount: Int,
-        incorrectCount: Int,
-        backwardCardJson: String,
-        backwardDueAt: Long,
-        backwardCorrectCount: Int,
-        backwardIncorrectCount: Int,
-    )
+    // A partial @Update on the exact FSRS columns generates the same single UPDATE
+    // statement as the hand-written query above did.
+    @Update(entity = VocabularyEntity::class)
+    suspend fun restoreFsrsState(state: VocabularyFsrsStateRestore)
 
     @Query(
         """

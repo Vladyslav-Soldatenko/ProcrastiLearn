@@ -262,8 +262,7 @@ class VocabularyRepositoryUndoTest {
                 cardJson = Card.builder().build().toJson(),
                 dueAt = System.currentTimeMillis() + 1_000L,
                 reviewedAt = System.currentTimeMillis(),
-                incCorrect = 0,
-                incIncorrect = 1,
+                wasCorrect = false,
             )
 
             val result = repository.undoLastRating()

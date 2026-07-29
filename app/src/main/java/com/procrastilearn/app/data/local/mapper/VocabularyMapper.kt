@@ -1,6 +1,8 @@
 package com.procrastilearn.app.data.local.mapper
 
+import com.procrastilearn.app.data.local.entity.UndoSnapshotEntity
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
+import com.procrastilearn.app.data.local.entity.VocabularyFsrsState
 import com.procrastilearn.app.domain.model.StudyDirection
 import com.procrastilearn.app.domain.model.VocabularyExportItem
 import com.procrastilearn.app.domain.model.VocabularyItem
@@ -66,6 +68,32 @@ fun VocabularyExportItem.toEntity(): VocabularyEntity =
         backwardIncorrectCount = backwardIncorrectCount,
         backwardPromptOverride = backwardPromptOverride,
         backwardAnswerOverride = backwardAnswerOverride,
+    )
+
+fun VocabularyEntity.toFsrsState(): VocabularyFsrsState =
+    VocabularyFsrsState(
+        fsrsCardJson = fsrsCardJson,
+        fsrsDueAt = fsrsDueAt,
+        lastShownAt = lastShownAt,
+        correctCount = correctCount,
+        incorrectCount = incorrectCount,
+        backwardFsrsCardJson = backwardFsrsCardJson,
+        backwardFsrsDueAt = backwardFsrsDueAt,
+        backwardCorrectCount = backwardCorrectCount,
+        backwardIncorrectCount = backwardIncorrectCount,
+    )
+
+fun UndoSnapshotEntity.toFsrsState(): VocabularyFsrsState =
+    VocabularyFsrsState(
+        fsrsCardJson = fsrsCardJson,
+        fsrsDueAt = fsrsDueAt,
+        lastShownAt = lastShownAt,
+        correctCount = correctCount,
+        incorrectCount = incorrectCount,
+        backwardFsrsCardJson = backwardFsrsCardJson,
+        backwardFsrsDueAt = backwardFsrsDueAt,
+        backwardCorrectCount = backwardCorrectCount,
+        backwardIncorrectCount = backwardIncorrectCount,
     )
 
 fun VocabularyEntity.toExportItem(): VocabularyExportItem =
