@@ -64,7 +64,7 @@ class AddWordDialogsTest {
         setPreviewDialogContent(isConfirmLoading = false)
 
         composeTestRule.onNodeWithText(string(R.string.add_word_preview_cancel)).assertIsDisplayed()
-        composeTestRule.onNodeWithText(string(R.string.add_word_preview_confirm)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.action_add)).assertIsDisplayed()
     }
 
     @Test
@@ -81,7 +81,7 @@ class AddWordDialogsTest {
     fun `preview dialog clicking confirm invokes onConfirm`() {
         setPreviewDialogContent()
 
-        composeTestRule.onNodeWithText(string(R.string.add_word_preview_confirm)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_add)).performClick()
 
         verify(exactly = 1) { onConfirm.invoke() }
         verify { onCancel wasNot called }
@@ -91,7 +91,7 @@ class AddWordDialogsTest {
     fun `preview dialog hides confirm text and disables buttons while confirm loading`() {
         setPreviewDialogContent(isConfirmLoading = true)
 
-        composeTestRule.onNodeWithText(string(R.string.add_word_preview_confirm)).assertDoesNotExist()
+        composeTestRule.onNodeWithText(string(R.string.action_add)).assertDoesNotExist()
         composeTestRule.onNodeWithText(string(R.string.add_word_preview_cancel)).assertIsNotEnabled()
     }
 
@@ -129,7 +129,7 @@ class AddWordDialogsTest {
         composeTestRule.onNodeWithText(string(R.string.add_word_preview_stored_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.add_word_preview_regenerate)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.add_word_preview_title)).assertDoesNotExist()
-        composeTestRule.onNodeWithText(string(R.string.add_word_preview_confirm)).assertDoesNotExist()
+        composeTestRule.onNodeWithText(string(R.string.action_add)).assertDoesNotExist()
     }
 
     @Test
