@@ -8,9 +8,7 @@ import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
 import com.procrastilearn.app.domain.model.AiTranslationDirection
-import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
-import com.procrastilearn.app.domain.usecase.GetVocabularyItemByWordUseCase
-import com.procrastilearn.app.domain.usecase.OverrideVocabularyItemUseCase
+import com.procrastilearn.app.domain.usecase.VocabularyEntryUseCases
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -19,9 +17,7 @@ import javax.inject.Inject
 class VocabularyFunctions
     @Inject
     constructor(
-        private val addVocabularyItemUseCase: AddVocabularyItemUseCase,
-        private val getVocabularyItemByWordUseCase: GetVocabularyItemByWordUseCase,
-        private val overrideVocabularyItemUseCase: OverrideVocabularyItemUseCase,
+        private val vocabularyEntryUseCases: VocabularyEntryUseCases,
         private val openAiStore: OpenAiPreferencesStore,
         private val aiTranslationProvider: AiTranslationProvider,
         private val ioDispatcher: CoroutineDispatcher,
@@ -56,7 +52,7 @@ class VocabularyFunctions
                 val finalTranslation = resolveTranslation(trimmedWord, translation)
 
                 val existingItem =
-                    runCatching { getVocabularyItemByWordUseCase(trimmedWord) }
+                    runCatching { vocabularyEntryUseCases.getByWord(trimmedWord) }
                         .getOrElse { e ->
                             throw AppFunctionAppUnknownException(
                                 e.message ?: "Failed to query vocabulary.",
@@ -64,7 +60,7 @@ class VocabularyFunctions
                         }
 
                 if (existingItem != null) {
-                    overrideVocabularyItemUseCase(existingItem, trimmedWord, finalTranslation)
+                    vocabularyEntryUseCases.override(existingItem, trimmedWord, finalTranslation)
                         .getOrElse { e ->
                             throw AppFunctionAppUnknownException(
                                 e.message ?: "Failed to update word.",
@@ -72,7 +68,7 @@ class VocabularyFunctions
                         }
                     "Updated \"$trimmedWord\" → \"$finalTranslation\" and reset its learning progress."
                 } else {
-                    addVocabularyItemUseCase(trimmedWord, finalTranslation)
+                    vocabularyEntryUseCases.add(trimmedWord, finalTranslation)
                         .getOrElse { e ->
                             throw AppFunctionAppUnknownException(
                                 e.message ?: "Failed to add word.",
