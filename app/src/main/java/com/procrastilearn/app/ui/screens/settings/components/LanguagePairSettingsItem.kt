@@ -23,6 +23,7 @@ fun LanguagePairSettingsItem(
     nativeLanguage: Language,
     targetLanguage: Language,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     ListItem(
         headlineContent = { Text(stringResource(R.string.settings_language_pair_title)) },
@@ -44,7 +45,7 @@ fun LanguagePairSettingsItem(
             )
         },
         modifier =
-            Modifier
+            modifier
                 .clickable { onClick() }
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth(),

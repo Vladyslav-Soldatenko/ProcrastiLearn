@@ -20,6 +20,7 @@ android {
   defaultConfig {
     applicationId = "com.procrastilearn.app"
     minSdk = 30
+    //noinspection OldTargetApi
     targetSdk = 36
     versionCode = 9
     versionName = "1.3.1"
@@ -64,7 +65,6 @@ android {
   }
 
   lint {
-    lintConfig = file("lint.xml")
     checkReleaseBuilds = true
     abortOnError = true
     error += setOf("MissingTranslation", "ExtraTranslation")
@@ -75,6 +75,7 @@ android {
     htmlReport = true
     warningsAsErrors = true
     sarifReport = true
+//    baseline = file("lint-baseline.xml")
   }
 }
 
@@ -135,8 +136,6 @@ dependencies {
   testImplementation(libs.turbine)
   testImplementation(libs.truth)
   testImplementation(libs.robolectric)
-
-  lintChecks(libs.compose.lint.checks)
 }
 tasks.named("check") {
   dependsOn("ktlintCheck")

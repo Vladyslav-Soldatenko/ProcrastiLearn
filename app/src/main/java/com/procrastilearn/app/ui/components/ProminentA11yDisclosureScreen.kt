@@ -33,11 +33,12 @@ fun ProminentA11yDisclosureScreen(
     onAccept: () -> Unit,
     onDecline: () -> Unit,
     onPrivacyPolicy: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val scroll = rememberScrollState()
     var checked by rememberSaveable { mutableStateOf(false) }
 
-    Scaffold { inner ->
+    Scaffold(modifier = modifier) { inner ->
         Column(
             modifier =
                 Modifier

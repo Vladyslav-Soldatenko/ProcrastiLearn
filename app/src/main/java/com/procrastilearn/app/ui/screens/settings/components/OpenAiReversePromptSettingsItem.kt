@@ -24,6 +24,7 @@ fun OpenAiReversePromptSettingsItem(
     nativeLanguageCode: String,
     targetLanguageCode: String,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val supporting =
         if (prompt == OpenAiPromptDefaults.reverseTranslationPrompt) {
@@ -56,7 +57,7 @@ fun OpenAiReversePromptSettingsItem(
             )
         },
         modifier =
-            Modifier
+            modifier
                 .clickable { onClick() }
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth(),

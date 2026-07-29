@@ -22,6 +22,7 @@ fun OpenAiPromptSettingsItem(
     nativeLanguageCode: String,
     targetLanguageCode: String,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val supporting =
         if (prompt == OpenAiPromptDefaults.translationPrompt) {
@@ -48,7 +49,7 @@ fun OpenAiPromptSettingsItem(
             )
         },
         modifier =
-            Modifier
+            modifier
                 .clickable { onClick() }
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth(),

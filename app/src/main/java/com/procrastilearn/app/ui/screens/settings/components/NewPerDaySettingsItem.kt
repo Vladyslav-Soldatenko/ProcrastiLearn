@@ -20,6 +20,7 @@ import com.procrastilearn.app.R
 fun NewPerDaySettingsItem(
     value: Int,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     ListItem(
         headlineContent = { Text(stringResource(R.string.settings_new_cards_per_day_title)) },
@@ -37,7 +38,7 @@ fun NewPerDaySettingsItem(
             )
         },
         modifier =
-            Modifier
+            modifier
                 .clickable { onClick() }
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth(),

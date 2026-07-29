@@ -1,6 +1,5 @@
 package com.procrastilearn.app.ui.views
 
-import android.graphics.drawable.ColorDrawable
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -16,6 +15,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
+import androidx.core.graphics.drawable.toDrawable
 import com.procrastilearn.app.domain.model.AppInfo
 import com.procrastilearn.app.testing.ComponentActivityRegistrationRule
 import io.mockk.called
@@ -53,12 +53,12 @@ class AppsListTest {
             AppInfo(
                 packageName = "com.app1",
                 label = "App 1",
-                icon = ColorDrawable(android.graphics.Color.RED),
+                icon = android.graphics.Color.RED.toDrawable(),
             ),
             AppInfo(
                 packageName = "com.app2",
                 label = "App 2",
-                icon = ColorDrawable(android.graphics.Color.BLUE),
+                icon = android.graphics.Color.BLUE.toDrawable(),
             ),
             AppInfo(
                 packageName = "com.app3",

@@ -16,7 +16,10 @@ import androidx.compose.ui.unit.dp
 import com.procrastilearn.app.R
 
 @Composable
-fun ExportSettingsItem(onClick: () -> Unit) {
+fun ExportSettingsItem(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     ListItem(
         headlineContent = { Text(stringResource(R.string.settings_export_row)) },
         supportingContent = {
@@ -33,7 +36,7 @@ fun ExportSettingsItem(onClick: () -> Unit) {
             )
         },
         modifier =
-            Modifier
+            modifier
                 .clickable { onClick() }
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth(),

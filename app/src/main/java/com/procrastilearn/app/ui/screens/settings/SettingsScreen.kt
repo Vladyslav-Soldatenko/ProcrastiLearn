@@ -104,7 +104,10 @@ sealed interface DialogState {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
+fun SettingsScreen(
+    modifier: Modifier = Modifier,
+    viewModel: SettingsViewModel = hiltViewModel(),
+) {
     val ctx = LocalContext.current
     val permissionStates = rememberPermissionStates(ctx)
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -167,6 +170,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             pendingImportOptionId = null
         }
     Scaffold(
+        modifier = modifier,
         topBar = { SettingsTopBar() },
     ) { innerPadding ->
         SettingsContent(

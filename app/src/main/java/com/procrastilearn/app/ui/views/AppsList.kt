@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.createBitmap
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.AppInfo
 
@@ -267,10 +268,9 @@ fun Drawable.toBitmap(): Bitmap {
     }
 
     val bitmap =
-        Bitmap.createBitmap(
+        createBitmap(
             intrinsicWidth.coerceAtLeast(1),
             intrinsicHeight.coerceAtLeast(1),
-            Bitmap.Config.ARGB_8888,
         )
 
     val canvas = Canvas(bitmap)

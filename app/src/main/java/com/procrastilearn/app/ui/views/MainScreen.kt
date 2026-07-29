@@ -21,7 +21,10 @@ import com.procrastilearn.app.ui.screens.WordListScreen
 import com.procrastilearn.app.ui.screens.settings.SettingsScreen
 
 @Composable
-fun MainScreen(mainViewModel: MainViewModel = hiltViewModel()) {
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    mainViewModel: MainViewModel = hiltViewModel(),
+) {
     val navController = rememberNavController()
 
     val processTextEvent by mainViewModel.processTextEvents.collectAsStateWithLifecycle()
@@ -38,6 +41,7 @@ fun MainScreen(mainViewModel: MainViewModel = hiltViewModel()) {
     }
 
     Scaffold(
+        modifier = modifier,
         bottomBar = {
             BottomNavigationBar(navController = navController)
         },

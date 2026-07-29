@@ -19,6 +19,7 @@ import com.procrastilearn.app.R
 fun OpenAiApiKeySettingsItem(
     apiKey: String?,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val supporting =
         if (apiKey.isNullOrBlank()) {
@@ -43,7 +44,7 @@ fun OpenAiApiKeySettingsItem(
             )
         },
         modifier =
-            Modifier
+            modifier
                 .clickable { onClick() }
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth(),

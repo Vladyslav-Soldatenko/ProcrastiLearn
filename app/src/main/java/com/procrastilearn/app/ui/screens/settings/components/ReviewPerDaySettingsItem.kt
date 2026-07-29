@@ -20,6 +20,7 @@ import com.procrastilearn.app.R
 fun ReviewPerDaySettingsItem(
     value: Int,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     ListItem(
         headlineContent = { Text(stringResource(R.string.settings_reviews_per_day_title)) },
@@ -37,7 +38,7 @@ fun ReviewPerDaySettingsItem(
             )
         },
         modifier =
-            Modifier
+            modifier
                 .clickable { onClick() }
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth(),

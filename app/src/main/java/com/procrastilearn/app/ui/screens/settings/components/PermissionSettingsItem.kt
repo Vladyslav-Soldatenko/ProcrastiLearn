@@ -23,6 +23,7 @@ fun PermissionSettingsItem(
     supportingText: String,
     isChecked: Boolean,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     ListItem(
         headlineContent = { Text(headline) },
@@ -51,7 +52,7 @@ fun PermissionSettingsItem(
             )
         },
         modifier =
-            Modifier
+            modifier
                 .clickable { onClick() }
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth(),

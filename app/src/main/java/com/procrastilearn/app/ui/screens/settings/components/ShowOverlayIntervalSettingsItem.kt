@@ -20,6 +20,7 @@ import com.procrastilearn.app.R
 fun ShowOverlayIntervalSettingsItem(
     value: Int,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     ListItem(
         headlineContent = { Text(stringResource(R.string.settings_overlay_interval_headline)) },
@@ -37,7 +38,7 @@ fun ShowOverlayIntervalSettingsItem(
             )
         },
         modifier =
-            Modifier
+            modifier
                 .clickable { onClick() }
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth(),

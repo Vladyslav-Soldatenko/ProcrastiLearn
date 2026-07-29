@@ -20,6 +20,7 @@ import com.procrastilearn.app.domain.model.StudyDirectionMode
 fun StudyDirectionSettingsItem(
     mode: StudyDirectionMode,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val modeText =
         when (mode) {
@@ -44,7 +45,7 @@ fun StudyDirectionSettingsItem(
             )
         },
         modifier =
-            Modifier
+            modifier
                 .clickable { onClick() }
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth(),

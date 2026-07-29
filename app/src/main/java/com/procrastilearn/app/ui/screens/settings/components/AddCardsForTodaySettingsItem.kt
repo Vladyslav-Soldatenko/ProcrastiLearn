@@ -16,7 +16,10 @@ import androidx.compose.ui.unit.dp
 import com.procrastilearn.app.R
 
 @Composable
-fun AddCardsForTodaySettingsItem(onClick: () -> Unit) {
+fun AddCardsForTodaySettingsItem(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     ListItem(
         headlineContent = { Text(stringResource(R.string.settings_add_cards_for_today_title)) },
         trailingContent = {
@@ -27,7 +30,7 @@ fun AddCardsForTodaySettingsItem(onClick: () -> Unit) {
             )
         },
         modifier =
-            Modifier
+            modifier
                 .clickable { onClick() }
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth(),

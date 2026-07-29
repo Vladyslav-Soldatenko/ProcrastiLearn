@@ -20,6 +20,7 @@ import com.procrastilearn.app.domain.model.MixMode
 fun MixModeSettingsItem(
     mixMode: MixMode,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val modeText =
         when (mixMode) {
@@ -44,7 +45,7 @@ fun MixModeSettingsItem(
             )
         },
         modifier =
-            Modifier
+            modifier
                 .clickable { onClick() }
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth(),

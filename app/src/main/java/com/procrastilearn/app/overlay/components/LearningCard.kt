@@ -54,6 +54,7 @@ fun LearningCard(
     state: OverlayUiState,
     onToggleShowAnswer: () -> Unit,
     onDifficultySelected: (Rating) -> Unit,
+    modifier: Modifier = Modifier,
     showTranslationButtonHeight: androidx.compose.ui.unit.Dp = 52.dp,
     addNavigationBarsPadding: Boolean = true,
 ) {
@@ -75,7 +76,7 @@ fun LearningCard(
 
     Card(
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .fillMaxHeight(1f),
         colors = CardDefaults.cardColors(containerColor = OverlayThemeTokens.colors.cardContainer),

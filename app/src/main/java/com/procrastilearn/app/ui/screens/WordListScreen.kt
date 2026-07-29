@@ -240,6 +240,7 @@ fun WordListItem(
     onDelete: () -> Unit,
     onEdit: (VocabularyItem) -> Unit,
     onReset: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -247,7 +248,7 @@ fun WordListItem(
     var showMenu by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors =
             CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface,
