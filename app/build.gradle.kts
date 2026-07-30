@@ -75,7 +75,6 @@ android {
     htmlReport = true
     warningsAsErrors = true
     sarifReport = true
-//    baseline = file("lint-baseline.xml")
   }
 }
 
