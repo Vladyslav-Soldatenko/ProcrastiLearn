@@ -1,9 +1,9 @@
 package com.procrastilearn.app.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.AppRegistration
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -29,7 +29,7 @@ private val bottomNavItems =
     listOf(
         BottomNavItem(
             screen = Screen.Apps,
-            icon = Icons.Default.Edit,
+            icon = Icons.Default.AppRegistration,
             label = "nav_apps",
         ),
         BottomNavItem(
@@ -39,7 +39,7 @@ private val bottomNavItems =
         ),
         BottomNavItem(
             screen = Screen.Dojo,
-            icon = Icons.Default.List,
+            icon = Icons.AutoMirrored.Filled.MenuBook,
             label = "nav_dojo",
         ),
         BottomNavItem(

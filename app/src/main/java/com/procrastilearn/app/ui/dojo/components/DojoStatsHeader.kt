@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,7 +46,7 @@ fun DojoStatsHeader(
             modifier = Modifier.align(Alignment.CenterStart),
         ) {
             Icon(
-                imageVector = Icons.Filled.Refresh,
+                imageVector = Icons.AutoMirrored.Filled.Undo,
                 contentDescription = stringResource(R.string.dojo_undo_content_description),
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.alpha(if (canUndo) 1f else DISABLED_ALPHA),
