@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +36,13 @@ fun LanguagePairSettingsItem(
                     stringResource(targetLanguage.displayNameRes),
                 ),
                 style = MaterialTheme.typography.bodySmall,
+            )
+        },
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Default.Translate,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         },
         trailingContent = {
