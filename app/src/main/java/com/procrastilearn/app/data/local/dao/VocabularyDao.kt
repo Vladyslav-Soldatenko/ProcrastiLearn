@@ -16,8 +16,6 @@ data class DueCandidate(
     val dueAt: Long,
 )
 
-// Partial-entity shape for [VocabularyDao.restoreFsrsState]: the primary key plus the
-// full FSRS state to write back verbatim (an absolute restore, not an increment).
 data class VocabularyFsrsStateRestore(
     val id: Long,
     @Embedded val fsrsState: VocabularyFsrsState,
@@ -155,10 +153,6 @@ interface VocabularyDao {
         seedDueAt: Long = 0L,
     )
 
-    // Restore both directions' full state to an absolute prior value (undo). A single
-    // review can have seeded the other direction, so undo must revert both atomically.
-    // A partial @Update on the exact FSRS columns generates the same single UPDATE
-    // statement as the hand-written query above did.
     @Update(entity = VocabularyEntity::class)
     suspend fun restoreFsrsState(state: VocabularyFsrsStateRestore)
 

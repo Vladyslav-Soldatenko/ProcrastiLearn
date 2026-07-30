@@ -147,11 +147,11 @@ class SettingsViewModel
         fun exportVocabularyToUri(
             context: Context,
             uri: Uri,
-            onComplete: (Boolean) -> Unit,
+            onComplete: (Result<Unit>) -> Unit,
         ) {
             viewModelScope.launch {
-                val ok = transferManager.exportToUri(context, uri)
-                withContext(Dispatchers.Main) { onComplete(ok) }
+                val result = transferManager.exportToUri(context, uri)
+                withContext(Dispatchers.Main) { onComplete(result) }
             }
         }
 

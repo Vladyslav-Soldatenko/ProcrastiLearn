@@ -121,19 +121,15 @@ fun SettingsScreen(
             contract = ActivityResultContracts.CreateDocument("application/json"),
         ) { uri ->
             if (uri != null) {
-                viewModel.exportVocabularyToUri(ctx, uri) { ok ->
-                    Toast
-                        .makeText(
-                            ctx,
-                            if (ok) {
-                                ctx.getString(
-                                    R.string.settings_export_success,
-                                )
-                            } else {
-                                ctx.getString(R.string.settings_export_failure)
+                viewModel.exportVocabularyToUri(ctx, uri) { result ->
+                    val message =
+                        result.fold(
+                            onSuccess = { ctx.getString(R.string.settings_export_success) },
+                            onFailure = { error ->
+                                error.message ?: ctx.getString(R.string.settings_export_failure)
                             },
-                            Toast.LENGTH_SHORT,
-                        ).show()
+                        )
+                    Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show()
                 }
             }
         }

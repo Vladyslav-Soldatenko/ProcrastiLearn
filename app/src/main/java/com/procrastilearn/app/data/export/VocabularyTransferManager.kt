@@ -18,9 +18,6 @@ import java.io.File
 import java.io.InputStream
 import javax.inject.Inject
 
-// Owns vocabulary export/import: JSON serialization, parser dispatch, and the temp-file
-// handling parsers need, kept off the ViewModel so SettingsViewModel only orchestrates UI
-// state.
 class VocabularyTransferManager
     @Inject
     constructor(
@@ -41,28 +38,23 @@ class VocabularyTransferManager
                     )
                 }.sortedBy { it.titleResId }
 
-        /**
-         * Export all vocabulary rows (full DB fields) as a JSON array to the given [uri].
-         */
-        @Suppress("TooGenericExceptionCaught", "SwallowedException")
         suspend fun exportToUri(
             context: Context,
             uri: Uri,
-        ): Boolean =
+        ): Result<Unit> =
             withContext(ioDispatcher) {
-                try {
+                runCatching {
                     val items = vocabularyDao.getAllVocabulary().first().map { it.toExportItem() }
                     val encoded = VocabularyExportSerializer.encode(items)
 
-                    context.contentResolver.openOutputStream(uri)?.use { out ->
+                    val outputStream = context.contentResolver.openOutputStream(uri)
+                    checkNotNull(outputStream) { "Failed to open output stream for $uri" }
+                    outputStream.use { out ->
                         out.writer(Charsets.UTF_8).use { writer ->
                             writer.write(encoded)
                             writer.flush()
                         }
-                        true
-                    } ?: false
-                } catch (t: Throwable) {
-                    false
+                    }
                 }
             }
 

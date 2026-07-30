@@ -83,7 +83,7 @@ class VocabularyTransferManagerTest {
     }
 
     @Test
-    fun `exportToUri writes serialized json and returns true`() =
+    fun `exportToUri writes serialized json and succeeds`() =
         runTest {
             val manager = buildManager()
             val tempFile = File.createTempFile("export", ".json")
@@ -103,7 +103,7 @@ class VocabularyTransferManagerTest {
 
             val result = manager.exportToUri(appContext, uri)
 
-            assertThat(result).isTrue()
+            assertThat(result.isSuccess).isTrue()
             val payload = tempFile.readText()
             assertThat(payload).contains("\"id\": 1")
             assertThat(payload).contains("\"word\": \"Haus\"")
@@ -111,7 +111,7 @@ class VocabularyTransferManagerTest {
         }
 
     @Test
-    fun `exportToUri returns false on exception`() =
+    fun `exportToUri fails and preserves the original exception's message`() =
         runTest {
             val manager = buildManager()
             val tempFile = File.createTempFile("export", ".json")
@@ -120,7 +120,8 @@ class VocabularyTransferManagerTest {
 
             val result = manager.exportToUri(appContext, uri)
 
-            assertThat(result).isFalse()
+            assertThat(result.isFailure).isTrue()
+            assertThat(result.exceptionOrNull()?.message).isEqualTo("boom")
             assertThat(tempFile.readText()).isEmpty()
         }
 
@@ -251,7 +252,7 @@ class VocabularyTransferManagerTest {
             val tempFile = File.createTempFile("export", ".json")
             val uri = Uri.fromFile(tempFile)
 
-            assertThat(manager.exportToUri(appContext, uri)).isTrue()
+            assertThat(manager.exportToUri(appContext, uri).isSuccess).isTrue()
 
             val importResult = manager.importFromUri(appContext, parser.id, uri)
 
