@@ -11,6 +11,7 @@ import com.procrastilearn.app.domain.parser.VocabularyExportParser
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import com.procrastilearn.app.domain.parser.VocabularyParser
 import com.procrastilearn.app.domain.repository.VocabularyRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -81,22 +82,26 @@ class VocabularyTransferManager
                 }
             }
 
-        @Suppress("TooGenericExceptionCaught", "SwallowedException")
         private suspend fun performImport(
             context: Context,
             parser: VocabularyParser,
             uri: Uri,
             tempFile: File,
         ): VocabularyImportResult =
-            try {
-                importFromStream(context, parser, uri, tempFile)
-            } catch (exception: UnsupportedSchemaVersionException) {
-                VocabularyImportResult.Failure(VocabularyImportFailureReason.UNSUPPORTED_SCHEMA_VERSION)
-            } catch (exception: IllegalArgumentException) {
-                VocabularyImportResult.Failure(VocabularyImportFailureReason.PARSE_ERROR)
-            } catch (throwable: Throwable) {
-                VocabularyImportResult.Failure(VocabularyImportFailureReason.FILE_ERROR)
-            }
+            runCatching { importFromStream(context, parser, uri, tempFile) }
+                .fold(
+                    onSuccess = { it },
+                    onFailure = { exception ->
+                        when (exception) {
+                            is CancellationException -> throw exception
+                            is UnsupportedSchemaVersionException ->
+                                VocabularyImportResult.Failure(VocabularyImportFailureReason.UNSUPPORTED_SCHEMA_VERSION)
+                            is IllegalArgumentException ->
+                                VocabularyImportResult.Failure(VocabularyImportFailureReason.PARSE_ERROR)
+                            else -> VocabularyImportResult.Failure(VocabularyImportFailureReason.FILE_ERROR)
+                        }
+                    },
+                )
 
         private suspend fun importFromStream(
             context: Context,
