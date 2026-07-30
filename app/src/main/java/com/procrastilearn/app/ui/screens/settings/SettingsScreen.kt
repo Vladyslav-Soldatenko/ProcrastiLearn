@@ -480,8 +480,8 @@ internal fun SettingsContent(
                 title =
                     stringResource(
                         R.string.settings_openai_prompt_dialog_title,
-                        nativeLanguage.code.uppercase(),
                         targetLanguage.code.uppercase(),
+                        nativeLanguage.code.uppercase(),
                     ),
                 currentValue = openAiPrompt,
                 onValueConfirm = {
@@ -500,8 +500,8 @@ internal fun SettingsContent(
                 title =
                     stringResource(
                         R.string.settings_openai_reverse_prompt_dialog_title,
-                        targetLanguage.code.uppercase(),
                         nativeLanguage.code.uppercase(),
+                        targetLanguage.code.uppercase(),
                     ),
                 currentValue = openAiReversePrompt,
                 onValueConfirm = {

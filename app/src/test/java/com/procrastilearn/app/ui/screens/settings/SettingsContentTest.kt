@@ -358,6 +358,34 @@ class SettingsContentTest {
     }
 
     @Test
+    fun `AI prompt dialog title matches its translation direction`() {
+        setContent(nativeLanguage = Language.GERMAN, targetLanguage = Language.FRENCH)
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_openai_prompt_title, "FR", "DE"))
+            .performScrollTo()
+            .performClick()
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_openai_prompt_dialog_title, "FR", "DE"))
+            .assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.action_cancel)).performClick()
+    }
+
+    @Test
+    fun `AI reverse prompt dialog title matches its translation direction`() {
+        setContent(nativeLanguage = Language.GERMAN, targetLanguage = Language.FRENCH)
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_title, "DE", "FR"))
+            .performScrollTo()
+            .performClick()
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_dialog_title, "DE", "FR"))
+            .assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.action_cancel)).performClick()
+    }
+
+    @Test
     fun `about us item shows dialog`() {
         setContent()
 
