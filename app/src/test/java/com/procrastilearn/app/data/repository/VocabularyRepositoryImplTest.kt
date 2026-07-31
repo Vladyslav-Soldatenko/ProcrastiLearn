@@ -7,6 +7,8 @@ import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.data.local.dao.UndoSnapshotDao
 import com.procrastilearn.app.data.local.dao.VocabularyDao
+import com.procrastilearn.app.data.local.dao.VocabularyReviewDao
+import com.procrastilearn.app.data.local.dao.VocabularyStatsDao
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.UndoSnapshotEntity
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
@@ -40,6 +42,8 @@ import java.time.format.DateTimeFormatter
 class VocabularyRepositoryImplTest {
     private lateinit var database: AppDatabase
     private lateinit var vocabularyDao: VocabularyDao
+    private lateinit var vocabularyReviewDao: VocabularyReviewDao
+    private lateinit var vocabularyStatsDao: VocabularyStatsDao
     private lateinit var dayCountersStore: DayCountersStore
     private lateinit var scheduler: Scheduler
     private lateinit var undoSnapshotDao: UndoSnapshotDao
@@ -57,6 +61,8 @@ class VocabularyRepositoryImplTest {
                 .build()
 
         vocabularyDao = database.vocabularyDao()
+        vocabularyReviewDao = database.vocabularyReviewDao()
+        vocabularyStatsDao = database.vocabularyStatsDao()
 
         // Mock DayCountersStore
         dayCountersStore = mockk(relaxed = true)
@@ -68,11 +74,9 @@ class VocabularyRepositoryImplTest {
         undoSnapshotDao = database.undoSnapshotDao()
         repository =
             VocabularyRepositoryImpl(
-                vocabularyDao = vocabularyDao,
+                appDatabase = database,
                 scheduler = scheduler,
                 prefs = dayCountersStore,
-                undoSnapshotDao = undoSnapshotDao,
-                appDatabase = database,
             )
     }
 
@@ -191,74 +195,6 @@ class VocabularyRepositoryImplTest {
             assertThat(entity?.lastShownAt).isNull()
             assertThat(entity?.fsrsCardJson).isNotEmpty()
             assertThat(entity?.fsrsCardJson).isNotEqualTo(oldCardJson)
-        }
-
-    @Test
-    fun `resetVocabularyProgress updates current item when active`() =
-        runTest {
-            coEvery { dayCountersStore.readPolicy() } returns
-                flowOf(
-                    LearningPreferencesConfig(
-                        newPerDay = 10,
-                        reviewPerDay = 10,
-                        overlayInterval = 5,
-                        mixMode = MixMode.NEW_FIRST,
-                    ),
-                )
-            coEvery { dayCountersStore.read() } returns
-                flowOf(
-                    DayCounters(
-                        yyyymmdd = todayStamp(),
-                        newShown = 0,
-                        reviewShown = 0,
-                        reviewsSinceLastNew = 0,
-                    ),
-                )
-
-            val id = insertTestVocabulary("schreiben", "write")
-            val active = repository.getNextVocabularyItem()
-
-            repository.resetVocabularyProgress(active)
-
-            repository.observeCurrentItem().test {
-                val emission = awaitItem()
-                assertThat(emission.id).isEqualTo(id)
-                assertThat(emission.isNew).isTrue()
-                cancelAndConsumeRemainingEvents()
-            }
-        }
-
-    @Test
-    fun `observeCurrentItem emits latest selected vocabulary`() =
-        runTest {
-            coEvery { dayCountersStore.readPolicy() } returns
-                flowOf(
-                    LearningPreferencesConfig(
-                        newPerDay = 10,
-                        reviewPerDay = 10,
-                        overlayInterval = 5,
-                        mixMode = MixMode.NEW_FIRST,
-                    ),
-                )
-            coEvery { dayCountersStore.read() } returns
-                flowOf(
-                    DayCounters(
-                        yyyymmdd = todayStamp(),
-                        newShown = 0,
-                        reviewShown = 0,
-                        reviewsSinceLastNew = 0,
-                    ),
-                )
-
-            val insertedId = insertTestVocabulary("gehen", "go")
-            val selected = repository.getNextVocabularyItem()
-
-            assertThat(selected.id).isEqualTo(insertedId)
-
-            repository.observeCurrentItem().test {
-                assertThat(awaitItem()).isEqualTo(selected)
-                cancelAndConsumeRemainingEvents()
-            }
         }
 
     @Test

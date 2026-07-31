@@ -1,6 +1,6 @@
 package com.procrastilearn.app.ui.dojo
 
-import com.procrastilearn.app.data.local.dao.VocabularyDao
+import com.procrastilearn.app.data.local.dao.VocabularyStatsDao
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.time.TimeTicker
 import com.procrastilearn.app.domain.model.includesBackward
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class DojoCountersSource
     @Inject
     constructor(
-        private val vocabularyDao: VocabularyDao,
+        private val vocabularyStatsDao: VocabularyStatsDao,
         private val dayCountersStore: DayCountersStore,
         private val timeTicker: TimeTicker,
     ) {
@@ -32,14 +32,14 @@ class DojoCountersSource
             combine(nowSource, dayCountersStore.readPolicy()) { now, policy -> now to policy }
                 .flatMapLatest { (now, policy) ->
                     val due =
-                        vocabularyDao.observeReviewsDueCount(
+                        vocabularyStatsDao.observeReviewsDueCount(
                             now,
                             includeForward = policy.studyDirectionMode.includesForward,
                             includeBackward = policy.studyDirectionMode.includesBackward,
                         )
                     val skipped =
                         if (policy.studyDirectionMode.isBackwardOnly) {
-                            vocabularyDao.observeBackwardOnlySkippedCount(now)
+                            vocabularyStatsDao.observeBackwardOnlySkippedCount(now)
                         } else {
                             flowOf(0)
                         }
@@ -49,7 +49,7 @@ class DojoCountersSource
 
         val newTotalCount: Flow<Int> =
             dayCountersStore.readPolicy().flatMapLatest { policy ->
-                vocabularyDao.observeNewTotalCount(requireBidirectional = policy.studyDirectionMode.isBackwardOnly)
+                vocabularyStatsDao.observeNewTotalCount(requireBidirectional = policy.studyDirectionMode.isBackwardOnly)
             }
 
         suspend fun refresh() {

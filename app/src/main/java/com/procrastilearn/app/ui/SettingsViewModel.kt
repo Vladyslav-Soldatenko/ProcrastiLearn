@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.export.VocabularyImportResult
 import com.procrastilearn.app.data.export.VocabularyTransferManager
-import com.procrastilearn.app.data.local.dao.VocabularyDao
+import com.procrastilearn.app.data.local.dao.VocabularyStatsDao
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
 import com.procrastilearn.app.data.local.prefs.TranslationPreferences
@@ -44,7 +44,7 @@ class SettingsViewModel
     constructor(
         private val dayCountersStore: DayCountersStore,
         private val translationPreferences: TranslationPreferences,
-        private val vocabularyDao: VocabularyDao,
+        private val vocabularyStatsDao: VocabularyStatsDao,
         private val transferManager: VocabularyTransferManager,
     ) : ViewModel() {
         val uiState: StateFlow<SettingsUiState> =
@@ -80,7 +80,7 @@ class SettingsViewModel
 
         fun loadAvailableNewCount() {
             viewModelScope.launch {
-                val totalNew = vocabularyDao.countNewTotal()
+                val totalNew = vocabularyStatsDao.countNewTotal()
                 _availableNewCount.value = totalNew
 
                 val policy = dayCountersStore.readPolicy().first()
@@ -107,7 +107,7 @@ class SettingsViewModel
 
         fun onAddCardsForToday(amount: Int) {
             viewModelScope.launch {
-                dayCountersStore.addExtraNewToday(amount, vocabularyDao.countNewTotal())
+                dayCountersStore.addExtraNewToday(amount, vocabularyStatsDao.countNewTotal())
             }
         }
 

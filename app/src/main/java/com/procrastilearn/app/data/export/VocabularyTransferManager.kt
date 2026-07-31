@@ -10,7 +10,7 @@ import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.parser.VocabularyExportParser
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import com.procrastilearn.app.domain.parser.VocabularyParser
-import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -23,7 +23,7 @@ class VocabularyTransferManager
     @Inject
     constructor(
         private val vocabularyDao: VocabularyDao,
-        private val vocabularyRepository: VocabularyRepository,
+        private val vocabularyRepository: VocabularyCatalogRepository,
         private val parsers: Set<@JvmSuppressWildcards VocabularyParser>,
         private val ioDispatcher: CoroutineDispatcher,
     ) {

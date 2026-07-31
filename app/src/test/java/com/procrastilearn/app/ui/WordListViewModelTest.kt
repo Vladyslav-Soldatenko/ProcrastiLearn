@@ -3,7 +3,7 @@ package com.procrastilearn.app.ui
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.domain.model.VocabularyItem
-import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
 import com.procrastilearn.app.utils.MainDispatcherRule
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -24,7 +24,7 @@ class WordListViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private lateinit var repository: VocabularyRepository
+    private lateinit var repository: VocabularyCatalogRepository
     private lateinit var vocabularyFlow: MutableSharedFlow<List<VocabularyItem>>
 
     @Before

@@ -2,7 +2,7 @@ package com.procrastilearn.app.service
 
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
-import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.repository.VocabularyStudyRepository
 import com.procrastilearn.app.domain.usecase.CheckVocabularyAvailabilityUseCase
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
@@ -21,7 +21,7 @@ import dagger.hilt.components.SingletonComponent
 interface ServiceEntryPoint {
     fun appPreferencesRepository(): AppPreferencesRepository
 
-    fun vocabularyRepository(): VocabularyRepository
+    fun vocabularyRepository(): VocabularyStudyRepository
 
     fun getNextVocabularyItemUseCase(): GetNextVocabularyItemUseCase
 

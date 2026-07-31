@@ -1,8 +1,6 @@
 package com.procrastilearn.app.data.repository
 
 import androidx.room.withTransaction
-import com.procrastilearn.app.data.local.dao.UndoSnapshotDao
-import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.dao.VocabularyFsrsStateRestore
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.UndoSnapshotEntity
@@ -18,15 +16,14 @@ import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.model.includesBackward
 import com.procrastilearn.app.domain.model.includesForward
 import com.procrastilearn.app.domain.model.isBackwardOnly
-import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
+import com.procrastilearn.app.domain.repository.VocabularyStudyRepository
 import io.github.openspacedrepetition.Card
 import io.github.openspacedrepetition.Rating
 import io.github.openspacedrepetition.Scheduler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
@@ -56,12 +53,14 @@ class NoAvailableItemsException : Exception("Daily limits reached and no reviews
 class VocabularyRepositoryImpl
     @Inject
     constructor(
-        private val vocabularyDao: VocabularyDao,
+        private val appDatabase: AppDatabase,
         private val scheduler: Scheduler,
         private val prefs: DayCountersStore,
-        private val undoSnapshotDao: UndoSnapshotDao,
-        private val appDatabase: AppDatabase,
-    ) : VocabularyRepository {
+    ) : VocabularyCatalogRepository, VocabularyStudyRepository {
+        private val vocabularyDao = appDatabase.vocabularyDao()
+        private val vocabularyReviewDao = appDatabase.vocabularyReviewDao()
+        private val vocabularyStatsDao = appDatabase.vocabularyStatsDao()
+        private val undoSnapshotDao = appDatabase.undoSnapshotDao()
         private val currentItem = MutableStateFlow<VocabularyItem?>(null)
         private val io = Dispatchers.IO
         private val reviewMutex = Mutex()
@@ -126,13 +125,11 @@ class VocabularyRepositoryImpl
                 }
             }
 
-        override fun observeCurrentItem(): Flow<VocabularyItem> = currentItem.asStateFlow().filterNotNull()
-
         override fun getAllVocabulary(): Flow<List<VocabularyItem>> =
             vocabularyDao.getAllVocabulary().map { list -> list.map { it.toDomain() } }
 
         override fun observeBackwardOnlySkippedCount(): Flow<Int> =
-            vocabularyDao.observeBackwardOnlySkippedCount(System.currentTimeMillis())
+            vocabularyStatsDao.observeBackwardOnlySkippedCount(System.currentTimeMillis())
 
         @Suppress("LongMethod")
         override suspend fun reviewVocabularyItem(
@@ -196,7 +193,7 @@ class VocabularyRepositoryImpl
                     appDatabase.withTransaction {
                         when (direction) {
                             StudyDirection.FORWARD ->
-                                vocabularyDao.applyFsrsReview(
+                                vocabularyReviewDao.applyFsrsReview(
                                     id = id,
                                     cardJson = updatedCard.toJson(),
                                     dueAt = nextDue,
@@ -206,7 +203,7 @@ class VocabularyRepositoryImpl
                                     seedDueAt = seedDueAt,
                                 )
                             StudyDirection.BACKWARD ->
-                                vocabularyDao.applyBackwardFsrsReview(
+                                vocabularyReviewDao.applyBackwardFsrsReview(
                                     id = id,
                                     cardJson = updatedCard.toJson(),
                                     dueAt = nextDue,
@@ -235,7 +232,7 @@ class VocabularyRepositoryImpl
                     val snapshot = undoSnapshotDao.peekLatest() ?: return@withLock null
 
                     appDatabase.withTransaction {
-                        vocabularyDao.restoreFsrsState(
+                        vocabularyReviewDao.restoreFsrsState(
                             VocabularyFsrsStateRestore(id = snapshot.vocabId, fsrsState = snapshot.toFsrsState()),
                         )
                         undoSnapshotDao.deleteById(snapshot.id)
@@ -278,7 +275,7 @@ class VocabularyRepositoryImpl
                 val includeBackward = policy.studyDirectionMode.includesBackward
                 val backwardOnlyMode = policy.studyDirectionMode.isBackwardOnly
 
-                val totalNew = vocabularyDao.countNewTotal(requireBidirectional = backwardOnlyMode)
+                val totalNew = vocabularyStatsDao.countNewTotal(requireBidirectional = backwardOnlyMode)
 
                 val newRemaining =
                     (policy.newPerDay + counters.extraNewToday - counters.newShown).coerceAtLeast(0)
@@ -287,7 +284,7 @@ class VocabularyRepositoryImpl
                 // 1) Check due reviews (incl. learning due now via FSRS dueAt)
                 val dueCount =
                     if (reviewRemaining > 0) {
-                        vocabularyDao.countReviewsDue(now, includeForward, includeBackward)
+                        vocabularyStatsDao.countReviewsDue(now, includeForward, includeBackward)
                     } else {
                         0
                     }
@@ -340,7 +337,7 @@ class VocabularyRepositoryImpl
                 val includeBackward = policy.studyDirectionMode.includesBackward
                 val backwardOnlyMode = policy.studyDirectionMode.isBackwardOnly
 
-                val totalNew = vocabularyDao.countNewTotal(requireBidirectional = backwardOnlyMode)
+                val totalNew = vocabularyStatsDao.countNewTotal(requireBidirectional = backwardOnlyMode)
                 val newRemaining =
                     (policy.newPerDay + counters.extraNewToday - counters.newShown).coerceAtLeast(0)
                 val reviewRemaining = (policy.reviewPerDay - counters.reviewShown).coerceAtLeast(0)
@@ -348,7 +345,7 @@ class VocabularyRepositoryImpl
                 // Check if there are due reviews
                 val dueCount =
                     if (reviewRemaining > 0) {
-                        vocabularyDao.countReviewsDue(now, includeForward, includeBackward)
+                        vocabularyStatsDao.countReviewsDue(now, includeForward, includeBackward)
                     } else {
                         0
                     }
@@ -373,8 +370,8 @@ class VocabularyRepositoryImpl
             includeForward: Boolean,
             includeBackward: Boolean,
         ): PickedCandidate? {
-            val forward = if (includeForward) vocabularyDao.pickNextForwardReviewCandidate(now) else null
-            val backward = if (includeBackward) vocabularyDao.pickNextBackwardReviewCandidate(now) else null
+            val forward = if (includeForward) vocabularyReviewDao.pickNextForwardReviewCandidate(now) else null
+            val backward = if (includeBackward) vocabularyReviewDao.pickNextBackwardReviewCandidate(now) else null
             return when {
                 forward == null && backward == null -> null
                 backward == null -> PickedCandidate(forward!!.id, StudyDirection.FORWARD)
@@ -396,8 +393,8 @@ class VocabularyRepositoryImpl
             if (totalNew <= 0) return null
             val offset = kotlin.random.Random.nextInt(totalNew)
             val id =
-                vocabularyDao.pickNewIdByOffset(offset, requireBidirectional = backwardOnlyMode)
-                    ?: vocabularyDao.pickNewIdByOffset(0, requireBidirectional = backwardOnlyMode)
+                vocabularyReviewDao.pickNewIdByOffset(offset, requireBidirectional = backwardOnlyMode)
+                    ?: vocabularyReviewDao.pickNewIdByOffset(0, requireBidirectional = backwardOnlyMode)
                     ?: return null
             return PickedCandidate(id, if (backwardOnlyMode) StudyDirection.BACKWARD else StudyDirection.FORWARD)
         }

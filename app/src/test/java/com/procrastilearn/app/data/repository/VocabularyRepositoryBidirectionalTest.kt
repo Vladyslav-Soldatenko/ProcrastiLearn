@@ -6,6 +6,8 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.data.local.dao.VocabularyDao
+import com.procrastilearn.app.data.local.dao.VocabularyReviewDao
+import com.procrastilearn.app.data.local.dao.VocabularyStatsDao
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
@@ -33,6 +35,8 @@ import java.time.format.DateTimeFormatter
 class VocabularyRepositoryBidirectionalTest {
     private lateinit var database: AppDatabase
     private lateinit var vocabularyDao: VocabularyDao
+    private lateinit var vocabularyReviewDao: VocabularyReviewDao
+    private lateinit var vocabularyStatsDao: VocabularyStatsDao
     private lateinit var dayCountersStore: DayCountersStore
     private lateinit var scheduler: Scheduler
     private lateinit var repository: VocabularyRepositoryImpl
@@ -47,15 +51,15 @@ class VocabularyRepositoryBidirectionalTest {
                 ).allowMainThreadQueries()
                 .build()
         vocabularyDao = database.vocabularyDao()
+        vocabularyReviewDao = database.vocabularyReviewDao()
+        vocabularyStatsDao = database.vocabularyStatsDao()
         dayCountersStore = mockk(relaxed = true)
         scheduler = Scheduler.builder().build()
         repository =
             VocabularyRepositoryImpl(
-                vocabularyDao = vocabularyDao,
+                appDatabase = database,
                 scheduler = scheduler,
                 prefs = dayCountersStore,
-                undoSnapshotDao = database.undoSnapshotDao(),
-                appDatabase = database,
             )
     }
 
@@ -195,9 +199,9 @@ class VocabularyRepositoryBidirectionalTest {
             val entityAfterSeed = vocabularyDao.getVocabularyById(id)!!
             val futureNow = entityAfterSeed.backwardFsrsDueAt + 1
 
-            assertThat(vocabularyDao.pickNextBackwardReviewCandidate(futureNow)?.id).isEqualTo(id)
+            assertThat(vocabularyReviewDao.pickNextBackwardReviewCandidate(futureNow)?.id).isEqualTo(id)
 
-            val newCount = vocabularyDao.countNewTotal()
+            val newCount = vocabularyStatsDao.countNewTotal()
             assertThat(newCount).isEqualTo(0)
         }
 
@@ -220,7 +224,7 @@ class VocabularyRepositoryBidirectionalTest {
             repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
 
             val now = vocabularyDao.getVocabularyById(id)!!.fsrsDueAt + 1
-            assertThat(vocabularyDao.pickNextBackwardReviewCandidate(now)).isNull()
+            assertThat(vocabularyReviewDao.pickNextBackwardReviewCandidate(now)).isNull()
         }
 
     @Test
@@ -299,8 +303,8 @@ class VocabularyRepositoryBidirectionalTest {
 
             val seededDueAt = vocabularyDao.getVocabularyById(id)!!.backwardFsrsDueAt
             stubCounters(newShown = 1, reviewShown = 0)
-            assertThat(vocabularyDao.pickNextBackwardReviewCandidate(seededDueAt + 1)?.id).isEqualTo(id)
-            assertThat(vocabularyDao.countNewTotal()).isEqualTo(0)
+            assertThat(vocabularyReviewDao.pickNextBackwardReviewCandidate(seededDueAt + 1)?.id).isEqualTo(id)
+            assertThat(vocabularyStatsDao.countNewTotal()).isEqualTo(0)
         }
 
     @Test
@@ -360,8 +364,8 @@ class VocabularyRepositoryBidirectionalTest {
             stubCounters()
             stubPolicy(studyDirectionMode = StudyDirectionMode.BIDIRECTIONAL)
 
-            val forward = vocabularyDao.pickNextForwardReviewCandidate(now)
-            val backward = vocabularyDao.pickNextBackwardReviewCandidate(now)
+            val forward = vocabularyReviewDao.pickNextForwardReviewCandidate(now)
+            val backward = vocabularyReviewDao.pickNextBackwardReviewCandidate(now)
 
             assertThat(forward?.id).isEqualTo(id)
             assertThat(backward?.id).isEqualTo(id)
@@ -401,7 +405,7 @@ class VocabularyRepositoryBidirectionalTest {
             repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.BACKWARD)
             val seededForwardDueAt = vocabularyDao.getVocabularyById(id)!!.fsrsDueAt
             assertThat(seededForwardDueAt).isGreaterThan(0L)
-            assertThat(vocabularyDao.pickNextForwardReviewCandidate(seededForwardDueAt + 1)?.id).isEqualTo(id)
+            assertThat(vocabularyReviewDao.pickNextForwardReviewCandidate(seededForwardDueAt + 1)?.id).isEqualTo(id)
         }
 
     @Test
@@ -417,10 +421,10 @@ class VocabularyRepositoryBidirectionalTest {
 
             stubCounters(newShown = 1)
             stubPolicy(studyDirectionMode = StudyDirectionMode.BIDIRECTIONAL)
-            val newCount = vocabularyDao.countNewTotal()
+            val newCount = vocabularyStatsDao.countNewTotal()
 
             assertThat(newCount).isEqualTo(0)
-            assertThat(vocabularyDao.pickNextForwardReviewCandidate(seededForwardDueAt + 1)?.id).isEqualTo(id)
+            assertThat(vocabularyReviewDao.pickNextForwardReviewCandidate(seededForwardDueAt + 1)?.id).isEqualTo(id)
         }
 
     @Test
@@ -488,7 +492,7 @@ class VocabularyRepositoryBidirectionalTest {
                     fsrsDueAt = now - 1000,
                     correctCount = 3,
                 )
-            vocabularyDao.applyBackwardFsrsReview(
+            vocabularyReviewDao.applyBackwardFsrsReview(
                 id = id,
                 cardJson = "existing-backward",
                 dueAt = now + 50_000,

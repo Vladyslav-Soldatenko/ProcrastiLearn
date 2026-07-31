@@ -11,6 +11,7 @@ import com.procrastilearn.app.data.export.VocabularyImportFailureReason
 import com.procrastilearn.app.data.export.VocabularyImportResult
 import com.procrastilearn.app.data.export.VocabularyTransferManager
 import com.procrastilearn.app.data.local.dao.VocabularyDao
+import com.procrastilearn.app.data.local.dao.VocabularyStatsDao
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
@@ -26,7 +27,7 @@ import com.procrastilearn.app.domain.model.VocabularyExportItem
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.parser.VocabularyExportParser
 import com.procrastilearn.app.domain.parser.VocabularyParser
-import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
 import com.procrastilearn.app.utils.MainDispatcherRule
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -60,7 +61,8 @@ class SettingsViewModelTest {
     private lateinit var openAiStore: OpenAiPreferencesStore
     private lateinit var languagePreferencesStore: LanguagePreferencesStore
     private lateinit var vocabularyDao: VocabularyDao
-    private lateinit var vocabularyRepository: VocabularyRepository
+    private lateinit var vocabularyStatsDao: VocabularyStatsDao
+    private lateinit var vocabularyRepository: VocabularyCatalogRepository
     private lateinit var policyFlow: MutableStateFlow<LearningPreferencesConfig>
     private lateinit var countersFlow: MutableStateFlow<DayCounters>
     private lateinit var apiKeyFlow: MutableStateFlow<String?>
@@ -85,6 +87,7 @@ class SettingsViewModelTest {
         openAiStore = mockk(relaxed = true)
         languagePreferencesStore = mockk(relaxed = true)
         vocabularyDao = mockk()
+        vocabularyStatsDao = mockk()
         vocabularyRepository = mockk(relaxed = true)
         policyFlow =
             MutableStateFlow(
@@ -127,7 +130,7 @@ class SettingsViewModelTest {
         SettingsViewModel(
             dayCountersStore = dayCountersStore,
             translationPreferences = TranslationPreferences(openAiStore, languagePreferencesStore),
-            vocabularyDao = vocabularyDao,
+            vocabularyStatsDao = vocabularyStatsDao,
             transferManager =
                 VocabularyTransferManager(
                     vocabularyDao = vocabularyDao,
@@ -229,7 +232,7 @@ class SettingsViewModelTest {
     fun `loadAvailableNewCount queries dao and updates state`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { vocabularyDao.countNewTotal() } returns 12
+            coEvery { vocabularyStatsDao.countNewTotal() } returns 12
 
             viewModel.availableNewCount.test {
                 assertThat(awaitItem()).isEqualTo(0)
@@ -239,7 +242,7 @@ class SettingsViewModelTest {
                 assertThat(awaitItem()).isEqualTo(12)
                 cancelAndIgnoreRemainingEvents()
             }
-            coVerify { vocabularyDao.countNewTotal() }
+            coVerify { vocabularyStatsDao.countNewTotal() }
         }
 
     @Test
@@ -247,7 +250,7 @@ class SettingsViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             // newPerDay=20 (from policyFlow), newShown=0, extraNewToday=0 -> quota remaining = 20.
             val viewModel = buildViewModel()
-            coEvery { vocabularyDao.countNewTotal() } returns 50
+            coEvery { vocabularyStatsDao.countNewTotal() } returns 50
 
             viewModel.loadAvailableNewCount()
             advanceUntilIdle()
@@ -261,7 +264,7 @@ class SettingsViewModelTest {
     fun `loadAvailableNewCount reports zero availableToAddToday when unseen count is at or below current quota`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { vocabularyDao.countNewTotal() } returns 0
+            coEvery { vocabularyStatsDao.countNewTotal() } returns 0
 
             viewModel.loadAvailableNewCount()
             advanceUntilIdle()
@@ -276,7 +279,7 @@ class SettingsViewModelTest {
             // Only 40 cards are unseen, so just 5 more can still be added before hitting the cap.
             countersFlow.value = countersFlow.value.copy(extraNewToday = 15)
             val viewModel = buildViewModel()
-            coEvery { vocabularyDao.countNewTotal() } returns 40
+            coEvery { vocabularyStatsDao.countNewTotal() } returns 40
 
             viewModel.loadAvailableNewCount()
             advanceUntilIdle()
@@ -338,7 +341,7 @@ class SettingsViewModelTest {
     fun `onAddCardsForToday delegates to store with current available new count`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { vocabularyDao.countNewTotal() } returns 30
+            coEvery { vocabularyStatsDao.countNewTotal() } returns 30
             coEvery { dayCountersStore.addExtraNewToday(any(), any()) } returns Unit
 
             viewModel.onAddCardsForToday(16)

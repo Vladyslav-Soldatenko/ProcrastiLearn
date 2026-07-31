@@ -6,23 +6,8 @@ import com.procrastilearn.app.domain.model.VocabularyItem
 import io.github.openspacedrepetition.Rating
 import kotlinx.coroutines.flow.Flow
 
-@Suppress("TooManyFunctions")
-interface VocabularyRepository {
+interface VocabularyStudyRepository {
     suspend fun getNextVocabularyItem(): VocabularyItem
-
-    fun observeCurrentItem(): Flow<VocabularyItem>
-
-    fun getAllVocabulary(): Flow<List<VocabularyItem>>
-
-    suspend fun getVocabularyItemByWord(word: String): VocabularyItem?
-
-    suspend fun addVocabularyItem(item: VocabularyItem)
-
-    suspend fun updateVocabularyItem(item: VocabularyItem)
-
-    suspend fun deleteVocabularyItem(item: VocabularyItem)
-
-    suspend fun resetVocabularyProgress(item: VocabularyItem)
 
     suspend fun hasAvailableItems(): Boolean
 

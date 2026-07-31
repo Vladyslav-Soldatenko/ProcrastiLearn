@@ -21,7 +21,7 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
-import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.repository.VocabularyStudyRepository
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
 import com.procrastilearn.app.overlay.OverlayScreen
@@ -67,7 +67,7 @@ class OverlayAccessibilityService : AccessibilityService() {
     }
 
     internal lateinit var appPreferencesRepository: AppPreferencesRepository
-    internal lateinit var vocabularyRepository: VocabularyRepository
+    internal lateinit var vocabularyRepository: VocabularyStudyRepository
     internal lateinit var getNextVocabularyItemUseCase: GetNextVocabularyItemUseCase
     internal lateinit var getSaveDifficultyRatingUseCase: SaveDifficultyRatingUseCase
     internal lateinit var dayCountersStore: DayCountersStore

@@ -64,11 +64,9 @@ class AddCardsForTodayIntegrationTest {
 
         repository =
             VocabularyRepositoryImpl(
-                vocabularyDao = database.vocabularyDao(),
+                appDatabase = database,
                 scheduler = Scheduler.builder().build(),
                 prefs = dayCountersStore,
-                undoSnapshotDao = database.undoSnapshotDao(),
-                appDatabase = database,
             )
     }
 
@@ -111,7 +109,7 @@ class AddCardsForTodayIntegrationTest {
             assertThat(dayCountersStore.read().first().newShown).isEqualTo(2)
 
             // "open Settings -> Add Cards For Today, add 3"
-            dayCountersStore.addExtraNewToday(3, availableNew = database.vocabularyDao().countNewTotal())
+            dayCountersStore.addExtraNewToday(3, availableNew = database.vocabularyStatsDao().countNewTotal())
 
             // "confirm 3 more cards appear in Dojo"
             assertThat(repository.hasAvailableItems()).isTrue()
@@ -151,7 +149,7 @@ class AddCardsForTodayIntegrationTest {
 
             // Request a wildly oversized boost, as reported (e.g. entering 222 with a
             // near-empty deck).
-            dayCountersStore.addExtraNewToday(999, availableNew = database.vocabularyDao().countNewTotal())
+            dayCountersStore.addExtraNewToday(999, availableNew = database.vocabularyStatsDao().countNewTotal())
 
             // The boost must be clamped: 1 permanent + boost can never exceed 4 unseen.
             val counters = dayCountersStore.read().first()
@@ -173,9 +171,9 @@ class AddCardsForTodayIntegrationTest {
             insertNewWords(2)
             reviewNextNewCard()
             reviewNextNewCard()
-            assertThat(database.vocabularyDao().countNewTotal()).isEqualTo(0)
+            assertThat(database.vocabularyStatsDao().countNewTotal()).isEqualTo(0)
 
-            dayCountersStore.addExtraNewToday(50, availableNew = database.vocabularyDao().countNewTotal())
+            dayCountersStore.addExtraNewToday(50, availableNew = database.vocabularyStatsDao().countNewTotal())
 
             assertThat(dayCountersStore.read().first().extraNewToday).isEqualTo(0)
             assertThat(repository.hasAvailableItems()).isFalse()

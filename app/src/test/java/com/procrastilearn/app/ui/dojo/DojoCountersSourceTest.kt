@@ -2,7 +2,7 @@ package com.procrastilearn.app.ui.dojo
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import com.procrastilearn.app.data.local.dao.VocabularyDao
+import com.procrastilearn.app.data.local.dao.VocabularyStatsDao
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.time.TimeTicker
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
@@ -20,7 +20,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DojoCountersSourceTest {
-    private lateinit var vocabularyDao: VocabularyDao
+    private lateinit var vocabularyStatsDao: VocabularyStatsDao
     private lateinit var dayCountersStore: DayCountersStore
     private lateinit var policyFlow: MutableStateFlow<LearningPreferencesConfig>
 
@@ -36,7 +36,7 @@ class DojoCountersSourceTest {
 
     @Before
     fun setUp() {
-        vocabularyDao = mockk()
+        vocabularyStatsDao = mockk()
         dayCountersStore = mockk()
         policyFlow =
             MutableStateFlow(
@@ -53,12 +53,12 @@ class DojoCountersSourceTest {
         every { dayCountersStore.readPolicy() } returns policyFlow
     }
 
-    private fun buildSource(): DojoCountersSource = DojoCountersSource(vocabularyDao, dayCountersStore, fakeTimeTicker)
+    private fun buildSource(): DojoCountersSource = DojoCountersSource(vocabularyStatsDao, dayCountersStore, fakeTimeTicker)
 
     @Test
     fun `reviewsDueAndSkippedCount reports zero skipped when not in backward-only mode`() =
         runTest {
-            every { vocabularyDao.observeReviewsDueCount(any(), true, false) } returns MutableStateFlow(7)
+            every { vocabularyStatsDao.observeReviewsDueCount(any(), true, false) } returns MutableStateFlow(7)
             val source = buildSource()
 
             source.reviewsDueAndSkippedCount.test {
@@ -71,8 +71,8 @@ class DojoCountersSourceTest {
     fun `reviewsDueAndSkippedCount includes the DAO's skip count only in backward-only mode`() =
         runTest {
             policyFlow.value = policyFlow.value.copy(studyDirectionMode = StudyDirectionMode.BACKWARD)
-            every { vocabularyDao.observeReviewsDueCount(any(), false, true) } returns MutableStateFlow(3)
-            every { vocabularyDao.observeBackwardOnlySkippedCount(any()) } returns MutableStateFlow(2)
+            every { vocabularyStatsDao.observeReviewsDueCount(any(), false, true) } returns MutableStateFlow(3)
+            every { vocabularyStatsDao.observeBackwardOnlySkippedCount(any()) } returns MutableStateFlow(2)
             val source = buildSource()
 
             source.reviewsDueAndSkippedCount.test {
@@ -85,7 +85,7 @@ class DojoCountersSourceTest {
     fun `reviewsDueAndSkippedCount re-queries the DAO when now ticks forward`() =
         runTest {
             val dueDelayMs = 2 * 60_000L
-            every { vocabularyDao.observeReviewsDueCount(any(), true, false) } answers {
+            every { vocabularyStatsDao.observeReviewsDueCount(any(), true, false) } answers {
                 val now = firstArg<Long>()
                 flowOf(if (now >= baseNow + dueDelayMs) 5 else 0)
             }
@@ -105,7 +105,7 @@ class DojoCountersSourceTest {
     fun `refresh re-queries the DAO with a live now instead of waiting for the next tick`() =
         runTest {
             val dueDelayMs = 2 * 60_000L
-            every { vocabularyDao.observeReviewsDueCount(any(), true, false) } answers {
+            every { vocabularyStatsDao.observeReviewsDueCount(any(), true, false) } answers {
                 val now = firstArg<Long>()
                 flowOf(if (now >= baseNow + dueDelayMs) 5 else 0)
             }
@@ -128,8 +128,8 @@ class DojoCountersSourceTest {
         runTest {
             val forwardNewFlow = MutableStateFlow(20)
             val backwardNewFlow = MutableStateFlow(4)
-            every { vocabularyDao.observeNewTotalCount(false) } returns forwardNewFlow
-            every { vocabularyDao.observeNewTotalCount(true) } returns backwardNewFlow
+            every { vocabularyStatsDao.observeNewTotalCount(false) } returns forwardNewFlow
+            every { vocabularyStatsDao.observeNewTotalCount(true) } returns backwardNewFlow
             val source = buildSource()
 
             source.newTotalCount.test {

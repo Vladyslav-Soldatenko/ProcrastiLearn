@@ -5,6 +5,8 @@ import androidx.room.RoomDatabase
 import com.procrastilearn.app.data.local.dao.PendingWordDao
 import com.procrastilearn.app.data.local.dao.UndoSnapshotDao
 import com.procrastilearn.app.data.local.dao.VocabularyDao
+import com.procrastilearn.app.data.local.dao.VocabularyReviewDao
+import com.procrastilearn.app.data.local.dao.VocabularyStatsDao
 import com.procrastilearn.app.data.local.entity.PendingWordEntity
 import com.procrastilearn.app.data.local.entity.UndoSnapshotEntity
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
@@ -16,6 +18,10 @@ import com.procrastilearn.app.data.local.entity.VocabularyEntity
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun vocabularyDao(): VocabularyDao
+
+    abstract fun vocabularyReviewDao(): VocabularyReviewDao
+
+    abstract fun vocabularyStatsDao(): VocabularyStatsDao
 
     abstract fun pendingWordDao(): PendingWordDao
 

@@ -2,7 +2,7 @@ package com.procrastilearn.app.domain.usecase
 
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.domain.model.StudyDirection
-import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.repository.VocabularyStudyRepository
 import io.github.openspacedrepetition.Rating
 import io.mockk.Runs
 import io.mockk.clearAllMocks
@@ -16,7 +16,7 @@ import org.junit.Before
 import org.junit.Test
 
 class SaveDifficultyRatingUseCaseTest {
-    private val repository: VocabularyRepository = mockk()
+    private val repository: VocabularyStudyRepository = mockk()
 
     private lateinit var useCase: SaveDifficultyRatingUseCase
 

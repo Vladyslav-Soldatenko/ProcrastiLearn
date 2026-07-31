@@ -11,7 +11,7 @@ import com.procrastilearn.app.domain.model.VocabularyExportItem
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.parser.VocabularyExportParser
 import com.procrastilearn.app.domain.parser.VocabularyParser
-import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -33,7 +33,7 @@ import java.io.File
 @OptIn(ExperimentalCoroutinesApi::class)
 class VocabularyTransferManagerTest {
     private lateinit var vocabularyDao: VocabularyDao
-    private lateinit var vocabularyRepository: VocabularyRepository
+    private lateinit var vocabularyRepository: VocabularyCatalogRepository
     private lateinit var appContext: Context
 
     private val apkgParser: VocabularyParser =

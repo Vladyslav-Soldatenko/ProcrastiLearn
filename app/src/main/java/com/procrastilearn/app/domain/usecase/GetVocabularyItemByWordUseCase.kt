@@ -1,13 +1,13 @@
 package com.procrastilearn.app.domain.usecase
 
 import com.procrastilearn.app.domain.model.VocabularyItem
-import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
 import javax.inject.Inject
 
 class GetVocabularyItemByWordUseCase
     @Inject
     constructor(
-        private val repository: VocabularyRepository,
+        private val repository: VocabularyCatalogRepository,
     ) {
         suspend operator fun invoke(word: String): VocabularyItem? {
             if (word.isBlank()) return null
