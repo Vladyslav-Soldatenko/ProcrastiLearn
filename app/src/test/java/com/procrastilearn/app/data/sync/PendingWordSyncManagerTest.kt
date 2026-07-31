@@ -8,6 +8,7 @@ import com.procrastilearn.app.domain.repository.PendingWordRepository
 import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.GenerateAiTranslationUseCase
 import com.procrastilearn.app.domain.usecase.GetVocabularyItemByWordUseCase
+import com.procrastilearn.app.domain.usecase.VocabularyEntryUseCases
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -32,8 +33,7 @@ class PendingWordSyncManagerTest {
                 connectivityObserver,
                 pendingWordRepository,
                 generateAiTranslationUseCase,
-                addVocabularyItemUseCase,
-                getVocabularyItemByWordUseCase,
+                VocabularyEntryUseCases(addVocabularyItemUseCase, getVocabularyItemByWordUseCase, mockk()),
             )
     }
 

@@ -2,6 +2,7 @@ package com.procrastilearn.app.domain.usecase
 
 import com.procrastilearn.app.domain.model.UndoResult
 import com.procrastilearn.app.domain.repository.VocabularyRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class UndoLastRatingUseCase
@@ -13,4 +14,6 @@ class UndoLastRatingUseCase
             runCatching {
                 repository.undoLastRating()
             }
+
+        fun observeUndoCount(): Flow<Int> = repository.observeUndoCount()
     }

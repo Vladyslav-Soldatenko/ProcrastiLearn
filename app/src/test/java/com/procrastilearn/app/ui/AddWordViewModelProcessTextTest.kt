@@ -6,6 +6,7 @@ import com.procrastilearn.app.R
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
 import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
+import com.procrastilearn.app.data.local.prefs.TranslationPreferences
 import com.procrastilearn.app.data.text.ProcessTextEventBus
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
@@ -20,7 +21,9 @@ import com.procrastilearn.app.domain.usecase.GenerateAiTranslationUseCase
 import com.procrastilearn.app.domain.usecase.GetVocabularyItemByWordUseCase
 import com.procrastilearn.app.domain.usecase.ObservePendingWordsUseCase
 import com.procrastilearn.app.domain.usecase.OverrideVocabularyItemUseCase
+import com.procrastilearn.app.domain.usecase.PendingWordUseCases
 import com.procrastilearn.app.domain.usecase.QueuePendingWordUseCase
+import com.procrastilearn.app.domain.usecase.VocabularyEntryUseCases
 import com.procrastilearn.app.utils.MainDispatcherRule
 import io.mockk.Runs
 import io.mockk.clearAllMocks
@@ -81,8 +84,7 @@ class AddWordViewModelProcessTextTest {
         generateAiTranslationUseCase =
             GenerateAiTranslationUseCase(
                 aiTranslationProvider,
-                openAiStore,
-                languagePreferencesStore,
+                TranslationPreferences(openAiStore, languagePreferencesStore),
                 mainDispatcherRule.testDispatcher,
             )
         processTextEventBus = ProcessTextEventBus()
@@ -120,15 +122,10 @@ class AddWordViewModelProcessTextTest {
 
     private fun buildViewModel(): AddWordViewModel =
         AddWordViewModel(
-            addVocabularyItemUseCase,
-            getVocabularyItemByWordUseCase,
-            overrideVocabularyItemUseCase,
-            openAiStore,
-            languagePreferencesStore,
+            VocabularyEntryUseCases(addVocabularyItemUseCase, getVocabularyItemByWordUseCase, overrideVocabularyItemUseCase),
+            PendingWordUseCases(queuePendingWordUseCase, observePendingWordsUseCase, deletePendingWordUseCase),
+            TranslationPreferences(openAiStore, languagePreferencesStore),
             generateAiTranslationUseCase,
-            queuePendingWordUseCase,
-            observePendingWordsUseCase,
-            deletePendingWordUseCase,
             connectivityObserver,
             context,
             processTextEventBus,

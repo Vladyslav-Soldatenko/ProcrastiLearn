@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
+import com.procrastilearn.app.data.local.prefs.TranslationPreferences
 import com.procrastilearn.app.data.translation.AiTranslationProvider
 import com.procrastilearn.app.data.translation.AiTranslationRequest
 import com.procrastilearn.app.domain.model.AiTranslationDirection
@@ -32,7 +33,12 @@ class GenerateAiTranslationUseCaseTest {
         every { openAiStore.readOpenAiReversePrompt() } returns flowOf("reverse prompt")
         every { languagePreferencesStore.readLanguagePair() } returns
             flowOf(LanguagePair(Language.SPANISH, Language.FRENCH))
-        useCase = GenerateAiTranslationUseCase(provider, openAiStore, languagePreferencesStore, UnconfinedTestDispatcher())
+        useCase =
+            GenerateAiTranslationUseCase(
+                provider,
+                TranslationPreferences(openAiStore, languagePreferencesStore),
+                UnconfinedTestDispatcher(),
+            )
     }
 
     @Test

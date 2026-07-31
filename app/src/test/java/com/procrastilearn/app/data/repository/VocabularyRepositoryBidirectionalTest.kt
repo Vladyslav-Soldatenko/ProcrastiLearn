@@ -77,7 +77,6 @@ class VocabularyRepositoryBidirectionalTest {
         assertThat(thrown).isNotNull()
     }
 
-    @Suppress("LongParameterList")
     private suspend fun insertVocabulary(
         word: String,
         bidirectional: Boolean = false,
@@ -251,21 +250,13 @@ class VocabularyRepositoryBidirectionalTest {
             stubCounters()
             repository.reviewVocabularyItem(id, Rating.AGAIN, StudyDirection.FORWARD)
             val entity = vocabularyDao.getVocabularyById(id)!!
-            vocabularyDao.applyFsrsReview(
-                id = id,
-                cardJson = entity.fsrsCardJson,
-                dueAt = System.currentTimeMillis() - 1000,
-                reviewedAt = System.currentTimeMillis(),
-                incCorrect = 0,
-                incIncorrect = 0,
-            )
-            vocabularyDao.applyBackwardFsrsReview(
-                id = id,
-                cardJson = entity.backwardFsrsCardJson,
-                dueAt = System.currentTimeMillis() - 1000,
-                reviewedAt = System.currentTimeMillis(),
-                incCorrect = 0,
-                incIncorrect = 0,
+            val now = System.currentTimeMillis()
+            vocabularyDao.updateVocabulary(
+                entity.copy(
+                    fsrsDueAt = now - 1000,
+                    backwardFsrsDueAt = now - 1000,
+                    lastShownAt = now,
+                ),
             )
 
             stubCounters(reviewShown = 0)
@@ -502,8 +493,7 @@ class VocabularyRepositoryBidirectionalTest {
                 cardJson = "existing-backward",
                 dueAt = now + 50_000,
                 reviewedAt = now,
-                incCorrect = 1,
-                incIncorrect = 0,
+                wasCorrect = true,
             )
             stubCounters()
 

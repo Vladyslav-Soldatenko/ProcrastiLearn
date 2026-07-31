@@ -7,12 +7,16 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.R
 import com.procrastilearn.app.data.counter.DayCounters
+import com.procrastilearn.app.data.export.VocabularyImportFailureReason
+import com.procrastilearn.app.data.export.VocabularyImportResult
+import com.procrastilearn.app.data.export.VocabularyTransferManager
 import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
+import com.procrastilearn.app.data.local.prefs.TranslationPreferences
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.LanguagePair
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
@@ -122,12 +126,15 @@ class SettingsViewModelTest {
     private fun buildViewModel(parsers: Set<VocabularyParser> = setOf(defaultParser)): SettingsViewModel =
         SettingsViewModel(
             dayCountersStore = dayCountersStore,
-            openAiStore = openAiStore,
-            languagePreferencesStore = languagePreferencesStore,
+            translationPreferences = TranslationPreferences(openAiStore, languagePreferencesStore),
             vocabularyDao = vocabularyDao,
-            vocabularyRepository = vocabularyRepository,
-            parsers = parsers,
-            ioDispatcher = mainDispatcherRule.testDispatcher,
+            transferManager =
+                VocabularyTransferManager(
+                    vocabularyDao = vocabularyDao,
+                    vocabularyRepository = vocabularyRepository,
+                    parsers = parsers,
+                    ioDispatcher = mainDispatcherRule.testDispatcher,
+                ),
         )
 
     @Test
@@ -436,11 +443,11 @@ class SettingsViewModelTest {
                 )
             every { vocabularyDao.getAllVocabulary() } returns flowOf(listOf(entity))
 
-            val completion = CompletableDeferred<Boolean>()
+            val completion = CompletableDeferred<Result<Unit>>()
 
             viewModel.exportVocabularyToUri(context, uri) { completion.complete(it) }
 
-            assertThat(completion.await()).isTrue()
+            assertThat(completion.await().isSuccess).isTrue()
             val payload = tempFile.readText()
             assertThat(payload).contains("\"schemaVersion\": 3")
             assertThat(payload).contains("\"id\": 1")
@@ -466,11 +473,13 @@ class SettingsViewModelTest {
             val uri = Uri.fromFile(tempFile)
             every { vocabularyDao.getAllVocabulary() } returns flow { throw IllegalStateException("boom") }
 
-            val completion = CompletableDeferred<Boolean>()
+            val completion = CompletableDeferred<Result<Unit>>()
 
             viewModel.exportVocabularyToUri(context, uri) { completion.complete(it) }
 
-            assertThat(completion.await()).isFalse()
+            val result = completion.await()
+            assertThat(result.isFailure).isTrue()
+            assertThat(result.exceptionOrNull()?.message).isEqualTo("boom")
             assertThat(tempFile.readText()).isEmpty()
         }
 
@@ -575,11 +584,11 @@ class SettingsViewModelTest {
                     .createTempFile(prefix = "export", suffix = ".json")
                     .toFile()
             val uri = Uri.fromFile(tempFile)
-            val exported = CompletableDeferred<Boolean>()
+            val exported = CompletableDeferred<Result<Unit>>()
 
             viewModel.exportVocabularyToUri(appContext, uri) { exported.complete(it) }
 
-            assertThat(exported.await()).isTrue()
+            assertThat(exported.await().isSuccess).isTrue()
 
             var importResult: VocabularyImportResult? = null
             viewModel.importVocabularyFromUri(appContext, parser.id, uri) { importResult = it }

@@ -9,7 +9,6 @@ class OverrideVocabularyItemUseCase
     constructor(
         private val repository: VocabularyRepository,
     ) {
-        @Suppress("LongParameterList")
         suspend operator fun invoke(
             existingItem: VocabularyItem,
             newWord: String,

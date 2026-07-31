@@ -505,7 +505,6 @@ class AddWordScreenContentTest {
         words.forEach { composeTestRule.onNodeWithText(it.word).assertIsDisplayed() }
     }
 
-    @Suppress("LongParameterList")
     private fun setContent(
         word: String = "",
         translation: String = "",

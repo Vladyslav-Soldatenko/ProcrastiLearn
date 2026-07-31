@@ -5,19 +5,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.R
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
-import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
+import com.procrastilearn.app.data.local.prefs.TranslationPreferences
 import com.procrastilearn.app.data.text.ProcessTextEventBus
 import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.VocabularyItem
-import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
-import com.procrastilearn.app.domain.usecase.DeletePendingWordUseCase
 import com.procrastilearn.app.domain.usecase.GenerateAiTranslationUseCase
 import com.procrastilearn.app.domain.usecase.GetVocabularyItemByWordUseCase
-import com.procrastilearn.app.domain.usecase.ObservePendingWordsUseCase
-import com.procrastilearn.app.domain.usecase.OverrideVocabularyItemUseCase
+import com.procrastilearn.app.domain.usecase.PendingWordUseCases
 import com.procrastilearn.app.domain.usecase.QueuePendingWordUseCase
+import com.procrastilearn.app.domain.usecase.VocabularyEntryUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,18 +28,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@Suppress("LongParameterList", "LargeClass", "TooManyFunctions")
+@Suppress("LargeClass", "TooManyFunctions")
 class AddWordViewModel @Inject
     constructor(
-        private val addVocabularyItemUseCase: AddVocabularyItemUseCase,
-        private val getVocabularyItemByWordUseCase: GetVocabularyItemByWordUseCase,
-        private val overrideVocabularyItemUseCase: OverrideVocabularyItemUseCase,
-        private val openAiStore: OpenAiPreferencesStore,
-        private val languagePreferencesStore: LanguagePreferencesStore,
+        private val vocabularyEntryUseCases: VocabularyEntryUseCases,
+        private val pendingWordUseCases: PendingWordUseCases,
+        private val translationPreferences: TranslationPreferences,
         private val generateAiTranslationUseCase: GenerateAiTranslationUseCase,
-        private val queuePendingWordUseCase: QueuePendingWordUseCase,
-        private val observePendingWordsUseCase: ObservePendingWordsUseCase,
-        private val deletePendingWordUseCase: DeletePendingWordUseCase,
         private val connectivityObserver: NetworkConnectivityObserver,
         @ApplicationContext private val context: Context,
         private val processTextEventBus: ProcessTextEventBus = ProcessTextEventBus(),
@@ -55,10 +48,10 @@ class AddWordViewModel @Inject
             // Observe OpenAI key and toggle from preferences
             viewModelScope.launch {
                 combine(
-                    openAiStore.readOpenAiApiKey(),
-                    openAiStore.readUseAiForTranslation(),
-                    openAiStore.readAiTranslationDirection(),
-                    languagePreferencesStore.readLanguagePair(),
+                    translationPreferences.openAiStore.readOpenAiApiKey(),
+                    translationPreferences.openAiStore.readUseAiForTranslation(),
+                    translationPreferences.openAiStore.readAiTranslationDirection(),
+                    translationPreferences.languagePreferencesStore.readLanguagePair(),
                 ) { key: String?, useAi: Boolean, direction: AiTranslationDirection, languagePair ->
                     AddWordCombinedPrefs(
                         hasKey = !key.isNullOrBlank(),
@@ -90,7 +83,7 @@ class AddWordViewModel @Inject
             }
 
             viewModelScope.launch {
-                observePendingWordsUseCase().collectLatest { pendingWords ->
+                pendingWordUseCases.observe().collectLatest { pendingWords ->
                     _uiState.value =
                         _uiState.value.copy(
                             pendingWords = pendingWords.map { PendingWordUi(id = it.id, word = it.word) },
@@ -101,7 +94,7 @@ class AddWordViewModel @Inject
             viewModelScope.launch {
                 processTextEventBus.events.collectLatest { text ->
                     if (!text.isNullOrBlank()) {
-                        val prefill = resolveProcessTextPrefill(openAiStore, text)
+                        val prefill = resolveProcessTextPrefill(translationPreferences.openAiStore, text)
                         if (prefill != null) {
                             acknowledgedOverrideWord = null
                             pendingOverride = null
@@ -160,7 +153,7 @@ class AddWordViewModel @Inject
             if (currentState.isAddLaterMode) {
                 val pendingMessage = context.getString(R.string.add_word_success_pending)
                 viewModelScope.launch {
-                    queuePendingWord(queuePendingWordUseCase, _uiState, currentState.word.trim(), currentState.translationDirection, pendingMessage)
+                    queuePendingWord(pendingWordUseCases.queue, _uiState, currentState.word.trim(), currentState.translationDirection, pendingMessage)
                 }
                 return
             }
@@ -193,7 +186,7 @@ class AddWordViewModel @Inject
                 // AI mode: check for a duplicate before spending an AI request.
                 val lookupFailedMessage = context.getString(R.string.add_word_error_lookup_failed)
                 val existingItem =
-                    lookupExistingItem(getVocabularyItemByWordUseCase, _uiState, word, lookupFailedMessage)
+                    lookupExistingItem(vocabularyEntryUseCases.getByWord, _uiState, word, lookupFailedMessage)
                         .getOrElse { return@launch }
 
                 if (existingItem != null) {
@@ -240,7 +233,7 @@ class AddWordViewModel @Inject
         }
 
         fun onDeletePendingWord(id: Long) {
-            viewModelScope.launch { deletePendingWordUseCase(id) }
+            viewModelScope.launch { pendingWordUseCases.delete(id) }
         }
 
         fun resetSuccess() {
@@ -256,7 +249,7 @@ class AddWordViewModel @Inject
 
     fun onUseAiToggle(checked: Boolean) {
         acknowledgedOverrideWord = null
-        viewModelScope.launch { openAiStore.setUseAiForTranslation(checked) }
+        viewModelScope.launch { translationPreferences.openAiStore.setUseAiForTranslation(checked) }
         _uiState.value =
             _uiState.value.copy(
                 useAiForTranslation = checked,
@@ -274,7 +267,7 @@ class AddWordViewModel @Inject
             } else {
                 AiTranslationDirection.TARGET_TO_NATIVE
             }
-        viewModelScope.launch { openAiStore.setAiTranslationDirection(next) }
+        viewModelScope.launch { translationPreferences.openAiStore.setAiTranslationDirection(next) }
         _uiState.value =
             _uiState.value.copy(
                 translationDirection = next,
@@ -326,7 +319,7 @@ class AddWordViewModel @Inject
                 // already saved, show its stored translation immediately instead.
                 val lookupFailedMessage = context.getString(R.string.add_word_error_lookup_failed)
                 val existingItem =
-                    lookupExistingItem(getVocabularyItemByWordUseCase, _uiState, word, lookupFailedMessage)
+                    lookupExistingItem(vocabularyEntryUseCases.getByWord, _uiState, word, lookupFailedMessage)
                         .getOrElse { return@launch }
 
                 if (existingItem != null && existingItem.translation.isNotBlank()) {
@@ -491,7 +484,7 @@ class AddWordViewModel @Inject
                     }
 
                 val currentState = _uiState.value
-                overrideVocabularyItemUseCase(
+                vocabularyEntryUseCases.override(
                     existingItem = pending.existingItem,
                     newWord = pending.word,
                     newTranslation = translation,
@@ -537,7 +530,7 @@ class AddWordViewModel @Inject
             val direction = _uiState.value.translationDirection
             val existingItem =
                 lookupExistingItem(
-                    getVocabularyItemByWordUseCase,
+                    vocabularyEntryUseCases.getByWord,
                     _uiState,
                     word,
                     context.getString(R.string.add_word_error_lookup_failed),
@@ -562,7 +555,7 @@ class AddWordViewModel @Inject
             fromPreview: Boolean,
         ) {
             val currentState = _uiState.value
-            overrideVocabularyItemUseCase(
+            vocabularyEntryUseCases.override(
                 existingItem = existingItem,
                 newWord = word,
                 newTranslation = translation,
@@ -637,7 +630,7 @@ class AddWordViewModel @Inject
             fromPreview: Boolean,
         ) {
             val currentState = _uiState.value
-            addVocabularyItemUseCase(
+            vocabularyEntryUseCases.add(
                 word = word,
                 translation = translation,
                 bidirectional = currentState.bidirectional,

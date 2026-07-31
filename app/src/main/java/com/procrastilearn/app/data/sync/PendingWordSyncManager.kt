@@ -3,9 +3,8 @@ package com.procrastilearn.app.data.sync
 import com.procrastilearn.app.data.connectivity.NetworkConnectivityObserver
 import com.procrastilearn.app.domain.model.PendingWord
 import com.procrastilearn.app.domain.repository.PendingWordRepository
-import com.procrastilearn.app.domain.usecase.AddVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.GenerateAiTranslationUseCase
-import com.procrastilearn.app.domain.usecase.GetVocabularyItemByWordUseCase
+import com.procrastilearn.app.domain.usecase.VocabularyEntryUseCases
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,8 +26,7 @@ class PendingWordSyncManager
         private val connectivityObserver: NetworkConnectivityObserver,
         private val pendingWordRepository: PendingWordRepository,
         private val generateAiTranslationUseCase: GenerateAiTranslationUseCase,
-        private val addVocabularyItemUseCase: AddVocabularyItemUseCase,
-        private val getVocabularyItemByWordUseCase: GetVocabularyItemByWordUseCase,
+        private val vocabularyEntryUseCases: VocabularyEntryUseCases,
     ) {
         private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         private var started = false
@@ -53,7 +51,7 @@ class PendingWordSyncManager
         @Suppress("TooGenericExceptionCaught", "SwallowedException")
         private suspend fun processPendingWord(item: PendingWord) {
             try {
-                val existing = getVocabularyItemByWordUseCase(item.word)
+                val existing = vocabularyEntryUseCases.getByWord(item.word)
                 if (existing != null) {
                     pendingWordRepository.deletePendingWord(item)
                     return
@@ -62,7 +60,7 @@ class PendingWordSyncManager
                 val translation = generateAiTranslationUseCase(item.word, item.direction).trim()
                 if (translation.isBlank()) return
 
-                val result = addVocabularyItemUseCase(word = item.word, translation = translation)
+                val result = vocabularyEntryUseCases.add(word = item.word, translation = translation)
                 if (result.isSuccess) {
                     pendingWordRepository.deletePendingWord(item)
                 }

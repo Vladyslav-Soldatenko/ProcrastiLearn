@@ -82,7 +82,6 @@ class VocabularyRepositoryUndoTest {
 
     private fun todayStamp(): Int = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE).toInt()
 
-    @Suppress("LongParameterList")
     private suspend fun insertVocab(
         word: String,
         translation: String = word,
@@ -263,8 +262,7 @@ class VocabularyRepositoryUndoTest {
                 cardJson = Card.builder().build().toJson(),
                 dueAt = System.currentTimeMillis() + 1_000L,
                 reviewedAt = System.currentTimeMillis(),
-                incCorrect = 0,
-                incIncorrect = 1,
+                wasCorrect = false,
             )
 
             val result = repository.undoLastRating()

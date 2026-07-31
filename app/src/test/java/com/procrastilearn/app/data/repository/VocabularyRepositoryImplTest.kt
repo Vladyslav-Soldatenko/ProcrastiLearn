@@ -83,7 +83,6 @@ class VocabularyRepositoryImplTest {
 
     private fun todayStamp(): Int = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE).toInt()
 
-    @Suppress("LongParameterList")
     private suspend fun insertTestVocabulary(
         word: String,
         translation: String,

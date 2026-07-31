@@ -3,11 +3,13 @@ package com.procrastilearn.app.data.repository
 import androidx.room.withTransaction
 import com.procrastilearn.app.data.local.dao.UndoSnapshotDao
 import com.procrastilearn.app.data.local.dao.VocabularyDao
+import com.procrastilearn.app.data.local.dao.VocabularyFsrsStateRestore
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.UndoSnapshotEntity
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.mapper.toDomain
 import com.procrastilearn.app.data.local.mapper.toEntity
+import com.procrastilearn.app.data.local.mapper.toFsrsState
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.StudyDirection
@@ -162,8 +164,7 @@ class VocabularyRepositoryImpl
                     val reviewedAt = log.reviewDatetime().toEpochMilli()
                     val nextDue = updatedCard.getDue().toEpochMilli()
 
-                    val incCorrect = if (rating == Rating.AGAIN) 0 else 1
-                    val incIncorrect = if (rating == Rating.AGAIN) 1 else 0
+                    val wasCorrect = rating != Rating.AGAIN
 
                     // Only ever seed the other direction on a row's first-ever exposure, and
                     // only when the card is flagged bidirectional.
@@ -200,8 +201,7 @@ class VocabularyRepositoryImpl
                                     cardJson = updatedCard.toJson(),
                                     dueAt = nextDue,
                                     reviewedAt = reviewedAt,
-                                    incCorrect = incCorrect,
-                                    incIncorrect = incIncorrect,
+                                    wasCorrect = wasCorrect,
                                     seedOtherDirection = shouldSeedOther,
                                     seedDueAt = seedDueAt,
                                 )
@@ -211,8 +211,7 @@ class VocabularyRepositoryImpl
                                     cardJson = updatedCard.toJson(),
                                     dueAt = nextDue,
                                     reviewedAt = reviewedAt,
-                                    incCorrect = incCorrect,
-                                    incIncorrect = incIncorrect,
+                                    wasCorrect = wasCorrect,
                                     seedOtherDirection = shouldSeedOther,
                                     seedDueAt = seedDueAt,
                                 )
@@ -237,16 +236,7 @@ class VocabularyRepositoryImpl
 
                     appDatabase.withTransaction {
                         vocabularyDao.restoreFsrsState(
-                            id = snapshot.vocabId,
-                            cardJson = snapshot.fsrsCardJson,
-                            dueAt = snapshot.fsrsDueAt,
-                            lastShownAt = snapshot.lastShownAt,
-                            correctCount = snapshot.correctCount,
-                            incorrectCount = snapshot.incorrectCount,
-                            backwardCardJson = snapshot.backwardFsrsCardJson,
-                            backwardDueAt = snapshot.backwardFsrsDueAt,
-                            backwardCorrectCount = snapshot.backwardCorrectCount,
-                            backwardIncorrectCount = snapshot.backwardIncorrectCount,
+                            VocabularyFsrsStateRestore(id = snapshot.vocabId, fsrsState = snapshot.toFsrsState()),
                         )
                         undoSnapshotDao.deleteById(snapshot.id)
                     }

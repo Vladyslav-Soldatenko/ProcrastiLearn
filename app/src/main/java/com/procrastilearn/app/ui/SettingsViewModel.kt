@@ -4,26 +4,17 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.procrastilearn.app.data.export.UnsupportedSchemaVersionException
-import com.procrastilearn.app.data.export.VocabularyExportSerializer
+import com.procrastilearn.app.data.export.VocabularyImportResult
+import com.procrastilearn.app.data.export.VocabularyTransferManager
 import com.procrastilearn.app.data.local.dao.VocabularyDao
-import com.procrastilearn.app.data.local.mapper.toEntity
-import com.procrastilearn.app.data.local.mapper.toExportItem
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
-import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
-import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
+import com.procrastilearn.app.data.local.prefs.TranslationPreferences
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.StudyDirectionMode
-import com.procrastilearn.app.domain.model.VocabularyExportItem
-import com.procrastilearn.app.domain.model.VocabularyItem
-import com.procrastilearn.app.domain.parser.VocabularyExportParser
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
-import com.procrastilearn.app.domain.parser.VocabularyParser
-import com.procrastilearn.app.domain.repository.VocabularyRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -32,8 +23,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.InputStream
 import javax.inject.Inject
 
 data class SettingsUiState(
@@ -50,26 +39,22 @@ data class SettingsUiState(
 )
 
 @HiltViewModel
-@Suppress("LongParameterList", "TooManyFunctions")
 class SettingsViewModel
     @Inject
     constructor(
         private val dayCountersStore: DayCountersStore,
-        private val openAiStore: OpenAiPreferencesStore,
-        private val languagePreferencesStore: LanguagePreferencesStore,
+        private val translationPreferences: TranslationPreferences,
         private val vocabularyDao: VocabularyDao,
-        private val vocabularyRepository: VocabularyRepository,
-        private val parsers: Set<@JvmSuppressWildcards VocabularyParser>,
-        private val ioDispatcher: CoroutineDispatcher,
+        private val transferManager: VocabularyTransferManager,
     ) : ViewModel() {
         val uiState: StateFlow<SettingsUiState> =
             kotlinx.coroutines.flow
                 .combine(
                     dayCountersStore.readPolicy(),
-                    openAiStore.readOpenAiApiKey(),
-                    openAiStore.readOpenAiPrompt(),
-                    openAiStore.readOpenAiReversePrompt(),
-                    languagePreferencesStore.readLanguagePair(),
+                    translationPreferences.openAiStore.readOpenAiApiKey(),
+                    translationPreferences.openAiStore.readOpenAiPrompt(),
+                    translationPreferences.openAiStore.readOpenAiReversePrompt(),
+                    translationPreferences.languagePreferencesStore.readLanguagePair(),
                 ) { policy, apiKey, prompt, reversePrompt, languagePair ->
                     SettingsUiState(
                         mixMode = policy.mixMode,
@@ -106,17 +91,7 @@ class SettingsViewModel
             }
         }
 
-        val importOptions: List<VocabularyImportOption> =
-            parsers
-                .map { parser ->
-                    VocabularyImportOption(
-                        id = parser.id,
-                        titleResId = parser.titleResId,
-                        descriptionResId = parser.descriptionResId,
-                        mimeTypes = parser.mimeTypes,
-                        extensions = parser.supportedExtensions,
-                    )
-                }.sortedBy { it.titleResId }
+        val importOptions: List<VocabularyImportOption> = transferManager.importOptions
 
         fun onMixModeChange(mode: MixMode) {
             viewModelScope.launch { dayCountersStore.setMixMode(mode) }
@@ -145,52 +120,38 @@ class SettingsViewModel
         }
 
         fun onOpenAiApiKeyChange(value: String) {
-            viewModelScope.launch { openAiStore.setOpenAiApiKey(value) }
+            viewModelScope.launch { translationPreferences.openAiStore.setOpenAiApiKey(value) }
         }
 
         fun onOpenAiPromptChange(value: String) {
-            viewModelScope.launch { openAiStore.setOpenAiPrompt(value) }
+            viewModelScope.launch { translationPreferences.openAiStore.setOpenAiPrompt(value) }
         }
 
         fun onOpenAiReversePromptChange(value: String) {
-            viewModelScope.launch { openAiStore.setOpenAiReversePrompt(value) }
+            viewModelScope.launch { translationPreferences.openAiStore.setOpenAiReversePrompt(value) }
         }
 
         fun onLanguagePairChange(
             native: Language,
             target: Language,
         ) {
-            viewModelScope.launch { languagePreferencesStore.setLanguagePair(native, target) }
+            viewModelScope.launch {
+                translationPreferences.languagePreferencesStore.setLanguagePair(native, target)
+            }
         }
 
         /**
          * Export all vocabulary rows (full DB fields) as a JSON array to the given [uri].
          * Calls [onComplete] on the main thread with success/failure.
          */
-        @Suppress("TooGenericExceptionCaught", "SwallowedException")
         fun exportVocabularyToUri(
             context: Context,
             uri: Uri,
-            onComplete: (Boolean) -> Unit,
+            onComplete: (Result<Unit>) -> Unit,
         ) {
-            viewModelScope.launch(ioDispatcher) {
-                val ok =
-                    try {
-                        val items = vocabularyDao.getAllVocabulary().first().map { it.toExportItem() }
-                        val encoded = VocabularyExportSerializer.encode(items)
-
-                        context.contentResolver.openOutputStream(uri)?.use { out ->
-                            out.writer(Charsets.UTF_8).use { writer ->
-                                writer.write(encoded)
-                                writer.flush()
-                            }
-                            true
-                        } ?: false
-                    } catch (t: Throwable) {
-                        false
-                    }
-
-                withContext(Dispatchers.Main) { onComplete(ok) }
+            viewModelScope.launch {
+                val result = transferManager.exportToUri(context, uri)
+                withContext(Dispatchers.Main) { onComplete(result) }
             }
         }
 
@@ -200,118 +161,9 @@ class SettingsViewModel
             uri: Uri,
             onComplete: (VocabularyImportResult) -> Unit,
         ) {
-            viewModelScope.launch(ioDispatcher) {
-                val parser = findParser(optionId)
-                if (parser == null) {
-                    withContext(Dispatchers.Main) {
-                        onComplete(VocabularyImportResult.Failure(VocabularyImportFailureReason.UNSUPPORTED_FORMAT))
-                    }
-                    return@launch
-                }
-
-                val suffix =
-                    parser.supportedExtensions.firstOrNull()?.let { ".$it" }
-                        ?: ".tmp"
-                val tempFile = File.createTempFile("pl-import-", suffix, context.cacheDir)
-
-                val result =
-                    try {
-                        performImport(context, parser, uri, tempFile)
-                    } finally {
-                        tempFile.delete()
-                    }
-
-                withContext(Dispatchers.Main) {
-                    onComplete(result)
-                }
+            viewModelScope.launch {
+                val result = transferManager.importFromUri(context, optionId, uri)
+                withContext(Dispatchers.Main) { onComplete(result) }
             }
         }
-
-        @Suppress("TooGenericExceptionCaught", "SwallowedException")
-        private suspend fun performImport(
-            context: Context,
-            parser: VocabularyParser,
-            uri: Uri,
-            tempFile: File,
-        ): VocabularyImportResult =
-            try {
-                importFromStream(context, parser, uri, tempFile)
-            } catch (exception: UnsupportedSchemaVersionException) {
-                VocabularyImportResult.Failure(VocabularyImportFailureReason.UNSUPPORTED_SCHEMA_VERSION)
-            } catch (exception: IllegalArgumentException) {
-                VocabularyImportResult.Failure(VocabularyImportFailureReason.PARSE_ERROR)
-            } catch (throwable: Throwable) {
-                VocabularyImportResult.Failure(VocabularyImportFailureReason.FILE_ERROR)
-            }
-
-        private suspend fun importFromStream(
-            context: Context,
-            parser: VocabularyParser,
-            uri: Uri,
-            tempFile: File,
-        ): VocabularyImportResult {
-            val inputStream = context.contentResolver.openInputStream(uri)
-            if (inputStream == null) {
-                return VocabularyImportResult.Failure(VocabularyImportFailureReason.FILE_ERROR)
-            }
-            copyToTempFile(inputStream, tempFile)
-            return parseAndImport(parser, tempFile)
-        }
-
-        private fun copyToTempFile(
-            inputStream: InputStream,
-            tempFile: File,
-        ) {
-            inputStream.use { input ->
-                tempFile.outputStream().use { output -> input.copyTo(output) }
-            }
-        }
-
-        private suspend fun parseAndImport(
-            parser: VocabularyParser,
-            tempFile: File,
-        ): VocabularyImportResult =
-            if (parser is VocabularyExportParser) {
-                val items = parser.parseExport(tempFile)
-                importExportItems(items)
-                VocabularyImportResult.Success(items.size)
-            } else {
-                val items = parser.parse(tempFile)
-                importItems(items)
-                VocabularyImportResult.Success(items.size)
-            }
-
-        private suspend fun importItems(items: List<VocabularyItem>) {
-            items.forEach { item ->
-                vocabularyRepository.addVocabularyItem(item)
-            }
-        }
-
-        private suspend fun importExportItems(items: List<VocabularyExportItem>) {
-            if (items.isEmpty()) return
-            vocabularyDao.insertAllVocabulary(items.map { it.toEntity() })
-        }
-
-        private fun findParser(optionId: String): VocabularyParser? =
-            parsers.firstOrNull { parser ->
-                parser.id.equals(optionId, ignoreCase = true) ||
-                    parser.supportedExtensions.any { ext -> ext.equals(optionId, ignoreCase = true) }
-            }
     }
-
-sealed interface VocabularyImportResult {
-    data class Success(
-        val importedCount: Int,
-    ) : VocabularyImportResult
-
-    data class Failure(
-        val reason: VocabularyImportFailureReason,
-    ) : VocabularyImportResult
-}
-
-enum class VocabularyImportFailureReason {
-    UNSUPPORTED_FORMAT,
-    FILE_ERROR,
-    PARSE_ERROR,
-    UNSUPPORTED_SCHEMA_VERSION,
-}
