@@ -78,6 +78,10 @@ android {
   }
 }
 
+kotlin {
+  jvmToolchain(17)
+}
+
 dependencies {
   implementation(libs.androidx.appfunctions)
   implementation(libs.androidx.appfunctions.service)
