@@ -129,15 +129,19 @@ class AddWordViewModelTest {
         clearAllMocks()
     }
 
-    private fun buildViewModel(): AddWordViewModel =
-        AddWordViewModel(
-            VocabularyEntryUseCases(addVocabularyItemUseCase, getVocabularyItemByWordUseCase, overrideVocabularyItemUseCase),
+    private fun buildViewModel(): AddWordViewModel {
+        val vocabularyEntryUseCases =
+            VocabularyEntryUseCases(addVocabularyItemUseCase, getVocabularyItemByWordUseCase, overrideVocabularyItemUseCase)
+        return AddWordViewModel(
+            vocabularyEntryUseCases,
             PendingWordUseCases(queuePendingWordUseCase, observePendingWordsUseCase, deletePendingWordUseCase),
             TranslationPreferences(openAiStore, languagePreferencesStore),
             generateAiTranslationUseCase,
             connectivityObserver,
             context,
+            ExistingWordOverrideCoordinator(vocabularyEntryUseCases, generateAiTranslationUseCase),
         )
+    }
 
     @Test
     fun `init updates AI flags from preferences`() =
