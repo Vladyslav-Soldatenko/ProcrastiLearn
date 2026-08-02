@@ -337,13 +337,10 @@ class OverlayAccessibilityService : AccessibilityService() {
         requestAudioFocus()
     }
 
-    @Suppress("SwallowedException")
     private fun hideOverlay() {
         overlayView?.let {
-            try {
+            if (it.isAttachedToWindow) {
                 windowManager?.removeView(it)
-            } catch (e: IllegalArgumentException) {
-                // View not attached to window or already removed
             }
         }
         releaseAudioFocus()
