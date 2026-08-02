@@ -11,7 +11,7 @@ import com.procrastilearn.app.data.repository.NoAvailableItemsException
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
-import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.repository.VocabularyStudyRepository
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
 import com.procrastilearn.app.utils.MainDispatcherRule
@@ -45,7 +45,7 @@ class OverlayAccessibilityServiceTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val appPreferencesRepository = mockk<AppPreferencesRepository>()
-    private val vocabularyRepository = mockk<VocabularyRepository>()
+    private val vocabularyRepository = mockk<VocabularyStudyRepository>()
     private val getNextVocabularyItemUseCase = mockk<GetNextVocabularyItemUseCase>()
     private val getSaveDifficultyRatingUseCase = mockk<SaveDifficultyRatingUseCase>()
     private val dayCountersStore = mockk<DayCountersStore>()

@@ -1,7 +1,7 @@
 package com.procrastilearn.app.domain.usecase
 
 import com.google.common.truth.Truth.assertThat
-import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.repository.VocabularyStudyRepository
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -12,7 +12,7 @@ import org.junit.Before
 import org.junit.Test
 
 class CheckVocabularyAvailabilityUseCaseTest {
-    private val repository: VocabularyRepository = mockk()
+    private val repository: VocabularyStudyRepository = mockk()
 
     private lateinit var useCase: CheckVocabularyAvailabilityUseCase
 

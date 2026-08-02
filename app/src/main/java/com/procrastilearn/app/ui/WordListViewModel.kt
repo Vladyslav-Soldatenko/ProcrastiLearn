@@ -3,7 +3,7 @@ package com.procrastilearn.app.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.domain.model.VocabularyItem
-import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -14,7 +14,7 @@ import javax.inject.Inject
 class WordListViewModel
     @Inject
     constructor(
-        private val repository: VocabularyRepository,
+        private val repository: VocabularyCatalogRepository,
     ) : ViewModel() {
         val words =
             repository

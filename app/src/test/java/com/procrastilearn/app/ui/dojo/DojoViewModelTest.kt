@@ -2,7 +2,7 @@ package com.procrastilearn.app.ui.dojo
 
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.counter.DayCounters
-import com.procrastilearn.app.data.local.dao.VocabularyDao
+import com.procrastilearn.app.data.local.dao.VocabularyStatsDao
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
 import com.procrastilearn.app.data.time.TimeTicker
@@ -41,7 +41,7 @@ class DojoViewModelTest {
 
     private lateinit var getNextVocabularyItem: GetNextVocabularyItemUseCase
     private lateinit var saveDifficultyRating: SaveDifficultyRatingUseCase
-    private lateinit var vocabularyDao: VocabularyDao
+    private lateinit var vocabularyStatsDao: VocabularyStatsDao
     private lateinit var dayCountersStore: DayCountersStore
     private lateinit var undoLastRating: UndoLastRatingUseCase
 
@@ -65,7 +65,7 @@ class DojoViewModelTest {
     fun setUp() {
         getNextVocabularyItem = mockk()
         saveDifficultyRating = mockk()
-        vocabularyDao = mockk()
+        vocabularyStatsDao = mockk()
         dayCountersStore = mockk()
         undoLastRating = mockk()
 
@@ -98,10 +98,10 @@ class DojoViewModelTest {
 
         every { dayCountersStore.read() } returns countersFlow
         every { dayCountersStore.readPolicy() } returns policyFlow
-        coEvery { vocabularyDao.countReviewsDue(any(), any(), any()) } returns 10
-        every { vocabularyDao.observeReviewsDueCount(any(), any(), any()) } returns dueCountFlow
-        every { vocabularyDao.observeNewTotalCount(any()) } returns newTotalCountFlow
-        every { vocabularyDao.observeBackwardOnlySkippedCount(any()) } returns MutableStateFlow(0)
+        coEvery { vocabularyStatsDao.countReviewsDue(any(), any(), any()) } returns 10
+        every { vocabularyStatsDao.observeReviewsDueCount(any(), any(), any()) } returns dueCountFlow
+        every { vocabularyStatsDao.observeNewTotalCount(any()) } returns newTotalCountFlow
+        every { vocabularyStatsDao.observeBackwardOnlySkippedCount(any()) } returns MutableStateFlow(0)
         every { undoLastRating.observeUndoCount() } returns undoCountFlow
     }
 
@@ -116,7 +116,7 @@ class DojoViewModelTest {
             saveDifficultyRating,
             dayCountersStore,
             undoLastRating,
-            DojoCountersSource(vocabularyDao, dayCountersStore, fakeTimeTicker),
+            DojoCountersSource(vocabularyStatsDao, dayCountersStore, fakeTimeTicker),
         )
 
     @Test
@@ -414,7 +414,7 @@ class DojoViewModelTest {
             val item = VocabularyItem(id = 1, word = "test", translation = "тест", isNew = false)
             coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
             val skippedFlow = MutableStateFlow(3)
-            every { vocabularyDao.observeBackwardOnlySkippedCount(any()) } returns skippedFlow
+            every { vocabularyStatsDao.observeBackwardOnlySkippedCount(any()) } returns skippedFlow
             policyFlow.value = policyFlow.value.copy(studyDirectionMode = StudyDirectionMode.BACKWARD)
 
             val viewModel = buildViewModel()
@@ -460,12 +460,12 @@ class DojoViewModelTest {
             coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
             val forwardDueFlow = MutableStateFlow(10)
             val backwardDueFlow = MutableStateFlow(2)
-            every { vocabularyDao.observeReviewsDueCount(any(), true, false) } returns forwardDueFlow
-            every { vocabularyDao.observeReviewsDueCount(any(), false, true) } returns backwardDueFlow
+            every { vocabularyStatsDao.observeReviewsDueCount(any(), true, false) } returns forwardDueFlow
+            every { vocabularyStatsDao.observeReviewsDueCount(any(), false, true) } returns backwardDueFlow
             val forwardNewFlow = MutableStateFlow(20)
             val backwardNewFlow = MutableStateFlow(4)
-            every { vocabularyDao.observeNewTotalCount(false) } returns forwardNewFlow
-            every { vocabularyDao.observeNewTotalCount(true) } returns backwardNewFlow
+            every { vocabularyStatsDao.observeNewTotalCount(false) } returns forwardNewFlow
+            every { vocabularyStatsDao.observeNewTotalCount(true) } returns backwardNewFlow
 
             val viewModel = buildViewModel()
             advanceUntilIdle()
@@ -917,7 +917,7 @@ class DojoViewModelTest {
             coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
 
             val dueDelayMs = 2 * 60_000L
-            every { vocabularyDao.observeReviewsDueCount(any()) } answers {
+            every { vocabularyStatsDao.observeReviewsDueCount(any()) } answers {
                 val now = firstArg<Long>()
                 flowOf(if (now >= baseNow + dueDelayMs) 5 else 0)
             }
@@ -940,7 +940,7 @@ class DojoViewModelTest {
                 listOf(Result.failure(NoAvailableItemsException()), Result.success(item))
 
             val dueDelayMs = 2 * 60_000L
-            every { vocabularyDao.observeReviewsDueCount(any()) } answers {
+            every { vocabularyStatsDao.observeReviewsDueCount(any()) } answers {
                 val now = firstArg<Long>()
                 flowOf(if (now >= baseNow + dueDelayMs) 1 else 0)
             }
@@ -963,7 +963,7 @@ class DojoViewModelTest {
             coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
 
             val relearningDelayMs = 60_000L
-            every { vocabularyDao.observeReviewsDueCount(any()) } answers {
+            every { vocabularyStatsDao.observeReviewsDueCount(any()) } answers {
                 val now = firstArg<Long>()
                 flowOf(if (now >= baseNow + relearningDelayMs) 5 else 0)
             }
@@ -986,7 +986,7 @@ class DojoViewModelTest {
             coEvery { saveDifficultyRating.invoke(any(), any()) } returns Result.success(Unit)
 
             val dueDelayMs = 2 * 60_000L
-            every { vocabularyDao.observeReviewsDueCount(any()) } answers {
+            every { vocabularyStatsDao.observeReviewsDueCount(any()) } answers {
                 val now = firstArg<Long>()
                 flowOf(if (now >= baseNow + dueDelayMs) 5 else 0)
             }
@@ -1014,7 +1014,7 @@ class DojoViewModelTest {
             coEvery { saveDifficultyRating.invoke(any(), any()) } returns Result.success(Unit)
 
             val relearningDelayMs = 60_000L
-            every { vocabularyDao.observeReviewsDueCount(any()) } answers {
+            every { vocabularyStatsDao.observeReviewsDueCount(any()) } answers {
                 val now = firstArg<Long>()
                 flowOf(if (now >= baseNow + relearningDelayMs) 5 else 0)
             }

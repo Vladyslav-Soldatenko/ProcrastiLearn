@@ -5,6 +5,8 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.data.local.dao.VocabularyDao
+import com.procrastilearn.app.data.local.dao.VocabularyReviewDao
+import com.procrastilearn.app.data.local.dao.VocabularyStatsDao
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
@@ -34,6 +36,8 @@ import java.time.format.DateTimeFormatter
 class VocabularyRepositoryGetNextItemTest {
     private lateinit var database: AppDatabase
     private lateinit var vocabularyDao: VocabularyDao
+    private lateinit var vocabularyReviewDao: VocabularyReviewDao
+    private lateinit var vocabularyStatsDao: VocabularyStatsDao
     private lateinit var dayCountersStore: DayCountersStore
     private lateinit var scheduler: Scheduler
     private lateinit var repository: VocabularyRepositoryImpl
@@ -49,16 +53,16 @@ class VocabularyRepositoryGetNextItemTest {
                 .build()
 
         vocabularyDao = database.vocabularyDao()
+        vocabularyReviewDao = database.vocabularyReviewDao()
+        vocabularyStatsDao = database.vocabularyStatsDao()
         dayCountersStore = mockk(relaxed = true)
         scheduler = Scheduler.builder().build()
 
         repository =
             VocabularyRepositoryImpl(
-                vocabularyDao = vocabularyDao,
+                appDatabase = database,
                 scheduler = scheduler,
                 prefs = dayCountersStore,
-                undoSnapshotDao = database.undoSnapshotDao(),
-                appDatabase = database,
             )
     }
 
@@ -225,11 +229,9 @@ class VocabularyRepositoryGetNextItemTest {
             // Create custom repository with NEW_FIRST policy
             val customRepo =
                 VocabularyRepositoryImpl(
-                    vocabularyDao = vocabularyDao,
+                    appDatabase = database,
                     scheduler = scheduler,
                     prefs = dayCountersStore,
-                    undoSnapshotDao = database.undoSnapshotDao(),
-                    appDatabase = database,
                 )
 
             coEvery { dayCountersStore.readPolicy() } returns
@@ -708,11 +710,9 @@ class VocabularyRepositoryGetNextItemTest {
             val now = System.currentTimeMillis()
             val customRepo =
                 VocabularyRepositoryImpl(
-                    vocabularyDao = vocabularyDao,
+                    appDatabase = database,
                     scheduler = scheduler,
                     prefs = dayCountersStore,
-                    undoSnapshotDao = database.undoSnapshotDao(),
-                    appDatabase = database,
                 )
             coEvery { dayCountersStore.readPolicy() } returns
                 flowOf(

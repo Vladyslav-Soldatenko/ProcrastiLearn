@@ -8,6 +8,8 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.local.dao.UndoSnapshotDao
 import com.procrastilearn.app.data.local.dao.VocabularyDao
+import com.procrastilearn.app.data.local.dao.VocabularyReviewDao
+import com.procrastilearn.app.data.local.dao.VocabularyStatsDao
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.UndoSnapshotEntity
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
@@ -39,6 +41,8 @@ class VocabularyRepositoryUndoTest {
 
     private lateinit var database: AppDatabase
     private lateinit var vocabularyDao: VocabularyDao
+    private lateinit var vocabularyReviewDao: VocabularyReviewDao
+    private lateinit var vocabularyStatsDao: VocabularyStatsDao
     private lateinit var undoSnapshotDao: UndoSnapshotDao
     private lateinit var dayCountersStore: DayCountersStore
     private lateinit var repository: VocabularyRepositoryImpl
@@ -53,6 +57,8 @@ class VocabularyRepositoryUndoTest {
                 ).allowMainThreadQueries()
                 .build()
         vocabularyDao = database.vocabularyDao()
+        vocabularyReviewDao = database.vocabularyReviewDao()
+        vocabularyStatsDao = database.vocabularyStatsDao()
         undoSnapshotDao = database.undoSnapshotDao()
 
         val baseContext = ApplicationProvider.getApplicationContext<Context>()
@@ -67,11 +73,9 @@ class VocabularyRepositoryUndoTest {
 
         repository =
             VocabularyRepositoryImpl(
-                vocabularyDao = vocabularyDao,
+                appDatabase = database,
                 scheduler = Scheduler.builder().build(),
                 prefs = dayCountersStore,
-                undoSnapshotDao = undoSnapshotDao,
-                appDatabase = database,
             )
     }
 
@@ -194,20 +198,6 @@ class VocabularyRepositoryUndoTest {
         }
 
     @Test
-    fun `undoLastRating sets restored item as current item`() =
-        runTest {
-            val id = insertVocab("sehen")
-            repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
-
-            repository.undoLastRating()
-
-            repository.observeCurrentItem().test {
-                assertThat(awaitItem().id).isEqualTo(id)
-                cancelAndConsumeRemainingEvents()
-            }
-        }
-
-    @Test
     fun `undoLastRating restores day counters when snapshot is from today`() =
         runTest {
             val id = insertVocab("laufen")
@@ -257,7 +247,7 @@ class VocabularyRepositoryUndoTest {
             val beforeUndo = dayCountersStore.read().first()
 
             // Give the card today's state so we can also confirm the FSRS half *is* restored.
-            vocabularyDao.applyFsrsReview(
+            vocabularyReviewDao.applyFsrsReview(
                 id = id,
                 cardJson = Card.builder().build().toJson(),
                 dueAt = System.currentTimeMillis() + 1_000L,

@@ -4,7 +4,7 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.domain.model.UndoResult
 import com.procrastilearn.app.domain.model.VocabularyItem
-import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.repository.VocabularyStudyRepository
 import io.github.openspacedrepetition.Rating
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -19,7 +19,7 @@ import org.junit.Before
 import org.junit.Test
 
 class UndoLastRatingUseCaseTest {
-    private val repository: VocabularyRepository = mockk()
+    private val repository: VocabularyStudyRepository = mockk()
 
     private lateinit var useCase: UndoLastRatingUseCase
 

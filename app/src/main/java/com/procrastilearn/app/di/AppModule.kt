@@ -14,7 +14,8 @@ import com.procrastilearn.app.data.translation.OpenAiTranslationProvider
 import com.procrastilearn.app.domain.parser.VocabularyParser
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
 import com.procrastilearn.app.domain.repository.PendingWordRepository
-import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
+import com.procrastilearn.app.domain.repository.VocabularyStudyRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -34,7 +35,11 @@ abstract class AppModule {
 
     @Binds
     @Singleton
-    abstract fun bindVocabularyRepository(impl: VocabularyRepositoryImpl): VocabularyRepository
+    abstract fun bindVocabularyCatalogRepository(impl: VocabularyRepositoryImpl): VocabularyCatalogRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindVocabularyStudyRepository(impl: VocabularyRepositoryImpl): VocabularyStudyRepository
 
     @Binds
     @Singleton

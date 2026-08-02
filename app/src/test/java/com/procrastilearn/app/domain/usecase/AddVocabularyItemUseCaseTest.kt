@@ -2,7 +2,7 @@ package com.procrastilearn.app.domain.usecase
 
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.domain.model.VocabularyItem
-import com.procrastilearn.app.domain.repository.VocabularyRepository
+import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
 import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -16,7 +16,7 @@ import org.junit.Before
 import org.junit.Test
 
 class AddVocabularyItemUseCaseTest {
-    private val repository: VocabularyRepository = mockk()
+    private val repository: VocabularyCatalogRepository = mockk()
 
     private lateinit var useCase: AddVocabularyItemUseCase
 

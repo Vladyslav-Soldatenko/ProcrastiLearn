@@ -5,6 +5,8 @@ import androidx.room.Room
 import com.procrastilearn.app.data.local.dao.PendingWordDao
 import com.procrastilearn.app.data.local.dao.UndoSnapshotDao
 import com.procrastilearn.app.data.local.dao.VocabularyDao
+import com.procrastilearn.app.data.local.dao.VocabularyReviewDao
+import com.procrastilearn.app.data.local.dao.VocabularyStatsDao
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.database.MIGRATION_1_2
 import com.procrastilearn.app.data.local.database.MIGRATION_2_3
@@ -35,6 +37,14 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideVocabularyDao(database: AppDatabase): VocabularyDao = database.vocabularyDao()
+
+    @Provides
+    @Singleton
+    fun provideVocabularyReviewDao(database: AppDatabase): VocabularyReviewDao = database.vocabularyReviewDao()
+
+    @Provides
+    @Singleton
+    fun provideVocabularyStatsDao(database: AppDatabase): VocabularyStatsDao = database.vocabularyStatsDao()
 
     @Provides
     @Singleton
