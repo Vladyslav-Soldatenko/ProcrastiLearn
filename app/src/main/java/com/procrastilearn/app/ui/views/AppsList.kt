@@ -173,6 +173,7 @@ private fun EnableProcrastilearnRow(
                         CheckboxDefaults.colors(
                             checkedColor = colorScheme.onSecondaryContainer,
                             uncheckedColor = colorScheme.onSurfaceVariant,
+                            checkmarkColor = colorScheme.secondaryContainer,
                         ),
                 )
             }
@@ -241,6 +242,8 @@ private fun AppRow(
                 colors =
                     CheckboxDefaults.colors(
                         checkedColor = MaterialTheme.colorScheme.primary,
+                        uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        checkmarkColor = MaterialTheme.colorScheme.onPrimary,
                     ),
             )
         }
