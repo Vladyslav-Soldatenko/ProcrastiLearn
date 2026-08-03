@@ -8,6 +8,7 @@ import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.os.SystemClock
 import android.provider.Settings
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
@@ -38,6 +39,7 @@ import kotlinx.coroutines.launch
 
 class OverlayAccessibilityService : AccessibilityService() {
     private companion object {
+        const val TAG = "OverlayAccessibilityService"
         const val SECONDS_PER_MINUTE = 60
         const val MILLIS_PER_SECOND = 1000L
     }
@@ -352,7 +354,6 @@ class OverlayAccessibilityService : AccessibilityService() {
         lifecycleOwner = null
     }
 
-    @Suppress("SwallowedException")
     private fun bringToFront(pkg: String) {
         try {
             val intent = packageManager.getLaunchIntentForPackage(pkg) ?: return
@@ -360,8 +361,10 @@ class OverlayAccessibilityService : AccessibilityService() {
             startActivity(intent)
         } catch (e: android.content.ActivityNotFoundException) {
             // App may have been uninstalled or launch intent revoked between check and launch
+            Log.w(TAG, "Failed to bring $pkg to front: launch intent not found", e)
         } catch (e: SecurityException) {
             // App may refuse external launch (e.g. exported=false activity)
+            Log.w(TAG, "Failed to bring $pkg to front: launch not permitted", e)
         }
     }
 
