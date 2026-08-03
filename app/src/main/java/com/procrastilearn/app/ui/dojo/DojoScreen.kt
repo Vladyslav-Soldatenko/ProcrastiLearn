@@ -93,57 +93,57 @@ internal fun DojoScreen(
                 color = MaterialTheme.colorScheme.background,
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
-                // Stats header always visible
-                DojoStatsHeader(
-                    newQuotaRemaining = uiState.newQuotaRemaining,
-                    pendingReviewCount = uiState.pendingReviewCount,
-                    canUndo = uiState.canUndo,
-                    onUndo = onUndo,
-                    skippedCardCount = uiState.skippedCardCount,
-                )
+                    // Stats header always visible
+                    DojoStatsHeader(
+                        newQuotaRemaining = uiState.newQuotaRemaining,
+                        pendingReviewCount = uiState.pendingReviewCount,
+                        canUndo = uiState.canUndo,
+                        onUndo = onUndo,
+                        skippedCardCount = uiState.skippedCardCount,
+                    )
 
-                // Content area
-                when {
-                    uiState.isLoading -> {
-                        Box(
-                            modifier = Modifier.fillMaxWidth().weight(1f),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            CircularProgressIndicator()
+                    // Content area
+                    when {
+                        uiState.isLoading -> {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().weight(1f),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                CircularProgressIndicator()
+                            }
                         }
-                    }
-                    uiState.hasNoWords -> {
-                        EmptyState(modifier = Modifier.fillMaxWidth().weight(1f))
-                    }
-                    else -> {
-                        // Show LearningCard by converting DojoUiState to OverlayUiState
-                        val overlayState =
-                            OverlayUiState(
-                                vocabularyItem = uiState.vocabularyItem,
-                                showAnswer = uiState.showAnswer,
-                                unlocked = false,
-                                isLoading = false,
-                            )
-                        Box(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f, fill = true)
-                                    .padding(horizontal = 12.dp, vertical = 0.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            OverlayTheme {
-                                LearningCard(
-                                    state = overlayState,
-                                    onToggleShowAnswer = onToggleShowAnswer,
-                                    onDifficultySelected = onDifficultySelected,
-                                    showTranslationButtonHeight = 56.dp,
-                                    addNavigationBarsPadding = false,
+                        uiState.hasNoWords -> {
+                            EmptyState(modifier = Modifier.fillMaxWidth().weight(1f))
+                        }
+                        else -> {
+                            // Show LearningCard by converting DojoUiState to OverlayUiState
+                            val overlayState =
+                                OverlayUiState(
+                                    vocabularyItem = uiState.vocabularyItem,
+                                    showAnswer = uiState.showAnswer,
+                                    unlocked = false,
+                                    isLoading = false,
                                 )
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .weight(1f, fill = true)
+                                        .padding(horizontal = 12.dp, vertical = 0.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                OverlayTheme {
+                                    LearningCard(
+                                        state = overlayState,
+                                        onToggleShowAnswer = onToggleShowAnswer,
+                                        onDifficultySelected = onDifficultySelected,
+                                        showTranslationButtonHeight = 56.dp,
+                                        addNavigationBarsPadding = false,
+                                    )
+                                }
                             }
                         }
                     }
-                }
                 }
             }
         }

@@ -467,8 +467,16 @@ class AddWordScreenContentTest {
             )
         }
 
-        val nativeLeft = composeTestRule.onNodeWithText("EN").fetchSemanticsNode().boundsInRoot.left
-        val targetLeft = composeTestRule.onNodeWithText("RU").fetchSemanticsNode().boundsInRoot.left
+        val nativeLeft =
+            composeTestRule
+                .onNodeWithText("EN")
+                .fetchSemanticsNode()
+                .boundsInRoot.left
+        val targetLeft =
+            composeTestRule
+                .onNodeWithText("RU")
+                .fetchSemanticsNode()
+                .boundsInRoot.left
 
         assertThat(nativeLeft).isLessThan(targetLeft)
     }
@@ -484,8 +492,16 @@ class AddWordScreenContentTest {
             )
         }
 
-        val nativeLeft = composeTestRule.onNodeWithText("EN").fetchSemanticsNode().boundsInRoot.left
-        val targetLeft = composeTestRule.onNodeWithText("RU").fetchSemanticsNode().boundsInRoot.left
+        val nativeLeft =
+            composeTestRule
+                .onNodeWithText("EN")
+                .fetchSemanticsNode()
+                .boundsInRoot.left
+        val targetLeft =
+            composeTestRule
+                .onNodeWithText("RU")
+                .fetchSemanticsNode()
+                .boundsInRoot.left
 
         assertThat(targetLeft).isLessThan(nativeLeft)
     }
@@ -595,14 +611,22 @@ class AddWordScreenContentTest {
     fun `bidirectional checkbox visible when openAiAvailable is false`() {
         setContent(openAiAvailable = false, showBidirectionalOption = true)
 
-        composeTestRule.onNodeWithText(string(R.string.add_word_bidirectional_toggle)).performScrollTo().assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(
+                string(R.string.add_word_bidirectional_toggle),
+            ).performScrollTo()
+            .assertIsDisplayed()
     }
 
     @Test
     fun `bidirectional checkbox visible when openAiAvailable is true but AI toggle is off`() {
         setContent(openAiAvailable = true, useAiForTranslation = false, showBidirectionalOption = true)
 
-        composeTestRule.onNodeWithText(string(R.string.add_word_bidirectional_toggle)).performScrollTo().assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(
+                string(R.string.add_word_bidirectional_toggle),
+            ).performScrollTo()
+            .assertIsDisplayed()
     }
 
     @Test
@@ -616,7 +640,11 @@ class AddWordScreenContentTest {
     fun `customize backward card fields hidden until the customize action is expanded`() {
         setContent(bidirectional = true, isCustomizingBackward = false)
 
-        composeTestRule.onNodeWithText(string(R.string.add_word_customize_backward_show)).performScrollTo().assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(
+                string(R.string.add_word_customize_backward_show),
+            ).performScrollTo()
+            .assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.add_word_backward_prompt_label)).assertDoesNotExist()
     }
 
@@ -624,8 +652,16 @@ class AddWordScreenContentTest {
     fun `customize backward card fields visible after expanding`() {
         setContent(bidirectional = true, isCustomizingBackward = true)
 
-        composeTestRule.onNodeWithText(string(R.string.add_word_backward_prompt_label)).performScrollTo().assertIsDisplayed()
-        composeTestRule.onNodeWithText(string(R.string.add_word_backward_answer_label)).performScrollTo().assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(
+                string(R.string.add_word_backward_prompt_label),
+            ).performScrollTo()
+            .assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(
+                string(R.string.add_word_backward_answer_label),
+            ).performScrollTo()
+            .assertIsDisplayed()
     }
 
     @Test
@@ -641,7 +677,11 @@ class AddWordScreenContentTest {
     fun `clicking the customize action invokes onCustomizeBackwardToggle`() {
         setContent(bidirectional = true, isCustomizingBackward = false)
 
-        composeTestRule.onNodeWithText(string(R.string.add_word_customize_backward_show)).performScrollTo().performClick()
+        composeTestRule
+            .onNodeWithText(
+                string(R.string.add_word_customize_backward_show),
+            ).performScrollTo()
+            .performClick()
 
         verify(exactly = 1) { onCustomizeBackwardToggle.invoke() }
     }

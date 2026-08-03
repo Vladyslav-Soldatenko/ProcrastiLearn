@@ -34,7 +34,7 @@ fun OpenAiPromptSettingsItem(
 
     ListItem(
         headlineContent = {
-            Text(stringResource(R.string.settings_openai_prompt_title, targetLanguageCode, nativeLanguageCode ))
+            Text(stringResource(R.string.settings_openai_prompt_title, targetLanguageCode, nativeLanguageCode))
         },
         supportingContent = {
             Text(

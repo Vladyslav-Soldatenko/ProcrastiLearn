@@ -43,7 +43,8 @@ class PendingWordSyncManagerTest {
             val pending = PendingWord(id = 1, word = "Haus", direction = AiTranslationDirection.TARGET_TO_NATIVE)
             coEvery { pendingWordRepository.getAllPendingWordsSnapshot() } returns listOf(pending)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns null
-            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) } returns "House"
+            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) } returns
+                "House"
             coEvery { addVocabularyItemUseCase.invoke("Haus", "House") } returns Result.success(Unit)
             coEvery { pendingWordRepository.deletePendingWord(pending) } just Runs
 
@@ -89,7 +90,8 @@ class PendingWordSyncManagerTest {
             val pending = PendingWord(id = 1, word = "Haus", direction = AiTranslationDirection.TARGET_TO_NATIVE)
             coEvery { pendingWordRepository.getAllPendingWordsSnapshot() } returns listOf(pending)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns null
-            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) } returns "House"
+            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) } returns
+                "House"
             coEvery { addVocabularyItemUseCase.invoke("Haus", "House") } returns
                 Result.failure(IllegalStateException("db busy"))
 
@@ -104,7 +106,8 @@ class PendingWordSyncManagerTest {
             val pending = PendingWord(id = 1, word = "Haus", direction = AiTranslationDirection.TARGET_TO_NATIVE)
             coEvery { pendingWordRepository.getAllPendingWordsSnapshot() } returns listOf(pending)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns null
-            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) } returns "   "
+            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) } returns
+                "   "
 
             manager.syncPendingWords()
 

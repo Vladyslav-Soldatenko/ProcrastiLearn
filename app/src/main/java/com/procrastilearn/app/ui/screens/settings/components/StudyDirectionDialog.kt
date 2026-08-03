@@ -51,8 +51,14 @@ fun StudyDirectionDialog(
                             Text(
                                 text =
                                     when (mode) {
-                                        StudyDirectionMode.FORWARD -> stringResource(R.string.settings_review_direction_forward)
-                                        StudyDirectionMode.BACKWARD -> stringResource(R.string.settings_review_direction_backward)
+                                        StudyDirectionMode.FORWARD ->
+                                            stringResource(
+                                                R.string.settings_review_direction_forward,
+                                            )
+                                        StudyDirectionMode.BACKWARD ->
+                                            stringResource(
+                                                R.string.settings_review_direction_backward,
+                                            )
                                         StudyDirectionMode.BIDIRECTIONAL ->
                                             stringResource(R.string.settings_review_direction_bidirectional)
                                     },

@@ -117,7 +117,8 @@ class AddWordViewModelTest {
         coEvery { openAiStore.setUseAiForTranslation(any()) } just Runs
         coEvery { openAiStore.setAiTranslationDirection(any()) } just Runs
         coEvery { getVocabularyItemByWordUseCase.invoke(any()) } returns null
-        coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns Result.success(Unit)
+        coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns
+            Result.success(Unit)
         every { connectivityObserver.observe() } returns onlineFlow
         every { observePendingWordsUseCase.invoke() } returns pendingWordsFlow
         coEvery { queuePendingWordUseCase.invoke(any(), any()) } just Runs
@@ -131,7 +132,11 @@ class AddWordViewModelTest {
 
     private fun buildViewModel(): AddWordViewModel =
         AddWordViewModel(
-            VocabularyEntryUseCases(addVocabularyItemUseCase, getVocabularyItemByWordUseCase, overrideVocabularyItemUseCase),
+            VocabularyEntryUseCases(
+                addVocabularyItemUseCase,
+                getVocabularyItemByWordUseCase,
+                overrideVocabularyItemUseCase,
+            ),
             PendingWordUseCases(queuePendingWordUseCase, observePendingWordsUseCase, deletePendingWordUseCase),
             TranslationPreferences(openAiStore, languagePreferencesStore),
             generateAiTranslationUseCase,
@@ -738,7 +743,8 @@ class AddWordViewModelTest {
                     isNew = false,
                 )
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
-            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns Result.success(Unit)
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns
+                Result.success(Unit)
             val viewModel = buildViewModel()
 
             viewModel.onWordChange("Haus")
@@ -1164,7 +1170,8 @@ class AddWordViewModelTest {
             useAiFlow.value = true
             val existing = VocabularyItem(id = 1, word = "Haus", translation = "Stored house", isNew = false)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
-            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns Result.success(Unit)
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns
+                Result.success(Unit)
             aiTranslationProvider.nextTranslation = "Fresh house"
             val viewModel = buildViewModel()
             advanceUntilIdle()
@@ -1285,7 +1292,10 @@ class AddWordViewModelTest {
             viewModel.onWordChange("Haus")
             viewModel.onPreviewClick()
             advanceUntilIdle()
-            assertThat(viewModel.uiState.value.previewContent?.isStoredTranslation).isFalse()
+            assertThat(
+                viewModel.uiState.value.previewContent
+                    ?.isStoredTranslation,
+            ).isFalse()
 
             // ...but is added elsewhere by the time the user confirms.
             val existing = VocabularyItem(id = 9, word = "Haus", translation = "Someone else's house", isNew = false)
@@ -1356,7 +1366,8 @@ class AddWordViewModelTest {
             useAiFlow.value = true
             val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
-            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns Result.success(Unit)
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns
+                Result.success(Unit)
             aiTranslationProvider.nextTranslation = "Fresh house"
             val viewModel = buildViewModel()
             advanceUntilIdle()
@@ -1383,7 +1394,8 @@ class AddWordViewModelTest {
             useAiFlow.value = true
             val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
-            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns Result.success(Unit)
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns
+                Result.success(Unit)
             val viewModel = buildViewModel()
             advanceUntilIdle()
             viewModel.onWordChange("Haus")
@@ -1528,7 +1540,8 @@ class AddWordViewModelTest {
             directionFlow.value = AiTranslationDirection.TARGET_TO_NATIVE
             val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
-            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns Result.success(Unit)
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns
+                Result.success(Unit)
             aiTranslationProvider.nextTranslation = "Fresh house"
             val viewModel = buildViewModel()
             advanceUntilIdle()
@@ -1552,7 +1565,8 @@ class AddWordViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             val existing = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = false)
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existing
-            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns Result.success(Unit)
+            coEvery { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) } returns
+                Result.success(Unit)
             val viewModel = buildViewModel()
 
             viewModel.onWordChange("Haus")
@@ -1742,6 +1756,7 @@ class AddWordViewModelTest {
         }
 
     @Test
+    @Suppress("ktlint:standard:max-line-length")
     fun `submitting a duplicate word with bidirectional checked passes bidirectional through to the override use case`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val existing = VocabularyItem(id = 1L, word = "Haus", translation = "Old house", isNew = false)

@@ -122,7 +122,11 @@ class AddWordViewModelProcessTextTest {
 
     private fun buildViewModel(): AddWordViewModel =
         AddWordViewModel(
-            VocabularyEntryUseCases(addVocabularyItemUseCase, getVocabularyItemByWordUseCase, overrideVocabularyItemUseCase),
+            VocabularyEntryUseCases(
+                addVocabularyItemUseCase,
+                getVocabularyItemByWordUseCase,
+                overrideVocabularyItemUseCase,
+            ),
             PendingWordUseCases(queuePendingWordUseCase, observePendingWordsUseCase, deletePendingWordUseCase),
             TranslationPreferences(openAiStore, languagePreferencesStore),
             generateAiTranslationUseCase,

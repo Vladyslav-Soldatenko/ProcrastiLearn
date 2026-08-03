@@ -186,7 +186,10 @@ class DojoE2eTest {
         composeTestRule.waitForIdle()
     }
 
-    private fun seedNewWord(word: String, translation: String) {
+    private fun seedNewWord(
+        word: String,
+        translation: String,
+    ) {
         insertVocabulary(
             VocabularyEntity(
                 word = word,
@@ -199,7 +202,10 @@ class DojoE2eTest {
         )
     }
 
-    private fun seedDueReviewWord(word: String, translation: String) {
+    private fun seedDueReviewWord(
+        word: String,
+        translation: String,
+    ) {
         insertVocabulary(
             VocabularyEntity(
                 word = word,

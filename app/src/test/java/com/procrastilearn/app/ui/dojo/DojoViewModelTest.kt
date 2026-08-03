@@ -122,7 +122,8 @@ class DojoViewModelTest {
     @Test
     fun `initial state loads word and correct stats`() =
         runTest(mainDispatcherRule.testDispatcher) {
-            val item = VocabularyItem(id = 1, word = "serendipity", translation = "счастливая случайность", isNew = true)
+            val item =
+                VocabularyItem(id = 1, word = "serendipity", translation = "счастливая случайность", isNew = true)
             coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
 
             val viewModel = buildViewModel()
@@ -907,7 +908,10 @@ class DojoViewModelTest {
             viewModel.onUndo()
             advanceUntilIdle()
             assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(restoredSecond)
-            assertThat(viewModel.uiState.value.undoEvent?.word).isEqualTo("second-undo")
+            assertThat(
+                viewModel.uiState.value.undoEvent
+                    ?.word,
+            ).isEqualTo("second-undo")
         }
 
     @Test
@@ -1005,6 +1009,7 @@ class DojoViewModelTest {
         }
 
     @Test
+    @Suppress("ktlint:standard:max-line-length")
     fun `relearning cards become visible in the counter as soon as another card is rated, without waiting for the tick`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val first = VocabularyItem(id = 1, word = "first", translation = "первый", isNew = true)

@@ -360,7 +360,8 @@ class VocabularyRepositoryBidirectionalTest {
     fun `BIDIRECTIONAL mode with flag true makes both directions individually reachable once due`() =
         runTest {
             val now = System.currentTimeMillis()
-            val id = insertVocabulary("run", bidirectional = true, fsrsDueAt = now - 1000, backwardFsrsDueAt = now - 500)
+            val id =
+                insertVocabulary("run", bidirectional = true, fsrsDueAt = now - 1000, backwardFsrsDueAt = now - 500)
             stubCounters()
             stubPolicy(studyDirectionMode = StudyDirectionMode.BIDIRECTIONAL)
 
@@ -409,6 +410,7 @@ class VocabularyRepositoryBidirectionalTest {
         }
 
     @Test
+    @Suppress("ktlint:standard:max-line-length")
     fun `switching mode from BACKWARD to BIDIRECTIONAL surfaces a dormant forward review without re-consuming a new slot`() =
         runTest {
             val id = insertVocabulary("run", bidirectional = true)
@@ -537,7 +539,12 @@ class VocabularyRepositoryBidirectionalTest {
             vocabularyDao.updateVocabulary(entity)
 
             repository.resetVocabularyProgress(
-                com.procrastilearn.app.domain.model.VocabularyItem(id = id, word = "run", translation = "run", isNew = false),
+                com.procrastilearn.app.domain.model.VocabularyItem(
+                    id = id,
+                    word = "run",
+                    translation = "run",
+                    isNew = false,
+                ),
             )
 
             val reset = vocabularyDao.getVocabularyById(id)!!
@@ -553,7 +560,12 @@ class VocabularyRepositoryBidirectionalTest {
             val id = insertVocabulary("run", bidirectional = true)
 
             repository.resetVocabularyProgress(
-                com.procrastilearn.app.domain.model.VocabularyItem(id = id, word = "run", translation = "run", isNew = false),
+                com.procrastilearn.app.domain.model.VocabularyItem(
+                    id = id,
+                    word = "run",
+                    translation = "run",
+                    isNew = false,
+                ),
             )
 
             assertThat(vocabularyDao.getVocabularyById(id)?.bidirectional).isTrue()
@@ -571,7 +583,12 @@ class VocabularyRepositoryBidirectionalTest {
             vocabularyDao.updateVocabulary(withOverrides)
 
             repository.resetVocabularyProgress(
-                com.procrastilearn.app.domain.model.VocabularyItem(id = id, word = "run", translation = "run", isNew = false),
+                com.procrastilearn.app.domain.model.VocabularyItem(
+                    id = id,
+                    word = "run",
+                    translation = "run",
+                    isNew = false,
+                ),
             )
 
             val entity = vocabularyDao.getVocabularyById(id)!!

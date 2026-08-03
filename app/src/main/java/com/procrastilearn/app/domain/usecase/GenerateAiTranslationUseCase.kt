@@ -43,12 +43,15 @@ class GenerateAiTranslationUseCase
                     when (direction) {
                         AiTranslationDirection.TARGET_TO_NATIVE ->
                             "The headword above is in ${languagePair.target.englishName}. " +
-                                "Write headings, explanations, and usage notes in ${languagePair.native.englishName}, " +
+                                "Write headings, explanations, and usage notes in " +
+                                "${languagePair.native.englishName}, " +
                                 "and write every example sentence in ${languagePair.target.englishName}."
                         AiTranslationDirection.NATIVE_TO_TARGET ->
                             "The headword above is in ${languagePair.native.englishName}. " +
-                                "Write headings, explanations, and context notes in ${languagePair.native.englishName}, " +
-                                "and write every translation candidate and example sentence in ${languagePair.target.englishName}."
+                                "Write headings, explanations, and context notes in " +
+                                "${languagePair.native.englishName}, " +
+                                "and write every translation candidate and example sentence in " +
+                                "${languagePair.target.englishName}."
                     }
                 val userPrompt =
                     """

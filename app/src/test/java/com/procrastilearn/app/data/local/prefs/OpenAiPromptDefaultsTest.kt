@@ -34,7 +34,10 @@ class OpenAiPromptDefaultsTest {
             )
         val placeholderRegex = Regex("\\{\\{[A-Z_]+\\}\\}")
 
-        listOf(OpenAiPromptDefaults.translationPrompt, OpenAiPromptDefaults.reverseTranslationPrompt).forEach { template ->
+        listOf(
+            OpenAiPromptDefaults.translationPrompt,
+            OpenAiPromptDefaults.reverseTranslationPrompt,
+        ).forEach { template ->
             val foundTokens = placeholderRegex.findAll(template).map { it.value }.toSet()
             assertThat(knownPlaceholders).containsAtLeastElementsIn(foundTokens)
         }

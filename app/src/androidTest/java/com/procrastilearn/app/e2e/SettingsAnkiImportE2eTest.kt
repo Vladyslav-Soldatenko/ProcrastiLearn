@@ -103,7 +103,8 @@ class SettingsAnkiImportE2eTest {
     }
 
     private fun stagedDeckUri(): Uri =
-        Uri.Builder()
+        Uri
+            .Builder()
             .scheme(ContentResolver.SCHEME_CONTENT)
             .authority(testAssetProviderAuthority)
             .appendPath("import")

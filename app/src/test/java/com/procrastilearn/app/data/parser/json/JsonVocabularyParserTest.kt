@@ -2,8 +2,8 @@ package com.procrastilearn.app.data.parser.json
 
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.domain.model.VocabularyExportItem
-import org.junit.runner.RunWith
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
@@ -153,7 +153,10 @@ class JsonVocabularyParserTest {
                 lastShownAt = 1785011459260,
                 correctCount = 1,
                 incorrectCount = 0,
-                fsrsCardJson = "{\"cardId\":-1695638824,\"difficulty\":6.243132948566265,\"due\":\"2026-07-25T20:36:29.260Z\",\"lastReview\":\"2026-07-25T20:30:59.260Z\",\"stability\":1.1771,\"state\":\"LEARNING\",\"step\":0}",
+                fsrsCardJson =
+                    "{\"cardId\":-1695638824,\"difficulty\":6.243132948566265," +
+                        "\"due\":\"2026-07-25T20:36:29.260Z\",\"lastReview\":\"2026-07-25T20:30:59.260Z\"," +
+                        "\"stability\":1.1771,\"state\":\"LEARNING\",\"step\":0}",
                 fsrsDueAt = 1785011789260,
             ),
             VocabularyExportItem(
@@ -164,7 +167,10 @@ class JsonVocabularyParserTest {
                 lastShownAt = 1785011460386,
                 correctCount = 1,
                 incorrectCount = 0,
-                fsrsCardJson = "{\"cardId\":-1695634391,\"difficulty\":4.884631634813845,\"due\":\"2026-07-25T20:41:00.386080Z\",\"lastReview\":\"2026-07-25T20:31:00.386080Z\",\"stability\":3.2602,\"state\":\"LEARNING\",\"step\":1}",
+                fsrsCardJson =
+                    "{\"cardId\":-1695634391,\"difficulty\":4.884631634813845," +
+                        "\"due\":\"2026-07-25T20:41:00.386080Z\",\"lastReview\":\"2026-07-25T20:31:00.386080Z\"," +
+                        "\"stability\":3.2602,\"state\":\"LEARNING\",\"step\":1}",
                 fsrsDueAt = 1785012060386,
             ),
             VocabularyExportItem(
@@ -199,7 +205,10 @@ class JsonVocabularyParserTest {
                 lastShownAt = 1785011469180,
                 correctCount = 0,
                 incorrectCount = 1,
-                fsrsCardJson = "{\"cardId\":-1695584574,\"difficulty\":7.0114,\"due\":\"2026-07-25T20:32:09.180957Z\",\"lastReview\":\"2026-07-25T20:31:09.180957Z\",\"stability\":0.2172,\"state\":\"LEARNING\",\"step\":0}",
+                fsrsCardJson =
+                    "{\"cardId\":-1695584574,\"difficulty\":7.0114," +
+                        "\"due\":\"2026-07-25T20:32:09.180957Z\",\"lastReview\":\"2026-07-25T20:31:09.180957Z\"," +
+                        "\"stability\":0.2172,\"state\":\"LEARNING\",\"step\":0}",
                 fsrsDueAt = 1785011529180,
             ),
             VocabularyExportItem(
@@ -229,7 +238,10 @@ class JsonVocabularyParserTest {
                 lastShownAt = null,
                 correctCount = 0,
                 incorrectCount = 0,
-                fsrsCardJson = "{\"cardId\":-1695557743,\"difficulty\":null,\"due\":\"2026-07-25T20:20:37.394308Z\",\"lastReview\":null,\"stability\":null,\"state\":\"LEARNING\",\"step\":0}",
+                fsrsCardJson =
+                    "{\"cardId\":-1695557743,\"difficulty\":null," +
+                        "\"due\":\"2026-07-25T20:20:37.394308Z\",\"lastReview\":null,\"stability\":null," +
+                        "\"state\":\"LEARNING\",\"step\":0}",
                 fsrsDueAt = 0,
             ),
             VocabularyExportItem(
@@ -259,7 +271,10 @@ class JsonVocabularyParserTest {
                 lastShownAt = 1785011461880,
                 correctCount = 1,
                 incorrectCount = 0,
-                fsrsCardJson = "{\"cardId\":-1695536013,\"difficulty\":2.482438522375997,\"due\":\"2026-08-06T20:31:01.880409Z\",\"lastReview\":\"2026-07-25T20:31:01.880409Z\",\"stability\":16.1507,\"state\":\"REVIEW\",\"step\":null}",
+                fsrsCardJson =
+                    "{\"cardId\":-1695536013,\"difficulty\":2.482438522375997," +
+                        "\"due\":\"2026-08-06T20:31:01.880409Z\",\"lastReview\":\"2026-07-25T20:31:01.880409Z\"," +
+                        "\"stability\":16.1507,\"state\":\"REVIEW\",\"step\":null}",
                 fsrsDueAt = 1786048261880,
             ),
         )

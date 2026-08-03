@@ -73,7 +73,11 @@ class OpenAiPromptSettingsItemTest {
 
     @Test
     fun `default prompt supporting text reflects a non-default language pair`() {
-        setContent(prompt = OpenAiPromptDefaults.translationPrompt, nativeLanguageCode = "DE", targetLanguageCode = "FR")
+        setContent(
+            prompt = OpenAiPromptDefaults.translationPrompt,
+            nativeLanguageCode = "DE",
+            targetLanguageCode = "FR",
+        )
 
         composeTestRule
             .onNodeWithText(context.getString(R.string.settings_openai_prompt_title, "FR", "DE"))
@@ -86,7 +90,11 @@ class OpenAiPromptSettingsItemTest {
 
     @Test
     fun `title reflects the given language codes`() {
-        setContent(prompt = OpenAiPromptDefaults.translationPrompt, nativeLanguageCode = "DE", targetLanguageCode = "FR")
+        setContent(
+            prompt = OpenAiPromptDefaults.translationPrompt,
+            nativeLanguageCode = "DE",
+            targetLanguageCode = "FR",
+        )
 
         composeTestRule
             .onNodeWithText(context.getString(R.string.settings_openai_prompt_title, "FR", "DE"))

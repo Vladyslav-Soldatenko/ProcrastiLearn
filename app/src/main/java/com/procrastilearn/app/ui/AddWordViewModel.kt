@@ -143,17 +143,25 @@ class AddWordViewModel @Inject
                 )
         }
 
+        @Suppress("LongMethod")
         fun onAddClick() {
             val currentState = _uiState.value
             if (currentState.word.isBlank()) {
-                _uiState.value = _uiState.value.copy(wordError = context.getString(R.string.add_word_error_word_required))
+                _uiState.value =
+                    _uiState.value.copy(wordError = context.getString(R.string.add_word_error_word_required))
                 return
             }
 
             if (currentState.isAddLaterMode) {
                 val pendingMessage = context.getString(R.string.add_word_success_pending)
                 viewModelScope.launch {
-                    queuePendingWord(pendingWordUseCases.queue, _uiState, currentState.word.trim(), currentState.translationDirection, pendingMessage)
+                    queuePendingWord(
+                        pendingWordUseCases.queue,
+                        _uiState,
+                        currentState.word.trim(),
+                        currentState.translationDirection,
+                        pendingMessage,
+                    )
                 }
                 return
             }
@@ -176,7 +184,10 @@ class AddWordViewModel @Inject
                 if (!currentState.aiModeActive) {
                     val typedTranslation = currentState.translation
                     if (typedTranslation.isBlank()) {
-                        setBlankTranslationError(_uiState, context.getString(R.string.add_word_error_translation_required))
+                        setBlankTranslationError(
+                            _uiState,
+                            context.getString(R.string.add_word_error_translation_required),
+                        )
                         return@launch
                     }
                     handleWordSubmission(word = word, translation = typedTranslation.trim(), fromPreview = false)
@@ -247,34 +258,34 @@ class AddWordViewModel @Inject
                 )
         }
 
-    fun onUseAiToggle(checked: Boolean) {
-        acknowledgedOverrideWord = null
-        viewModelScope.launch { translationPreferences.openAiStore.setUseAiForTranslation(checked) }
-        _uiState.value =
-            _uiState.value.copy(
-                useAiForTranslation = checked,
-                previewContent = null,
-                isPreviewVisible = false,
-            )
-    }
+        fun onUseAiToggle(checked: Boolean) {
+            acknowledgedOverrideWord = null
+            viewModelScope.launch { translationPreferences.openAiStore.setUseAiForTranslation(checked) }
+            _uiState.value =
+                _uiState.value.copy(
+                    useAiForTranslation = checked,
+                    previewContent = null,
+                    isPreviewVisible = false,
+                )
+        }
 
-    fun onTranslationDirectionToggle() {
-        acknowledgedOverrideWord = null
-        val current = _uiState.value.translationDirection
-        val next =
-            if (current == AiTranslationDirection.TARGET_TO_NATIVE) {
-                AiTranslationDirection.NATIVE_TO_TARGET
-            } else {
-                AiTranslationDirection.TARGET_TO_NATIVE
-            }
-        viewModelScope.launch { translationPreferences.openAiStore.setAiTranslationDirection(next) }
-        _uiState.value =
-            _uiState.value.copy(
-                translationDirection = next,
-                previewContent = null,
-                isPreviewVisible = false,
-            )
-    }
+        fun onTranslationDirectionToggle() {
+            acknowledgedOverrideWord = null
+            val current = _uiState.value.translationDirection
+            val next =
+                if (current == AiTranslationDirection.TARGET_TO_NATIVE) {
+                    AiTranslationDirection.NATIVE_TO_TARGET
+                } else {
+                    AiTranslationDirection.TARGET_TO_NATIVE
+                }
+            viewModelScope.launch { translationPreferences.openAiStore.setAiTranslationDirection(next) }
+            _uiState.value =
+                _uiState.value.copy(
+                    translationDirection = next,
+                    previewContent = null,
+                    isPreviewVisible = false,
+                )
+        }
 
         fun onBidirectionalToggle(checked: Boolean) {
             _uiState.value = _uiState.value.withBidirectionalToggle(checked)
@@ -292,10 +303,11 @@ class AddWordViewModel @Inject
             _uiState.value = _uiState.value.copy(backwardAnswerOverride = value)
         }
 
-    fun onPreviewClick() {
+        fun onPreviewClick() {
             val currentState = _uiState.value
             if (currentState.word.isBlank()) {
-                _uiState.value = _uiState.value.copy(wordError = context.getString(R.string.add_word_error_word_required))
+                _uiState.value =
+                    _uiState.value.copy(wordError = context.getString(R.string.add_word_error_word_required))
                 return
             }
             if (!currentState.aiModeActive) return
@@ -347,7 +359,8 @@ class AddWordViewModel @Inject
                         _uiState.value =
                             _uiState.value.copy(
                                 isLoading = false,
-                                errorMessage = error.message ?: context.getString(R.string.add_word_error_preview_failed),
+                                errorMessage =
+                                    error.message ?: context.getString(R.string.add_word_error_preview_failed),
                                 loadingAction = null,
                             )
                     },
@@ -380,7 +393,8 @@ class AddWordViewModel @Inject
                         _uiState.value =
                             _uiState.value.copy(
                                 isLoading = false,
-                                errorMessage = error.message ?: context.getString(R.string.add_word_error_preview_failed),
+                                errorMessage =
+                                    error.message ?: context.getString(R.string.add_word_error_preview_failed),
                                 loadingAction = null,
                                 previewContent = null,
                                 isPreviewVisible = false,
@@ -484,41 +498,42 @@ class AddWordViewModel @Inject
                     }
 
                 val currentState = _uiState.value
-                vocabularyEntryUseCases.override(
-                    existingItem = pending.existingItem,
-                    newWord = pending.word,
-                    newTranslation = translation,
-                    bidirectional = currentState.bidirectional,
-                    backwardPromptOverride = currentState.backwardPromptOverride.ifBlank { null },
-                    backwardAnswerOverride = currentState.backwardAnswerOverride.ifBlank { null },
-                ).fold(
-                    onSuccess = {
-                        pendingOverride = null
-                        acknowledgedOverrideWord = null
-                        _uiState.value =
-                            _uiState.value
-                                .copy(
-                                    isExistingWordDialogVisible = false,
-                                    isExistingWordDialogLoading = false,
-                                    existingWordDialogWord = null,
-                                    word = "",
-                                    translation = "",
-                                    previewContent = null,
-                                    isPreviewVisible = false,
-                                    isSuccess = true,
-                                    successMessage = context.getString(R.string.add_word_success_updated),
-                                    isLoading = false,
-                                    loadingAction = null,
-                                ).withBidirectionalCleared()
-                    },
-                    onFailure = { error ->
-                        pendingOverride = null
-                        closeExistingWordDialogWithError(
-                            _uiState,
-                            error.message ?: context.getString(R.string.add_word_error_update_failed),
-                        )
-                    },
-                )
+                vocabularyEntryUseCases
+                    .override(
+                        existingItem = pending.existingItem,
+                        newWord = pending.word,
+                        newTranslation = translation,
+                        bidirectional = currentState.bidirectional,
+                        backwardPromptOverride = currentState.backwardPromptOverride.ifBlank { null },
+                        backwardAnswerOverride = currentState.backwardAnswerOverride.ifBlank { null },
+                    ).fold(
+                        onSuccess = {
+                            pendingOverride = null
+                            acknowledgedOverrideWord = null
+                            _uiState.value =
+                                _uiState.value
+                                    .copy(
+                                        isExistingWordDialogVisible = false,
+                                        isExistingWordDialogLoading = false,
+                                        existingWordDialogWord = null,
+                                        word = "",
+                                        translation = "",
+                                        previewContent = null,
+                                        isPreviewVisible = false,
+                                        isSuccess = true,
+                                        successMessage = context.getString(R.string.add_word_success_updated),
+                                        isLoading = false,
+                                        loadingAction = null,
+                                    ).withBidirectionalCleared()
+                        },
+                        onFailure = { error ->
+                            pendingOverride = null
+                            closeExistingWordDialogWithError(
+                                _uiState,
+                                error.message ?: context.getString(R.string.add_word_error_update_failed),
+                            )
+                        },
+                    )
             }
         }
 
@@ -555,46 +570,50 @@ class AddWordViewModel @Inject
             fromPreview: Boolean,
         ) {
             val currentState = _uiState.value
-            vocabularyEntryUseCases.override(
-                existingItem = existingItem,
-                newWord = word,
-                newTranslation = translation,
-                bidirectional = currentState.bidirectional,
-                backwardPromptOverride = currentState.backwardPromptOverride.ifBlank { null },
-                backwardAnswerOverride = currentState.backwardAnswerOverride.ifBlank { null },
-            ).fold(
-                onSuccess = {
-                    acknowledgedOverrideWord = null
-                    _uiState.value =
-                        _uiState.value
-                            .copy(
+            vocabularyEntryUseCases
+                .override(
+                    existingItem = existingItem,
+                    newWord = word,
+                    newTranslation = translation,
+                    bidirectional = currentState.bidirectional,
+                    backwardPromptOverride = currentState.backwardPromptOverride.ifBlank { null },
+                    backwardAnswerOverride = currentState.backwardAnswerOverride.ifBlank { null },
+                ).fold(
+                    onSuccess = {
+                        acknowledgedOverrideWord = null
+                        _uiState.value =
+                            _uiState.value
+                                .copy(
+                                    isLoading = false,
+                                    errorMessage = null,
+                                    wordError = null,
+                                    translationError = null,
+                                    word = "",
+                                    translation = "",
+                                    previewContent = null,
+                                    isPreviewVisible = false,
+                                    isSuccess = true,
+                                    successMessage = context.getString(R.string.add_word_success_updated),
+                                    loadingAction = null,
+                                    isExistingWordDialogVisible = false,
+                                    isExistingWordDialogLoading = false,
+                                    existingWordDialogWord = null,
+                                ).withBidirectionalCleared()
+                    },
+                    onFailure = { error ->
+                        acknowledgedOverrideWord = null
+                        _uiState.value =
+                            _uiState.value.copy(
                                 isLoading = false,
-                                errorMessage = null,
-                                wordError = null,
-                                translationError = null,
-                                word = "",
-                                translation = "",
-                                previewContent = null,
-                                isPreviewVisible = false,
-                                isSuccess = true,
-                                successMessage = context.getString(R.string.add_word_success_updated),
                                 loadingAction = null,
-                                isExistingWordDialogVisible = false,
-                                isExistingWordDialogLoading = false,
-                                existingWordDialogWord = null,
-                            ).withBidirectionalCleared()
-                },
-                onFailure = { error ->
-                    acknowledgedOverrideWord = null
-                    _uiState.value =
-                        _uiState.value.copy(
-                            isLoading = false,
-                            loadingAction = null,
-                            errorMessage = error.message ?: context.getString(R.string.add_word_error_update_failed),
-                            isPreviewVisible = fromPreview && _uiState.value.previewContent != null,
-                        )
-                },
-            )
+                                errorMessage =
+                                    error.message ?: context.getString(
+                                        R.string.add_word_error_update_failed,
+                                    ),
+                                isPreviewVisible = fromPreview && _uiState.value.previewContent != null,
+                            )
+                    },
+                )
         }
 
         private fun promptExistingWordOverride(
@@ -630,43 +649,44 @@ class AddWordViewModel @Inject
             fromPreview: Boolean,
         ) {
             val currentState = _uiState.value
-            vocabularyEntryUseCases.add(
-                word = word,
-                translation = translation,
-                bidirectional = currentState.bidirectional,
-                backwardPromptOverride = currentState.backwardPromptOverride.ifBlank { null },
-                backwardAnswerOverride = currentState.backwardAnswerOverride.ifBlank { null },
-            ).fold(
-                onSuccess = {
-                    _uiState.value =
-                        _uiState.value
-                            .copy(
+            vocabularyEntryUseCases
+                .add(
+                    word = word,
+                    translation = translation,
+                    bidirectional = currentState.bidirectional,
+                    backwardPromptOverride = currentState.backwardPromptOverride.ifBlank { null },
+                    backwardAnswerOverride = currentState.backwardAnswerOverride.ifBlank { null },
+                ).fold(
+                    onSuccess = {
+                        _uiState.value =
+                            _uiState.value
+                                .copy(
+                                    isLoading = false,
+                                    errorMessage = null,
+                                    wordError = null,
+                                    translationError = null,
+                                    word = "",
+                                    translation = "",
+                                    previewContent = null,
+                                    isPreviewVisible = false,
+                                    isSuccess = true,
+                                    successMessage = context.getString(R.string.add_word_success_added),
+                                    loadingAction = null,
+                                    isExistingWordDialogVisible = false,
+                                    isExistingWordDialogLoading = false,
+                                    existingWordDialogWord = null,
+                                ).withBidirectionalCleared()
+                    },
+                    onFailure = { error ->
+                        _uiState.value =
+                            _uiState.value.copy(
                                 isLoading = false,
-                                errorMessage = null,
-                                wordError = null,
-                                translationError = null,
-                                word = "",
-                                translation = "",
-                                previewContent = null,
-                                isPreviewVisible = false,
-                                isSuccess = true,
-                                successMessage = context.getString(R.string.add_word_success_added),
+                                errorMessage = error.message ?: context.getString(R.string.add_word_error_add_failed),
                                 loadingAction = null,
-                                isExistingWordDialogVisible = false,
-                                isExistingWordDialogLoading = false,
-                                existingWordDialogWord = null,
-                            ).withBidirectionalCleared()
-                },
-                onFailure = { error ->
-                    _uiState.value =
-                        _uiState.value.copy(
-                            isLoading = false,
-                            errorMessage = error.message ?: context.getString(R.string.add_word_error_add_failed),
-                            loadingAction = null,
-                            isPreviewVisible = fromPreview && _uiState.value.previewContent != null,
-                        )
-                },
-            )
+                                isPreviewVisible = fromPreview && _uiState.value.previewContent != null,
+                            )
+                    },
+                )
         }
 
         private data class AddWordCombinedPrefs(

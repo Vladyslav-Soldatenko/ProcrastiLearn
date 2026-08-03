@@ -53,7 +53,8 @@ class DojoCountersSourceTest {
         every { dayCountersStore.readPolicy() } returns policyFlow
     }
 
-    private fun buildSource(): DojoCountersSource = DojoCountersSource(vocabularyStatsDao, dayCountersStore, fakeTimeTicker)
+    private fun buildSource(): DojoCountersSource =
+        DojoCountersSource(vocabularyStatsDao, dayCountersStore, fakeTimeTicker)
 
     @Test
     fun `reviewsDueAndSkippedCount reports zero skipped when not in backward-only mode`() =

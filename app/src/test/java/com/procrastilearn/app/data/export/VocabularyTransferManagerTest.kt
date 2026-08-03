@@ -135,7 +135,9 @@ class VocabularyTransferManagerTest {
 
             val result = manager.importFromUri(appContext, "unknown", uri)
 
-            assertThat(result).isEqualTo(VocabularyImportResult.Failure(VocabularyImportFailureReason.UNSUPPORTED_FORMAT))
+            assertThat(
+                result,
+            ).isEqualTo(VocabularyImportResult.Failure(VocabularyImportFailureReason.UNSUPPORTED_FORMAT))
             coVerify(exactly = 0) { vocabularyRepository.addVocabularyItem(any()) }
         }
 
