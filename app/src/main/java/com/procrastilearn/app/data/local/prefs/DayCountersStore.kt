@@ -111,7 +111,7 @@ class DayCountersStore
         fun readPolicy(): Flow<LearningPreferencesConfig> =
             ds.data.map { p ->
                 val mixName = p[K.MIX_MODE] ?: MixMode.MIX.name
-                val directionName = p[K.STUDY_DIRECTION_MODE] ?: StudyDirectionMode.FORWARD.name
+                val directionName = p[K.STUDY_DIRECTION_MODE] ?: StudyDirectionMode.BIDIRECTIONAL.name
                 LearningPreferencesConfig(
                     newPerDay = p[K.NEW_PER_DAY_LIMIT] ?: DEFAULT_NEW_PER_DAY,
                     reviewPerDay = p[K.REVIEW_PER_DAY_LIMIT] ?: DEFAULT_REVIEW_PER_DAY,
@@ -119,7 +119,7 @@ class DayCountersStore
                     mixMode = runCatching { MixMode.valueOf(mixName) }.getOrDefault(MixMode.MIX),
                     studyDirectionMode =
                         runCatching { StudyDirectionMode.valueOf(directionName) }
-                            .getOrDefault(StudyDirectionMode.FORWARD),
+                            .getOrDefault(StudyDirectionMode.BIDIRECTIONAL),
                 )
             }
 

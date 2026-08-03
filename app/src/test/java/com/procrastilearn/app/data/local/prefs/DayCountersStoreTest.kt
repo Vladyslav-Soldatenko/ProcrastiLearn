@@ -54,7 +54,17 @@ class DayCountersStoreTest {
             assertThat(policy.reviewPerDay).isEqualTo(99)
             assertThat(policy.overlayInterval).isEqualTo(0)
             assertThat(policy.mixMode).isEqualTo(MixMode.MIX)
-            assertThat(policy.studyDirectionMode).isEqualTo(StudyDirectionMode.FORWARD)
+            assertThat(policy.studyDirectionMode).isEqualTo(StudyDirectionMode.BIDIRECTIONAL)
+        }
+
+    @Test
+    fun readPolicyDefaultsToBidirectionalWhenOtherPreferencesExistButDirectionWasNeverChosen() =
+        runTest {
+            store.setMixMode(MixMode.NEW_FIRST)
+
+            val policy = store.readPolicy().first()
+
+            assertThat(policy.studyDirectionMode).isEqualTo(StudyDirectionMode.BIDIRECTIONAL)
         }
 
     @Test
@@ -70,14 +80,14 @@ class DayCountersStoreTest {
         }
 
     @Test
-    fun readPolicyFallsBackToForwardForACorruptedStudyDirectionModeString() =
+    fun readPolicyFallsBackToBidirectionalForACorruptedStudyDirectionModeString() =
         runTest {
             val key = stringPreferencesKey("study_direction_mode")
             studyPreferences.ds.edit { it[key] = "NOT_A_REAL_MODE" }
 
             val policy = store.readPolicy().first()
 
-            assertThat(policy.studyDirectionMode).isEqualTo(StudyDirectionMode.FORWARD)
+            assertThat(policy.studyDirectionMode).isEqualTo(StudyDirectionMode.BIDIRECTIONAL)
         }
 
     @Test
