@@ -162,6 +162,11 @@ detekt {
   allRules = false // don’t enable every experimental rule
   config.setFrom(files("$rootDir/detekt.yml"))
   ignoreFailures = false
+  source.setFrom(
+    "src/main/java",
+    "src/test/java",
+    "src/androidTest/java",
+  )
 }
 android {
   testOptions {

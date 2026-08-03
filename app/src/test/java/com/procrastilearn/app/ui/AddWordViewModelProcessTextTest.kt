@@ -120,20 +120,24 @@ class AddWordViewModelProcessTextTest {
         clearAllMocks()
     }
 
-    private fun buildViewModel(): AddWordViewModel =
-        AddWordViewModel(
+    private fun buildViewModel(): AddWordViewModel {
+        val vocabularyEntryUseCases =
             VocabularyEntryUseCases(
                 addVocabularyItemUseCase,
                 getVocabularyItemByWordUseCase,
                 overrideVocabularyItemUseCase,
-            ),
+            )
+        return AddWordViewModel(
+            vocabularyEntryUseCases,
             PendingWordUseCases(queuePendingWordUseCase, observePendingWordsUseCase, deletePendingWordUseCase),
             TranslationPreferences(openAiStore, languagePreferencesStore),
             generateAiTranslationUseCase,
             connectivityObserver,
             context,
+            ExistingWordOverrideCoordinator(vocabularyEntryUseCases, generateAiTranslationUseCase),
             processTextEventBus,
         )
+    }
 
     @Test
     fun `process text event with AI active prefills word and triggers preview`() =
