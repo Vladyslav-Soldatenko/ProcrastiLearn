@@ -2,10 +2,10 @@ package com.procrastilearn.app.data.local.prefs
 
 import android.content.Context
 import android.content.ContextWrapper
-import androidx.test.core.app.ApplicationProvider
-import com.google.common.truth.Truth.assertThat
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.StudyDirectionMode

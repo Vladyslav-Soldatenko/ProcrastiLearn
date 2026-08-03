@@ -14,7 +14,10 @@ private const val ONBOARDING_STEP_TIMEOUT_MS = 1_000L
 private const val NODE_POLL_INTERVAL_MS = 100L
 
 @OptIn(ExperimentalTestApi::class)
-fun ComposeTestRule.waitUntilNodeExists(matcher: SemanticsMatcher, timeoutMillis: Long) {
+fun ComposeTestRule.waitUntilNodeExists(
+    matcher: SemanticsMatcher,
+    timeoutMillis: Long,
+) {
     waitUntil(timeoutMillis) {
         try {
             onNode(matcher, useUnmergedTree = true).fetchSemanticsNode()
@@ -27,7 +30,10 @@ fun ComposeTestRule.waitUntilNodeExists(matcher: SemanticsMatcher, timeoutMillis
     }
 }
 
-fun ComposeTestRule.nodeVisibleWithin(matcher: SemanticsMatcher, timeoutMillis: Long): Boolean {
+fun ComposeTestRule.nodeVisibleWithin(
+    matcher: SemanticsMatcher,
+    timeoutMillis: Long,
+): Boolean {
     val deadline = System.currentTimeMillis() + timeoutMillis
     while (System.currentTimeMillis() < deadline) {
         waitForIdle()

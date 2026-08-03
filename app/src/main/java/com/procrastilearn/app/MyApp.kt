@@ -8,7 +8,9 @@ import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
 @HiltAndroidApp
-class MyApp : Application(), AppFunctionConfiguration.Provider {
+class MyApp :
+    Application(),
+    AppFunctionConfiguration.Provider {
     @Inject
     lateinit var vocabularyFunctions: VocabularyFunctions
 
@@ -22,7 +24,8 @@ class MyApp : Application(), AppFunctionConfiguration.Provider {
 
     override val appFunctionConfiguration: AppFunctionConfiguration
         get() =
-            AppFunctionConfiguration.Builder()
+            AppFunctionConfiguration
+                .Builder()
                 .addEnclosingClassFactory(VocabularyFunctions::class.java) { vocabularyFunctions }
                 .build()
 }

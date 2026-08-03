@@ -44,8 +44,7 @@ class DojoCountersSource
                             flowOf(0)
                         }
                     combine(due, skipped) { dueValue, skippedValue -> dueValue to skippedValue }
-                }
-                .distinctUntilChanged()
+                }.distinctUntilChanged()
 
         val newTotalCount: Flow<Int> =
             dayCountersStore.readPolicy().flatMapLatest { policy ->

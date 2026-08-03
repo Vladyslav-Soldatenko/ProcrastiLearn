@@ -104,8 +104,10 @@ class AppDatabaseMigrationTest {
 
         val migrated = helper.runMigrationsAndValidate(TEST_DB, 4, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
 
-        migrated.query("SELECT word, translation, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt FROM vocabulary")
-            .use { cursor ->
+        migrated
+            .query(
+                "SELECT word, translation, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt FROM vocabulary",
+            ).use { cursor ->
                 assertTrue(cursor.moveToFirst())
                 assertEquals("Katze", cursor.getString(0))
                 assertEquals("Cat", cursor.getString(1))
@@ -115,22 +117,23 @@ class AppDatabaseMigrationTest {
                 assertEquals(500, cursor.getLong(5))
             }
 
-        migrated.query(
-            """
-            SELECT bidirectional, backwardFsrsCardJson, backwardFsrsDueAt,
-                   backwardCorrectCount, backwardIncorrectCount, backwardPromptOverride, backwardAnswerOverride
-            FROM vocabulary
-            """.trimIndent(),
-        ).use { cursor ->
-            assertTrue(cursor.moveToFirst())
-            assertEquals(0, cursor.getInt(0))
-            assertEquals("", cursor.getString(1))
-            assertEquals(0, cursor.getLong(2))
-            assertEquals(0, cursor.getInt(3))
-            assertEquals(0, cursor.getInt(4))
-            assertTrue(cursor.isNull(5))
-            assertTrue(cursor.isNull(6))
-        }
+        migrated
+            .query(
+                """
+                SELECT bidirectional, backwardFsrsCardJson, backwardFsrsDueAt,
+                       backwardCorrectCount, backwardIncorrectCount, backwardPromptOverride, backwardAnswerOverride
+                FROM vocabulary
+                """.trimIndent(),
+            ).use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals(0, cursor.getInt(0))
+                assertEquals("", cursor.getString(1))
+                assertEquals(0, cursor.getLong(2))
+                assertEquals(0, cursor.getInt(3))
+                assertEquals(0, cursor.getInt(4))
+                assertTrue(cursor.isNull(5))
+                assertTrue(cursor.isNull(6))
+            }
     }
 
     @Test
@@ -150,22 +153,23 @@ class AppDatabaseMigrationTest {
             """.trimIndent(),
         )
 
-        migrated.query(
-            """
-            SELECT bidirectional, backwardFsrsCardJson, backwardFsrsDueAt,
-                   backwardCorrectCount, backwardIncorrectCount, backwardPromptOverride, backwardAnswerOverride
-            FROM vocabulary WHERE word = 'run'
-            """.trimIndent(),
-        ).use { cursor ->
-            assertTrue(cursor.moveToFirst())
-            assertEquals(1, cursor.getInt(0))
-            assertEquals("bwd-json", cursor.getString(1))
-            assertEquals(2000, cursor.getLong(2))
-            assertEquals(4, cursor.getInt(3))
-            assertEquals(1, cursor.getInt(4))
-            assertEquals("custom prompt", cursor.getString(5))
-            assertEquals("custom answer", cursor.getString(6))
-        }
+        migrated
+            .query(
+                """
+                SELECT bidirectional, backwardFsrsCardJson, backwardFsrsDueAt,
+                       backwardCorrectCount, backwardIncorrectCount, backwardPromptOverride, backwardAnswerOverride
+                FROM vocabulary WHERE word = 'run'
+                """.trimIndent(),
+            ).use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals(1, cursor.getInt(0))
+                assertEquals("bwd-json", cursor.getString(1))
+                assertEquals(2000, cursor.getLong(2))
+                assertEquals(4, cursor.getInt(3))
+                assertEquals(1, cursor.getInt(4))
+                assertEquals("custom prompt", cursor.getString(5))
+                assertEquals("custom answer", cursor.getString(6))
+            }
     }
 
     @Test
@@ -221,17 +225,18 @@ class AppDatabaseMigrationTest {
 
         val migrated = helper.runMigrationsAndValidate(TEST_DB, 4, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
 
-        migrated.query(
-            "SELECT direction, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount " +
-                "FROM undo_snapshot",
-        ).use { cursor ->
-            assertTrue(cursor.moveToFirst())
-            assertEquals("FORWARD", cursor.getString(0))
-            assertEquals("", cursor.getString(1))
-            assertEquals(0, cursor.getLong(2))
-            assertEquals(0, cursor.getInt(3))
-            assertEquals(0, cursor.getInt(4))
-        }
+        migrated
+            .query(
+                "SELECT direction, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, " +
+                    "backwardIncorrectCount FROM undo_snapshot",
+            ).use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals("FORWARD", cursor.getString(0))
+                assertEquals("", cursor.getString(1))
+                assertEquals(0, cursor.getLong(2))
+                assertEquals(0, cursor.getInt(3))
+                assertEquals(0, cursor.getInt(4))
+            }
     }
 
     private companion object {

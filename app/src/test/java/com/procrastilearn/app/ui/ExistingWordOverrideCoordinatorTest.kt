@@ -26,14 +26,20 @@ class ExistingWordOverrideCoordinatorTest {
     private lateinit var coordinator: ExistingWordOverrideCoordinator
 
     private val existingItem = VocabularyItem(id = 1L, word = "Haus", translation = "House", isNew = false)
-    private val cardOptions = BidirectionalCardOptions(bidirectional = false, backwardPromptOverride = null, backwardAnswerOverride = null)
+    private val cardOptions =
+        BidirectionalCardOptions(bidirectional = false, backwardPromptOverride = null, backwardAnswerOverride = null)
 
     @Before
     fun setUp() {
         getVocabularyItemByWordUseCase = mockk()
         overrideVocabularyItemUseCase = mockk()
         generateAiTranslationUseCase = mockk()
-        vocabularyEntryUseCases = VocabularyEntryUseCases(mockk<AddVocabularyItemUseCase>(), getVocabularyItemByWordUseCase, overrideVocabularyItemUseCase)
+        vocabularyEntryUseCases =
+            VocabularyEntryUseCases(
+                mockk<AddVocabularyItemUseCase>(),
+                getVocabularyItemByWordUseCase,
+                overrideVocabularyItemUseCase,
+            )
         coordinator = ExistingWordOverrideCoordinator(vocabularyEntryUseCases, generateAiTranslationUseCase)
     }
 
@@ -48,7 +54,14 @@ class ExistingWordOverrideCoordinatorTest {
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns null
 
             val resolution =
-                coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { cardOptions }
+                coordinator.resolveForSubmission(
+                    "Haus",
+                    "House",
+                    AiTranslationDirection.TARGET_TO_NATIVE,
+                    fromPreview = false,
+                ) {
+                    cardOptions
+                }
 
             assertThat(resolution).isEqualTo(SubmissionResolution.NoConflict)
         }
@@ -59,7 +72,14 @@ class ExistingWordOverrideCoordinatorTest {
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existingItem
 
             val resolution =
-                coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { cardOptions }
+                coordinator.resolveForSubmission(
+                    "Haus",
+                    "House",
+                    AiTranslationDirection.TARGET_TO_NATIVE,
+                    fromPreview = false,
+                ) {
+                    cardOptions
+                }
 
             assertThat(resolution).isEqualTo(SubmissionResolution.ConfirmationRequired("Haus"))
         }
@@ -68,11 +88,19 @@ class ExistingWordOverrideCoordinatorTest {
     fun `resolveForSubmission applies override and returns Overridden once acknowledged`() =
         runTest {
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existingItem
-            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "Haus", "House", any(), any(), any()) } returns Result.success(Unit)
+            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "Haus", "House", any(), any(), any()) } returns
+                Result.success(Unit)
             coordinator.acknowledge("Haus")
 
             val resolution =
-                coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = true) { cardOptions }
+                coordinator.resolveForSubmission(
+                    "Haus",
+                    "House",
+                    AiTranslationDirection.TARGET_TO_NATIVE,
+                    fromPreview = true,
+                ) {
+                    cardOptions
+                }
 
             assertThat(resolution).isEqualTo(SubmissionResolution.Overridden(fromPreview = true))
         }
@@ -82,11 +110,19 @@ class ExistingWordOverrideCoordinatorTest {
         runTest {
             val error = IllegalStateException("db down")
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existingItem
-            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "Haus", "House", any(), any(), any()) } returns Result.failure(error)
+            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "Haus", "House", any(), any(), any()) } returns
+                Result.failure(error)
             coordinator.acknowledge("Haus")
 
             val resolution =
-                coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { cardOptions }
+                coordinator.resolveForSubmission(
+                    "Haus",
+                    "House",
+                    AiTranslationDirection.TARGET_TO_NATIVE,
+                    fromPreview = false,
+                ) {
+                    cardOptions
+                }
 
             assertThat(resolution).isEqualTo(SubmissionResolution.OverrideFailed(error, fromPreview = false))
         }
@@ -98,7 +134,14 @@ class ExistingWordOverrideCoordinatorTest {
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } throws error
 
             val resolution =
-                coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { cardOptions }
+                coordinator.resolveForSubmission(
+                    "Haus",
+                    "House",
+                    AiTranslationDirection.TARGET_TO_NATIVE,
+                    fromPreview = false,
+                ) {
+                    cardOptions
+                }
 
             assertThat(resolution).isEqualTo(SubmissionResolution.LookupFailed(error))
         }
@@ -107,11 +150,19 @@ class ExistingWordOverrideCoordinatorTest {
     fun `resolveForSubmission acknowledgment is case-insensitive`() =
         runTest {
             coEvery { getVocabularyItemByWordUseCase.invoke("HAUS") } returns existingItem
-            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "HAUS", "House", any(), any(), any()) } returns Result.success(Unit)
+            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "HAUS", "House", any(), any(), any()) } returns
+                Result.success(Unit)
             coordinator.acknowledge("haus")
 
             val resolution =
-                coordinator.resolveForSubmission("HAUS", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { cardOptions }
+                coordinator.resolveForSubmission(
+                    "HAUS",
+                    "House",
+                    AiTranslationDirection.TARGET_TO_NATIVE,
+                    fromPreview = false,
+                ) {
+                    cardOptions
+                }
 
             assertThat(resolution).isEqualTo(SubmissionResolution.Overridden(fromPreview = false))
         }
@@ -123,7 +174,14 @@ class ExistingWordOverrideCoordinatorTest {
             coordinator.acknowledge("Wohnung")
 
             val resolution =
-                coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { cardOptions }
+                coordinator.resolveForSubmission(
+                    "Haus",
+                    "House",
+                    AiTranslationDirection.TARGET_TO_NATIVE,
+                    fromPreview = false,
+                ) {
+                    cardOptions
+                }
 
             assertThat(resolution).isEqualTo(SubmissionResolution.ConfirmationRequired("Haus"))
             coVerify(exactly = 0) { overrideVocabularyItemUseCase.invoke(any(), any(), any(), any(), any(), any()) }
@@ -133,12 +191,27 @@ class ExistingWordOverrideCoordinatorTest {
     fun `resolveForSubmission consumes the acknowledgment after a successful override`() =
         runTest {
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existingItem
-            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "Haus", "House", any(), any(), any()) } returns Result.success(Unit)
+            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "Haus", "House", any(), any(), any()) } returns
+                Result.success(Unit)
             coordinator.acknowledge("Haus")
-            coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { cardOptions }
+            coordinator.resolveForSubmission(
+                "Haus",
+                "House",
+                AiTranslationDirection.TARGET_TO_NATIVE,
+                fromPreview = false,
+            ) {
+                cardOptions
+            }
 
             val secondResolution =
-                coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { cardOptions }
+                coordinator.resolveForSubmission(
+                    "Haus",
+                    "House",
+                    AiTranslationDirection.TARGET_TO_NATIVE,
+                    fromPreview = false,
+                ) {
+                    cardOptions
+                }
 
             assertThat(secondResolution).isEqualTo(SubmissionResolution.ConfirmationRequired("Haus"))
         }
@@ -148,12 +221,27 @@ class ExistingWordOverrideCoordinatorTest {
         runTest {
             val error = IllegalStateException("db down")
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existingItem
-            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "Haus", "House", any(), any(), any()) } returns Result.failure(error)
+            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "Haus", "House", any(), any(), any()) } returns
+                Result.failure(error)
             coordinator.acknowledge("Haus")
-            coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { cardOptions }
+            coordinator.resolveForSubmission(
+                "Haus",
+                "House",
+                AiTranslationDirection.TARGET_TO_NATIVE,
+                fromPreview = false,
+            ) {
+                cardOptions
+            }
 
             val secondResolution =
-                coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { cardOptions }
+                coordinator.resolveForSubmission(
+                    "Haus",
+                    "House",
+                    AiTranslationDirection.TARGET_TO_NATIVE,
+                    fromPreview = false,
+                ) {
+                    cardOptions
+                }
 
             assertThat(secondResolution).isEqualTo(SubmissionResolution.ConfirmationRequired("Haus"))
         }
@@ -176,9 +264,21 @@ class ExistingWordOverrideCoordinatorTest {
                 )
             } returns Result.success(Unit)
             coordinator.acknowledge("Haus")
-            val customOptions = BidirectionalCardOptions(bidirectional = true, backwardPromptOverride = "prompt", backwardAnswerOverride = "answer")
+            val customOptions =
+                BidirectionalCardOptions(
+                    bidirectional = true,
+                    backwardPromptOverride = "prompt",
+                    backwardAnswerOverride = "answer",
+                )
 
-            coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { customOptions }
+            coordinator.resolveForSubmission(
+                "Haus",
+                "House",
+                AiTranslationDirection.TARGET_TO_NATIVE,
+                fromPreview = false,
+            ) {
+                customOptions
+            }
 
             assertThat(capturedBidirectional.captured).isTrue()
             assertThat(capturedBackwardPrompt.captured).isEqualTo("prompt")
@@ -222,7 +322,14 @@ class ExistingWordOverrideCoordinatorTest {
     fun `clearAcknowledgement does not clear a pending override`() =
         runTest {
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existingItem
-            coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { cardOptions }
+            coordinator.resolveForSubmission(
+                "Haus",
+                "House",
+                AiTranslationDirection.TARGET_TO_NATIVE,
+                fromPreview = false,
+            ) {
+                cardOptions
+            }
 
             coordinator.clearAcknowledgement()
 
@@ -237,7 +344,14 @@ class ExistingWordOverrideCoordinatorTest {
 
             coordinator.resetForNewWord()
             val resolution =
-                coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { cardOptions }
+                coordinator.resolveForSubmission(
+                    "Haus",
+                    "House",
+                    AiTranslationDirection.TARGET_TO_NATIVE,
+                    fromPreview = false,
+                ) {
+                    cardOptions
+                }
 
             assertThat(resolution).isEqualTo(SubmissionResolution.ConfirmationRequired("Haus"))
         }
@@ -246,7 +360,14 @@ class ExistingWordOverrideCoordinatorTest {
     fun `resetForNewWord clears a pending override`() =
         runTest {
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existingItem
-            coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { cardOptions }
+            coordinator.resolveForSubmission(
+                "Haus",
+                "House",
+                AiTranslationDirection.TARGET_TO_NATIVE,
+                fromPreview = false,
+            ) {
+                cardOptions
+            }
             assertThat(coordinator.hasPendingOverride()).isTrue()
 
             coordinator.resetForNewWord()
@@ -267,21 +388,33 @@ class ExistingWordOverrideCoordinatorTest {
         runTest {
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existingItem
             coordinator.checkBeforeAiTranslationRequest("Haus", AiTranslationDirection.TARGET_TO_NATIVE)
-            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) } returns "House"
-            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "Haus", "House", any(), any(), any()) } returns Result.success(Unit)
+            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) } returns
+                "House"
+            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "Haus", "House", any(), any(), any()) } returns
+                Result.success(Unit)
 
             val result = coordinator.proceedWithPendingOverride { cardOptions }
 
             assertThat(result).isEqualTo(OverrideProceedResult.Overridden)
-            coVerify(exactly = 1) { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) }
+            coVerify(
+                exactly = 1,
+            ) { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) }
         }
 
     @Test
     fun `proceedWithPendingOverride uses an already-known translation without calling AI`() =
         runTest {
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existingItem
-            coordinator.resolveForSubmission("Haus", "Home", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { cardOptions }
-            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "Haus", "Home", any(), any(), any()) } returns Result.success(Unit)
+            coordinator.resolveForSubmission(
+                "Haus",
+                "Home",
+                AiTranslationDirection.TARGET_TO_NATIVE,
+                fromPreview = false,
+            ) {
+                cardOptions
+            }
+            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "Haus", "Home", any(), any(), any()) } returns
+                Result.success(Unit)
 
             val result = coordinator.proceedWithPendingOverride { cardOptions }
 
@@ -294,7 +427,8 @@ class ExistingWordOverrideCoordinatorTest {
         runTest {
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existingItem
             coordinator.checkBeforeAiTranslationRequest("Haus", AiTranslationDirection.TARGET_TO_NATIVE)
-            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) } returns "   "
+            coEvery { generateAiTranslationUseCase.invoke("Haus", AiTranslationDirection.TARGET_TO_NATIVE) } returns
+                "   "
 
             val result = coordinator.proceedWithPendingOverride { cardOptions }
 
@@ -307,8 +441,16 @@ class ExistingWordOverrideCoordinatorTest {
         runTest {
             val error = IllegalStateException("db down")
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existingItem
-            coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = false) { cardOptions }
-            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "Haus", "House", any(), any(), any()) } returns Result.failure(error)
+            coordinator.resolveForSubmission(
+                "Haus",
+                "House",
+                AiTranslationDirection.TARGET_TO_NATIVE,
+                fromPreview = false,
+            ) {
+                cardOptions
+            }
+            coEvery { overrideVocabularyItemUseCase.invoke(existingItem, "Haus", "House", any(), any(), any()) } returns
+                Result.failure(error)
 
             val result = coordinator.proceedWithPendingOverride { cardOptions }
 
@@ -332,7 +474,14 @@ class ExistingWordOverrideCoordinatorTest {
     fun `cancelPendingOverride reports whether the pending override came from preview`() =
         runTest {
             coEvery { getVocabularyItemByWordUseCase.invoke("Haus") } returns existingItem
-            coordinator.resolveForSubmission("Haus", "House", AiTranslationDirection.TARGET_TO_NATIVE, fromPreview = true) { cardOptions }
+            coordinator.resolveForSubmission(
+                "Haus",
+                "House",
+                AiTranslationDirection.TARGET_TO_NATIVE,
+                fromPreview = true,
+            ) {
+                cardOptions
+            }
 
             val fromPreview = coordinator.cancelPendingOverride()
 

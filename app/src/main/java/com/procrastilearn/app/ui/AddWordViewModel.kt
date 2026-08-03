@@ -141,17 +141,25 @@ class AddWordViewModel @Inject
                 )
         }
 
+        @Suppress("LongMethod")
         fun onAddClick() {
             val currentState = _uiState.value
             if (currentState.word.isBlank()) {
-                _uiState.value = _uiState.value.copy(wordError = context.getString(R.string.add_word_error_word_required))
+                _uiState.value =
+                    _uiState.value.copy(wordError = context.getString(R.string.add_word_error_word_required))
                 return
             }
 
             if (currentState.isAddLaterMode) {
                 val pendingMessage = context.getString(R.string.add_word_success_pending)
                 viewModelScope.launch {
-                    queuePendingWord(pendingWordUseCases.queue, _uiState, currentState.word.trim(), currentState.translationDirection, pendingMessage)
+                    queuePendingWord(
+                        pendingWordUseCases.queue,
+                        _uiState,
+                        currentState.word.trim(),
+                        currentState.translationDirection,
+                        pendingMessage,
+                    )
                 }
                 return
             }
@@ -174,7 +182,10 @@ class AddWordViewModel @Inject
                 if (!currentState.aiModeActive) {
                     val typedTranslation = currentState.translation
                     if (typedTranslation.isBlank()) {
-                        setBlankTranslationError(_uiState, context.getString(R.string.add_word_error_translation_required))
+                        setBlankTranslationError(
+                            _uiState,
+                            context.getString(R.string.add_word_error_translation_required),
+                        )
                         return@launch
                     }
                     handleWordSubmission(word = word, translation = typedTranslation.trim(), fromPreview = false)
@@ -184,10 +195,16 @@ class AddWordViewModel @Inject
                 // AI mode: check for a duplicate before spending an AI request.
                 when (
                     val preflight =
-                        existingWordOverrideCoordinator.checkBeforeAiTranslationRequest(word, currentState.translationDirection)
+                        existingWordOverrideCoordinator.checkBeforeAiTranslationRequest(
+                            word,
+                            currentState.translationDirection,
+                        )
                 ) {
                     is ExistingWordPreflight.LookupFailed -> {
-                        applyLookupFailure(_uiState, preflight.error.message ?: context.getString(R.string.add_word_error_lookup_failed))
+                        applyLookupFailure(
+                            _uiState,
+                            preflight.error.message ?: context.getString(R.string.add_word_error_lookup_failed),
+                        )
                         return@launch
                     }
                     is ExistingWordPreflight.ConfirmationRequired -> {
@@ -268,10 +285,12 @@ class AddWordViewModel @Inject
             _uiState.value = _uiState.value.copy(backwardAnswerOverride = value)
         }
 
+        @Suppress("LongMethod")
         fun onPreviewClick() {
             val currentState = _uiState.value
             if (currentState.word.isBlank()) {
-                _uiState.value = _uiState.value.copy(wordError = context.getString(R.string.add_word_error_word_required))
+                _uiState.value =
+                    _uiState.value.copy(wordError = context.getString(R.string.add_word_error_word_required))
                 return
             }
             if (!currentState.aiModeActive) return
@@ -318,13 +337,20 @@ class AddWordViewModel @Inject
                 val blankTranslationMessage = context.getString(R.string.add_word_error_translation_required)
                 runCatching { generateAiTranslationUseCase(word, currentState.translationDirection) }.fold(
                     onSuccess = { translation ->
-                        handlePreviewTranslationSuccess(_uiState, word, translation, isStoredTranslation = false, blankTranslationMessage)
+                        handlePreviewTranslationSuccess(
+                            _uiState,
+                            word,
+                            translation,
+                            isStoredTranslation = false,
+                            blankTranslationMessage,
+                        )
                     },
                     onFailure = { error ->
                         _uiState.value =
                             _uiState.value.copy(
                                 isLoading = false,
-                                errorMessage = error.message ?: context.getString(R.string.add_word_error_preview_failed),
+                                errorMessage =
+                                    error.message ?: context.getString(R.string.add_word_error_preview_failed),
                                 loadingAction = null,
                             )
                     },
@@ -363,7 +389,8 @@ class AddWordViewModel @Inject
                         _uiState.value =
                             _uiState.value.copy(
                                 isLoading = false,
-                                errorMessage = error.message ?: context.getString(R.string.add_word_error_preview_failed),
+                                errorMessage =
+                                    error.message ?: context.getString(R.string.add_word_error_preview_failed),
                                 loadingAction = null,
                                 previewContent = null,
                                 isPreviewVisible = false,
@@ -451,7 +478,10 @@ class AddWordViewModel @Inject
                     }
             ) {
                 is SubmissionResolution.LookupFailed ->
-                    applyLookupFailure(_uiState, resolution.error.message ?: context.getString(R.string.add_word_error_lookup_failed))
+                    applyLookupFailure(
+                        _uiState,
+                        resolution.error.message ?: context.getString(R.string.add_word_error_lookup_failed),
+                    )
                 is SubmissionResolution.ConfirmationRequired ->
                     showExistingWordDialog(_uiState, resolution.word)
                 is SubmissionResolution.Overridden ->
@@ -473,20 +503,25 @@ class AddWordViewModel @Inject
             fromPreview: Boolean,
         ) {
             val currentState = _uiState.value
-            vocabularyEntryUseCases.add(
-                word = word,
-                translation = translation,
-                bidirectional = currentState.bidirectional,
-                backwardPromptOverride = currentState.backwardPromptOverride.ifBlank { null },
-                backwardAnswerOverride = currentState.backwardAnswerOverride.ifBlank { null },
-            ).fold(
-                onSuccess = {
-                    applySubmissionSuccess(_uiState, context.getString(R.string.add_word_success_added))
-                },
-                onFailure = { error ->
-                    applySubmissionFailure(_uiState, error.message ?: context.getString(R.string.add_word_error_add_failed), fromPreview)
-                },
-            )
+            vocabularyEntryUseCases
+                .add(
+                    word = word,
+                    translation = translation,
+                    bidirectional = currentState.bidirectional,
+                    backwardPromptOverride = currentState.backwardPromptOverride.ifBlank { null },
+                    backwardAnswerOverride = currentState.backwardAnswerOverride.ifBlank { null },
+                ).fold(
+                    onSuccess = {
+                        applySubmissionSuccess(_uiState, context.getString(R.string.add_word_success_added))
+                    },
+                    onFailure = { error ->
+                        applySubmissionFailure(
+                            _uiState,
+                            error.message ?: context.getString(R.string.add_word_error_add_failed),
+                            fromPreview,
+                        )
+                    },
+                )
         }
 
         private data class AddWordCombinedPrefs(

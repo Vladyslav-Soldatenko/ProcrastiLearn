@@ -133,6 +133,7 @@ class VocabularyStatsDaoTest {
         }
 
     @Test
+    @Suppress("ktlint:standard:max-line-length")
     fun `observeReviewsDueCount emits an updated count after applyBackwardFsrsReview pushes a due date into the future`() =
         runTest {
             val now = System.currentTimeMillis()

@@ -10,7 +10,6 @@ import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.dao.VocabularyReviewDao
 import com.procrastilearn.app.data.local.dao.VocabularyStatsDao
 import com.procrastilearn.app.data.local.database.AppDatabase
-import com.procrastilearn.app.data.local.entity.UndoSnapshotEntity
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig

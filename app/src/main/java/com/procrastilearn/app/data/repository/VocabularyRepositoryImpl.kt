@@ -56,7 +56,8 @@ class VocabularyRepositoryImpl
         private val appDatabase: AppDatabase,
         private val scheduler: Scheduler,
         private val prefs: DayCountersStore,
-    ) : VocabularyCatalogRepository, VocabularyStudyRepository {
+    ) : VocabularyCatalogRepository,
+        VocabularyStudyRepository {
         private val vocabularyDao = appDatabase.vocabularyDao()
         private val vocabularyReviewDao = appDatabase.vocabularyReviewDao()
         private val vocabularyStatsDao = appDatabase.vocabularyStatsDao()

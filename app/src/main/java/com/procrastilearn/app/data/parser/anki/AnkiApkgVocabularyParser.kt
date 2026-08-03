@@ -193,7 +193,12 @@ class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
                             (0 until fieldsArray.length()).map { i ->
                                 fieldsArray.getJSONObject(i).getString("name")
                             }
-                        val qfmt = model.optJSONArray("tmpls")?.optJSONObject(0)?.optString("qfmt").orEmpty()
+                        val qfmt =
+                            model
+                                .optJSONArray("tmpls")
+                                ?.optJSONObject(0)
+                                ?.optString("qfmt")
+                                .orEmpty()
                         val sortFieldIndex = model.optInt("sortf", 0)
                         val qfmtFieldIndices = extractFieldReferenceOrder(qfmt, fieldNames)
                         // qfmt referencing nothing recognizable (parsing failure, unusual template)
@@ -255,8 +260,7 @@ class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
                     if (value.isBlank()) return@mapNotNull null
                     val label = fieldNames?.getOrNull(index)
                     if (label != null) "$label: $value" else value
-                }
-                .joinToString("\n")
+                }.joinToString("\n")
 
         if (word.isBlank() || translation.isBlank()) {
             return null

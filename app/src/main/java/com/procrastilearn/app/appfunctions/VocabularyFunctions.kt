@@ -60,7 +60,8 @@ class VocabularyFunctions
                         }
 
                 if (existingItem != null) {
-                    vocabularyEntryUseCases.override(existingItem, trimmedWord, finalTranslation)
+                    vocabularyEntryUseCases
+                        .override(existingItem, trimmedWord, finalTranslation)
                         .getOrElse { e ->
                             throw AppFunctionAppUnknownException(
                                 e.message ?: "Failed to update word.",
@@ -68,7 +69,8 @@ class VocabularyFunctions
                         }
                     "Updated \"$trimmedWord\" → \"$finalTranslation\" and reset its learning progress."
                 } else {
-                    vocabularyEntryUseCases.add(trimmedWord, finalTranslation)
+                    vocabularyEntryUseCases
+                        .add(trimmedWord, finalTranslation)
                         .getOrElse { e ->
                             throw AppFunctionAppUnknownException(
                                 e.message ?: "Failed to add word.",

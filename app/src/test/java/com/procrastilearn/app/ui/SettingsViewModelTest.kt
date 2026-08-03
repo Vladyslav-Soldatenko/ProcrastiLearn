@@ -565,7 +565,9 @@ class SettingsViewModelTest {
     @Test
     fun `export then import json preserves all entity fields`() =
         runTest(mainDispatcherRule.testDispatcher) {
-            val parser = com.procrastilearn.app.data.parser.json.JsonVocabularyParser()
+            val parser =
+                com.procrastilearn.app.data.parser.json
+                    .JsonVocabularyParser()
             val viewModel = buildViewModel(parsers = setOf(parser))
             val entity =
                 VocabularyEntity(

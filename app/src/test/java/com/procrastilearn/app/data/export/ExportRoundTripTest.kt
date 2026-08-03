@@ -20,7 +20,6 @@ private const val MAX_WORD_SUFFIX = 100_000
 private const val RANDOM_SUBSET_TRIALS = 5
 
 class ExportRoundTripFuzzTest {
-
     @Test
     fun `upgrading a v1 export and re-exporting round trips through the current format`() {
         val firstDecode = decodeFixtureOrFail("src/test/resources/exports/v1/real-device-export.json")

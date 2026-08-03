@@ -15,21 +15,34 @@ data class BidirectionalCardOptions(
 sealed interface ExistingWordPreflight {
     data object NoConflict : ExistingWordPreflight
 
-    data class ConfirmationRequired(val word: String) : ExistingWordPreflight
+    data class ConfirmationRequired(
+        val word: String,
+    ) : ExistingWordPreflight
 
-    data class LookupFailed(val error: Throwable) : ExistingWordPreflight
+    data class LookupFailed(
+        val error: Throwable,
+    ) : ExistingWordPreflight
 }
 
 sealed interface SubmissionResolution {
     data object NoConflict : SubmissionResolution
 
-    data class ConfirmationRequired(val word: String) : SubmissionResolution
+    data class ConfirmationRequired(
+        val word: String,
+    ) : SubmissionResolution
 
-    data class Overridden(val fromPreview: Boolean) : SubmissionResolution
+    data class Overridden(
+        val fromPreview: Boolean,
+    ) : SubmissionResolution
 
-    data class OverrideFailed(val error: Throwable, val fromPreview: Boolean) : SubmissionResolution
+    data class OverrideFailed(
+        val error: Throwable,
+        val fromPreview: Boolean,
+    ) : SubmissionResolution
 
-    data class LookupFailed(val error: Throwable) : SubmissionResolution
+    data class LookupFailed(
+        val error: Throwable,
+    ) : SubmissionResolution
 }
 
 sealed interface OverrideProceedResult {
@@ -37,9 +50,13 @@ sealed interface OverrideProceedResult {
 
     data object Overridden : OverrideProceedResult
 
-    data class TranslationFailed(val error: Throwable) : OverrideProceedResult
+    data class TranslationFailed(
+        val error: Throwable,
+    ) : OverrideProceedResult
 
-    data class OverrideFailed(val error: Throwable) : OverrideProceedResult
+    data class OverrideFailed(
+        val error: Throwable,
+    ) : OverrideProceedResult
 }
 
 /**
@@ -139,7 +156,9 @@ class ExistingWordOverrideCoordinator
                 onFailure = { SubmissionResolution.LookupFailed(it) },
             )
 
-        suspend fun proceedWithPendingOverride(resolveCardOptions: () -> BidirectionalCardOptions): OverrideProceedResult {
+        suspend fun proceedWithPendingOverride(
+            resolveCardOptions: () -> BidirectionalCardOptions,
+        ): OverrideProceedResult {
             val pending = pendingOverride ?: return OverrideProceedResult.NoPendingOverride
 
             val translation =

@@ -4,7 +4,7 @@ plugins {
   id("org.jetbrains.kotlin.plugin.serialization")
   id("com.google.devtools.ksp")
   id("com.google.dagger.hilt.android")
-  id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
+  id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
   id("io.gitlab.arturbosch.detekt") version "1.23.8"
   jacoco
 }
@@ -162,6 +162,11 @@ detekt {
   allRules = false // don’t enable every experimental rule
   config.setFrom(files("$rootDir/detekt.yml"))
   ignoreFailures = false
+  source.setFrom(
+    "src/main/java",
+    "src/test/java",
+    "src/androidTest/java",
+  )
 }
 android {
   testOptions {

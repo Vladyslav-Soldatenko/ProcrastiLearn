@@ -199,7 +199,8 @@ class OverlayAccessibilityServiceTest {
         verify(exactly = 1) { windowManager.addView(any(), any()) }
 
         val audioManager =
-            ApplicationProvider.getApplicationContext<Context>()
+            ApplicationProvider
+                .getApplicationContext<Context>()
                 .getSystemService(Context.AUDIO_SERVICE) as AudioManager
         assertThat(shadowOf(audioManager).lastAudioFocusRequest).isNotNull()
     }
@@ -245,7 +246,8 @@ class OverlayAccessibilityServiceTest {
         verify(exactly = 1) { windowManager.removeView(any()) }
 
         val audioManager =
-            ApplicationProvider.getApplicationContext<Context>()
+            ApplicationProvider
+                .getApplicationContext<Context>()
                 .getSystemService(Context.AUDIO_SERVICE) as AudioManager
         assertThat(shadowOf(audioManager).lastAbandonedAudioFocusRequest).isNotNull()
     }

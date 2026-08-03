@@ -53,12 +53,16 @@ class AppsListTest {
             AppInfo(
                 packageName = "com.app1",
                 label = "App 1",
-                icon = android.graphics.Color.RED.toDrawable(),
+                icon =
+                    android.graphics.Color.RED
+                        .toDrawable(),
             ),
             AppInfo(
                 packageName = "com.app2",
                 label = "App 2",
-                icon = android.graphics.Color.BLUE.toDrawable(),
+                icon =
+                    android.graphics.Color.BLUE
+                        .toDrawable(),
             ),
             AppInfo(
                 packageName = "com.app3",

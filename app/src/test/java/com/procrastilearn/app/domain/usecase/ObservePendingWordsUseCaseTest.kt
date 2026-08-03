@@ -6,8 +6,8 @@ import com.procrastilearn.app.domain.model.PendingWord
 import com.procrastilearn.app.domain.repository.PendingWordRepository
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test

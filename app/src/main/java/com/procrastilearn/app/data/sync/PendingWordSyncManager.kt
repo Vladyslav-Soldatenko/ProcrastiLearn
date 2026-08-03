@@ -35,7 +35,8 @@ class PendingWordSyncManager
             if (started) return
             started = true
             scope.launch {
-                connectivityObserver.observe()
+                connectivityObserver
+                    .observe()
                     .filter { online -> online }
                     .collect { syncPendingWords() }
             }

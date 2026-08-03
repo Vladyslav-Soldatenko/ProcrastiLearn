@@ -122,7 +122,11 @@ class AddWordViewModelProcessTextTest {
 
     private fun buildViewModel(): AddWordViewModel {
         val vocabularyEntryUseCases =
-            VocabularyEntryUseCases(addVocabularyItemUseCase, getVocabularyItemByWordUseCase, overrideVocabularyItemUseCase)
+            VocabularyEntryUseCases(
+                addVocabularyItemUseCase,
+                getVocabularyItemByWordUseCase,
+                overrideVocabularyItemUseCase,
+            )
         return AddWordViewModel(
             vocabularyEntryUseCases,
             PendingWordUseCases(queuePendingWordUseCase, observePendingWordsUseCase, deletePendingWordUseCase),

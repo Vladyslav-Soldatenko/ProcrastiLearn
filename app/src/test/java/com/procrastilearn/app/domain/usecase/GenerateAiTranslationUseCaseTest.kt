@@ -83,7 +83,8 @@ class GenerateAiTranslationUseCaseTest {
     @Test
     fun `invoke resolves placeholders in the reverse prompt to the selected pair`() =
         runTest {
-            every { openAiStore.readOpenAiReversePrompt() } returns flowOf(OpenAiPromptDefaults.reverseTranslationPrompt)
+            every { openAiStore.readOpenAiReversePrompt() } returns
+                flowOf(OpenAiPromptDefaults.reverseTranslationPrompt)
 
             useCase("casa", AiTranslationDirection.NATIVE_TO_TARGET)
 
