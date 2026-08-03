@@ -1,5 +1,8 @@
 package com.procrastilearn.app.ui.screens
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -28,6 +32,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -46,6 +51,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -56,6 +63,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.ui.WordListViewModel
+import com.procrastilearn.app.ui.WordListViewModel.SelectionState
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import io.github.oikvpqya.compose.fastscroller.VerticalScrollbar
 import io.github.oikvpqya.compose.fastscroller.material3.defaultMaterialScrollbarStyle
@@ -67,15 +75,23 @@ fun WordListScreen(
     viewModel: WordListViewModel = hiltViewModel(),
 ) {
     val words by viewModel.words.collectAsState()
+    val selectionState by viewModel.selectionState.collectAsState()
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
     WordListContent(
         words = words,
+        selectionState = selectionState,
         searchQuery = searchQuery,
         onSearchQueryChange = { searchQuery = it },
         onDelete = viewModel::deleteWord,
         onEdit = viewModel::updateWord,
         onReset = viewModel::resetWordProgress,
+        onEnterSelectionMode = viewModel::enterSelectionMode,
+        onToggleSelection = viewModel::toggleSelection,
+        onSelectAll = viewModel::selectAll,
+        onDeselectAll = viewModel::deselectAll,
+        onExitSelectionMode = viewModel::exitSelectionMode,
+        onDeleteSelected = viewModel::deleteSelectedWords,
         onNavigateBack = onNavigateBack,
     )
 }
@@ -90,6 +106,13 @@ internal fun WordListContent(
     onEdit: (VocabularyItem) -> Unit,
     onReset: (VocabularyItem) -> Unit,
     modifier: Modifier = Modifier,
+    selectionState: SelectionState = SelectionState(),
+    onEnterSelectionMode: (Long) -> Unit = {},
+    onToggleSelection: (Long) -> Unit = {},
+    onSelectAll: (List<Long>) -> Unit = {},
+    onDeselectAll: () -> Unit = {},
+    onExitSelectionMode: () -> Unit = {},
+    onDeleteSelected: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
 ) {
     val normalizedQuery = searchQuery.trim()
@@ -100,6 +123,15 @@ internal fun WordListContent(
             words.filter { it.word.contains(normalizedQuery, ignoreCase = true) }
         }
 
+    var showSelectionMenu by remember { mutableStateOf(false) }
+    var showBulkDeleteDialog by remember { mutableStateOf(false) }
+    val allDisplayedSelected =
+        displayedWords.isNotEmpty() && displayedWords.all { it.id in selectionState.selectedIds }
+
+    BackHandler(enabled = selectionState.isActive) {
+        onExitSelectionMode()
+    }
+
     Column(
         modifier =
             modifier
@@ -109,9 +141,14 @@ internal fun WordListContent(
         // Header
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
         ) {
-            IconButton(onClick = onNavigateBack) {
+            IconButton(
+                onClick = { if (selectionState.isActive) onExitSelectionMode() else onNavigateBack() },
+            ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.word_list_navigate_back),
@@ -119,11 +156,66 @@ internal fun WordListContent(
                 )
             }
             Text(
-                text = stringResource(R.string.word_list_title),
+                text =
+                    if (selectionState.isActive) {
+                        pluralStringResource(
+                            R.plurals.word_list_selection_count,
+                            selectionState.selectedIds.size,
+                            selectionState.selectedIds.size,
+                        )
+                    } else {
+                        stringResource(R.string.word_list_title)
+                    },
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.weight(1f),
             )
+            if (selectionState.isActive) {
+                Box {
+                    IconButton(onClick = { showSelectionMenu = true }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = stringResource(R.string.word_list_more_actions_selection),
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showSelectionMenu,
+                        onDismissRequest = { showSelectionMenu = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text =
+                                        stringResource(
+                                            if (allDisplayedSelected) {
+                                                R.string.action_deselect_all
+                                            } else {
+                                                R.string.action_select_all
+                                            },
+                                        ),
+                                )
+                            },
+                            onClick = {
+                                showSelectionMenu = false
+                                if (allDisplayedSelected) {
+                                    onDeselectAll()
+                                } else {
+                                    onSelectAll(displayedWords.map { it.id })
+                                }
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(R.string.action_delete)) },
+                            onClick = {
+                                showSelectionMenu = false
+                                showBulkDeleteDialog = true
+                            },
+                        )
+                    }
+                }
+            }
         }
 
         OutlinedTextField(
@@ -204,13 +296,17 @@ internal fun WordListContent(
                     ) {
                         items(
                             items = displayedWords,
-                            key = { "${it.word}_${it.translation}" },
+                            key = { it.id },
                         ) { item ->
                             WordListItem(
                                 item = item,
                                 onDelete = { onDelete(item) },
                                 onEdit = { editedItem -> onEdit(editedItem) },
                                 onReset = { onReset(item) },
+                                isSelectionMode = selectionState.isActive,
+                                isSelected = item.id in selectionState.selectedIds,
+                                onLongPress = { onEnterSelectionMode(item.id) },
+                                onToggle = { onToggleSelection(item.id) },
                             )
                         }
                     }
@@ -231,8 +327,20 @@ internal fun WordListContent(
             }
         }
     }
+
+    if (showBulkDeleteDialog) {
+        BulkDeleteWordsDialog(
+            count = selectionState.selectedIds.size,
+            onDismiss = { showBulkDeleteDialog = false },
+            onConfirm = {
+                onDeleteSelected()
+                showBulkDeleteDialog = false
+            },
+        )
+    }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Suppress("LongMethod")
 @Composable
 fun WordListItem(
@@ -241,6 +349,10 @@ fun WordListItem(
     onEdit: (VocabularyItem) -> Unit,
     onReset: () -> Unit,
     modifier: Modifier = Modifier,
+    isSelectionMode: Boolean = false,
+    isSelected: Boolean = false,
+    onLongPress: () -> Unit = {},
+    onToggle: () -> Unit = {},
 ) {
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -248,10 +360,22 @@ fun WordListItem(
     var showMenu by remember { mutableStateOf(false) }
 
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .testTag("word_list_item_${item.id}")
+                .combinedClickable(
+                    onClick = { if (isSelectionMode) onToggle() },
+                    onLongClick = { if (!isSelectionMode) onLongPress() },
+                ),
         colors =
             CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor =
+                    if (isSelectionMode && isSelected) {
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.12f)
+                    } else {
+                        MaterialTheme.colorScheme.surface
+                    },
             ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
@@ -263,6 +387,15 @@ fun WordListItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            if (isSelectionMode) {
+                Checkbox(
+                    checked = isSelected,
+                    onCheckedChange = { onToggle() },
+                    modifier = Modifier.testTag("word_list_checkbox_${item.id}"),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+
             Column(
                 modifier = Modifier.weight(1f),
             ) {
@@ -280,63 +413,65 @@ fun WordListItem(
                 )
             }
 
-            Box {
-                IconButton(
-                    onClick = { showMenu = true },
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = stringResource(R.string.word_list_more_actions),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+            if (!isSelectionMode) {
+                Box {
+                    IconButton(
+                        onClick = { showMenu = true },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = stringResource(R.string.word_list_more_actions),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
 
-                DropdownMenu(
-                    expanded = showMenu,
-                    onDismissRequest = { showMenu = false },
-                ) {
-                    DropdownMenuItem(
-                        text = { Text(text = stringResource(R.string.action_edit)) },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                            )
-                        },
-                        onClick = {
-                            showMenu = false
-                            showEditDialog = true
-                        },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(text = stringResource(R.string.action_reset)) },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Filled.Refresh,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.secondary,
-                            )
-                        },
-                        onClick = {
-                            showMenu = false
-                            showResetDialog = true
-                        },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(text = stringResource(R.string.action_delete)) },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error,
-                            )
-                        },
-                        onClick = {
-                            showMenu = false
-                            showDeleteDialog = true
-                        },
-                    )
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(R.string.action_edit)) },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                            },
+                            onClick = {
+                                showMenu = false
+                                showEditDialog = true
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(R.string.action_reset)) },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Filled.Refresh,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.secondary,
+                                )
+                            },
+                            onClick = {
+                                showMenu = false
+                                showResetDialog = true
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(R.string.action_delete)) },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error,
+                                )
+                            },
+                            onClick = {
+                                showMenu = false
+                                showDeleteDialog = true
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -484,6 +619,35 @@ private fun DeleteWordDialog(
         },
         text = {
             Text(text = stringResource(R.string.word_list_delete_confirm_message, item.word))
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(text = stringResource(R.string.action_delete))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.action_cancel))
+            }
+        },
+    )
+}
+
+@Composable
+private fun BulkDeleteWordsDialog(
+    count: Int,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = stringResource(R.string.word_list_bulk_delete_confirm_title))
+        },
+        text = {
+            Text(
+                text = pluralStringResource(R.plurals.word_list_bulk_delete_confirm_message, count, count),
+            )
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {

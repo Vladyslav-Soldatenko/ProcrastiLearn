@@ -18,6 +18,8 @@
     <string name="action_ok">OK</string>
     <string name="action_cancel">Скасувати</string>
     <string name="action_proceed">@string/action_continue</string>
+    <string name="action_select_all">Вибрати всі</string>
+    <string name="action_deselect_all">Скасувати вибір</string>
 
     <!-- ─── Text selection context menu ─────────────────────────────────────── -->
     <string name="process_text_action">Додати в ProcrastiLearn</string>
@@ -276,6 +278,8 @@
         Скинути прогрес вивчення для <xliff:g id="word_name">%1$s</xliff:g>?
     </string>
     <string name="word_list_more_actions">Додаткові дії</string>
+    <string name="word_list_more_actions_selection">Дії з вибраними</string>
+    <string name="word_list_bulk_delete_confirm_title">Видалити вибрані слова</string>
     <string name="word_list_search_label">Пошук</string>
     <string name="word_list_search_placeholder">Пошук слів</string>
     <string name="word_list_search_no_results">Збігів не знайдено</string>
@@ -304,5 +308,17 @@
         <item quantity="few">Кожні %d хвилини</item>
         <item quantity="many">Кожні %d хвилин</item>
         <item quantity="other">Кожні %d хвилини</item>
+    </plurals>
+    <plurals name="word_list_selection_count">
+        <item quantity="one">Вибрано %1$d слово</item>
+        <item quantity="few">Вибрано %1$d слова</item>
+        <item quantity="many">Вибрано %1$d слів</item>
+        <item quantity="other">Вибрано %1$d слова</item>
+    </plurals>
+    <plurals name="word_list_bulk_delete_confirm_message">
+        <item quantity="one">Видалити %1$d слово зі списку?</item>
+        <item quantity="few">Видалити %1$d слова зі списку?</item>
+        <item quantity="many">Видалити %1$d слів зі списку?</item>
+        <item quantity="other">Видалити %1$d слова зі списку?</item>
     </plurals>
 </resources>

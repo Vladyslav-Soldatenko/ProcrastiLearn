@@ -97,10 +97,15 @@ class VocabularyRepositoryImpl
                 }
             }
 
-        override suspend fun deleteVocabularyItem(item: VocabularyItem) =
+        override suspend fun deleteVocabularyItem(item: VocabularyItem) = deleteVocabularyItems(listOf(item))
+
+        override suspend fun deleteVocabularyItems(items: List<VocabularyItem>): Unit =
             withContext(io) {
-                vocabularyDao.deleteVocabulary(item.toEntity())
-                undoSnapshotDao.deleteForVocab(item.id)
+                if (items.isEmpty()) return@withContext
+                appDatabase.withTransaction {
+                    vocabularyDao.deleteVocabulary(items.map { it.toEntity() })
+                    undoSnapshotDao.deleteForVocabIds(items.map { it.id })
+                }
             }
 
         override suspend fun resetVocabularyProgress(item: VocabularyItem): Unit =

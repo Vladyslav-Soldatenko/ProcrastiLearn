@@ -5,8 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,6 +20,11 @@ class WordListViewModel
     constructor(
         private val repository: VocabularyCatalogRepository,
     ) : ViewModel() {
+        data class SelectionState(
+            val isActive: Boolean = false,
+            val selectedIds: Set<Long> = emptySet(),
+        )
+
         val words =
             repository
                 .getAllVocabulary()
@@ -24,6 +33,9 @@ class WordListViewModel
                     started = SharingStarted.WhileSubscribed(5000),
                     initialValue = emptyList(),
                 )
+
+        private val _selectionState = MutableStateFlow(SelectionState())
+        val selectionState: StateFlow<SelectionState> = _selectionState.asStateFlow()
 
         fun deleteWord(item: VocabularyItem) {
             viewModelScope.launch {
@@ -40,6 +52,40 @@ class WordListViewModel
         fun resetWordProgress(item: VocabularyItem) {
             viewModelScope.launch {
                 repository.resetVocabularyProgress(item)
+            }
+        }
+
+        fun enterSelectionMode(initialSelectedId: Long) {
+            _selectionState.value = SelectionState(isActive = true, selectedIds = setOf(initialSelectedId))
+        }
+
+        fun toggleSelection(id: Long) {
+            _selectionState.update { state ->
+                if (!state.isActive) return@update state
+                val next = if (id in state.selectedIds) state.selectedIds - id else state.selectedIds + id
+                state.copy(selectedIds = next)
+            }
+        }
+
+        fun selectAll(ids: List<Long>) {
+            _selectionState.update { it.copy(selectedIds = it.selectedIds + ids) }
+        }
+
+        fun deselectAll() {
+            _selectionState.update { it.copy(selectedIds = emptySet()) }
+        }
+
+        fun exitSelectionMode() {
+            _selectionState.value = SelectionState()
+        }
+
+        fun deleteSelectedWords() {
+            val ids = _selectionState.value.selectedIds
+            if (ids.isEmpty()) return
+            val itemsToDelete = words.value.filter { it.id in ids }
+            viewModelScope.launch {
+                repository.deleteVocabularyItems(itemsToDelete)
+                exitSelectionMode()
             }
         }
     }

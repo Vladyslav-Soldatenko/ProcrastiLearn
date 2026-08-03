@@ -39,6 +39,9 @@ interface VocabularyDao {
     @Delete
     suspend fun deleteVocabulary(item: VocabularyEntity)
 
+    @Delete
+    suspend fun deleteVocabulary(items: List<VocabularyEntity>)
+
     @Query("DELETE FROM vocabulary")
     suspend fun deleteAllVocabulary()
 }

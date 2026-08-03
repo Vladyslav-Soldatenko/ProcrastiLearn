@@ -26,6 +26,9 @@ interface UndoSnapshotDao {
     @Query("DELETE FROM undo_snapshot WHERE vocabId = :vocabId")
     suspend fun deleteForVocab(vocabId: Long)
 
+    @Query("DELETE FROM undo_snapshot WHERE vocabId IN (:vocabIds)")
+    suspend fun deleteForVocabIds(vocabIds: List<Long>)
+
     @Query(
         """
         DELETE FROM undo_snapshot

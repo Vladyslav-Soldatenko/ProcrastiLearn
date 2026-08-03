@@ -3,19 +3,25 @@ package com.procrastilearn.app.ui.screens
 import android.content.Context
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.testing.ComponentActivityRegistrationRule
+import com.procrastilearn.app.ui.WordListViewModel
 import io.mockk.called
 import io.mockk.mockk
 import io.mockk.verify
@@ -42,6 +48,12 @@ class WordListScreenTest {
     private lateinit var onEdit: (VocabularyItem) -> Unit
     private lateinit var onReset: (VocabularyItem) -> Unit
     private lateinit var onNavigateBack: () -> Unit
+    private lateinit var onEnterSelectionMode: (Long) -> Unit
+    private lateinit var onToggleSelection: (Long) -> Unit
+    private lateinit var onSelectAll: (List<Long>) -> Unit
+    private lateinit var onDeselectAll: () -> Unit
+    private lateinit var onExitSelectionMode: () -> Unit
+    private lateinit var onDeleteSelected: () -> Unit
 
     private val words =
         listOf(
@@ -57,6 +69,12 @@ class WordListScreenTest {
         onEdit = mockk(relaxed = true)
         onReset = mockk(relaxed = true)
         onNavigateBack = mockk(relaxed = true)
+        onEnterSelectionMode = mockk(relaxed = true)
+        onToggleSelection = mockk(relaxed = true)
+        onSelectAll = mockk(relaxed = true)
+        onDeselectAll = mockk(relaxed = true)
+        onExitSelectionMode = mockk(relaxed = true)
+        onDeleteSelected = mockk(relaxed = true)
     }
 
     private fun string(resId: Int) = context.getString(resId)
@@ -236,6 +254,7 @@ class WordListScreenTest {
         words: List<VocabularyItem>,
         searchQuery: String = "",
         onSearchQueryChangeOverride: ((String) -> Unit)? = null,
+        selectionState: WordListViewModel.SelectionState = WordListViewModel.SelectionState(),
     ) {
         composeTestRule.setContent {
             WordListContent(
@@ -246,7 +265,303 @@ class WordListScreenTest {
                 onEdit = onEdit,
                 onReset = onReset,
                 onNavigateBack = onNavigateBack,
+                selectionState = selectionState,
+                onEnterSelectionMode = onEnterSelectionMode,
+                onToggleSelection = onToggleSelection,
+                onSelectAll = onSelectAll,
+                onDeselectAll = onDeselectAll,
+                onExitSelectionMode = onExitSelectionMode,
+                onDeleteSelected = onDeleteSelected,
             )
         }
+    }
+
+    @Test
+    fun `long-pressing a word row invokes onEnterSelectionMode with that word's id`() {
+        setContent(words = words)
+
+        composeTestRule.onNodeWithTag("word_list_item_${words[0].id}").performTouchInput { longClick() }
+
+        verify(exactly = 1) { onEnterSelectionMode(words[0].id) }
+    }
+
+    @Test
+    fun `long-pressing a row while already in selection mode does not re-invoke onEnterSelectionMode`() {
+        setContent(
+            words = words,
+            selectionState = WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(words[0].id)),
+        )
+
+        composeTestRule.onNodeWithTag("word_list_item_${words[0].id}").performTouchInput { longClick() }
+
+        verify { onEnterSelectionMode wasNot called }
+    }
+
+    @Test
+    fun `tapping a row while in selection mode invokes onToggleSelection`() {
+        setContent(words = words, selectionState = WordListViewModel.SelectionState(isActive = true))
+
+        composeTestRule.onNodeWithTag("word_list_item_${words[0].id}").performClick()
+
+        verify(exactly = 1) { onToggleSelection(words[0].id) }
+    }
+
+    @Test
+    fun `tapping the checkbox directly invokes onToggleSelection`() {
+        setContent(words = words, selectionState = WordListViewModel.SelectionState(isActive = true))
+
+        composeTestRule.onNodeWithTag("word_list_checkbox_${words[0].id}").performClick()
+
+        verify(exactly = 1) { onToggleSelection(words[0].id) }
+    }
+
+    @Test
+    fun `per-row overflow menu is hidden while in selection mode`() {
+        setContent(words = words.take(1), selectionState = WordListViewModel.SelectionState(isActive = true))
+
+        composeTestRule.onNodeWithContentDescription(string(R.string.word_list_more_actions)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `checkbox is hidden on rows when not in selection mode`() {
+        setContent(words = words.take(1))
+
+        composeTestRule.onNodeWithTag("word_list_checkbox_${words[0].id}").assertDoesNotExist()
+    }
+
+    @Test
+    fun `checkbox is visible on rows in selection mode`() {
+        setContent(words = words.take(1), selectionState = WordListViewModel.SelectionState(isActive = true))
+
+        composeTestRule.onNodeWithTag("word_list_checkbox_${words[0].id}").assertIsDisplayed()
+    }
+
+    @Test
+    fun `checkbox checked state matches per-row selection with a mixed partial selection`() {
+        setContent(
+            words = words,
+            selectionState =
+                WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(words[0].id, words[2].id)),
+        )
+
+        composeTestRule.onNodeWithTag("word_list_checkbox_${words[0].id}").assertIsOn()
+        composeTestRule.onNodeWithTag("word_list_checkbox_${words[1].id}").assertIsOff()
+        composeTestRule.onNodeWithTag("word_list_checkbox_${words[2].id}").assertIsOn()
+    }
+
+    @Test
+    fun `header shows normal title when not in selection mode`() {
+        setContent(words = words)
+
+        composeTestRule.onNodeWithText(string(R.string.word_list_title)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `header shows singular selection count`() {
+        setContent(
+            words = words,
+            selectionState = WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(words[0].id)),
+        )
+
+        composeTestRule.onNodeWithText("1 selected").assertIsDisplayed()
+    }
+
+    @Test
+    fun `header shows plural selection count`() {
+        setContent(
+            words = words,
+            selectionState =
+                WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(words[0].id, words[1].id)),
+        )
+
+        composeTestRule.onNodeWithText("2 selected").assertIsDisplayed()
+    }
+
+    @Test
+    fun `header shows zero selected without falling back to the normal title`() {
+        setContent(words = words, selectionState = WordListViewModel.SelectionState(isActive = true))
+
+        composeTestRule.onNodeWithText("0 selected").assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.word_list_title)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `clicking header back arrow while in selection mode invokes onExitSelectionMode not onNavigateBack`() {
+        setContent(
+            words = words,
+            selectionState = WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(words[0].id)),
+        )
+
+        composeTestRule
+            .onNodeWithContentDescription(string(R.string.word_list_navigate_back))
+            .performClick()
+
+        verify(exactly = 1) { onExitSelectionMode() }
+        verify { onNavigateBack wasNot called }
+    }
+
+    @Test
+    fun `clicking header back arrow while not in selection mode invokes onNavigateBack not onExitSelectionMode`() {
+        setContent(words = words)
+
+        composeTestRule
+            .onNodeWithContentDescription(string(R.string.word_list_navigate_back))
+            .performClick()
+
+        verify(exactly = 1) { onNavigateBack() }
+        verify { onExitSelectionMode wasNot called }
+    }
+
+    @Test
+    fun `selection overflow menu icon is absent when not in selection mode`() {
+        setContent(words = words)
+
+        composeTestRule
+            .onNodeWithContentDescription(string(R.string.word_list_more_actions_selection))
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun `opening the selection overflow menu shows select all and delete`() {
+        setContent(
+            words = words,
+            selectionState = WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(words[0].id)),
+        )
+
+        openSelectionMenu()
+
+        composeTestRule.onNodeWithText(string(R.string.action_select_all)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.action_delete)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `select all in overflow menu is invoked with only the currently filtered word ids`() {
+        setContent(
+            words = words,
+            searchQuery = "pe",
+            selectionState = WordListViewModel.SelectionState(isActive = true),
+        )
+
+        openSelectionMenu()
+        composeTestRule.onNodeWithText(string(R.string.action_select_all)).performClick()
+
+        verify(exactly = 1) { onSelectAll(listOf(words[2].id)) }
+    }
+
+    @Test
+    fun `selection menu label is Select all when not all displayed words are selected`() {
+        setContent(
+            words = words,
+            selectionState = WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(words[0].id)),
+        )
+
+        openSelectionMenu()
+
+        composeTestRule.onNodeWithText(string(R.string.action_select_all)).assertIsDisplayed()
+        composeTestRule.onAllNodesWithText(string(R.string.action_deselect_all)).assertCountEquals(0)
+    }
+
+    @Test
+    fun `selection menu label flips to Deselect all once all displayed words are selected`() {
+        setContent(
+            words = words,
+            selectionState =
+                WordListViewModel.SelectionState(isActive = true, selectedIds = words.map { it.id }.toSet()),
+        )
+
+        openSelectionMenu()
+
+        composeTestRule.onNodeWithText(string(R.string.action_deselect_all)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `selection menu label flips to Deselect all when selection is a superset including hidden ids`() {
+        setContent(
+            words = words,
+            searchQuery = "pe",
+            selectionState =
+                WordListViewModel.SelectionState(isActive = true, selectedIds = words.map { it.id }.toSet()),
+        )
+
+        openSelectionMenu()
+
+        composeTestRule.onNodeWithText(string(R.string.action_deselect_all)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `selection menu label shows Select all when search matches nothing`() {
+        setContent(
+            words = words,
+            searchQuery = "xyz",
+            selectionState = WordListViewModel.SelectionState(isActive = true),
+        )
+
+        openSelectionMenu()
+
+        composeTestRule.onNodeWithText(string(R.string.action_select_all)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `clicking Delete in selection overflow opens bulk delete confirmation with selected count`() {
+        setContent(
+            words = words,
+            selectionState =
+                WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(words[0].id, words[1].id)),
+        )
+
+        openSelectionMenu()
+        composeTestRule.onNodeWithText(string(R.string.action_delete)).performClick()
+
+        composeTestRule.onNodeWithText(string(R.string.word_list_bulk_delete_confirm_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Delete 2 words from your list?").assertIsDisplayed()
+    }
+
+    @Test
+    fun `confirming bulk delete dialog invokes onDeleteSelected`() {
+        setContent(
+            words = words,
+            selectionState = WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(words[0].id)),
+        )
+        openSelectionMenu()
+        composeTestRule.onNodeWithText(string(R.string.action_delete)).performClick()
+
+        composeTestRule.onNodeWithText(string(R.string.action_delete)).performClick()
+
+        verify(exactly = 1) { onDeleteSelected() }
+    }
+
+    @Test
+    fun `cancelling bulk delete dialog does not invoke onDeleteSelected`() {
+        setContent(
+            words = words,
+            selectionState = WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(words[0].id)),
+        )
+        openSelectionMenu()
+        composeTestRule.onNodeWithText(string(R.string.action_delete)).performClick()
+
+        composeTestRule.onNodeWithText(string(R.string.action_cancel)).performClick()
+
+        verify { onDeleteSelected wasNot called }
+        composeTestRule.onNodeWithText(string(R.string.word_list_bulk_delete_confirm_title)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `search field remains functional while in selection mode`() {
+        var query: String? = null
+        setContent(
+            words = words,
+            onSearchQueryChangeOverride = { query = it },
+            selectionState = WordListViewModel.SelectionState(isActive = true),
+        )
+
+        composeTestRule.onNodeWithText(string(R.string.word_list_search_label)).performTextInput("Ser")
+
+        assertThat(query).isEqualTo("Ser")
+    }
+
+    private fun openSelectionMenu() {
+        composeTestRule
+            .onNodeWithContentDescription(string(R.string.word_list_more_actions_selection))
+            .performClick()
     }
 }

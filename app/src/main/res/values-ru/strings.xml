@@ -13,6 +13,8 @@
         <string name="action_ok">ОК</string>
         <string name="action_cancel">Отмена</string>
         <string name="action_proceed">@string/action_continue</string>
+        <string name="action_select_all">Выбрать все</string>
+        <string name="action_deselect_all">Снять выделение</string>
 
     <string name="action_delete">Удалить</string>
     <string name="action_reset">Сбросить</string>
@@ -241,6 +243,8 @@
         <string name="word_list_reset_confirm_title">Сбросить прогресс</string>
         <string name="word_list_reset_confirm_message">Сбросить прогресс изучения для %1$s?</string>
         <string name="word_list_more_actions">Дополнительные действия</string>
+        <string name="word_list_more_actions_selection">Действия с выбранными</string>
+        <string name="word_list_bulk_delete_confirm_title">Удалить выбранные слова</string>
         <string name="word_list_search_label">Поиск</string>
         <string name="word_list_search_placeholder">Поиск слов</string>
         <string name="word_list_search_no_results">Совпадений не найдено</string>
@@ -287,6 +291,18 @@
             <item quantity="few">Каждые %d минуты</item>
             <item quantity="many">Каждые %d минут</item>
             <item quantity="other">Каждые %d минуты</item>
+        </plurals>
+        <plurals name="word_list_selection_count">
+            <item quantity="one">Выбрано %1$d слово</item>
+            <item quantity="few">Выбрано %1$d слова</item>
+            <item quantity="many">Выбрано %1$d слов</item>
+            <item quantity="other">Выбрано %1$d слова</item>
+        </plurals>
+        <plurals name="word_list_bulk_delete_confirm_message">
+            <item quantity="one">Удалить %1$d слово из списка?</item>
+            <item quantity="few">Удалить %1$d слова из списка?</item>
+            <item quantity="many">Удалить %1$d слов из списка?</item>
+            <item quantity="other">Удалить %1$d слова из списка?</item>
         </plurals>
 
 </resources>

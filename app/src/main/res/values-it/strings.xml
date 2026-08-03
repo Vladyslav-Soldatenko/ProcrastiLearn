@@ -18,6 +18,8 @@
     <string name="action_ok">OK</string>
     <string name="action_cancel">Annulla</string>
     <string name="action_proceed">Procedi</string>
+    <string name="action_select_all">Seleziona tutto</string>
+    <string name="action_deselect_all">Deseleziona tutto</string>
 
     <!-- ─── Text selection context menu ─────────────────────────────────────── -->
     <string name="process_text_action">Aggiungi a ProcrastiLearn</string>
@@ -276,6 +278,8 @@
         Reimpostare i progressi di apprendimento per <xliff:g id="word_name">%1$s</xliff:g>?
     </string>
     <string name="word_list_more_actions">Altre azioni</string>
+    <string name="word_list_more_actions_selection">Azioni di selezione</string>
+    <string name="word_list_bulk_delete_confirm_title">Elimina parole selezionate</string>
     <string name="word_list_search_label">Cerca</string>
     <string name="word_list_search_placeholder">Cerca parole</string>
     <string name="word_list_search_no_results">Nessun risultato trovato</string>
@@ -301,5 +305,15 @@
         <item quantity="one">Ogni %d minuto</item>
         <item quantity="many">Ogni %d minuti</item>
         <item quantity="other">Ogni %d minuti</item>
+    </plurals>
+    <plurals name="word_list_selection_count">
+        <item quantity="one">%1$d selezionata</item>
+        <item quantity="many">%1$d selezionate</item>
+        <item quantity="other">%1$d selezionate</item>
+    </plurals>
+    <plurals name="word_list_bulk_delete_confirm_message">
+        <item quantity="one">Eliminare %1$d parola selezionata dal tuo elenco?</item>
+        <item quantity="many">Eliminare %1$d parole selezionate dal tuo elenco?</item>
+        <item quantity="other">Eliminare %1$d parole selezionate dal tuo elenco?</item>
     </plurals>
 </resources>
