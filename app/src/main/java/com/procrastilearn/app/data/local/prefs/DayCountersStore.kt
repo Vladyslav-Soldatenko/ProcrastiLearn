@@ -111,7 +111,14 @@ class DayCountersStore
         fun readPolicy(): Flow<LearningPreferencesConfig> =
             ds.data.map { p ->
                 val mixName = p[K.MIX_MODE] ?: MixMode.MIX.name
-                val directionName = p[K.STUDY_DIRECTION_MODE] ?: StudyDirectionMode.FORWARD.name
+                // A brand-new install has no preferences at all yet, so it gets the new
+                // bidirectional default. An existing install already has *some* preference
+                // written (day counters, mix mode, limits, ...) even if it never touched study
+                // direction specifically - that install must keep resolving to the legacy
+                // forward-only default so upgrading doesn't silently change its behavior.
+                val directionDefault =
+                    if (p.asMap().isEmpty()) StudyDirectionMode.BIDIRECTIONAL else StudyDirectionMode.FORWARD
+                val directionName = p[K.STUDY_DIRECTION_MODE] ?: directionDefault.name
                 LearningPreferencesConfig(
                     newPerDay = p[K.NEW_PER_DAY_LIMIT] ?: DEFAULT_NEW_PER_DAY,
                     reviewPerDay = p[K.REVIEW_PER_DAY_LIMIT] ?: DEFAULT_REVIEW_PER_DAY,
@@ -119,7 +126,7 @@ class DayCountersStore
                     mixMode = runCatching { MixMode.valueOf(mixName) }.getOrDefault(MixMode.MIX),
                     studyDirectionMode =
                         runCatching { StudyDirectionMode.valueOf(directionName) }
-                            .getOrDefault(StudyDirectionMode.FORWARD),
+                            .getOrDefault(directionDefault),
                 )
             }
 

@@ -54,6 +54,21 @@ class DayCountersStoreTest {
             assertThat(policy.reviewPerDay).isEqualTo(99)
             assertThat(policy.overlayInterval).isEqualTo(0)
             assertThat(policy.mixMode).isEqualTo(MixMode.MIX)
+            // A completely empty preferences file means a fresh install: new users get the
+            // bidirectional default.
+            assertThat(policy.studyDirectionMode).isEqualTo(StudyDirectionMode.BIDIRECTIONAL)
+        }
+
+    @Test
+    fun readPolicyKeepsForwardDefaultForExistingInstallsThatNeverChoseADirection() =
+        runTest {
+            // Simulates an existing user upgrading: some other preference was already written
+            // (e.g. from a prior day of use or a settings tweak), but study direction was never
+            // touched. That install must keep resolving to the legacy forward-only default.
+            store.setMixMode(MixMode.NEW_FIRST)
+
+            val policy = store.readPolicy().first()
+
             assertThat(policy.studyDirectionMode).isEqualTo(StudyDirectionMode.FORWARD)
         }
 
