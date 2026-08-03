@@ -2,11 +2,6 @@ package com.procrastilearn.app.ui
 
 import kotlinx.coroutines.flow.MutableStateFlow
 
-/**
- * Shared [AddWordUiState] mutation shapes for the different ways the add-word flow can end,
- * split out from [AddWordViewModel] so that file stays under detekt's top-level function
- * threshold once the existing-word-conflict handling moved into [ExistingWordOverrideCoordinator].
- */
 internal fun closeExistingWordDialogWithError(
     uiState: MutableStateFlow<AddWordUiState>,
     message: String,
@@ -50,8 +45,6 @@ internal fun applyLookupFailure(
         )
 }
 
-// Shared by the "brand new word" add and the "user already acknowledged this override" submit -
-// both end the add-word flow the same way, differing only in which success string is shown.
 internal fun applySubmissionSuccess(
     uiState: MutableStateFlow<AddWordUiState>,
     successMessage: String,
@@ -90,8 +83,6 @@ internal fun applySubmissionFailure(
         )
 }
 
-// The existing-word dialog's own success shape differs from applySubmissionSuccess: it doesn't
-// touch wordError/translationError, since nothing in the dialog flow can set them.
 internal fun applyExistingWordDialogSuccess(
     uiState: MutableStateFlow<AddWordUiState>,
     successMessage: String,
