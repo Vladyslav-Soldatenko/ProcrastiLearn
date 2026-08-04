@@ -51,6 +51,15 @@ Key dependencies: Room (persistence), Hilt (DI), FSRS library (spaced-repetition
 - Composables: one per file when substantial; previews end with `Preview`
 - Tests mirror source paths, end with `*Test.kt`
 
+### Comments
+
+Default to no comments. Code must be self-documenting through naming and structure — do not add comments that just narrate what the following code does. This includes:
+
+- Restating the next line(s) in prose, e.g. `// Check for a duplicate before spending an AI request` above code that does exactly that, or `// Simulate leaving and re-entering the same word` above two `onWordChange` calls.
+- Decorative section-divider comments (e.g. `// --- Setup ---`), including in test files.
+
+A comment is worth writing only when it captures something the code itself can't: a non-obvious constraint, a subtle invariant, the reason for a workaround, or a "why" a reader can't derive by reading the surrounding lines. For example, `@Suppress("LongParameterList") // arity from composing already-decomposed collaborators, not an undecomposed monolith` explains *why* the suppression is justified — that's fine. Rationale for *why* a change was made belongs in the commit message or PR description, not as a source comment.
+
 ## Key Permissions
 
 The app requires overlay and accessibility permissions. Document rationale for any permission changes in `AndroidManifest.xml`.
