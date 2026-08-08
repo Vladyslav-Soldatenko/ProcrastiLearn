@@ -19,6 +19,8 @@
     <string name="action_ok">OK</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_proceed">Proceed</string>
+    <string name="action_select_all">Select all</string>
+    <string name="action_deselect_all">Deselect all</string>
 
     <!-- ─── Text selection context menu ─────────────────────────────────────── -->
     <string name="process_text_action">ProcrastiLearn this</string>
@@ -278,6 +280,8 @@
         Reset learning progress for <xliff:g id="word_name">%1$s</xliff:g>?
     </string>
     <string name="word_list_more_actions">More actions</string>
+    <string name="word_list_more_actions_selection">Selection actions</string>
+    <string name="word_list_bulk_delete_confirm_title">Delete selected words</string>
     <string name="word_list_search_label">Search</string>
     <string name="word_list_search_placeholder">Search words</string>
     <string name="word_list_search_no_results">No matches found</string>
@@ -298,5 +302,13 @@
     <plurals name="overlay_minutes_interval">
         <item quantity="one">Every %d minute</item>
         <item quantity="other">Every %d minutes</item>
+    </plurals>
+    <plurals name="word_list_selection_count">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
+    <plurals name="word_list_bulk_delete_confirm_message">
+        <item quantity="one">Delete %1$d word from your list?</item>
+        <item quantity="other">Delete %1$d words from your list?</item>
     </plurals>
 </resources>

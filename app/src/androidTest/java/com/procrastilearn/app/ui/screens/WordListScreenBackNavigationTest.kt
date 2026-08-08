@@ -5,8 +5,10 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.procrastilearn.app.R
+import com.procrastilearn.app.ui.WordListViewModel
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -69,6 +71,35 @@ class WordListScreenBackNavigationTest {
 
         composeTestRule.runOnIdle {
             assertEquals(1, backClicked)
+        }
+    }
+
+    @Test
+    fun systemBackPressInSelectionModeExitsSelectionModeInsteadOfNavigatingBack() {
+        var backClicked = 0
+        var exitSelectionClicked = 0
+
+        composeTestRule.setContent {
+            MyApplicationTheme(dynamicColor = false) {
+                WordListContent(
+                    words = emptyList(),
+                    searchQuery = "",
+                    onSearchQueryChange = {},
+                    onDelete = {},
+                    onEdit = {},
+                    onReset = {},
+                    onNavigateBack = { backClicked++ },
+                    selectionState = WordListViewModel.SelectionState(isActive = true),
+                    onExitSelectionMode = { exitSelectionClicked++ },
+                )
+            }
+        }
+
+        Espresso.pressBack()
+
+        composeTestRule.runOnIdle {
+            assertEquals(1, exitSelectionClicked)
+            assertEquals(0, backClicked)
         }
     }
 }

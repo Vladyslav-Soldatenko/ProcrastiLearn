@@ -18,6 +18,8 @@
     <string name="action_ok">确定</string>
     <string name="action_cancel">取消</string>
     <string name="action_proceed">@string/action_continue</string>
+    <string name="action_select_all">全选</string>
+    <string name="action_deselect_all">取消全选</string>
 
     <!-- ─── Text selection context menu ─────────────────────────────────────── -->
     <string name="process_text_action">用 ProcrastiLearn 学习</string>
@@ -245,6 +247,8 @@
     <string name="word_list_reset_confirm_title">重置进度</string>
     <string name="word_list_reset_confirm_message">确定要重置「<xliff:g id="word_name">%1$s</xliff:g>」的学习进度吗？</string>
     <string name="word_list_more_actions">更多操作</string>
+    <string name="word_list_more_actions_selection">选择操作</string>
+    <string name="word_list_bulk_delete_confirm_title">删除所选单词</string>
     <string name="word_list_search_label">搜索</string>
     <string name="word_list_search_placeholder">搜索单词</string>
     <string name="word_list_search_no_results">未找到匹配结果</string>
@@ -264,5 +268,11 @@
     </plurals>
     <plurals name="overlay_minutes_interval">
         <item quantity="other">每 %d 分钟</item>
+    </plurals>
+    <plurals name="word_list_selection_count">
+        <item quantity="other">已选择 %1$d 个</item>
+    </plurals>
+    <plurals name="word_list_bulk_delete_confirm_message">
+        <item quantity="other">确定要从列表中删除已选择的 %1$d 个单词吗？</item>
     </plurals>
 </resources>

@@ -10,6 +10,7 @@ import com.procrastilearn.app.data.local.dao.VocabularyDao
 import com.procrastilearn.app.data.local.dao.VocabularyReviewDao
 import com.procrastilearn.app.data.local.dao.VocabularyStatsDao
 import com.procrastilearn.app.data.local.database.AppDatabase
+import com.procrastilearn.app.data.local.entity.UndoSnapshotEntity
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
@@ -108,6 +109,27 @@ class VocabularyRepositoryImplTest {
             ),
         )
 
+    private fun testSnapshot(vocabId: Long) =
+        UndoSnapshotEntity(
+            vocabId = vocabId,
+            createdAt = System.currentTimeMillis(),
+            snapshotDay = todayStamp(),
+            ratingName = "GOOD",
+            direction = "FORWARD",
+            fsrsCardJson = "",
+            fsrsDueAt = 0L,
+            lastShownAt = null,
+            correctCount = 0,
+            incorrectCount = 0,
+            backwardFsrsCardJson = "",
+            backwardFsrsDueAt = 0L,
+            backwardCorrectCount = 0,
+            backwardIncorrectCount = 0,
+            newShown = 0,
+            reviewShown = 0,
+            reviewsSinceLastNew = 0,
+        )
+
     @Test
     fun `addVocabularyItem persists new vocabulary with fsrs defaults`() =
         runTest {
@@ -158,6 +180,83 @@ class VocabularyRepositoryImplTest {
                 )
 
             repository.deleteVocabularyItem(item)
+
+            val remaining = vocabularyDao.getAllVocabulary().first()
+            assertThat(remaining).isEmpty()
+        }
+
+    @Test
+    fun `deleteVocabularyItem singular still deletes exactly one row and its undo snapshot`() =
+        runTest {
+            val keepId = insertTestVocabulary("bleiben", "stay")
+            val deleteId = insertTestVocabulary("Baum", "Tree")
+            undoSnapshotDao.insert(testSnapshot(keepId))
+            undoSnapshotDao.insert(testSnapshot(deleteId))
+            val item = VocabularyItem(id = deleteId, word = "Baum", translation = "Tree", isNew = true)
+
+            repository.deleteVocabularyItem(item)
+
+            val remaining = vocabularyDao.getAllVocabulary().first()
+            assertThat(remaining.map { it.id }).containsExactly(keepId)
+            assertThat(undoSnapshotDao.count()).isEqualTo(1)
+        }
+
+    @Test
+    fun `deleteVocabularyItems deletes given rows and their undo snapshots, leaving others untouched`() =
+        runTest {
+            val keepId = insertTestVocabulary("bleiben", "stay")
+            val deleteId1 = insertTestVocabulary("Baum", "Tree")
+            val deleteId2 = insertTestVocabulary("Auto", "Car")
+            undoSnapshotDao.insert(testSnapshot(keepId))
+            undoSnapshotDao.insert(testSnapshot(deleteId1))
+            undoSnapshotDao.insert(testSnapshot(deleteId2))
+            val toDelete =
+                listOf(
+                    VocabularyItem(id = deleteId1, word = "Baum", translation = "Tree", isNew = true),
+                    VocabularyItem(id = deleteId2, word = "Auto", translation = "Car", isNew = true),
+                )
+
+            repository.deleteVocabularyItems(toDelete)
+
+            val remaining = vocabularyDao.getAllVocabulary().first()
+            assertThat(remaining.map { it.id }).containsExactly(keepId)
+            assertThat(undoSnapshotDao.count()).isEqualTo(1)
+        }
+
+    @Test
+    fun `deleteVocabularyItems with an empty list performs no writes`() =
+        runTest {
+            val keepId = insertTestVocabulary("bleiben", "stay")
+            undoSnapshotDao.insert(testSnapshot(keepId))
+
+            repository.deleteVocabularyItems(emptyList())
+
+            val remaining = vocabularyDao.getAllVocabulary().first()
+            assertThat(remaining.map { it.id }).containsExactly(keepId)
+            assertThat(undoSnapshotDao.count()).isEqualTo(1)
+        }
+
+    @Test
+    fun `deleteVocabularyItems skips ids that no longer exist without throwing`() =
+        runTest {
+            val existingId = insertTestVocabulary("bleiben", "stay")
+            val missingItem =
+                VocabularyItem(id = existingId + 999, word = "ghost", translation = "ghost", isNew = true)
+            val existingItem = VocabularyItem(id = existingId, word = "bleiben", translation = "stay", isNew = true)
+
+            repository.deleteVocabularyItems(listOf(missingItem, existingItem))
+
+            val remaining = vocabularyDao.getAllVocabulary().first()
+            assertThat(remaining).isEmpty()
+        }
+
+    @Test
+    fun `deleteVocabularyItems with duplicate entries deletes the row once without throwing`() =
+        runTest {
+            val id = insertTestVocabulary("Baum", "Tree")
+            val item = VocabularyItem(id = id, word = "Baum", translation = "Tree", isNew = true)
+
+            repository.deleteVocabularyItems(listOf(item, item))
 
             val remaining = vocabularyDao.getAllVocabulary().first()
             assertThat(remaining).isEmpty()
