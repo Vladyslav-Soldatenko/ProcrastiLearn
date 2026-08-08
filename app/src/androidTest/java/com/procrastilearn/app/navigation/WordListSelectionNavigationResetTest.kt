@@ -25,17 +25,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * WordListScreen's selection mode lives entirely in WordListViewModel, which is scoped to
- * WordList's own NavBackStackEntry. Since WordList is only ever entered via a plain
- * navController.navigate(Screen.WordList.route) (no restoreState), each visit should get a
- * fresh backstack entry - and therefore fresh state - even after the entry is popped off
- * (and possibly saved) by the bottom nav's popUpTo(saveState = true) + restoreState = true
- * dance on other tabs. This test stands in a locally-`remember`ed boolean for the real
- * ViewModel's selectionState to verify that assumption without needing Hilt test infra
- * (this codebase has none), mirroring the bare-NavHost pattern already used by
- * BottomNavigationBarTest.
- */
 @RunWith(AndroidJUnit4::class)
 class WordListSelectionNavigationResetTest {
     @get:Rule
@@ -56,15 +45,15 @@ class WordListSelectionNavigationResetTest {
                         startDestination = Screen.AddWord.route,
                         modifier = Modifier.fillMaxSize().padding(padding),
                     ) {
-                        composable(Screen.Apps.route) { Text(APPS_TEXT) }
-                        composable(Screen.AddWord.route) { Text(ADD_WORD_TEXT) }
+                        composable(Screen.Apps.route) { Text(NavTestScreenLabels.APPS_TEXT) }
+                        composable(Screen.AddWord.route) { Text(NavTestScreenLabels.ADD_WORD_TEXT) }
                         composable(Screen.WordList.route) {
                             var isActive by remember { mutableStateOf(false) }
                             Text(if (isActive) SELECTION_ACTIVE_TEXT else SELECTION_INACTIVE_TEXT)
                             Button(onClick = { isActive = true }) { Text(ENTER_SELECTION_BUTTON) }
                         }
-                        composable(Screen.Dojo.route) { Text(DOJO_TEXT) }
-                        composable(Screen.Settings.route) { Text(SETTINGS_TEXT) }
+                        composable(Screen.Dojo.route) { Text(NavTestScreenLabels.DOJO_TEXT) }
+                        composable(Screen.Settings.route) { Text(NavTestScreenLabels.SETTINGS_TEXT) }
                     }
                 }
             }
@@ -76,24 +65,17 @@ class WordListSelectionNavigationResetTest {
         composeTestRule.onNodeWithText(ENTER_SELECTION_BUTTON).performClick()
         composeTestRule.onNodeWithText(SELECTION_ACTIVE_TEXT).assertExists()
 
-        // Navigate away via the bottom nav, exactly like clickingOtherNavItemsStillNavigatesNormally.
         composeTestRule
             .onNodeWithText(composeTestRule.activity.getString(R.string.nav_dojo))
             .performClick()
-        composeTestRule.onNodeWithText(DOJO_TEXT).assertExists()
+        composeTestRule.onNodeWithText(NavTestScreenLabels.DOJO_TEXT).assertExists()
 
-        // Return to WordList the same way the real app does: AddWordScreen's plain
-        // navigate(Screen.WordList.route), never restoreState = true.
         composeTestRule.runOnIdle { navController.navigate(Screen.WordList.route) }
 
         composeTestRule.onNodeWithText(SELECTION_INACTIVE_TEXT).assertExists()
     }
 
     private companion object {
-        const val APPS_TEXT = "apps_screen"
-        const val ADD_WORD_TEXT = "add_word_screen"
-        const val DOJO_TEXT = "dojo_screen"
-        const val SETTINGS_TEXT = "settings_screen"
         const val SELECTION_ACTIVE_TEXT = "selection_active"
         const val SELECTION_INACTIVE_TEXT = "selection_inactive"
         const val ENTER_SELECTION_BUTTON = "enter_selection"
