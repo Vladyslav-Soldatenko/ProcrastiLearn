@@ -12,6 +12,7 @@
     <string name="action_continue">继续</string>
     <string name="action_view_list">查看列表</string>
     <string name="action_add">添加</string>
+    <string name="action_save">保存</string>
     <string name="action_delete">删除</string>
     <string name="action_edit">编辑</string>
     <string name="action_reset">重置</string>

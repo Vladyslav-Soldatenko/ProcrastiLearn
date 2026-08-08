@@ -6,6 +6,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithText
@@ -13,6 +14,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
@@ -34,6 +36,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@Suppress("LargeClass")
 class WordListScreenTest {
     private val composeTestRule = createComposeRule()
 
@@ -61,6 +64,20 @@ class WordListScreenTest {
             VocabularyItem(id = 2, word = "Ephemeral", translation = "Short lived", isNew = false),
             VocabularyItem(id = 3, word = "Peregrinate", translation = "To wander", isNew = false),
         )
+
+    private val bidirectionalWordWithOverrides =
+        VocabularyItem(
+            id = 4,
+            word = "Laufen",
+            translation = "to run",
+            isNew = false,
+            bidirectional = true,
+            backwardPromptOverride = "Run!",
+            backwardAnswerOverride = "Laufen (verb)",
+        )
+
+    private val bidirectionalWordWithoutOverrides =
+        VocabularyItem(id = 5, word = "Sprechen", translation = "to speak", isNew = false, bidirectional = true)
 
     @Before
     fun setup() {
@@ -166,7 +183,7 @@ class WordListScreenTest {
         wordField.performTextClearance()
         wordField.performTextInput("Updated")
 
-        composeTestRule.onNodeWithText("Save").performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_save)).performClick()
 
         verify(exactly = 1) {
             onEdit(words[0].copy(word = "Updated"))
@@ -182,7 +199,7 @@ class WordListScreenTest {
         val wordField = composeTestRule.onAllNodes(hasSetTextAction())[1]
         wordField.performTextClearance()
 
-        composeTestRule.onNodeWithText("Save").performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_save)).performClick()
 
         verify { onEdit wasNot called }
         composeTestRule.onNodeWithText(string(R.string.edit_word_title)).assertIsDisplayed()
@@ -194,10 +211,218 @@ class WordListScreenTest {
         openMenuFor()
         composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
 
-        composeTestRule.onNodeWithText("Cancel").performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_cancel)).performClick()
 
         verify { onEdit wasNot called }
         composeTestRule.onNodeWithText(string(R.string.edit_word_title)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `edit dialog shows bidirectional checkbox unchecked for a non-bidirectional word`() {
+        setContent(words = words.take(1))
+        openMenuFor()
+        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
+
+        composeTestRule.onNode(isToggleable()).assertIsOff()
+    }
+
+    @Test
+    fun `edit dialog shows bidirectional checkbox checked for a bidirectional word`() {
+        setContent(words = listOf(bidirectionalWordWithoutOverrides))
+        openMenuFor()
+        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
+
+        composeTestRule.onNode(isToggleable()).assertIsOn()
+    }
+
+    @Test
+    fun `customize action hidden in edit dialog until bidirectional is checked`() {
+        setContent(words = words.take(1))
+        openMenuFor()
+        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_customize_backward_show)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `customize fields start expanded in edit dialog when the word already has reverse overrides`() {
+        setContent(words = listOf(bidirectionalWordWithOverrides))
+        openMenuFor()
+        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
+
+        composeTestRule
+            .onNodeWithText(string(R.string.add_word_backward_prompt_label))
+            .performScrollTo()
+            .assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(string(R.string.add_word_backward_answer_label))
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    @Suppress("ktlint:standard:max-line-length")
+    fun `customize fields start collapsed in edit dialog when bidirectional is on but there are no reverse overrides`() {
+        setContent(words = listOf(bidirectionalWordWithoutOverrides))
+        openMenuFor()
+        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
+
+        composeTestRule
+            .onNodeWithText(string(R.string.add_word_customize_backward_show))
+            .performScrollTo()
+            .assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.add_word_backward_prompt_label)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `checking bidirectional checkbox in edit dialog reveals the customize action`() {
+        setContent(words = words.take(1))
+        openMenuFor()
+        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
+
+        composeTestRule.onNode(isToggleable()).performClick()
+
+        composeTestRule
+            .onNodeWithText(string(R.string.add_word_customize_backward_show))
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `unchecking bidirectional checkbox in edit dialog hides the customize action and fields`() {
+        setContent(words = listOf(bidirectionalWordWithOverrides))
+        openMenuFor()
+        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
+
+        composeTestRule.onNode(isToggleable()).performClick()
+
+        composeTestRule.onNodeWithText(string(R.string.add_word_customize_backward_show)).assertDoesNotExist()
+        composeTestRule.onNodeWithText(string(R.string.add_word_backward_prompt_label)).assertDoesNotExist()
+    }
+
+    @Test
+    @Suppress("ktlint:standard:max-line-length")
+    fun `confirming edit dialog with bidirectional checked and no overrides saves bidirectional true with null overrides`() {
+        setContent(words = words.take(1))
+        openMenuFor()
+        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
+
+        composeTestRule.onNode(isToggleable()).performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_save)).performClick()
+
+        verify(exactly = 1) {
+            onEdit(words[0].copy(bidirectional = true))
+        }
+    }
+
+    @Test
+    fun `confirming edit dialog with customized reverse fields saves the entered override text`() {
+        setContent(words = words.take(1))
+        openMenuFor()
+        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
+
+        composeTestRule.onNode(isToggleable()).performClick()
+        composeTestRule
+            .onNodeWithText(string(R.string.add_word_customize_backward_show))
+            .performScrollTo()
+            .performClick()
+        composeTestRule
+            .onNodeWithText(string(R.string.add_word_backward_prompt_label))
+            .performScrollTo()
+            .performTextInput("Run!")
+        composeTestRule
+            .onNodeWithText(string(R.string.add_word_backward_answer_label))
+            .performScrollTo()
+            .performTextInput("Laufen")
+        composeTestRule.onNodeWithText(string(R.string.action_save)).performClick()
+
+        verify(exactly = 1) {
+            onEdit(
+                words[0].copy(
+                    bidirectional = true,
+                    backwardPromptOverride = "Run!",
+                    backwardAnswerOverride = "Laufen",
+                ),
+            )
+        }
+    }
+
+    @Test
+    fun `confirming edit dialog after unchecking bidirectional clears previously saved overrides`() {
+        setContent(words = listOf(bidirectionalWordWithOverrides))
+        openMenuFor()
+        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
+
+        composeTestRule.onNode(isToggleable()).performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_save)).performClick()
+
+        verify(exactly = 1) {
+            onEdit(
+                bidirectionalWordWithOverrides.copy(
+                    bidirectional = false,
+                    backwardPromptOverride = null,
+                    backwardAnswerOverride = null,
+                ),
+            )
+        }
+    }
+
+    @Test
+    fun `confirming edit dialog with whitespace-only override fields saves null overrides`() {
+        setContent(words = words.take(1))
+        openMenuFor()
+        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
+
+        composeTestRule.onNode(isToggleable()).performClick()
+        composeTestRule
+            .onNodeWithText(string(R.string.add_word_customize_backward_show))
+            .performScrollTo()
+            .performClick()
+        composeTestRule
+            .onNodeWithText(string(R.string.add_word_backward_prompt_label))
+            .performScrollTo()
+            .performTextInput("   ")
+        composeTestRule.onNodeWithText(string(R.string.action_save)).performClick()
+
+        verify(exactly = 1) {
+            onEdit(words[0].copy(bidirectional = true))
+        }
+    }
+
+    @Test
+    fun `re-checking bidirectional in edit dialog after unchecking does not restore previously entered overrides`() {
+        setContent(words = words.take(1))
+        openMenuFor()
+        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
+
+        composeTestRule.onNode(isToggleable()).performClick()
+        composeTestRule
+            .onNodeWithText(string(R.string.add_word_customize_backward_show))
+            .performScrollTo()
+            .performClick()
+        composeTestRule
+            .onNodeWithText(string(R.string.add_word_backward_prompt_label))
+            .performScrollTo()
+            .performTextInput("temp")
+        composeTestRule.onNode(isToggleable()).performScrollTo().performClick()
+        composeTestRule.onNode(isToggleable()).performScrollTo().performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_save)).performClick()
+
+        verify(exactly = 1) {
+            onEdit(words[0].copy(bidirectional = true))
+        }
+    }
+
+    @Test
+    fun `cancelling edit dialog after toggling bidirectional does not invoke onEdit`() {
+        setContent(words = words.take(1))
+        openMenuFor()
+        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
+
+        composeTestRule.onNode(isToggleable()).performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_cancel)).performClick()
+
+        verify { onEdit wasNot called }
     }
 
     @Test
