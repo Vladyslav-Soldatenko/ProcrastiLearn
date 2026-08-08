@@ -45,15 +45,15 @@ class WordListSelectionNavigationResetTest {
                         startDestination = Screen.AddWord.route,
                         modifier = Modifier.fillMaxSize().padding(padding),
                     ) {
-                        composable(Screen.Apps.route) { Text(NavTestScreenLabels.APPS_TEXT) }
-                        composable(Screen.AddWord.route) { Text(NavTestScreenLabels.ADD_WORD_TEXT) }
+                        composable(Screen.Apps.route) { Text(APPS_TEXT) }
+                        composable(Screen.AddWord.route) { Text(ADD_WORD_TEXT) }
                         composable(Screen.WordList.route) {
                             var isActive by remember { mutableStateOf(false) }
                             Text(if (isActive) SELECTION_ACTIVE_TEXT else SELECTION_INACTIVE_TEXT)
                             Button(onClick = { isActive = true }) { Text(ENTER_SELECTION_BUTTON) }
                         }
-                        composable(Screen.Dojo.route) { Text(NavTestScreenLabels.DOJO_TEXT) }
-                        composable(Screen.Settings.route) { Text(NavTestScreenLabels.SETTINGS_TEXT) }
+                        composable(Screen.Dojo.route) { Text(DOJO_TEXT) }
+                        composable(Screen.Settings.route) { Text(SETTINGS_TEXT) }
                     }
                 }
             }
@@ -68,7 +68,7 @@ class WordListSelectionNavigationResetTest {
         composeTestRule
             .onNodeWithText(composeTestRule.activity.getString(R.string.nav_dojo))
             .performClick()
-        composeTestRule.onNodeWithText(NavTestScreenLabels.DOJO_TEXT).assertExists()
+        composeTestRule.onNodeWithText(DOJO_TEXT).assertExists()
 
         composeTestRule.runOnIdle { navController.navigate(Screen.WordList.route) }
 
@@ -76,6 +76,10 @@ class WordListSelectionNavigationResetTest {
     }
 
     private companion object {
+        const val APPS_TEXT = "apps_screen"
+        const val ADD_WORD_TEXT = "add_word_screen"
+        const val DOJO_TEXT = "dojo_screen"
+        const val SETTINGS_TEXT = "settings_screen"
         const val SELECTION_ACTIVE_TEXT = "selection_active"
         const val SELECTION_INACTIVE_TEXT = "selection_inactive"
         const val ENTER_SELECTION_BUTTON = "enter_selection"

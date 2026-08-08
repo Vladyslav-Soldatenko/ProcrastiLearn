@@ -39,11 +39,11 @@ class BottomNavigationBarTest {
                         startDestination = Screen.AddWord.route,
                         modifier = Modifier.fillMaxSize().padding(padding),
                     ) {
-                        composable(Screen.Apps.route) { Text(NavTestScreenLabels.APPS_TEXT) }
-                        composable(Screen.AddWord.route) { Text(NavTestScreenLabels.ADD_WORD_TEXT) }
-                        composable(Screen.WordList.route) { Text(NavTestScreenLabels.WORD_LIST_TEXT) }
-                        composable(Screen.Dojo.route) { Text(NavTestScreenLabels.DOJO_TEXT) }
-                        composable(Screen.Settings.route) { Text(NavTestScreenLabels.SETTINGS_TEXT) }
+                        composable(Screen.Apps.route) { Text(APPS_TEXT) }
+                        composable(Screen.AddWord.route) { Text(ADD_WORD_TEXT) }
+                        composable(Screen.WordList.route) { Text(WORD_LIST_TEXT) }
+                        composable(Screen.Dojo.route) { Text(DOJO_TEXT) }
+                        composable(Screen.Settings.route) { Text(SETTINGS_TEXT) }
                     }
                 }
             }
@@ -52,14 +52,14 @@ class BottomNavigationBarTest {
         composeTestRule.runOnIdle {
             navController.navigate(Screen.WordList.route)
         }
-        composeTestRule.onNodeWithText(NavTestScreenLabels.WORD_LIST_TEXT).assertExists()
+        composeTestRule.onNodeWithText(WORD_LIST_TEXT).assertExists()
 
         composeTestRule
             .onNodeWithText(
                 composeTestRule.activity.getString(R.string.nav_add_word),
             ).performClick()
 
-        composeTestRule.onNodeWithText(NavTestScreenLabels.ADD_WORD_TEXT).assertExists()
+        composeTestRule.onNodeWithText(ADD_WORD_TEXT).assertExists()
     }
 
     @Test
@@ -77,11 +77,11 @@ class BottomNavigationBarTest {
                         startDestination = Screen.AddWord.route,
                         modifier = Modifier.fillMaxSize().padding(padding),
                     ) {
-                        composable(Screen.Apps.route) { Text(NavTestScreenLabels.APPS_TEXT) }
-                        composable(Screen.AddWord.route) { Text(NavTestScreenLabels.ADD_WORD_TEXT) }
-                        composable(Screen.WordList.route) { Text(NavTestScreenLabels.WORD_LIST_TEXT) }
-                        composable(Screen.Dojo.route) { Text(NavTestScreenLabels.DOJO_TEXT) }
-                        composable(Screen.Settings.route) { Text(NavTestScreenLabels.SETTINGS_TEXT) }
+                        composable(Screen.Apps.route) { Text(APPS_TEXT) }
+                        composable(Screen.AddWord.route) { Text(ADD_WORD_TEXT) }
+                        composable(Screen.WordList.route) { Text(WORD_LIST_TEXT) }
+                        composable(Screen.Dojo.route) { Text(DOJO_TEXT) }
+                        composable(Screen.Settings.route) { Text(SETTINGS_TEXT) }
                     }
                 }
             }
@@ -92,6 +92,14 @@ class BottomNavigationBarTest {
                 composeTestRule.activity.getString(R.string.nav_dojo),
             ).performClick()
 
-        composeTestRule.onNodeWithText(NavTestScreenLabels.DOJO_TEXT).assertExists()
+        composeTestRule.onNodeWithText(DOJO_TEXT).assertExists()
+    }
+
+    private companion object {
+        const val APPS_TEXT = "apps_screen"
+        const val ADD_WORD_TEXT = "add_word_screen"
+        const val WORD_LIST_TEXT = "word_list_screen"
+        const val DOJO_TEXT = "dojo_screen"
+        const val SETTINGS_TEXT = "settings_screen"
     }
 }
