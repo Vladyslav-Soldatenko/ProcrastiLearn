@@ -162,8 +162,7 @@ class EditWordDialogTest {
     }
 
     @Test
-    @Suppress("ktlint:standard:max-line-length")
-    fun `customize fields start collapsed in edit dialog when bidirectional is on but there are no reverse overrides`() {
+    fun `customize fields start collapsed when bidirectional has no reverse overrides`() {
         setContent(words = listOf(bidirectionalWordWithoutOverrides))
         openMenuFor()
         composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
@@ -202,8 +201,7 @@ class EditWordDialogTest {
     }
 
     @Test
-    @Suppress("ktlint:standard:max-line-length")
-    fun `confirming edit dialog with bidirectional checked and no overrides saves bidirectional true with null overrides`() {
+    fun `confirming edit dialog with bidirectional checked and no overrides saves null overrides`() {
         setContent(words = words.take(1))
         openMenuFor()
         composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
