@@ -37,7 +37,7 @@ All data (blocked apps, vocabulary, progress, and preferences) is stored locally
 - Add a kebab menu to the overlay to delete/edit the current word.
 - Track progress properties and show analytics charts.
 - Use AI to analyze existing words, estimate level and suggest new vocabulary based on that info.
-- On export, ask to keep progress for transfer or reset it for sharing the dack.
+- On export, ask to keep progress for transfer or reset it for sharing the deck.
 - Possibility to "buy" time beforehand in dojo.
 
 ### Long Term Roadmap
