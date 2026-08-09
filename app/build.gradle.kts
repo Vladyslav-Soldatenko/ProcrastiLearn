@@ -1,11 +1,11 @@
 plugins {
-  id("com.android.application")
-  id("org.jetbrains.kotlin.plugin.compose")
-  id("org.jetbrains.kotlin.plugin.serialization")
-  id("com.google.devtools.ksp")
-  id("com.google.dagger.hilt.android")
-  id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
-  id("io.gitlab.arturbosch.detekt") version "1.23.8"
+  alias(libs.plugins.android.application)
+  alias(libs.plugins.kotlin.compose)
+  alias(libs.plugins.kotlin.serialization)
+  alias(libs.plugins.ksp)
+  alias(libs.plugins.hilt.android)
+  alias(libs.plugins.ktlint)
+  alias(libs.plugins.detekt)
   jacoco
 }
 
