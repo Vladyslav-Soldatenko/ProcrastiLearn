@@ -19,8 +19,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
@@ -62,9 +64,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.VocabularyItem
+import com.procrastilearn.app.ui.BidirectionalFields
 import com.procrastilearn.app.ui.WordListViewModel
 import com.procrastilearn.app.ui.WordListViewModel.SelectionState
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
+import com.procrastilearn.app.ui.toCardOptions
+import com.procrastilearn.app.ui.toggled
 import io.github.oikvpqya.compose.fastscroller.VerticalScrollbar
 import io.github.oikvpqya.compose.fastscroller.material3.defaultMaterialScrollbarStyle
 import io.github.oikvpqya.compose.fastscroller.rememberScrollbarAdapter
@@ -520,6 +525,29 @@ private fun EditWordDialog(
 ) {
     var word by remember { mutableStateOf(item.word) }
     var translation by remember { mutableStateOf(item.translation) }
+    var bidirectionalFields by
+        remember {
+            mutableStateOf(
+                BidirectionalFields(
+                    bidirectional = item.bidirectional,
+                    isCustomizingBackward =
+                        !item.backwardPromptOverride.isNullOrBlank() || !item.backwardAnswerOverride.isNullOrBlank(),
+                    backwardPromptOverride = item.backwardPromptOverride ?: "",
+                    backwardAnswerOverride = item.backwardAnswerOverride ?: "",
+                ),
+            )
+        }
+
+    fun applyEditedFields(): VocabularyItem {
+        val cardOptions = bidirectionalFields.toCardOptions()
+        return item.copy(
+            word = word,
+            translation = translation,
+            bidirectional = cardOptions.bidirectional,
+            backwardPromptOverride = cardOptions.backwardPromptOverride,
+            backwardAnswerOverride = cardOptions.backwardAnswerOverride,
+        )
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -527,7 +555,7 @@ private fun EditWordDialog(
             Text(text = stringResource(R.string.edit_word_title))
         },
         text = {
-            Column {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 OutlinedTextField(
                     value = word,
                     onValueChange = { word = it },
@@ -558,22 +586,41 @@ private fun EditWordDialog(
                             unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                         ),
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                BidirectionalOptionSection(
+                    visible = true,
+                    bidirectional = bidirectionalFields.bidirectional,
+                    isCustomizing = bidirectionalFields.isCustomizingBackward,
+                    backwardPromptOverride = bidirectionalFields.backwardPromptOverride,
+                    backwardAnswerOverride = bidirectionalFields.backwardAnswerOverride,
+                    onBidirectionalToggle = { checked -> bidirectionalFields = bidirectionalFields.toggled(checked) },
+                    onCustomizeToggle = {
+                        bidirectionalFields =
+                            bidirectionalFields.copy(isCustomizingBackward = !bidirectionalFields.isCustomizingBackward)
+                    },
+                    onBackwardPromptOverrideChange = {
+                        bidirectionalFields = bidirectionalFields.copy(backwardPromptOverride = it)
+                    },
+                    onBackwardAnswerOverrideChange = {
+                        bidirectionalFields = bidirectionalFields.copy(backwardAnswerOverride = it)
+                    },
+                )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
                     if (word.isNotBlank() && translation.isNotBlank()) {
-                        onConfirm(item.copy(word = word, translation = translation))
+                        onConfirm(applyEditedFields())
                     }
                 },
             ) {
-                Text("Save")
+                Text(stringResource(R.string.action_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         },
     )

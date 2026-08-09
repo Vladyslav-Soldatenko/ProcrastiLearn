@@ -13,6 +13,7 @@
     <string name="action_continue">Continue</string>
     <string name="action_view_list">View List</string>
     <string name="action_add">Add</string>
+    <string name="action_save">Save</string>
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
     <string name="action_reset">Reset</string>

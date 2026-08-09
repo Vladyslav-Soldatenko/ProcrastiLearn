@@ -12,6 +12,7 @@
     <string name="action_continue">Продовжити</string>
     <string name="action_view_list">Переглянути список</string>
     <string name="action_add">Додати</string>
+    <string name="action_save">Зберегти</string>
     <string name="action_delete">Видалити</string>
     <string name="action_edit">Редагувати</string>
     <string name="action_reset">Скинути</string>

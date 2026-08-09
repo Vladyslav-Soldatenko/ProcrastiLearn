@@ -12,6 +12,7 @@
     <string name="action_continue">Continuar</string>
     <string name="action_view_list">Ver lista</string>
     <string name="action_add">Añadir</string>
+    <string name="action_save">Guardar</string>
     <string name="action_delete">Eliminar</string>
     <string name="action_edit">Editar</string>
     <string name="action_reset">Restablecer</string>

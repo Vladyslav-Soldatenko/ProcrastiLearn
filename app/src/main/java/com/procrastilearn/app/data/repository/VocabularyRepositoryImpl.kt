@@ -84,6 +84,14 @@ class VocabularyRepositoryImpl
             withContext(io) {
                 val existingEntity = vocabularyDao.getVocabularyById(item.id)
                 if (existingEntity != null) {
+                    // Enabling bidirectional on a row that's already past its first-ever review
+                    // won't trigger the natural new-row seed in reviewVocabularyItem (wasRowNew
+                    // requires both directions still unreviewed) - seed the backward due date here
+                    // instead so the newly-enabled reverse card actually becomes reviewable.
+                    val needsBackwardSeed =
+                        item.bidirectional &&
+                            existingEntity.fsrsDueAt != 0L &&
+                            existingEntity.backwardFsrsDueAt == 0L
                     val updatedEntity =
                         existingEntity.copy(
                             word = item.word,
@@ -91,6 +99,8 @@ class VocabularyRepositoryImpl
                             bidirectional = item.bidirectional,
                             backwardPromptOverride = item.backwardPromptOverride,
                             backwardAnswerOverride = item.backwardAnswerOverride,
+                            backwardFsrsDueAt =
+                                if (needsBackwardSeed) System.currentTimeMillis() else existingEntity.backwardFsrsDueAt,
                         )
                     vocabularyDao.updateVocabulary(updatedEntity)
                     undoSnapshotDao.deleteForVocab(item.id)

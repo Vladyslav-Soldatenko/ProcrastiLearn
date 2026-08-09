@@ -597,20 +597,21 @@ internal fun AddWordUiState.withBidirectionalCleared(): AddWordUiState =
         backwardAnswerOverride = "",
     )
 
-internal fun AddWordUiState.withBidirectionalToggle(checked: Boolean): AddWordUiState =
-    copy(
-        bidirectional = checked,
-        isCustomizingBackward = if (checked) isCustomizingBackward else false,
-        backwardPromptOverride = if (checked) backwardPromptOverride else "",
-        backwardAnswerOverride = if (checked) backwardAnswerOverride else "",
+internal fun AddWordUiState.withBidirectionalToggle(checked: Boolean): AddWordUiState {
+    val toggled =
+        BidirectionalFields(bidirectional, isCustomizingBackward, backwardPromptOverride, backwardAnswerOverride)
+            .toggled(checked)
+    return copy(
+        bidirectional = toggled.bidirectional,
+        isCustomizingBackward = toggled.isCustomizingBackward,
+        backwardPromptOverride = toggled.backwardPromptOverride,
+        backwardAnswerOverride = toggled.backwardAnswerOverride,
     )
+}
 
 internal fun AddWordUiState.toCardOptions(): BidirectionalCardOptions =
-    BidirectionalCardOptions(
-        bidirectional = bidirectional,
-        backwardPromptOverride = backwardPromptOverride.ifBlank { null },
-        backwardAnswerOverride = backwardAnswerOverride.ifBlank { null },
-    )
+    BidirectionalFields(bidirectional, isCustomizingBackward, backwardPromptOverride, backwardAnswerOverride)
+        .toCardOptions()
 
 data class AddWordPreviewContent(
     val word: String,

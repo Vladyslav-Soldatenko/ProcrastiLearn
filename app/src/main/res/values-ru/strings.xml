@@ -9,6 +9,7 @@
         <string name="action_continue">Продолжить</string>
         <string name="action_view_list">Просмотреть список</string>
         <string name="action_add">Добавить</string>
+        <string name="action_save">Сохранить</string>
         <string name="action_edit">Редактировать</string>
         <string name="action_ok">ОК</string>
         <string name="action_cancel">Отмена</string>

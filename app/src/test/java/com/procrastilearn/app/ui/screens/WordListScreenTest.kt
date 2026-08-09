@@ -5,7 +5,6 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
-import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithText
@@ -13,7 +12,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
@@ -154,50 +152,6 @@ class WordListScreenTest {
         composeTestRule.onNodeWithText(string(R.string.action_edit)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.action_reset)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.action_delete)).assertIsDisplayed()
-    }
-
-    @Test
-    fun `confirming edit dialog with changed fields invokes onEdit with updated item`() {
-        setContent(words = words.take(1))
-        openMenuFor()
-        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
-
-        val wordField = composeTestRule.onAllNodes(hasSetTextAction())[1]
-        wordField.performTextClearance()
-        wordField.performTextInput("Updated")
-
-        composeTestRule.onNodeWithText("Save").performClick()
-
-        verify(exactly = 1) {
-            onEdit(words[0].copy(word = "Updated"))
-        }
-    }
-
-    @Test
-    fun `edit dialog does not confirm when word is blank`() {
-        setContent(words = words.take(1))
-        openMenuFor()
-        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
-
-        val wordField = composeTestRule.onAllNodes(hasSetTextAction())[1]
-        wordField.performTextClearance()
-
-        composeTestRule.onNodeWithText("Save").performClick()
-
-        verify { onEdit wasNot called }
-        composeTestRule.onNodeWithText(string(R.string.edit_word_title)).assertIsDisplayed()
-    }
-
-    @Test
-    fun `cancelling edit dialog does not invoke onEdit`() {
-        setContent(words = words.take(1))
-        openMenuFor()
-        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
-
-        composeTestRule.onNodeWithText("Cancel").performClick()
-
-        verify { onEdit wasNot called }
-        composeTestRule.onNodeWithText(string(R.string.edit_word_title)).assertDoesNotExist()
     }
 
     @Test

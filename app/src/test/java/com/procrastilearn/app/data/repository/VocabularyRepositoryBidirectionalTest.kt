@@ -15,6 +15,7 @@ import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.StudyDirection
 import com.procrastilearn.app.domain.model.StudyDirectionMode
+import com.procrastilearn.app.domain.model.VocabularyItem
 import io.github.openspacedrepetition.Rating
 import io.github.openspacedrepetition.Scheduler
 import io.mockk.coEvery
@@ -539,7 +540,7 @@ class VocabularyRepositoryBidirectionalTest {
             vocabularyDao.updateVocabulary(entity)
 
             repository.resetVocabularyProgress(
-                com.procrastilearn.app.domain.model.VocabularyItem(
+                VocabularyItem(
                     id = id,
                     word = "run",
                     translation = "run",
@@ -560,7 +561,7 @@ class VocabularyRepositoryBidirectionalTest {
             val id = insertVocabulary("run", bidirectional = true)
 
             repository.resetVocabularyProgress(
-                com.procrastilearn.app.domain.model.VocabularyItem(
+                VocabularyItem(
                     id = id,
                     word = "run",
                     translation = "run",
@@ -583,7 +584,7 @@ class VocabularyRepositoryBidirectionalTest {
             vocabularyDao.updateVocabulary(withOverrides)
 
             repository.resetVocabularyProgress(
-                com.procrastilearn.app.domain.model.VocabularyItem(
+                VocabularyItem(
                     id = id,
                     word = "run",
                     translation = "run",
@@ -594,5 +595,131 @@ class VocabularyRepositoryBidirectionalTest {
             val entity = vocabularyDao.getVocabularyById(id)!!
             assertThat(entity.backwardPromptOverride).isEqualTo("prompt")
             assertThat(entity.backwardAnswerOverride).isEqualTo("answer")
+        }
+
+    @Test
+    fun `enabling bidirectional via updateVocabularyItem on an already-reviewed word seeds backwardFsrsDueAt`() =
+        runTest {
+            val id = insertVocabulary("run", bidirectional = false, fsrsDueAt = System.currentTimeMillis() + 60_000)
+
+            repository.updateVocabularyItem(
+                VocabularyItem(
+                    id = id,
+                    word = "run",
+                    translation = "run",
+                    isNew = false,
+                    bidirectional = true,
+                ),
+            )
+
+            val entity = vocabularyDao.getVocabularyById(id)!!
+            assertThat(entity.bidirectional).isTrue()
+            assertThat(entity.backwardFsrsDueAt).isGreaterThan(0L)
+            assertThat(entity.backwardFsrsDueAt).isAtMost(System.currentTimeMillis())
+        }
+
+    @Test
+    @Suppress("ktlint:standard:max-line-length")
+    fun `enabling bidirectional via updateVocabularyItem on a brand-new word does not eagerly seed backwardFsrsDueAt`() =
+        runTest {
+            val id = insertVocabulary("run", bidirectional = false)
+            stubCounters()
+
+            repository.updateVocabularyItem(
+                VocabularyItem(
+                    id = id,
+                    word = "run",
+                    translation = "run",
+                    isNew = false,
+                    bidirectional = true,
+                ),
+            )
+
+            assertThat(vocabularyDao.getVocabularyById(id)?.backwardFsrsDueAt).isEqualTo(0L)
+
+            // The natural first-review seed path must still work normally after this edit.
+            repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
+
+            assertThat(vocabularyDao.getVocabularyById(id)?.backwardFsrsDueAt).isGreaterThan(0L)
+        }
+
+    @Test
+    fun `updateVocabularyItem does not overwrite an already-scheduled backwardFsrsDueAt`() =
+        runTest {
+            val id = insertVocabulary("run", bidirectional = true)
+            stubCounters()
+            repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
+            val scheduledBackwardDueAt = vocabularyDao.getVocabularyById(id)!!.backwardFsrsDueAt
+            assertThat(scheduledBackwardDueAt).isGreaterThan(0L)
+
+            repository.updateVocabularyItem(
+                VocabularyItem(
+                    id = id,
+                    word = "laufen",
+                    translation = "run",
+                    isNew = false,
+                    bidirectional = true,
+                ),
+            )
+
+            assertThat(vocabularyDao.getVocabularyById(id)?.backwardFsrsDueAt).isEqualTo(scheduledBackwardDueAt)
+        }
+
+    @Test
+    fun `disabling bidirectional via updateVocabularyItem leaves backwardFsrsDueAt untouched`() =
+        runTest {
+            val id = insertVocabulary("run", bidirectional = true)
+            stubCounters()
+            repository.reviewVocabularyItem(id, Rating.GOOD, StudyDirection.FORWARD)
+            val scheduledBackwardDueAt = vocabularyDao.getVocabularyById(id)!!.backwardFsrsDueAt
+            assertThat(scheduledBackwardDueAt).isGreaterThan(0L)
+
+            repository.updateVocabularyItem(
+                VocabularyItem(
+                    id = id,
+                    word = "run",
+                    translation = "run",
+                    isNew = false,
+                    bidirectional = false,
+                ),
+            )
+
+            val entity = vocabularyDao.getVocabularyById(id)!!
+            assertThat(entity.bidirectional).isFalse()
+            assertThat(entity.backwardFsrsDueAt).isEqualTo(scheduledBackwardDueAt)
+        }
+
+    @Test
+    fun `updateVocabularyItem persists and clears the reverse override fields`() =
+        runTest {
+            val id = insertVocabulary("run", bidirectional = true)
+
+            repository.updateVocabularyItem(
+                VocabularyItem(
+                    id = id,
+                    word = "run",
+                    translation = "run",
+                    isNew = false,
+                    bidirectional = true,
+                    backwardPromptOverride = "Run!",
+                    backwardAnswerOverride = "laufen",
+                ),
+            )
+            val withOverrides = vocabularyDao.getVocabularyById(id)!!
+            assertThat(withOverrides.backwardPromptOverride).isEqualTo("Run!")
+            assertThat(withOverrides.backwardAnswerOverride).isEqualTo("laufen")
+
+            repository.updateVocabularyItem(
+                VocabularyItem(
+                    id = id,
+                    word = "run",
+                    translation = "run",
+                    isNew = false,
+                    bidirectional = false,
+                ),
+            )
+            val cleared = vocabularyDao.getVocabularyById(id)!!
+            assertThat(cleared.backwardPromptOverride).isNull()
+            assertThat(cleared.backwardAnswerOverride).isNull()
         }
 }
