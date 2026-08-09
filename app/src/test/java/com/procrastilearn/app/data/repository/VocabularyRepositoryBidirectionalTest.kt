@@ -15,6 +15,7 @@ import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.StudyDirection
 import com.procrastilearn.app.domain.model.StudyDirectionMode
+import com.procrastilearn.app.domain.model.VocabularyItem
 import io.github.openspacedrepetition.Rating
 import io.github.openspacedrepetition.Scheduler
 import io.mockk.coEvery
@@ -539,7 +540,7 @@ class VocabularyRepositoryBidirectionalTest {
             vocabularyDao.updateVocabulary(entity)
 
             repository.resetVocabularyProgress(
-                com.procrastilearn.app.domain.model.VocabularyItem(
+                VocabularyItem(
                     id = id,
                     word = "run",
                     translation = "run",
@@ -560,7 +561,7 @@ class VocabularyRepositoryBidirectionalTest {
             val id = insertVocabulary("run", bidirectional = true)
 
             repository.resetVocabularyProgress(
-                com.procrastilearn.app.domain.model.VocabularyItem(
+                VocabularyItem(
                     id = id,
                     word = "run",
                     translation = "run",
@@ -583,7 +584,7 @@ class VocabularyRepositoryBidirectionalTest {
             vocabularyDao.updateVocabulary(withOverrides)
 
             repository.resetVocabularyProgress(
-                com.procrastilearn.app.domain.model.VocabularyItem(
+                VocabularyItem(
                     id = id,
                     word = "run",
                     translation = "run",
@@ -602,7 +603,7 @@ class VocabularyRepositoryBidirectionalTest {
             val id = insertVocabulary("run", bidirectional = false, fsrsDueAt = System.currentTimeMillis() + 60_000)
 
             repository.updateVocabularyItem(
-                com.procrastilearn.app.domain.model.VocabularyItem(
+                VocabularyItem(
                     id = id,
                     word = "run",
                     translation = "run",
@@ -625,7 +626,7 @@ class VocabularyRepositoryBidirectionalTest {
             stubCounters()
 
             repository.updateVocabularyItem(
-                com.procrastilearn.app.domain.model.VocabularyItem(
+                VocabularyItem(
                     id = id,
                     word = "run",
                     translation = "run",
@@ -652,7 +653,7 @@ class VocabularyRepositoryBidirectionalTest {
             assertThat(scheduledBackwardDueAt).isGreaterThan(0L)
 
             repository.updateVocabularyItem(
-                com.procrastilearn.app.domain.model.VocabularyItem(
+                VocabularyItem(
                     id = id,
                     word = "laufen",
                     translation = "run",
@@ -674,7 +675,7 @@ class VocabularyRepositoryBidirectionalTest {
             assertThat(scheduledBackwardDueAt).isGreaterThan(0L)
 
             repository.updateVocabularyItem(
-                com.procrastilearn.app.domain.model.VocabularyItem(
+                VocabularyItem(
                     id = id,
                     word = "run",
                     translation = "run",
@@ -694,7 +695,7 @@ class VocabularyRepositoryBidirectionalTest {
             val id = insertVocabulary("run", bidirectional = true)
 
             repository.updateVocabularyItem(
-                com.procrastilearn.app.domain.model.VocabularyItem(
+                VocabularyItem(
                     id = id,
                     word = "run",
                     translation = "run",
@@ -709,7 +710,7 @@ class VocabularyRepositoryBidirectionalTest {
             assertThat(withOverrides.backwardAnswerOverride).isEqualTo("laufen")
 
             repository.updateVocabularyItem(
-                com.procrastilearn.app.domain.model.VocabularyItem(
+                VocabularyItem(
                     id = id,
                     word = "run",
                     translation = "run",
