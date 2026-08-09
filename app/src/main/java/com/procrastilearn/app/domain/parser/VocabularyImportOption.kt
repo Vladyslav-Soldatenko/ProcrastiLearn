@@ -4,8 +4,8 @@ import androidx.annotation.StringRes
 
 data class VocabularyImportOption(
     val id: String,
-    @StringRes val titleResId: Int,
-    @StringRes val descriptionResId: Int? = null,
+    @param:StringRes val titleResId: Int,
+    @param:StringRes val descriptionResId: Int? = null,
     val mimeTypes: List<String>,
     val extensions: Set<String>,
 )

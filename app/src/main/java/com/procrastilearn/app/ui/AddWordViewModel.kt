@@ -36,7 +36,7 @@ class AddWordViewModel @Inject
         private val translationPreferences: TranslationPreferences,
         private val generateAiTranslationUseCase: GenerateAiTranslationUseCase,
         private val connectivityObserver: NetworkConnectivityObserver,
-        @ApplicationContext private val context: Context,
+        @param:ApplicationContext private val context: Context,
         private val existingWordOverrideCoordinator: ExistingWordOverrideCoordinator,
         private val processTextEventBus: ProcessTextEventBus = ProcessTextEventBus(),
     ) : ViewModel() {

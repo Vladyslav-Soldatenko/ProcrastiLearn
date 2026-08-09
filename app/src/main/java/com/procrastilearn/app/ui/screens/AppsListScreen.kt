@@ -11,6 +11,7 @@ import com.procrastilearn.app.ui.AppsViewModel
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import com.procrastilearn.app.ui.views.AppsList
 
+@Suppress("DEPRECATION") // replacement androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel is not yet published
 @Composable
 fun AppsListScreen() {
     val vm: AppsViewModel = hiltViewModel()
