@@ -538,6 +538,17 @@ private fun EditWordDialog(
             )
         }
 
+    fun applyEditedFields(): VocabularyItem {
+        val cardOptions = bidirectionalFields.toCardOptions()
+        return item.copy(
+            word = word,
+            translation = translation,
+            bidirectional = cardOptions.bidirectional,
+            backwardPromptOverride = cardOptions.backwardPromptOverride,
+            backwardAnswerOverride = cardOptions.backwardAnswerOverride,
+        )
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -600,16 +611,7 @@ private fun EditWordDialog(
             TextButton(
                 onClick = {
                     if (word.isNotBlank() && translation.isNotBlank()) {
-                        val cardOptions = bidirectionalFields.toCardOptions()
-                        onConfirm(
-                            item.copy(
-                                word = word,
-                                translation = translation,
-                                bidirectional = cardOptions.bidirectional,
-                                backwardPromptOverride = cardOptions.backwardPromptOverride,
-                                backwardAnswerOverride = cardOptions.backwardAnswerOverride,
-                            ),
-                        )
+                        onConfirm(applyEditedFields())
                     }
                 },
             ) {
