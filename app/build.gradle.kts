@@ -31,7 +31,6 @@ android {
     arg("room.schemaLocation", "$projectDir/schemas")
     arg("room.incremental", "true")
     arg("room.generateKotlin", "true")
-    arg("appfunctions:aggregateAppFunctions", "true")
   }
   sourceSets {
     getByName("androidTest").assets.setSrcDirs(listOf("$projectDir/schemas", "src/androidTest/assets"))
@@ -84,7 +83,6 @@ kotlin {
 
 dependencies {
   implementation(libs.androidx.appfunctions)
-  implementation(libs.androidx.appfunctions.service)
   ksp(libs.androidx.appfunctions.compiler)
 
   implementation(libs.fsrs)

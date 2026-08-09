@@ -1,6 +1,6 @@
 [versions]
 agp = "9.2.1"
-appfunctions = "1.0.0-alpha09"
+appfunctions = "1.0.0-alpha10"
 composeLintChecks = "1.4.2"
 datastorePreferences = "1.2.1"
 fastscrollerMaterial3 = "0.3.2"
@@ -36,7 +36,6 @@ robolectric = "4.16.1"
 
 [libraries]
 androidx-appfunctions = { group = "androidx.appfunctions", name = "appfunctions", version.ref = "appfunctions" }
-androidx-appfunctions-service = { group = "androidx.appfunctions", name = "appfunctions-service", version.ref = "appfunctions" }
 androidx-appfunctions-compiler = { group = "androidx.appfunctions", name = "appfunctions-compiler", version.ref = "appfunctions" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
