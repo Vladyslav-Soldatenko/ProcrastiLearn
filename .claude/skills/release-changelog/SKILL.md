@@ -1,5 +1,5 @@
 ---
-name: release-changelog
+name: publish-release
 description: Bump the app version with the gradle bumpVersion task, summarize the commits since the last version bump into a Play Store changelog, get the user's approval on the English text, then translate it into all other supported store locales with natural native-sounding phrasing (never a literal/robotic translation), and open a PR with the result. Use this whenever the user asks to cut a release, bump the version, prepare a changelog, or ship an update to the Play Store — trigger on phrases like "bump the version", "prepare a release", "cut a new version", "write the changelog", or "ship this update".
 ---
 
@@ -81,9 +81,8 @@ from — a mistake here propagates into every locale.
 
 ## Step 5 — Translate into every other locale
 
-For each other locale directory under `fastlane/metadata/android/` (currently
-`es-ES`, `fr-FR`, `it-IT`, `ru-RU`, `uk`, `zh-CN` — but read the actual
-directory listing rather than assuming this list is current), write
+For each other locale directory under `fastlane/metadata/android/` (read the actual
+directory listing rather than assuming language list yourself), write
 `changelogs/<newVersionCode>.txt` with a translation of the approved English
 text.
 
