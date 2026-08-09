@@ -1,6 +1,6 @@
 ---
 name: publish-release
-description: Bump the app version with the gradle bumpVersion task, summarize the commits since the last version bump into a Play Store changelog, get the user's approval on the English text, then translate it into all other supported store locales with natural native-sounding phrasing (never a literal/robotic translation), and open a PR with the result. Use this whenever the user asks to cut a release, bump the version, prepare a changelog, or ship an update to the Play Store — trigger on phrases like "bump the version", "prepare a release", "cut a new version", "write the changelog", or "ship this update".
+description: Bump the app version with the gradle bumpVersion task, summarize the commits since the last version bump into a Play Store changelog, get the user's approval on the English text, then translate it into all other supported store locales with natural native-sounding phrasing (never a literal/robotic translation), open a PR with the result, and tag the new version. Use this whenever the user asks to cut a release, bump the version, prepare a changelog, or ship an update to the Play Store — trigger on phrases like "bump the version", "prepare a release", "cut a new version", "write the changelog", or "ship this update".
 ---
 
 # Release changelog
@@ -116,3 +116,23 @@ Push to a new branch (don't push straight to the default branch) and open a
 PR. In the PR body, include the approved English changelog so reviewers don't
 have to dig through the diff to see what's being announced, and note the
 bump type and old → new version.
+
+## Step 7 — Wait for the PR to merge, then tag the release
+
+Do not tag yet — the tag must point at the merge commit on the default
+branch, not the release branch. Watch the PR (e.g. via `subscribe_pr_activity`
+if available) rather than polling, and only proceed once it's actually
+merged.
+
+Once merged:
+
+```bash
+git fetch origin <default-branch>
+git checkout <default-branch>
+git pull origin <default-branch>
+git tag -a v<newVersionName> -m "Release v<newVersionName>"
+git push origin v<newVersionName>
+```
+
+The tag name is the `versionName` prefixed with `v`, e.g. `v1.2.3` or
+`v1.4.0`. Confirm the push succeeded and tell the user the tag name.
