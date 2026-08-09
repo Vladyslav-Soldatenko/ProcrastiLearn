@@ -3,6 +3,8 @@ package com.procrastilearn.app.ui.screens
 import android.content.Context
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -52,6 +54,7 @@ class WordListScreenTest {
     private lateinit var onDeselectAll: () -> Unit
     private lateinit var onExitSelectionMode: () -> Unit
     private lateinit var onDeleteSelected: () -> Unit
+    private lateinit var onSetSelectedBidirectional: (Boolean) -> Unit
 
     private val words =
         listOf(
@@ -73,6 +76,7 @@ class WordListScreenTest {
         onDeselectAll = mockk(relaxed = true)
         onExitSelectionMode = mockk(relaxed = true)
         onDeleteSelected = mockk(relaxed = true)
+        onSetSelectedBidirectional = mockk(relaxed = true)
     }
 
     private fun string(resId: Int) = context.getString(resId)
@@ -226,6 +230,7 @@ class WordListScreenTest {
                 onDeselectAll = onDeselectAll,
                 onExitSelectionMode = onExitSelectionMode,
                 onDeleteSelected = onDeleteSelected,
+                onSetSelectedBidirectional = onSetSelectedBidirectional,
             )
         }
     }
@@ -511,6 +516,131 @@ class WordListScreenTest {
         composeTestRule.onNodeWithText(string(R.string.word_list_search_label)).performTextInput("Ser")
 
         assertThat(query).isEqualTo("Ser")
+    }
+
+    @Test
+    fun `selection kebab shows both direction actions in selection mode`() {
+        setContent(words = words, selectionState = WordListViewModel.SelectionState(isActive = true))
+
+        openSelectionMenu()
+
+        composeTestRule.onNodeWithText(string(R.string.word_list_bulk_bidirectional_enable)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.word_list_bulk_bidirectional_disable)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `selection kebab is absent outside selection mode`() {
+        setContent(words = words)
+
+        composeTestRule
+            .onNodeWithContentDescription(string(R.string.word_list_more_actions_selection))
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun `tapping test both directions applies immediately without a dialog`() {
+        setContent(
+            words = words,
+            selectionState = WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(words[0].id)),
+        )
+        openSelectionMenu()
+
+        composeTestRule.onNodeWithText(string(R.string.word_list_bulk_bidirectional_enable)).performClick()
+
+        verify(exactly = 1) { onSetSelectedBidirectional(true) }
+        composeTestRule.onNodeWithText(string(R.string.word_list_bulk_forward_only_confirm_title)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `tapping test forward only opens the confirmation dialog instead of applying`() {
+        val bidiWords = words.map { it.copy(bidirectional = true) }
+        setContent(
+            words = bidiWords,
+            selectionState = WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(bidiWords[0].id)),
+        )
+        openSelectionMenu()
+
+        composeTestRule.onNodeWithText(string(R.string.word_list_bulk_bidirectional_disable)).performClick()
+
+        composeTestRule.onNodeWithText(string(R.string.word_list_bulk_forward_only_confirm_title)).assertIsDisplayed()
+        verify { onSetSelectedBidirectional wasNot called }
+    }
+
+    @Test
+    fun `confirming the forward only dialog invokes onSetSelectedBidirectional with false`() {
+        val bidiWords = words.map { it.copy(bidirectional = true) }
+        setContent(
+            words = bidiWords,
+            selectionState = WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(bidiWords[0].id)),
+        )
+        openSelectionMenu()
+        composeTestRule.onNodeWithText(string(R.string.word_list_bulk_bidirectional_disable)).performClick()
+
+        composeTestRule.onNodeWithText(string(R.string.action_continue)).performClick()
+
+        verify(exactly = 1) { onSetSelectedBidirectional(false) }
+    }
+
+    @Test
+    fun `cancelling the forward only dialog leaves the words unchanged`() {
+        val bidiWords = words.map { it.copy(bidirectional = true) }
+        setContent(
+            words = bidiWords,
+            selectionState = WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(bidiWords[0].id)),
+        )
+        openSelectionMenu()
+        composeTestRule.onNodeWithText(string(R.string.word_list_bulk_bidirectional_disable)).performClick()
+
+        composeTestRule.onNodeWithText(string(R.string.action_cancel)).performClick()
+
+        verify { onSetSelectedBidirectional wasNot called }
+        composeTestRule.onNodeWithText(string(R.string.word_list_bulk_forward_only_confirm_title)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `forward only dialog message counts only the selected words that are bidirectional`() {
+        val mixed =
+            listOf(
+                words[0].copy(bidirectional = true),
+                words[1].copy(bidirectional = false),
+            )
+        setContent(
+            words = mixed,
+            selectionState =
+                WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(mixed[0].id, mixed[1].id)),
+        )
+        openSelectionMenu()
+
+        composeTestRule.onNodeWithText(string(R.string.word_list_bulk_bidirectional_disable)).performClick()
+
+        composeTestRule
+            .onNodeWithText(
+                "Stop testing 1 word in reverse? Reverse progress is kept and restored if you turn it back on.",
+            ).assertIsDisplayed()
+    }
+
+    @Test
+    fun `direction actions reflect selected words hidden by the active search filter`() {
+        val bidiWords = words.map { it.copy(bidirectional = true) }
+        setContent(
+            words = bidiWords,
+            searchQuery = "xyz",
+            selectionState = WordListViewModel.SelectionState(isActive = true, selectedIds = setOf(bidiWords[0].id)),
+        )
+
+        openSelectionMenu()
+
+        composeTestRule.onNodeWithText(string(R.string.word_list_bulk_bidirectional_disable)).assertIsEnabled()
+        composeTestRule.onNodeWithText(string(R.string.word_list_bulk_bidirectional_enable)).assertIsNotEnabled()
+    }
+
+    @Test
+    fun `delete menu item is greyed out when the selection is empty`() {
+        setContent(words = words, selectionState = WordListViewModel.SelectionState(isActive = true))
+
+        openSelectionMenu()
+
+        composeTestRule.onNodeWithText(string(R.string.action_delete)).assertIsNotEnabled()
     }
 
     private fun openSelectionMenu() {

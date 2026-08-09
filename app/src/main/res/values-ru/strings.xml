@@ -246,6 +246,9 @@
         <string name="word_list_more_actions">Дополнительные действия</string>
         <string name="word_list_more_actions_selection">Действия с выбранными</string>
         <string name="word_list_bulk_delete_confirm_title">Удалить выбранные слова</string>
+        <string name="word_list_bulk_bidirectional_enable">@string/add_word_bidirectional_toggle</string>
+        <string name="word_list_bulk_bidirectional_disable">Проверять только в прямом направлении</string>
+        <string name="word_list_bulk_forward_only_confirm_title">@string/word_list_bulk_bidirectional_disable</string>
         <string name="word_list_search_label">Поиск</string>
         <string name="word_list_search_placeholder">Поиск слов</string>
         <string name="word_list_search_no_results">Совпадений не найдено</string>
@@ -304,6 +307,12 @@
             <item quantity="few">Удалить %1$d слова из списка?</item>
             <item quantity="many">Удалить %1$d слов из списка?</item>
             <item quantity="other">Удалить %1$d слова из списка?</item>
+        </plurals>
+        <plurals name="word_list_bulk_forward_only_confirm_message">
+            <item quantity="one">Перестать проверять %1$d слово в обратном направлении? Прогресс в обратном направлении сохранится и восстановится, если вы включите это снова.</item>
+            <item quantity="few">Перестать проверять %1$d слова в обратном направлении? Прогресс в обратном направлении сохранится и восстановится, если вы включите это снова.</item>
+            <item quantity="many">Перестать проверять %1$d слов в обратном направлении? Прогресс в обратном направлении сохранится и восстановится, если вы включите это снова.</item>
+            <item quantity="other">Перестать проверять %1$d слова в обратном направлении? Прогресс в обратном направлении сохранится и восстановится, если вы включите это снова.</item>
         </plurals>
 
 </resources>

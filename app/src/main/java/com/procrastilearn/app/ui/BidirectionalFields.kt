@@ -7,13 +7,7 @@ internal data class BidirectionalFields(
     val backwardAnswerOverride: String = "",
 )
 
-internal fun BidirectionalFields.toggled(checked: Boolean): BidirectionalFields =
-    copy(
-        bidirectional = checked,
-        isCustomizingBackward = if (checked) isCustomizingBackward else false,
-        backwardPromptOverride = if (checked) backwardPromptOverride else "",
-        backwardAnswerOverride = if (checked) backwardAnswerOverride else "",
-    )
+internal fun BidirectionalFields.toggled(checked: Boolean): BidirectionalFields = copy(bidirectional = checked)
 
 internal fun BidirectionalFields.toCardOptions(): BidirectionalCardOptions =
     BidirectionalCardOptions(

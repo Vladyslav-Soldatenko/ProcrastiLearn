@@ -97,6 +97,7 @@ fun WordListScreen(
         onDeselectAll = viewModel::deselectAll,
         onExitSelectionMode = viewModel::exitSelectionMode,
         onDeleteSelected = viewModel::deleteSelectedWords,
+        onSetSelectedBidirectional = viewModel::setSelectedWordsBidirectional,
         onNavigateBack = onNavigateBack,
     )
 }
@@ -118,6 +119,7 @@ internal fun WordListContent(
     onDeselectAll: () -> Unit = {},
     onExitSelectionMode: () -> Unit = {},
     onDeleteSelected: () -> Unit = {},
+    onSetSelectedBidirectional: (Boolean) -> Unit = {},
     onNavigateBack: () -> Unit = {},
 ) {
     val normalizedQuery = searchQuery.trim()
@@ -130,8 +132,13 @@ internal fun WordListContent(
 
     var showSelectionMenu by remember { mutableStateOf(false) }
     var showBulkDeleteDialog by remember { mutableStateOf(false) }
+    var showForwardOnlyDialog by remember { mutableStateOf(false) }
     val allDisplayedSelected =
         displayedWords.isNotEmpty() && displayedWords.all { it.id in selectionState.selectedIds }
+    val selectedWords = words.filter { it.id in selectionState.selectedIds }
+    val canEnableBidirectional = selectedWords.any { !it.bidirectional }
+    val canDisableBidirectional = selectedWords.any { it.bidirectional }
+    val bidirectionalSelectedCount = selectedWords.count { it.bidirectional }
 
     BackHandler(enabled = selectionState.isActive) {
         onExitSelectionMode()
@@ -185,40 +192,35 @@ internal fun WordListContent(
                             tint = MaterialTheme.colorScheme.primary,
                         )
                     }
-                    DropdownMenu(
+                    WordListSelectionMenu(
                         expanded = showSelectionMenu,
+                        allDisplayedSelected = allDisplayedSelected,
+                        canSelectAll = displayedWords.isNotEmpty(),
+                        canEnableBidirectional = canEnableBidirectional,
+                        canDisableBidirectional = canDisableBidirectional,
+                        canDelete = selectionState.selectedIds.isNotEmpty(),
                         onDismissRequest = { showSelectionMenu = false },
-                    ) {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text =
-                                        stringResource(
-                                            if (allDisplayedSelected) {
-                                                R.string.action_deselect_all
-                                            } else {
-                                                R.string.action_select_all
-                                            },
-                                        ),
-                                )
-                            },
-                            onClick = {
-                                showSelectionMenu = false
-                                if (allDisplayedSelected) {
-                                    onDeselectAll()
-                                } else {
-                                    onSelectAll(displayedWords.map { it.id })
-                                }
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(text = stringResource(R.string.action_delete)) },
-                            onClick = {
-                                showSelectionMenu = false
-                                showBulkDeleteDialog = true
-                            },
-                        )
-                    }
+                        onToggleSelectAll = {
+                            showSelectionMenu = false
+                            if (allDisplayedSelected) {
+                                onDeselectAll()
+                            } else {
+                                onSelectAll(displayedWords.map { it.id })
+                            }
+                        },
+                        onEnableBidirectional = {
+                            showSelectionMenu = false
+                            onSetSelectedBidirectional(true)
+                        },
+                        onDisableBidirectional = {
+                            showSelectionMenu = false
+                            showForwardOnlyDialog = true
+                        },
+                        onDelete = {
+                            showSelectionMenu = false
+                            showBulkDeleteDialog = true
+                        },
+                    )
                 }
             }
         }
@@ -340,6 +342,17 @@ internal fun WordListContent(
             onConfirm = {
                 onDeleteSelected()
                 showBulkDeleteDialog = false
+            },
+        )
+    }
+
+    if (showForwardOnlyDialog) {
+        ForwardOnlyConfirmDialog(
+            count = bidirectionalSelectedCount,
+            onDismiss = { showForwardOnlyDialog = false },
+            onConfirm = {
+                onSetSelectedBidirectional(false)
+                showForwardOnlyDialog = false
             },
         )
     }

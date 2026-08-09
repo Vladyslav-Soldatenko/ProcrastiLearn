@@ -281,6 +281,9 @@
     <string name="word_list_more_actions">Додаткові дії</string>
     <string name="word_list_more_actions_selection">Дії з вибраними</string>
     <string name="word_list_bulk_delete_confirm_title">Видалити вибрані слова</string>
+    <string name="word_list_bulk_bidirectional_enable">@string/add_word_bidirectional_toggle</string>
+    <string name="word_list_bulk_bidirectional_disable">Перевіряти лише в прямому напрямку</string>
+    <string name="word_list_bulk_forward_only_confirm_title">@string/word_list_bulk_bidirectional_disable</string>
     <string name="word_list_search_label">Пошук</string>
     <string name="word_list_search_placeholder">Пошук слів</string>
     <string name="word_list_search_no_results">Збігів не знайдено</string>
@@ -321,5 +324,11 @@
         <item quantity="few">Видалити %1$d слова зі списку?</item>
         <item quantity="many">Видалити %1$d слів зі списку?</item>
         <item quantity="other">Видалити %1$d слова зі списку?</item>
+    </plurals>
+    <plurals name="word_list_bulk_forward_only_confirm_message">
+        <item quantity="one">Припинити перевіряти %1$d слово у зворотному напрямку? Прогрес у зворотному напрямку зберігається і відновлюється, якщо ви увімкнете це знову.</item>
+        <item quantity="few">Припинити перевіряти %1$d слова у зворотному напрямку? Прогрес у зворотному напрямку зберігається і відновлюється, якщо ви увімкнете це знову.</item>
+        <item quantity="many">Припинити перевіряти %1$d слів у зворотному напрямку? Прогрес у зворотному напрямку зберігається і відновлюється, якщо ви увімкнете це знову.</item>
+        <item quantity="other">Припинити перевіряти %1$d слова у зворотному напрямку? Прогрес у зворотному напрямку зберігається і відновлюється, якщо ви увімкнете це знову.</item>
     </plurals>
 </resources>

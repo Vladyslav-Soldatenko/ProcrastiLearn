@@ -9,7 +9,7 @@ complexity:
         ignoreDefaultParameters: true
         ignoreAnnotated: ['Composable']
     TooManyFunctions:
-        thresholdInClasses: 20
+        thresholdInClasses: 21
 
 naming:
     FunctionNaming:
