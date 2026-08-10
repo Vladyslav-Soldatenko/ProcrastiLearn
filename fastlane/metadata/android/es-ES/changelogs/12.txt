@@ -1,0 +1,4 @@
+Añadida compatibilidad bidireccional (frente-dorso y dorso-frente) al editar una palabra.
+Las nuevas instalaciones ahora estudian en modo bidireccional por defecto.
+Añadido el modo de selección múltiple en «Mi vocabulario» para eliminar o cambiar la dirección de varias palabras a la vez.
+Corregido el bajo contraste del color de las casillas de verificación.

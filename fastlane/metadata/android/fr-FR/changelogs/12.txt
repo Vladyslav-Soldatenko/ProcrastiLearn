@@ -1,0 +1,4 @@
+Ajout de la prise en charge bidirectionnelle (recto-verso et verso-recto) lors de la modification d'un mot.
+Les nouvelles installations étudient désormais en mode bidirectionnel par défaut.
+Ajout d'un mode de sélection multiple dans « Mon vocabulaire » pour supprimer ou changer la direction de plusieurs mots à la fois.
+Correction du faible contraste de la couleur des cases à cocher.
