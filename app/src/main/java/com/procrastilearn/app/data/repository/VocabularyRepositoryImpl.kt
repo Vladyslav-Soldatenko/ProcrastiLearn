@@ -36,6 +36,10 @@ import javax.inject.Singleton
 
 private const val UNDO_STACK_CAP = 3
 
+// SQLite's default SQLITE_MAX_VARIABLE_NUMBER is 999 on older Android versions; stay
+// comfortably under it when binding id lists for bulk operations.
+private const val MAX_SQLITE_BIND_ARGS = 900
+
 // How far past the first-ever review of a bidirectional card its other direction's due
 // date is seeded, so the just-answered card's opposite direction doesn't immediately
 // re-surface in the very next pick.
@@ -115,6 +119,21 @@ class VocabularyRepositoryImpl
                 appDatabase.withTransaction {
                     vocabularyDao.deleteVocabulary(items.map { it.toEntity() })
                     undoSnapshotDao.deleteForVocabIds(items.map { it.id })
+                }
+            }
+
+        override suspend fun setBidirectional(
+            ids: Set<Long>,
+            bidirectional: Boolean,
+        ): Unit =
+            withContext(io) {
+                if (ids.isEmpty()) return@withContext
+                val seedDueAt = System.currentTimeMillis()
+                appDatabase.withTransaction {
+                    ids.chunked(MAX_SQLITE_BIND_ARGS).forEach { chunk ->
+                        vocabularyDao.setBidirectional(chunk, bidirectional, seedDueAt)
+                        undoSnapshotDao.deleteForVocabIds(chunk)
+                    }
                 }
             }
 
@@ -451,21 +470,20 @@ class VocabularyRepositoryImpl
                 prefs.resetFor(today)
             }
         }
+    }
 
-        // --- existing helpers unchanged ---
-        private fun VocabularyEntity.ensureFsrs(direction: StudyDirection): VocabularyEntity =
-            when (direction) {
-                StudyDirection.FORWARD ->
-                    if (fsrsCardJson.isNotBlank()) {
-                        this
-                    } else {
-                        copy(fsrsCardJson = Card.builder().build().toJson(), fsrsDueAt = 0L)
-                    }
-                StudyDirection.BACKWARD ->
-                    if (backwardFsrsCardJson.isNotBlank()) {
-                        this
-                    } else {
-                        copy(backwardFsrsCardJson = Card.builder().build().toJson(), backwardFsrsDueAt = 0L)
-                    }
+internal fun VocabularyEntity.ensureFsrs(direction: StudyDirection): VocabularyEntity =
+    when (direction) {
+        StudyDirection.FORWARD ->
+            if (fsrsCardJson.isNotBlank()) {
+                this
+            } else {
+                copy(fsrsCardJson = Card.builder().build().toJson(), fsrsDueAt = 0L)
+            }
+        StudyDirection.BACKWARD ->
+            if (backwardFsrsCardJson.isNotBlank()) {
+                this
+            } else {
+                copy(backwardFsrsCardJson = Card.builder().build().toJson(), backwardFsrsDueAt = 0L)
             }
     }

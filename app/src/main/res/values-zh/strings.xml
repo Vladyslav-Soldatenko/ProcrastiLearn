@@ -250,6 +250,9 @@
     <string name="word_list_more_actions">更多操作</string>
     <string name="word_list_more_actions_selection">选择操作</string>
     <string name="word_list_bulk_delete_confirm_title">删除所选单词</string>
+    <string name="word_list_bulk_bidirectional_enable">@string/add_word_bidirectional_toggle</string>
+    <string name="word_list_bulk_bidirectional_disable">仅正向测试</string>
+    <string name="word_list_bulk_forward_only_confirm_title">@string/word_list_bulk_bidirectional_disable</string>
     <string name="word_list_search_label">搜索</string>
     <string name="word_list_search_placeholder">搜索单词</string>
     <string name="word_list_search_no_results">未找到匹配结果</string>
@@ -275,5 +278,8 @@
     </plurals>
     <plurals name="word_list_bulk_delete_confirm_message">
         <item quantity="other">确定要从列表中删除已选择的 %1$d 个单词吗？</item>
+    </plurals>
+    <plurals name="word_list_bulk_forward_only_confirm_message">
+        <item quantity="other">停止反向测试已选择的 %1$d 个单词？反向进度会被保留，重新开启后即可恢复。</item>
     </plurals>
 </resources>

@@ -88,4 +88,21 @@ class WordListViewModel
                 exitSelectionMode()
             }
         }
+
+        fun setSelectedWordsBidirectional(bidirectional: Boolean) {
+            val ids = selectedIdsNeedingChange(bidirectional)
+            if (ids.isEmpty()) return
+            viewModelScope.launch {
+                repository.setBidirectional(ids, bidirectional)
+                exitSelectionMode()
+            }
+        }
+
+        private fun selectedIdsNeedingChange(bidirectional: Boolean): Set<Long> {
+            val selected = _selectionState.value.selectedIds
+            return words.value
+                .filter { it.id in selected && it.bidirectional != bidirectional }
+                .map { it.id }
+                .toSet()
+        }
     }

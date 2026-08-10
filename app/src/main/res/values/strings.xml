@@ -283,6 +283,9 @@
     <string name="word_list_more_actions">More actions</string>
     <string name="word_list_more_actions_selection">Selection actions</string>
     <string name="word_list_bulk_delete_confirm_title">Delete selected words</string>
+    <string name="word_list_bulk_bidirectional_enable">@string/add_word_bidirectional_toggle</string>
+    <string name="word_list_bulk_bidirectional_disable">Test forward only</string>
+    <string name="word_list_bulk_forward_only_confirm_title">@string/word_list_bulk_bidirectional_disable</string>
     <string name="word_list_search_label">Search</string>
     <string name="word_list_search_placeholder">Search words</string>
     <string name="word_list_search_no_results">No matches found</string>
@@ -311,5 +314,9 @@
     <plurals name="word_list_bulk_delete_confirm_message">
         <item quantity="one">Delete %1$d word from your list?</item>
         <item quantity="other">Delete %1$d words from your list?</item>
+    </plurals>
+    <plurals name="word_list_bulk_forward_only_confirm_message">
+        <item quantity="one">Stop testing %1$d word in reverse? Reverse progress is kept and restored if you turn it back on.</item>
+        <item quantity="other">Stop testing %1$d words in reverse? Reverse progress is kept and restored if you turn it back on.</item>
     </plurals>
 </resources>

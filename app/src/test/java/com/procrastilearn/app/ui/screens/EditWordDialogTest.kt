@@ -247,7 +247,7 @@ class EditWordDialogTest {
     }
 
     @Test
-    fun `confirming edit dialog after unchecking bidirectional clears previously saved overrides`() {
+    fun `confirming edit dialog after unchecking bidirectional keeps previously saved overrides`() {
         setContent(words = listOf(bidirectionalWordWithOverrides))
         openMenuFor()
         composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
@@ -256,13 +256,7 @@ class EditWordDialogTest {
         composeTestRule.onNodeWithText(string(R.string.action_save)).performClick()
 
         verify(exactly = 1) {
-            onEdit(
-                bidirectionalWordWithOverrides.copy(
-                    bidirectional = false,
-                    backwardPromptOverride = null,
-                    backwardAnswerOverride = null,
-                ),
-            )
+            onEdit(bidirectionalWordWithOverrides.copy(bidirectional = false))
         }
     }
 
@@ -289,7 +283,7 @@ class EditWordDialogTest {
     }
 
     @Test
-    fun `re-checking bidirectional in edit dialog after unchecking does not restore previously entered overrides`() {
+    fun `re-checking bidirectional in edit dialog after unchecking restores the previously entered overrides`() {
         setContent(words = words.take(1))
         openMenuFor()
         composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
@@ -308,7 +302,7 @@ class EditWordDialogTest {
         composeTestRule.onNodeWithText(string(R.string.action_save)).performClick()
 
         verify(exactly = 1) {
-            onEdit(words[0].copy(bidirectional = true))
+            onEdit(words[0].copy(bidirectional = true, backwardPromptOverride = "temp"))
         }
     }
 

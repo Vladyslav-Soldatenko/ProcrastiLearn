@@ -262,6 +262,176 @@ class VocabularyRepositoryImplTest {
             assertThat(remaining).isEmpty()
         }
 
+    private suspend fun insertFullVocabulary(
+        word: String,
+        bidirectional: Boolean = false,
+        fsrsDueAt: Long = 0L,
+        backwardFsrsDueAt: Long = 0L,
+        translation: String = word,
+        backwardPromptOverride: String? = null,
+        backwardAnswerOverride: String? = null,
+        fsrsCardJson: String = "forward-json",
+        backwardFsrsCardJson: String = "backward-json",
+        correctCount: Int = 0,
+        incorrectCount: Int = 0,
+        backwardCorrectCount: Int = 0,
+        backwardIncorrectCount: Int = 0,
+    ): Long =
+        vocabularyDao.insertVocabulary(
+            VocabularyEntity(
+                word = word,
+                translation = translation,
+                bidirectional = bidirectional,
+                fsrsDueAt = fsrsDueAt,
+                backwardFsrsDueAt = backwardFsrsDueAt,
+                backwardPromptOverride = backwardPromptOverride,
+                backwardAnswerOverride = backwardAnswerOverride,
+                fsrsCardJson = fsrsCardJson,
+                backwardFsrsCardJson = backwardFsrsCardJson,
+                correctCount = correctCount,
+                incorrectCount = incorrectCount,
+                backwardCorrectCount = backwardCorrectCount,
+                backwardIncorrectCount = backwardIncorrectCount,
+            ),
+        )
+
+    @Test
+    fun `setBidirectional enables a mixed selection leaving already bidirectional rows unchanged`() =
+        runTest {
+            val toEnable = insertFullVocabulary("Haus", bidirectional = false)
+            val alreadyEnabled = insertFullVocabulary("Baum", bidirectional = true, backwardFsrsDueAt = 42L)
+
+            repository.setBidirectional(setOf(toEnable, alreadyEnabled), bidirectional = true)
+
+            assertThat(vocabularyDao.getVocabularyById(toEnable)?.bidirectional).isTrue()
+            val untouched = vocabularyDao.getVocabularyById(alreadyEnabled)
+            assertThat(untouched?.bidirectional).isTrue()
+            assertThat(untouched?.backwardFsrsDueAt).isEqualTo(42L)
+        }
+
+    @Test
+    fun `setBidirectional disables a mixed selection leaving already forward-only rows unchanged`() =
+        runTest {
+            val toDisable = insertFullVocabulary("Haus", bidirectional = true)
+            val alreadyForward = insertFullVocabulary("Baum", bidirectional = false)
+
+            repository.setBidirectional(setOf(toDisable, alreadyForward), bidirectional = false)
+
+            assertThat(vocabularyDao.getVocabularyById(toDisable)?.bidirectional).isFalse()
+            assertThat(vocabularyDao.getVocabularyById(alreadyForward)?.bidirectional).isFalse()
+        }
+
+    @Test
+    fun `setBidirectional with an empty id set performs no writes`() =
+        runTest {
+            val id = insertFullVocabulary("Haus", bidirectional = false)
+            undoSnapshotDao.insert(testSnapshot(id))
+
+            repository.setBidirectional(emptySet(), bidirectional = true)
+
+            assertThat(vocabularyDao.getVocabularyById(id)?.bidirectional).isFalse()
+            assertThat(undoSnapshotDao.count()).isEqualTo(1)
+        }
+
+    @Test
+    fun `setBidirectional purges undo snapshots for the affected rows`() =
+        runTest {
+            val id = insertFullVocabulary("Haus", bidirectional = false)
+            undoSnapshotDao.insert(testSnapshot(id))
+
+            repository.setBidirectional(setOf(id), bidirectional = true)
+
+            assertThat(undoSnapshotDao.count()).isEqualTo(0)
+        }
+
+    @Test
+    fun `setBidirectional leaves undo snapshots of unaffected rows intact`() =
+        runTest {
+            val changed = insertFullVocabulary("Haus", bidirectional = false)
+            val unaffected = insertFullVocabulary("Baum", bidirectional = false)
+            undoSnapshotDao.insert(testSnapshot(changed))
+            undoSnapshotDao.insert(testSnapshot(unaffected))
+
+            repository.setBidirectional(setOf(changed), bidirectional = true)
+
+            assertThat(undoSnapshotDao.count()).isEqualTo(1)
+        }
+
+    @Test
+    fun `setBidirectional seeds all rows in one batch to the same instant`() =
+        runTest {
+            val first = insertFullVocabulary("Haus", fsrsDueAt = 100L, backwardFsrsDueAt = 0L)
+            val second = insertFullVocabulary("Baum", fsrsDueAt = 200L, backwardFsrsDueAt = 0L)
+
+            repository.setBidirectional(setOf(first, second), bidirectional = true)
+
+            val firstDue = vocabularyDao.getVocabularyById(first)?.backwardFsrsDueAt
+            val secondDue = vocabularyDao.getVocabularyById(second)?.backwardFsrsDueAt
+            assertThat(firstDue).isGreaterThan(0L)
+            assertThat(firstDue).isEqualTo(secondDue)
+        }
+
+    @Test
+    fun `setBidirectional chunks id sets larger than the sqlite bind limit`() =
+        runTest {
+            val ids = (1..1000).map { insertFullVocabulary("word$it", bidirectional = false) }.toSet()
+
+            repository.setBidirectional(ids, bidirectional = true)
+
+            ids.forEach { id ->
+                assertThat(vocabularyDao.getVocabularyById(id)?.bidirectional).isTrue()
+            }
+        }
+
+    @Test
+    fun `setBidirectional preserves backward prompt and answer overrides when disabling`() =
+        runTest {
+            val id =
+                insertFullVocabulary(
+                    "Haus",
+                    bidirectional = true,
+                    backwardPromptOverride = "custom prompt",
+                    backwardAnswerOverride = "custom answer",
+                )
+
+            repository.setBidirectional(setOf(id), bidirectional = false)
+
+            val entity = vocabularyDao.getVocabularyById(id)
+            assertThat(entity?.backwardPromptOverride).isEqualTo("custom prompt")
+            assertThat(entity?.backwardAnswerOverride).isEqualTo("custom answer")
+        }
+
+    @Test
+    fun `setBidirectional preserves backward fsrs card json and counters when disabling`() =
+        runTest {
+            val id =
+                insertFullVocabulary(
+                    "Haus",
+                    bidirectional = true,
+                    backwardFsrsCardJson = "bwd-json",
+                    backwardCorrectCount = 5,
+                    backwardIncorrectCount = 2,
+                )
+
+            repository.setBidirectional(setOf(id), bidirectional = false)
+
+            val entity = vocabularyDao.getVocabularyById(id)
+            assertThat(entity?.backwardFsrsCardJson).isEqualTo("bwd-json")
+            assertThat(entity?.backwardCorrectCount).isEqualTo(5)
+            assertThat(entity?.backwardIncorrectCount).isEqualTo(2)
+        }
+
+    @Test
+    fun `re-enabling after disabling restores the previous backward due date rather than reseeding`() =
+        runTest {
+            val id = insertFullVocabulary("Haus", bidirectional = true, fsrsDueAt = 500L, backwardFsrsDueAt = 250L)
+
+            repository.setBidirectional(setOf(id), bidirectional = false)
+            repository.setBidirectional(setOf(id), bidirectional = true)
+
+            assertThat(vocabularyDao.getVocabularyById(id)?.backwardFsrsDueAt).isEqualTo(250L)
+        }
+
     @Test
     fun `resetVocabularyProgress clears scheduling state and counters`() =
         runTest {
