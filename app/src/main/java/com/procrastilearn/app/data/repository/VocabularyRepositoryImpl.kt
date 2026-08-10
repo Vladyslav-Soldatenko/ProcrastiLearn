@@ -470,20 +470,20 @@ class VocabularyRepositoryImpl
                 prefs.resetFor(today)
             }
         }
+    }
 
-        private fun VocabularyEntity.ensureFsrs(direction: StudyDirection): VocabularyEntity =
-            when (direction) {
-                StudyDirection.FORWARD ->
-                    if (fsrsCardJson.isNotBlank()) {
-                        this
-                    } else {
-                        copy(fsrsCardJson = Card.builder().build().toJson(), fsrsDueAt = 0L)
-                    }
-                StudyDirection.BACKWARD ->
-                    if (backwardFsrsCardJson.isNotBlank()) {
-                        this
-                    } else {
-                        copy(backwardFsrsCardJson = Card.builder().build().toJson(), backwardFsrsDueAt = 0L)
-                    }
+internal fun VocabularyEntity.ensureFsrs(direction: StudyDirection): VocabularyEntity =
+    when (direction) {
+        StudyDirection.FORWARD ->
+            if (fsrsCardJson.isNotBlank()) {
+                this
+            } else {
+                copy(fsrsCardJson = Card.builder().build().toJson(), fsrsDueAt = 0L)
+            }
+        StudyDirection.BACKWARD ->
+            if (backwardFsrsCardJson.isNotBlank()) {
+                this
+            } else {
+                copy(backwardFsrsCardJson = Card.builder().build().toJson(), backwardFsrsDueAt = 0L)
             }
     }

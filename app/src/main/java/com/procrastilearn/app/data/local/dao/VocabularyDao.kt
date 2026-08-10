@@ -45,9 +45,6 @@ interface VocabularyDao {
     @Query("DELETE FROM vocabulary")
     suspend fun deleteAllVocabulary()
 
-    // Enabling seeds backwardFsrsDueAt only for rows already reviewed forward and never
-    // seeded backward, mirroring the seed rule in VocabularyRepositoryImpl.updateVocabularyItem
-    // so a newly-enabled reverse card actually becomes reviewable instead of staying dormant.
     @Query(
         """
         UPDATE vocabulary
