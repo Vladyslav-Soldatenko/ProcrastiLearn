@@ -1,0 +1,4 @@
+Aggiunto il supporto bidirezionale (fronte-retro e retro-fronte) durante la modifica di una parola.
+Le nuove installazioni ora studiano in modalità bidirezionale per impostazione predefinita.
+Aggiunta la modalità di selezione multipla in «Il mio vocabolario» per eliminare o cambiare la direzione di più parole insieme.
+Corretto il basso contrasto del colore delle caselle di controllo.
