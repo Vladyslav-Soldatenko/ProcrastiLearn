@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
+import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +23,13 @@ fun AddCardsForTodaySettingsItem(
 ) {
     ListItem(
         headlineContent = { Text(stringResource(R.string.settings_add_cards_for_today_title)) },
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Default.LibraryAdd,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
         trailingContent = {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
