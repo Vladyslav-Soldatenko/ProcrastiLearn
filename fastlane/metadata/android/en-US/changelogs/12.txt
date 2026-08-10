@@ -1,0 +1,4 @@
+Add bidirectional support (front-to-back and back-to-front) when editing a word.
+New installs now study bidirectionally by default.
+Add multi-select mode to My Vocabulary for bulk delete and bulk direction changes.
+Fix low-contrast checkbox color.
