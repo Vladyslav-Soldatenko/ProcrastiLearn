@@ -3,8 +3,11 @@ package com.procrastilearn.app.overlay
 import android.content.Context
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
@@ -152,6 +155,90 @@ class OverlayScreenTest {
         composeTestRule.runOnIdle {
             assertThat(selectedRating).isEqualTo(Rating.GOOD)
         }
+    }
+
+    @Test
+    fun `shows countdown and disabled rating buttons while rating is locked`() {
+        val questionText = context.getString(R.string.learning_question)
+        val ratingLabels: List<String> =
+            listOf(
+                context.getString(R.string.rating_again),
+                context.getString(R.string.rating_hard),
+                context.getString(R.string.rating_good),
+                context.getString(R.string.rating_easy),
+            )
+        var selectedRating: Rating? = null
+
+        composeTestRule.setContent {
+            OverlayScreen(
+                uiState =
+                    OverlayUiState(
+                        vocabularyItem = sampleVocabularyItem,
+                        showAnswer = true,
+                        ratingDelaySeconds = 3,
+                        ratingLockSecondsRemaining = 3,
+                    ),
+                onToggleShowAnswer = {},
+                onDifficultySelected = { selectedRating = it },
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithTag("rating_lock_countdown").assertIsDisplayed()
+        composeTestRule.onAllNodesWithText(questionText).assertCountEquals(0)
+
+        ratingLabels.forEach { label ->
+            composeTestRule.onNodeWithText(label).assertIsNotEnabled()
+        }
+
+        composeTestRule.onNodeWithText(context.getString(R.string.rating_good)).performClick()
+        composeTestRule.runOnIdle {
+            assertThat(selectedRating).isNull()
+        }
+    }
+
+    @Test
+    fun `shows prompt and enabled rating buttons once the lock reaches zero`() {
+        val questionText = context.getString(R.string.learning_question)
+
+        composeTestRule.setContent {
+            OverlayScreen(
+                uiState =
+                    OverlayUiState(
+                        vocabularyItem = sampleVocabularyItem,
+                        showAnswer = true,
+                        ratingDelaySeconds = 3,
+                        ratingLockSecondsRemaining = 0,
+                    ),
+                onToggleShowAnswer = {},
+                onDifficultySelected = {},
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithTag("rating_lock_countdown").assertDoesNotExist()
+        composeTestRule.onNodeWithText(questionText).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.rating_good)).assertIsEnabled()
+    }
+
+    @Test
+    fun `does not show countdown while the answer is hidden`() {
+        composeTestRule.setContent {
+            OverlayScreen(
+                uiState =
+                    OverlayUiState(
+                        vocabularyItem = sampleVocabularyItem,
+                        showAnswer = false,
+                        ratingDelaySeconds = 3,
+                        ratingLockSecondsRemaining = 0,
+                    ),
+                onToggleShowAnswer = {},
+                onDifficultySelected = {},
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithTag("rating_lock_countdown").assertDoesNotExist()
     }
 
     @Test

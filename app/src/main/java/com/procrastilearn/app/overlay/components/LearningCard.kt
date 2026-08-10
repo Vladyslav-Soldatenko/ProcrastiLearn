@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
@@ -34,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -54,6 +57,7 @@ fun LearningCard(
     state: OverlayUiState,
     onToggleShowAnswer: () -> Unit,
     onDifficultySelected: (Rating) -> Unit,
+    ratingLockSecondsRemaining: Int,
     modifier: Modifier = Modifier,
     showTranslationButtonHeight: androidx.compose.ui.unit.Dp = 52.dp,
     addNavigationBarsPadding: Boolean = true,
@@ -185,19 +189,35 @@ fun LearningCard(
                     color = OverlayThemeTokens.colors.divider,
                     thickness = 1.dp,
                 )
-                Text(
-                    text = stringResource(R.string.learning_question),
-                    color = OverlayThemeTokens.colors.helpText,
-                    fontSize = 14.sp,
+                Box(
                     modifier =
                         Modifier
                             .padding(top = 2.dp, bottom = 8.dp)
-                            .fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                )
+                            .fillMaxWidth()
+                            .heightIn(min = 28.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (ratingLockSecondsRemaining > 0) {
+                        Text(
+                            text = ratingLockSecondsRemaining.toString(),
+                            color = OverlayThemeTokens.colors.helpText,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.testTag("rating_lock_countdown"),
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(R.string.learning_question),
+                            color = OverlayThemeTokens.colors.helpText,
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
                 DifficultyButtons(
                     onDifficultySelected = onDifficultySelected,
-                    enabled = true,
+                    enabled = ratingLockSecondsRemaining == 0,
                     modifier =
                         Modifier
                             .fillMaxWidth()

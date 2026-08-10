@@ -199,6 +199,7 @@ class OverlayAccessibilityService : AccessibilityService() {
                     ServiceViewModelFactory(
                         getNextVocabularyItemUseCase,
                         getSaveDifficultyRatingUseCase,
+                        dayCountersStore,
                     ),
                 ).get(OverlayViewModel::class.java)
             // Seed the already-loaded word so the first composition renders it immediately,

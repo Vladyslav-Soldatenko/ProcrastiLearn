@@ -167,6 +167,11 @@
     <string name="settings_overlay_interval_title">每隔 X 分钟显示悬浮窗</string>
     <string name="settings_overlay_interval_headline">打开被拦截应用时，每隔 X 分钟显示一次悬浮窗</string>
 
+    <!-- Rating delay -->
+    <string name="settings_rating_delay_title">评分延迟</string>
+    <string name="settings_rating_delay_headline">需等待一段时间才能给卡片评分</string>
+    <string name="settings_rating_delay_off">关闭</string>
+
     <string name="settings_overlay_headline">悬浮窗权限</string>
     <string name="settings_overlay_support">需要此权限才能在所选应用上层显示学习卡片。</string>
 
@@ -269,6 +274,9 @@
     </plurals>
     <plurals name="overlay_minutes_interval">
         <item quantity="other">每 %d 分钟</item>
+    </plurals>
+    <plurals name="rating_delay_seconds">
+        <item quantity="other">%d 秒</item>
     </plurals>
     <plurals name="word_list_selection_count">
         <item quantity="other">已选择 %1$d 个</item>

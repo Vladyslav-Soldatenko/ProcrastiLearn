@@ -31,6 +31,7 @@ data class SettingsUiState(
     val newPerDay: Int = 10,
     val reviewPerDay: Int = 100,
     val overlayInterval: Int = 6,
+    val ratingDelaySeconds: Int = 0,
     val openAiApiKey: String? = null,
     val openAiPrompt: String = OpenAiPromptDefaults.translationPrompt,
     val openAiReversePrompt: String = OpenAiPromptDefaults.reverseTranslationPrompt,
@@ -62,6 +63,7 @@ class SettingsViewModel
                         newPerDay = policy.newPerDay,
                         reviewPerDay = policy.reviewPerDay,
                         overlayInterval = policy.overlayInterval,
+                        ratingDelaySeconds = policy.ratingDelaySeconds,
                         openAiApiKey = apiKey,
                         openAiPrompt = prompt,
                         openAiReversePrompt = reversePrompt,
@@ -117,6 +119,10 @@ class SettingsViewModel
 
         fun onOverlayIntervalChange(value: Int) {
             viewModelScope.launch { dayCountersStore.setOverlayInterval(value) }
+        }
+
+        fun onRatingDelayChange(value: Int) {
+            viewModelScope.launch { dayCountersStore.setRatingDelaySeconds(value) }
         }
 
         fun onOpenAiApiKeyChange(value: String) {

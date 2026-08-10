@@ -137,6 +137,8 @@ internal fun DojoScreen(
                                         state = overlayState,
                                         onToggleShowAnswer = onToggleShowAnswer,
                                         onDifficultySelected = onDifficultySelected,
+                                        // Dojo is voluntary practice, not a gate: never delay rating.
+                                        ratingLockSecondsRemaining = 0,
                                         showTranslationButtonHeight = 56.dp,
                                         addNavigationBarsPadding = false,
                                     )

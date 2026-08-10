@@ -32,16 +32,19 @@ class DayCountersStore
             val REVIEW_PER_DAY_LIMIT = intPreferencesKey("review_per_day_limit")
             val OVERLAY_INTERVAL_TIME = intPreferencesKey("overlay_interval_time")
             val STUDY_DIRECTION_MODE = stringPreferencesKey("study_direction_mode")
+            val RATING_DELAY_SECONDS = intPreferencesKey("rating_delay_seconds")
         }
 
         private companion object {
             const val DEFAULT_NEW_PER_DAY = 15
             const val DEFAULT_REVIEW_PER_DAY = 99
             const val DEFAULT_OVERLAY_INTERVAL_TIME = 0
+            const val DEFAULT_RATING_DELAY_SECONDS = 0
             const val MIN_LIMIT = 0
             const val MAX_NEW_PER_DAY = 200
             const val MAX_REVIEW_PER_DAY = 2000
             const val MAX_OVERLAY_INTERVAL_MINUTES = 2000
+            const val MAX_RATING_DELAY_SECONDS = 60
         }
 
         fun read(): Flow<DayCounters> =
@@ -120,6 +123,7 @@ class DayCountersStore
                     studyDirectionMode =
                         runCatching { StudyDirectionMode.valueOf(directionName) }
                             .getOrDefault(StudyDirectionMode.BIDIRECTIONAL),
+                    ratingDelaySeconds = p[K.RATING_DELAY_SECONDS] ?: DEFAULT_RATING_DELAY_SECONDS,
                 )
             }
 
@@ -141,5 +145,9 @@ class DayCountersStore
 
         suspend fun setOverlayInterval(value: Int) {
             ds.edit { it[K.OVERLAY_INTERVAL_TIME] = value.coerceIn(MIN_LIMIT, MAX_OVERLAY_INTERVAL_MINUTES) }
+        }
+
+        suspend fun setRatingDelaySeconds(value: Int) {
+            ds.edit { it[K.RATING_DELAY_SECONDS] = value.coerceIn(MIN_LIMIT, MAX_RATING_DELAY_SECONDS) }
         }
     }

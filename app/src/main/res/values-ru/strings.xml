@@ -178,6 +178,12 @@
         <!-- Overlay interval -->
         <string name="settings_overlay_interval_title">Показывать оверлей каждые X минут</string>
         <string name="settings_overlay_interval_headline">Показывать оверлей каждые X минут, пока открыто заблокированное приложение</string>
+
+        <!-- Rating delay -->
+        <string name="settings_rating_delay_title">Задержка оценки</string>
+        <string name="settings_rating_delay_headline">Подождите, прежде чем сможете оценить карточку</string>
+        <string name="settings_rating_delay_off">Выкл.</string>
+
         <string name="settings_openai_api_key_title">Ключ OpenAI API</string>
         <string name="settings_openai_api_key_dialog_title">Введите ключ OpenAI API</string>
         <string name="settings_openai_api_key_not_set">Не задан</string>
@@ -292,6 +298,12 @@
             <item quantity="few">Каждые %d минуты</item>
             <item quantity="many">Каждые %d минут</item>
             <item quantity="other">Каждые %d минуты</item>
+        </plurals>
+        <plurals name="rating_delay_seconds">
+            <item quantity="one">%d секунда</item>
+            <item quantity="few">%d секунды</item>
+            <item quantity="many">%d секунд</item>
+            <item quantity="other">%d секунды</item>
         </plurals>
         <plurals name="word_list_selection_count">
             <item quantity="one">Выбрано %1$d слово</item>

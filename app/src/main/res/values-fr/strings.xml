@@ -182,6 +182,11 @@
     <string name="settings_overlay_interval_title">Afficher la superposition toutes les X minutes</string>
     <string name="settings_overlay_interval_headline">Afficher la superposition toutes les X minutes tant que l’application bloquée est ouverte</string>
 
+    <!-- Rating delay -->
+    <string name="settings_rating_delay_title">Délai de notation</string>
+    <string name="settings_rating_delay_headline">Attendre avant de pouvoir noter une carte</string>
+    <string name="settings_rating_delay_off">Désactivé</string>
+
     <string name="settings_overlay_headline">Autorisation de superposition</string>
     <string name="settings_overlay_support">
         Nécessaire pour afficher la carte d’apprentissage par-dessus les applications sélectionnées.
@@ -306,6 +311,11 @@
         <item quantity="one">Toutes les %d minute</item>
         <item quantity="many">Toutes les %d minutes</item>
         <item quantity="other">Toutes les %d minutes</item>
+    </plurals>
+    <plurals name="rating_delay_seconds">
+        <item quantity="one">%d seconde</item>
+        <item quantity="many">%d secondes</item>
+        <item quantity="other">%d secondes</item>
     </plurals>
     <plurals name="word_list_selection_count">
         <item quantity="one">%1$d sélectionné</item>

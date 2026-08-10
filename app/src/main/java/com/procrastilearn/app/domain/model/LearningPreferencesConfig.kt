@@ -14,4 +14,5 @@ data class LearningPreferencesConfig(
     val mixMode: MixMode = MixMode.MIX, // MIX | REVIEWS_FIRST | NEW_FIRST
     val overlayInterval: Int = 6,
     val studyDirectionMode: StudyDirectionMode = StudyDirectionMode.FORWARD,
+    val ratingDelaySeconds: Int = 0,
 )

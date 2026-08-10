@@ -7,4 +7,6 @@ data class OverlayUiState(
     val showAnswer: Boolean = false,
     val unlocked: Boolean = false,
     val isLoading: Boolean = false,
+    val ratingDelaySeconds: Int = 0,
+    val ratingLockSecondsRemaining: Int = 0,
 )

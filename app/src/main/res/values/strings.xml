@@ -183,6 +183,11 @@
     <string name="settings_overlay_interval_title">Show overlay every X minutes</string>
     <string name="settings_overlay_interval_headline">Show overlay each X minutes while blocked app is open</string>
 
+    <!-- Rating delay -->
+    <string name="settings_rating_delay_title">Rating delay</string>
+    <string name="settings_rating_delay_headline">Wait before you can rate a card</string>
+    <string name="settings_rating_delay_off">Off</string>
+
     <string name="settings_overlay_headline">Overlay permission</string>
     <string name="settings_overlay_support">
         Needed to show the learning card over selected apps.
@@ -303,6 +308,10 @@
     <plurals name="overlay_minutes_interval">
         <item quantity="one">Every %d minute</item>
         <item quantity="other">Every %d minutes</item>
+    </plurals>
+    <plurals name="rating_delay_seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
     </plurals>
     <plurals name="word_list_selection_count">
         <item quantity="one">%1$d selected</item>
