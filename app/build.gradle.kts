@@ -114,6 +114,7 @@ dependencies {
   implementation(libs.androidx.ui.tooling.preview)
   implementation(libs.androidx.material3)
   implementation(libs.androidx.material.icons.extended)
+  lintChecks(libs.compose.lint.checks)
   implementation("${libs.zstd.jni.get()}@aar")
   testImplementation(libs.zstd.jni)
   testImplementation(libs.junit)
