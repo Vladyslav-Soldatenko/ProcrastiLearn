@@ -107,7 +107,10 @@ fun WordListScreen(
 }
 
 @Composable
-@Suppress("LongMethod")
+// Selection-mode header, search, empty states, and bulk-action dialogs are one screen's worth
+// of state; splitting further would mean threading shared MutableState across composable
+// boundaries for marginal gain, at real risk to this screen's bulk-selection correctness.
+@Suppress("LongMethod", "CognitiveComplexMethod")
 internal fun WordListContent(
     words: ImmutableList<VocabularyItem>,
     searchQuery: String,
@@ -363,7 +366,7 @@ internal fun WordListContent(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-@Suppress("LongMethod")
+@Suppress("LongMethod", "CognitiveComplexMethod")
 @Composable
 fun WordListItem(
     item: VocabularyItem,
@@ -726,32 +729,34 @@ private fun BulkDeleteWordsDialog(
     )
 }
 
+private val previewWords =
+    persistentListOf(
+        VocabularyItem(
+            id = 1,
+            word = "Serendipity",
+            translation = "Happy accident; pleasant surprise",
+            isNew = true,
+        ),
+        VocabularyItem(
+            id = 2,
+            word = "Ephemeral",
+            translation = "Lasting for a very short time",
+            isNew = false,
+        ),
+        VocabularyItem(
+            id = 3,
+            word = "Peregrinate",
+            translation = "To travel or wander around",
+            isNew = false,
+        ),
+    )
+
 @Preview(showBackground = true)
 @Composable
 private fun WordListContentNoSearchPreview() {
     MyApplicationTheme {
         WordListContent(
-            words =
-                persistentListOf(
-                    VocabularyItem(
-                        id = 1,
-                        word = "Serendipity",
-                        translation = "Happy accident; pleasant surprise",
-                        isNew = true,
-                    ),
-                    VocabularyItem(
-                        id = 2,
-                        word = "Ephemeral",
-                        translation = "Lasting for a very short time",
-                        isNew = false,
-                    ),
-                    VocabularyItem(
-                        id = 3,
-                        word = "Peregrinate",
-                        translation = "To travel or wander around",
-                        isNew = false,
-                    ),
-                ),
+            words = previewWords,
             searchQuery = "",
             onSearchQueryChange = {},
             onDelete = {},
@@ -766,27 +771,7 @@ private fun WordListContentNoSearchPreview() {
 private fun WordListContentFilteredPreview() {
     MyApplicationTheme {
         WordListContent(
-            words =
-                persistentListOf(
-                    VocabularyItem(
-                        id = 1,
-                        word = "Serendipity",
-                        translation = "Happy accident; pleasant surprise",
-                        isNew = true,
-                    ),
-                    VocabularyItem(
-                        id = 2,
-                        word = "Ephemeral",
-                        translation = "Lasting for a very short time",
-                        isNew = false,
-                    ),
-                    VocabularyItem(
-                        id = 3,
-                        word = "Peregrinate",
-                        translation = "To travel or wander around",
-                        isNew = false,
-                    ),
-                ),
+            words = previewWords,
             searchQuery = "pe",
             onSearchQueryChange = {},
             onDelete = {},
@@ -801,27 +786,7 @@ private fun WordListContentFilteredPreview() {
 private fun WordListContentNoMatchesPreview() {
     MyApplicationTheme {
         WordListContent(
-            words =
-                persistentListOf(
-                    VocabularyItem(
-                        id = 1,
-                        word = "Serendipity",
-                        translation = "Happy accident; pleasant surprise",
-                        isNew = true,
-                    ),
-                    VocabularyItem(
-                        id = 2,
-                        word = "Ephemeral",
-                        translation = "Lasting for a very short time",
-                        isNew = false,
-                    ),
-                    VocabularyItem(
-                        id = 3,
-                        word = "Peregrinate",
-                        translation = "To travel or wander around",
-                        isNew = false,
-                    ),
-                ),
+            words = previewWords,
             searchQuery = "xyz",
             onSearchQueryChange = {},
             onDelete = {},

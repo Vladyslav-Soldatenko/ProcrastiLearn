@@ -34,16 +34,6 @@ class DayCountersStore
             val STUDY_DIRECTION_MODE = stringPreferencesKey("study_direction_mode")
         }
 
-        private companion object {
-            const val DEFAULT_NEW_PER_DAY = 15
-            const val DEFAULT_REVIEW_PER_DAY = 99
-            const val DEFAULT_OVERLAY_INTERVAL_TIME = 0
-            const val MIN_LIMIT = 0
-            const val MAX_NEW_PER_DAY = 200
-            const val MAX_REVIEW_PER_DAY = 2000
-            const val MAX_OVERLAY_INTERVAL_MINUTES = 2000
-        }
-
         fun read(): Flow<DayCounters> =
             ds.data.map { p ->
                 DayCounters(
@@ -141,5 +131,15 @@ class DayCountersStore
 
         suspend fun setOverlayInterval(value: Int) {
             ds.edit { it[K.OVERLAY_INTERVAL_TIME] = value.coerceIn(MIN_LIMIT, MAX_OVERLAY_INTERVAL_MINUTES) }
+        }
+
+        private companion object {
+            const val DEFAULT_NEW_PER_DAY = 15
+            const val DEFAULT_REVIEW_PER_DAY = 99
+            const val DEFAULT_OVERLAY_INTERVAL_TIME = 0
+            const val MIN_LIMIT = 0
+            const val MAX_NEW_PER_DAY = 200
+            const val MAX_REVIEW_PER_DAY = 2000
+            const val MAX_OVERLAY_INTERVAL_MINUTES = 2000
         }
     }

@@ -149,62 +149,78 @@ fun LearningCard(
             // When translation is hidden, push footer to the bottom.
             if (!state.showAnswer) Spacer(modifier = Modifier.weight(1f))
 
-            // Footer swaps content in-place:
-            if (!state.showAnswer) {
-                // Bottom: Show translation button
-                val buttonModifier =
-                    if (addNavigationBarsPadding) {
-                        Modifier
-                            .fillMaxWidth()
-                            .height(showTranslationButtonHeight)
-                            .navigationBarsPadding()
-                    } else {
-                        Modifier
-                            .fillMaxWidth()
-                            .height(showTranslationButtonHeight)
-                    }
-                OutlinedButton(
-                    onClick = onToggleShowAnswer,
-                    modifier = buttonModifier,
-                    shape = RoundedCornerShape(14.dp),
-                    colors =
-                        ButtonDefaults.outlinedButtonColors(
-                            contentColor = OverlayThemeTokens.colors.showButtonContent,
-                        ),
-                ) {
-                    Text(
-                        stringResource(R.string.learning_show_translation),
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-            } else {
-                // Bottom: divider + help + difficulty buttons (replaces the Show button)
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 6.dp),
-                    color = OverlayThemeTokens.colors.divider,
-                    thickness = 1.dp,
-                )
-                Text(
-                    text = stringResource(R.string.learning_question),
-                    color = OverlayThemeTokens.colors.helpText,
-                    fontSize = 14.sp,
-                    modifier =
-                        Modifier
-                            .padding(top = 2.dp, bottom = 8.dp)
-                            .fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                )
-                DifficultyButtons(
-                    onDifficultySelected = onDifficultySelected,
-                    enabled = true,
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .navigationBarsPadding(),
-                )
-            }
+            LearningCardFooter(
+                showAnswer = state.showAnswer,
+                onToggleShowAnswer = onToggleShowAnswer,
+                onDifficultySelected = onDifficultySelected,
+                showTranslationButtonHeight = showTranslationButtonHeight,
+                addNavigationBarsPadding = addNavigationBarsPadding,
+            )
         }
+    }
+}
+
+@Composable
+private fun LearningCardFooter(
+    showAnswer: Boolean,
+    onToggleShowAnswer: () -> Unit,
+    onDifficultySelected: (Rating) -> Unit,
+    showTranslationButtonHeight: androidx.compose.ui.unit.Dp,
+    addNavigationBarsPadding: Boolean,
+) {
+    if (!showAnswer) {
+        // Bottom: Show translation button
+        val buttonModifier =
+            if (addNavigationBarsPadding) {
+                Modifier
+                    .fillMaxWidth()
+                    .height(showTranslationButtonHeight)
+                    .navigationBarsPadding()
+            } else {
+                Modifier
+                    .fillMaxWidth()
+                    .height(showTranslationButtonHeight)
+            }
+        OutlinedButton(
+            onClick = onToggleShowAnswer,
+            modifier = buttonModifier,
+            shape = RoundedCornerShape(14.dp),
+            colors =
+                ButtonDefaults.outlinedButtonColors(
+                    contentColor = OverlayThemeTokens.colors.showButtonContent,
+                ),
+        ) {
+            Text(
+                stringResource(R.string.learning_show_translation),
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center,
+            )
+        }
+    } else {
+        // Bottom: divider + help + difficulty buttons (replaces the Show button)
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 6.dp),
+            color = OverlayThemeTokens.colors.divider,
+            thickness = 1.dp,
+        )
+        Text(
+            text = stringResource(R.string.learning_question),
+            color = OverlayThemeTokens.colors.helpText,
+            fontSize = 14.sp,
+            modifier =
+                Modifier
+                    .padding(top = 2.dp, bottom = 8.dp)
+                    .fillMaxWidth(),
+            textAlign = TextAlign.Center,
+        )
+        DifficultyButtons(
+            onDifficultySelected = onDifficultySelected,
+            enabled = true,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding(),
+        )
     }
 }
 

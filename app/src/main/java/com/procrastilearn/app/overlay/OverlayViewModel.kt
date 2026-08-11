@@ -96,20 +96,17 @@ class OverlayViewModel
                             )
                         }
                     }.onFailure { exception ->
-                        when (exception) {
-                            is NoAvailableItemsException -> {
-                                // Handle the case where limits are reached
-                                _uiState.update {
-                                    it.copy(
-                                        isLoading = false,
-                                        unlocked = true,
-                                    )
-                                }
+                        if (exception is NoAvailableItemsException) {
+                            // Handle the case where limits are reached
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    unlocked = true,
+                                )
                             }
-                            else -> {
-                                _uiState.update {
-                                    it.copy(isLoading = false)
-                                }
+                        } else {
+                            _uiState.update {
+                                it.copy(isLoading = false)
                             }
                         }
                     }
