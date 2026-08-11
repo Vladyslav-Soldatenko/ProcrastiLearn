@@ -268,19 +268,15 @@ class DayCountersStoreTest {
         }
 
     @Test
-    fun setRatingDelaySecondsClampsNegativeValueToZero() =
+    fun setRatingDelaySecondsDoesNotClampOutOfRangeValues() =
         runTest {
+            // Range validation is the settings dialog's job (min/maxValue on the input),
+            // not the store's -- it stores whatever it is given, including out-of-range input.
             store.setRatingDelaySeconds(-1)
+            assertThat(store.readPolicy().first().ratingDelaySeconds).isEqualTo(-1)
 
-            assertThat(store.readPolicy().first().ratingDelaySeconds).isEqualTo(0)
-        }
-
-    @Test
-    fun setRatingDelaySecondsClampsAboveMaxToSixty() =
-        runTest {
-            store.setRatingDelaySeconds(61)
-
-            assertThat(store.readPolicy().first().ratingDelaySeconds).isEqualTo(60)
+            store.setRatingDelaySeconds(999)
+            assertThat(store.readPolicy().first().ratingDelaySeconds).isEqualTo(999)
         }
 
     @Test

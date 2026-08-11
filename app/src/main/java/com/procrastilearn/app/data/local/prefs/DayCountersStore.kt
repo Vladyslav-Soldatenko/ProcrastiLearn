@@ -44,7 +44,6 @@ class DayCountersStore
             const val MAX_NEW_PER_DAY = 200
             const val MAX_REVIEW_PER_DAY = 2000
             const val MAX_OVERLAY_INTERVAL_MINUTES = 2000
-            const val MAX_RATING_DELAY_SECONDS = 60
         }
 
         fun read(): Flow<DayCounters> =
@@ -148,6 +147,8 @@ class DayCountersStore
         }
 
         suspend fun setRatingDelaySeconds(value: Int) {
-            ds.edit { it[K.RATING_DELAY_SECONDS] = value.coerceIn(MIN_LIMIT, MAX_RATING_DELAY_SECONDS) }
+            // Range validation happens in the settings dialog (NumberInputDialog min/maxValue);
+            // this setter trusts its caller instead of duplicating the bound here.
+            ds.edit { it[K.RATING_DELAY_SECONDS] = value }
         }
     }
