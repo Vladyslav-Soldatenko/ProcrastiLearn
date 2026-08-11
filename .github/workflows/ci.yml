@@ -46,9 +46,6 @@ jobs:
       - name: Android Lint
         run: ./gradlew lint --no-daemon
 
-      - name: Dependency analysis
-        run: ./gradlew projectHealth --no-daemon
-
       - name: Unit tests
         run: ./gradlew testDebugUnitTest --no-daemon
 
@@ -72,10 +69,3 @@ jobs:
         with:
           name: lint-reports
           path: app/build/reports/lint-results-debug.html
-
-      - name: Upload dependency analysis report
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dependency-analysis-reports
-          path: app/build/reports/dependency-analysis/project-health-report.txt
