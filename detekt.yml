@@ -10,10 +10,64 @@ complexity:
         ignoreAnnotated: ['Composable']
     TooManyFunctions:
         thresholdInClasses: 20
+    CognitiveComplexMethod:
+        active: true
+        threshold: 15
+    StringLiteralDuplication:
+        active: true
+        threshold: 3
+    MethodOverloading:
+        active: true
+    NestedScopeFunctions:
+        active: true
+    ReplaceSafeCallChainWithRun:
+        active: true
+
+coroutines:
+    GlobalCoroutineUsage:
+        active: true
+    SuspendFunSwallowedCancellation:
+        active: true
+    SuspendFunWithCoroutineScopeReceiver:
+        active: true
+
+exceptions:
+    NotImplementedDeclaration:
+        active: true
+    ObjectExtendsThrowable:
+        active: true
 
 naming:
     FunctionNaming:
         ignoreAnnotated: ['Composable']
+
+potential-bugs:
+    CastToNullableType:
+        active: true
+    CastNullableToNonNullableType:
+        active: true
+    DontDowncastCollectionTypes:
+        active: true
+    ElseCaseInsteadOfExhaustiveWhen:
+        active: true
+    ImplicitUnitReturnType:
+        active: true
+    LateinitUsage:
+        active: true
+    MissingPackageDeclaration:
+        active: true
+    NullCheckOnMutableProperty:
+        active: true
+    NullableToStringCall:
+        active: true
+    PropertyUsedBeforeDeclaration:
+        active: true
+    UnconditionalJumpStatementInLoop:
+        active: true
+    UnnecessaryNotNullCheck:
+        active: true
+    Deprecation:
+        active: true
 
 style:
     MaxLineLength:
@@ -35,3 +89,46 @@ style:
         ignoreAnnotated: ['Preview']
     UnusedPrivateProperty:
         ignoreAnnotated: ['Preview']
+
+    CanBeNonNullable:
+        active: true
+    ClassOrdering:
+        active: true
+    CollapsibleIfStatements:
+        active: true
+    DataClassContainsFunctions:
+        active: true
+    DataClassShouldBeImmutable:
+        active: true
+    ForbiddenMethodCall:
+        active: true
+        methods:
+            - 'kotlin.io.println'
+            - 'kotlin.io.print'
+    MandatoryBracesLoops:
+        active: true
+    BracesOnIfStatements:
+        active: true
+        singleLine: 'never'
+    BracesOnWhenStatements:
+        active: true
+        singleLine: 'never'
+    MaxChainedCallsOnSameLine:
+        active: true
+        maxChainedCalls: 5
+    NullableBooleanCheck:
+        active: true
+    RedundantExplicitType:
+        active: true
+    RedundantVisibilityModifierRule:
+        active: true
+    UnnecessaryInnerClass:
+        active: true
+    UnnecessaryLet:
+        active: true
+    UnnecessaryParentheses:
+        active: true
+    UseDataClass:
+        active: true
+    UseIfInsteadOfWhen:
+        active: true
