@@ -39,13 +39,15 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.AppInfo
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
 
 private const val DISABLED_ROW_ALPHA = 0.6f
 
 @Composable
 fun AppsList(
-    apps: List<AppInfo>,
-    selectedKeys: Set<String>,
+    apps: ImmutableList<AppInfo>,
+    selectedKeys: ImmutableSet<String>,
     isEnabled: Boolean,
     isLoading: Boolean,
     errorMessage: String?,
@@ -193,68 +195,70 @@ private fun AppRow(
     enabled: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
-    Surface(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .testTag("app_row_${app.packageName}")
-                .clickable(enabled = enabled) { onCheckedChange(!checked) },
-        color =
-            when {
-                !enabled -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
-                checked -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.12f)
-                else -> MaterialTheme.colorScheme.surface
-            },
-    ) {
-        Row(
+    Column {
+        Surface(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .alpha(if (enabled) 1f else DISABLED_ROW_ALPHA),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    .testTag("app_row_${app.packageName}")
+                    .clickable(enabled = enabled) { onCheckedChange(!checked) },
+            color =
+                when {
+                    !enabled -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+                    checked -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.12f)
+                    else -> MaterialTheme.colorScheme.surface
+                },
         ) {
-            // App icon
-            app.icon?.let { drawable ->
-                Image(
-                    painter = rememberDrawablePainter(drawable),
-                    contentDescription = null,
-                    modifier = Modifier.size(30.dp),
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .alpha(if (enabled) 1f else DISABLED_ROW_ALPHA),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                // App icon
+                app.icon?.let { drawable ->
+                    Image(
+                        painter = rememberDrawablePainter(drawable),
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp),
+                    )
+                }
+
+                // App name
+                Text(
+                    text = app.label,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                // Checkbox
+                Checkbox(
+                    checked = checked,
+                    onCheckedChange = onCheckedChange,
+                    enabled = enabled,
+                    modifier = Modifier.testTag("app_checkbox_${app.packageName}"),
+                    colors =
+                        CheckboxDefaults.colors(
+                            checkedColor = MaterialTheme.colorScheme.primary,
+                            uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            checkmarkColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
                 )
             }
-
-            // App name
-            Text(
-                text = app.label,
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-
-            // Checkbox
-            Checkbox(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
-                enabled = enabled,
-                modifier = Modifier.testTag("app_checkbox_${app.packageName}"),
-                colors =
-                    CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.colorScheme.primary,
-                        uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        checkmarkColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
-            )
         }
-    }
 
-    // Divider between items
-    HorizontalDivider(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        thickness = 1.dp,
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-    )
+        // Divider between items
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+        )
+    }
 }
 
 // Helper composable to convert Drawable to Painter

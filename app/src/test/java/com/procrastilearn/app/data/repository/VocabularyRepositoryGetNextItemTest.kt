@@ -315,7 +315,7 @@ class VocabularyRepositoryGetNextItemTest {
         }
 
     // Test 7: MIX mode interleaving logic
-    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @Suppress("CyclomaticComplexMethod", "LongMethod", "CognitiveComplexMethod")
     @Test
     fun `getNextVocabularyItem in MIX mode interleaves new and reviews properly`() =
         runTest {

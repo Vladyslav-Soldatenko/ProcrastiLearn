@@ -23,7 +23,7 @@ class BidirectionalFieldsTest {
     }
 
     @Test
-    fun `toggled false clears bidirectional customize flag and both overrides`() {
+    fun `toggled false keeps both overrides`() {
         val fields =
             BidirectionalFields(
                 bidirectional = true,
@@ -35,13 +35,27 @@ class BidirectionalFieldsTest {
         val result = fields.toggled(false)
 
         assertThat(result.bidirectional).isFalse()
-        assertThat(result.isCustomizingBackward).isFalse()
-        assertThat(result.backwardPromptOverride).isEmpty()
-        assertThat(result.backwardAnswerOverride).isEmpty()
+        assertThat(result.backwardPromptOverride).isEqualTo("prompt")
+        assertThat(result.backwardAnswerOverride).isEqualTo("answer")
     }
 
     @Test
-    fun `toggled true after a prior toggled false does not restore previously cleared overrides`() {
+    fun `toggled false keeps the customize flag`() {
+        val fields =
+            BidirectionalFields(
+                bidirectional = true,
+                isCustomizingBackward = true,
+                backwardPromptOverride = "prompt",
+                backwardAnswerOverride = "answer",
+            )
+
+        val result = fields.toggled(false)
+
+        assertThat(result.isCustomizingBackward).isTrue()
+    }
+
+    @Test
+    fun `toggled false then true round-trips back to the original fields`() {
         val fields =
             BidirectionalFields(
                 bidirectional = true,
@@ -52,10 +66,7 @@ class BidirectionalFieldsTest {
 
         val result = fields.toggled(false).toggled(true)
 
-        assertThat(result.bidirectional).isTrue()
-        assertThat(result.isCustomizingBackward).isFalse()
-        assertThat(result.backwardPromptOverride).isEmpty()
-        assertThat(result.backwardAnswerOverride).isEmpty()
+        assertThat(result).isEqualTo(fields)
     }
 
     @Test
@@ -98,5 +109,20 @@ class BidirectionalFieldsTest {
         val options = fields.toCardOptions()
 
         assertThat(options.bidirectional).isFalse()
+    }
+
+    @Test
+    fun `toCardOptions emits overrides even when bidirectional is false`() {
+        val fields =
+            BidirectionalFields(
+                bidirectional = false,
+                backwardPromptOverride = "prompt",
+                backwardAnswerOverride = "answer",
+            )
+
+        val options = fields.toCardOptions()
+
+        assertThat(options.backwardPromptOverride).isEqualTo("prompt")
+        assertThat(options.backwardAnswerOverride).isEqualTo("answer")
     }
 }

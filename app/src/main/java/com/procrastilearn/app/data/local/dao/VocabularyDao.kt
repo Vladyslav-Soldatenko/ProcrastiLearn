@@ -44,4 +44,22 @@ interface VocabularyDao {
 
     @Query("DELETE FROM vocabulary")
     suspend fun deleteAllVocabulary()
+
+    @Query(
+        """
+        UPDATE vocabulary
+        SET
+            bidirectional = :bidirectional,
+            backwardFsrsDueAt = CASE
+                WHEN :bidirectional = 1 AND fsrsDueAt != 0 AND backwardFsrsDueAt = 0 THEN :seedDueAt
+                ELSE backwardFsrsDueAt
+            END
+        WHERE id IN (:ids)
+    """,
+    )
+    suspend fun setBidirectional(
+        ids: List<Long>,
+        bidirectional: Boolean,
+        seedDueAt: Long,
+    )
 }

@@ -101,30 +101,32 @@ internal fun AiToggleRow(
     onUseAiToggle: (Boolean) -> Unit,
     onTranslationDirectionToggle: () -> Unit,
 ) {
-    if (useAiForTranslation) {
-        TranslationDirectionRow(
-            direction = translationDirection,
-            nativeLanguageCode = nativeLanguageCode,
-            targetLanguageCode = targetLanguageCode,
-            onToggle = onTranslationDirectionToggle,
-            modifier = Modifier.fillMaxWidth(),
-        )
+    Column {
+        if (useAiForTranslation) {
+            TranslationDirectionRow(
+                direction = translationDirection,
+                nativeLanguageCode = nativeLanguageCode,
+                targetLanguageCode = targetLanguageCode,
+                onToggle = onTranslationDirectionToggle,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Checkbox(
+                checked = useAiForTranslation,
+                onCheckedChange = { onUseAiToggle(it) },
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.add_word_use_ai_toggle),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.align(Alignment.CenterVertically),
+            )
+        }
         Spacer(modifier = Modifier.height(8.dp))
     }
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Checkbox(
-            checked = useAiForTranslation,
-            onCheckedChange = { onUseAiToggle(it) },
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = stringResource(R.string.add_word_use_ai_toggle),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.align(Alignment.CenterVertically),
-        )
-    }
-    Spacer(modifier = Modifier.height(8.dp))
 }
 
 @Composable

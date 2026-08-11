@@ -48,6 +48,9 @@ class SettingsAnkiImportE2eTest {
     private lateinit var targetContext: Context
     private lateinit var instrumentationContext: Context
 
+    private val testAssetProviderAuthority: String
+        get() = "${instrumentationContext.packageName}.test-assets"
+
     @Before
     fun beforeEach() {
         instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -111,9 +114,6 @@ class SettingsAnkiImportE2eTest {
             .appendPath("anki")
             .appendPath(DECK_FILE_NAME)
             .build()
-
-    private val testAssetProviderAuthority: String
-        get() = "${instrumentationContext.packageName}.test-assets"
 
     private fun prepareDocumentPickerResponse(uri: Uri) {
         instrumentationContext.grantUriPermission(

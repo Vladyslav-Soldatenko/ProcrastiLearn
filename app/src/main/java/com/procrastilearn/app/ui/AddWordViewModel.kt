@@ -36,7 +36,7 @@ class AddWordViewModel @Inject
         private val translationPreferences: TranslationPreferences,
         private val generateAiTranslationUseCase: GenerateAiTranslationUseCase,
         private val connectivityObserver: NetworkConnectivityObserver,
-        @ApplicationContext private val context: Context,
+        @param:ApplicationContext private val context: Context,
         private val existingWordOverrideCoordinator: ExistingWordOverrideCoordinator,
         private val processTextEventBus: ProcessTextEventBus = ProcessTextEventBus(),
     ) : ViewModel() {
@@ -141,7 +141,9 @@ class AddWordViewModel @Inject
                 )
         }
 
-        @Suppress("LongMethod")
+        // AI-mode duplicate-preflight and manual-translation paths share submission state;
+        // splitting risks desyncing the loading/error state updates between branches.
+        @Suppress("LongMethod", "CognitiveComplexMethod")
         fun onAddClick() {
             val currentState = _uiState.value
             if (currentState.word.isBlank()) {
@@ -211,7 +213,7 @@ class AddWordViewModel @Inject
                         showExistingWordDialog(_uiState, preflight.word)
                         return@launch
                     }
-                    ExistingWordPreflight.NoConflict -> Unit
+                    ExistingWordPreflight.NoConflict -> {}
                 }
 
                 val finalTranslation = resolveTranslationForAdd(_uiState, generateAiTranslationUseCase, currentState)

@@ -6,6 +6,7 @@ import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.ui.AddWordPreviewContent
 import com.procrastilearn.app.ui.PendingWordUi
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
+import kotlinx.collections.immutable.persistentListOf
 
 @Preview(showBackground = true, name = "Add Word • AI Enabled")
 @Composable
@@ -38,7 +39,7 @@ private fun AddWordContentPreviewAiEnabled() {
             loadingAction = null,
             isOnline = true,
             isAddLaterMode = false,
-            pendingWords = emptyList(),
+            pendingWords = persistentListOf(),
             onDeletePendingWord = {},
             onWordChange = {},
             onTranslationChange = {},
@@ -83,7 +84,7 @@ private fun AddWordContentPreviewOffline() {
             isOnline = false,
             isAddLaterMode = true,
             pendingWords =
-                listOf(
+                persistentListOf(
                     PendingWordUi(id = 1, word = "Haus"),
                     PendingWordUi(id = 2, word = "Auto"),
                     PendingWordUi(id = 3, word = "Fenster"),
@@ -110,7 +111,7 @@ private fun PendingWordsSectionPreview() {
     MyApplicationTheme {
         PendingWordsSection(
             pendingWords =
-                listOf(
+                persistentListOf(
                     PendingWordUi(id = 1, word = "Haus"),
                     PendingWordUi(id = 2, word = "Auto"),
                 ),
@@ -172,7 +173,7 @@ private fun AddWordContentPreviewBidirectionalCustomized() {
             loadingAction = null,
             isOnline = true,
             isAddLaterMode = false,
-            pendingWords = emptyList(),
+            pendingWords = persistentListOf(),
             showBidirectionalOption = true,
             bidirectional = true,
             isCustomizingBackward = true,
@@ -225,7 +226,7 @@ private fun AddWordContentPreview() {
             loadingAction = null,
             isOnline = true,
             isAddLaterMode = false,
-            pendingWords = emptyList(),
+            pendingWords = persistentListOf(),
             onDeletePendingWord = {},
             onWordChange = {},
             onTranslationChange = {},

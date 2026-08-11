@@ -41,6 +41,7 @@ import com.procrastilearn.app.ui.dojo.components.DojoStatsHeader
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import io.github.openspacedrepetition.Rating
 
+@Suppress("DEPRECATION") // replacement androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel is not yet published
 @Composable
 fun DojoScreen(viewModel: DojoViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsState()
@@ -158,7 +159,6 @@ private fun ratingLabel(rating: Rating): String =
         Rating.HARD -> stringResource(R.string.rating_hard)
         Rating.GOOD -> stringResource(R.string.rating_good)
         Rating.EASY -> stringResource(R.string.rating_easy)
-        else -> rating.name
     }
 
 @Composable

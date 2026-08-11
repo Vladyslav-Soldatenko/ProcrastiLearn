@@ -35,17 +35,6 @@ class DayCountersStore
             val RATING_DELAY_SECONDS = intPreferencesKey("rating_delay_seconds")
         }
 
-        private companion object {
-            const val DEFAULT_NEW_PER_DAY = 15
-            const val DEFAULT_REVIEW_PER_DAY = 99
-            const val DEFAULT_OVERLAY_INTERVAL_TIME = 0
-            const val DEFAULT_RATING_DELAY_SECONDS = 0
-            const val MIN_LIMIT = 0
-            const val MAX_NEW_PER_DAY = 200
-            const val MAX_REVIEW_PER_DAY = 2000
-            const val MAX_OVERLAY_INTERVAL_MINUTES = 2000
-        }
-
         fun read(): Flow<DayCounters> =
             ds.data.map { p ->
                 DayCounters(
@@ -150,5 +139,16 @@ class DayCountersStore
             // Range validation happens in the settings dialog (NumberInputDialog min/maxValue);
             // this setter trusts its caller instead of duplicating the bound here.
             ds.edit { it[K.RATING_DELAY_SECONDS] = value }
+        }
+
+        private companion object {
+            const val DEFAULT_NEW_PER_DAY = 15
+            const val DEFAULT_REVIEW_PER_DAY = 99
+            const val DEFAULT_OVERLAY_INTERVAL_TIME = 0
+            const val DEFAULT_RATING_DELAY_SECONDS = 0
+            const val MIN_LIMIT = 0
+            const val MAX_NEW_PER_DAY = 200
+            const val MAX_REVIEW_PER_DAY = 2000
+            const val MAX_OVERLAY_INTERVAL_MINUTES = 2000
         }
     }

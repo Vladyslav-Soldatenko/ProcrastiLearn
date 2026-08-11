@@ -24,6 +24,7 @@ import com.procrastilearn.app.ui.PendingWordUi
 import io.mockk.called
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.collections.immutable.toImmutableList
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -515,7 +516,7 @@ class AddWordScreenContentTest {
                 PendingWordUi(id = 3, word = "Fenster"),
             )
         composeTestRule.setContent {
-            PendingWordsSection(pendingWords = words, onDeletePendingWord = {})
+            PendingWordsSection(pendingWords = words.toImmutableList(), onDeletePendingWord = {})
         }
 
         words.forEach { composeTestRule.onNodeWithText(it.word).assertIsDisplayed() }
@@ -574,7 +575,7 @@ class AddWordScreenContentTest {
                 loadingAction = loadingAction,
                 isOnline = isOnline,
                 isAddLaterMode = isAddLaterMode,
-                pendingWords = pendingWords,
+                pendingWords = pendingWords.toImmutableList(),
                 showBidirectionalOption = showBidirectionalOption,
                 bidirectional = bidirectional,
                 isCustomizingBackward = isCustomizingBackward,

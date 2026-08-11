@@ -20,6 +20,7 @@ import com.procrastilearn.app.ui.screens.AppsListScreen
 import com.procrastilearn.app.ui.screens.WordListScreen
 import com.procrastilearn.app.ui.screens.settings.SettingsScreen
 
+@Suppress("DEPRECATION") // replacement androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel is not yet published
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,

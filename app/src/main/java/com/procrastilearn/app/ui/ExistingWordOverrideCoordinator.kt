@@ -132,7 +132,9 @@ class ExistingWordOverrideCoordinator
             runCatching { vocabularyEntryUseCases.getByWord(word) }.fold(
                 onSuccess = { existingItem ->
                     when {
-                        existingItem == null -> SubmissionResolution.NoConflict
+                        existingItem == null -> {
+                            SubmissionResolution.NoConflict
+                        }
                         acknowledgedOverrideWord?.equals(word, ignoreCase = true) != true -> {
                             pendingOverride =
                                 PendingOverrideSubmission(
@@ -144,13 +146,14 @@ class ExistingWordOverrideCoordinator
                                 )
                             SubmissionResolution.ConfirmationRequired(word)
                         }
-                        else ->
+                        else -> {
                             applyOverride(existingItem, word, translation, resolveCardOptions())
                                 .also { acknowledgedOverrideWord = null }
                                 .fold(
                                     onSuccess = { SubmissionResolution.Overridden(fromPreview) },
                                     onFailure = { error -> SubmissionResolution.OverrideFailed(error, fromPreview) },
                                 )
+                        }
                     }
                 },
                 onFailure = { SubmissionResolution.LookupFailed(it) },

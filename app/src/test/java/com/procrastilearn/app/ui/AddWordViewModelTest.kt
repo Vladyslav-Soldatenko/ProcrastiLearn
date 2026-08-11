@@ -1637,7 +1637,7 @@ class AddWordViewModelTest {
         }
 
     @Test
-    fun `onBidirectionalToggle false collapses and clears the customize section`() =
+    fun `onBidirectionalToggle false keeps the customize section state and overrides`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
             advanceUntilIdle()
@@ -1650,9 +1650,9 @@ class AddWordViewModelTest {
 
             val state = viewModel.uiState.value
             assertThat(state.bidirectional).isFalse()
-            assertThat(state.isCustomizingBackward).isFalse()
-            assertThat(state.backwardPromptOverride).isEmpty()
-            assertThat(state.backwardAnswerOverride).isEmpty()
+            assertThat(state.isCustomizingBackward).isTrue()
+            assertThat(state.backwardPromptOverride).isEqualTo("prompt")
+            assertThat(state.backwardAnswerOverride).isEqualTo("answer")
         }
 
     @Test

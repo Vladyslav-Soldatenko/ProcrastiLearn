@@ -10,16 +10,18 @@ import com.procrastilearn.app.domain.model.AppInfo
 import com.procrastilearn.app.ui.AppsViewModel
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import com.procrastilearn.app.ui.views.AppsList
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableSet
 
+@Suppress("DEPRECATION") // replacement androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel is not yet published
 @Composable
-fun AppsListScreen() {
-    val vm: AppsViewModel = hiltViewModel()
-    val state by vm.state.collectAsState()
+fun AppsListScreen(viewModel: AppsViewModel = hiltViewModel()) {
+    val state by viewModel.state.collectAsState()
 
     AppsListScreenContent(
         state = state,
-        onEnabledChange = vm::setEnabled,
-        onToggle = vm::toggle,
+        onEnabledChange = viewModel::setEnabled,
+        onToggle = viewModel::toggle,
     )
 }
 
@@ -31,8 +33,8 @@ internal fun AppsListScreenContent(
     modifier: Modifier = Modifier,
 ) {
     AppsList(
-        apps = state.apps,
-        selectedKeys = state.selected,
+        apps = state.apps.toImmutableList(),
+        selectedKeys = state.selected.toImmutableSet(),
         isEnabled = state.isEnabled,
         isLoading = state.isLoading,
         errorMessage = state.error,
@@ -70,6 +72,15 @@ private fun AppsListScreenErrorPreview() {
     }
 }
 
+private val previewApps =
+    listOf(
+        AppInfo(label = "Focus Timer", packageName = "com.example.focus"),
+        AppInfo(label = "Study Buddy", packageName = "com.example.study"),
+        AppInfo(label = "Game Hub", packageName = "com.example.games"),
+    )
+
+private val previewSelectedKeys = setOf("com.example.focus", "com.example.games")
+
 @Preview(showBackground = true)
 @Composable
 private fun AppsListScreenContentPreview() {
@@ -77,13 +88,8 @@ private fun AppsListScreenContentPreview() {
         AppsListScreenContent(
             state =
                 AppsViewModel.UiState(
-                    apps =
-                        listOf(
-                            AppInfo(label = "Focus Timer", packageName = "com.example.focus"),
-                            AppInfo(label = "Study Buddy", packageName = "com.example.study"),
-                            AppInfo(label = "Game Hub", packageName = "com.example.games"),
-                        ),
-                    selected = setOf("com.example.focus", "com.example.games"),
+                    apps = previewApps,
+                    selected = previewSelectedKeys,
                     isLoading = false,
                     isEnabled = true,
                 ),
@@ -100,13 +106,8 @@ private fun AppsListScreenContentDisabledPreview() {
         AppsListScreenContent(
             state =
                 AppsViewModel.UiState(
-                    apps =
-                        listOf(
-                            AppInfo(label = "Focus Timer", packageName = "com.example.focus"),
-                            AppInfo(label = "Study Buddy", packageName = "com.example.study"),
-                            AppInfo(label = "Game Hub", packageName = "com.example.games"),
-                        ),
-                    selected = setOf("com.example.focus", "com.example.games"),
+                    apps = previewApps,
+                    selected = previewSelectedKeys,
                     isLoading = false,
                     isEnabled = false,
                 ),

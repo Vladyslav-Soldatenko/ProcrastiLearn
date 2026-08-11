@@ -8,6 +8,7 @@ fsrs = "1.0.0"
 hiltCompiler = "2.59.2"
 hiltNavigationCompose = "1.3.0"
 kotlin = "2.2.20"
+kotlinxCollectionsImmutable = "0.5.1"
 ksp = "2.3.10"
 ktlintGradle = "14.2.0"
 detekt = "1.23.8"
@@ -66,6 +67,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
 openai-java = { module = "com.openai:openai-java", version.ref = "openaiJava" }
 androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiAutomator" }
 zstd-jni = { module = "com.github.luben:zstd-jni", version.ref = "zstdJni" }

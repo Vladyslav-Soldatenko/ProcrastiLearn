@@ -286,6 +286,9 @@
     <string name="word_list_more_actions">Más acciones</string>
     <string name="word_list_more_actions_selection">Acciones de selección</string>
     <string name="word_list_bulk_delete_confirm_title">Eliminar palabras seleccionadas</string>
+    <string name="word_list_bulk_bidirectional_enable">@string/add_word_bidirectional_toggle</string>
+    <string name="word_list_bulk_bidirectional_disable">Practicar solo hacia adelante</string>
+    <string name="word_list_bulk_forward_only_confirm_title">@string/word_list_bulk_bidirectional_disable</string>
     <string name="word_list_search_label">Buscar</string>
     <string name="word_list_search_placeholder">Buscar palabras</string>
     <string name="word_list_search_no_results">No se encontraron resultados</string>
@@ -326,5 +329,10 @@
         <item quantity="one">¿Eliminar %1$d palabra seleccionada de tu lista?</item>
         <item quantity="many">¿Eliminar %1$d palabras seleccionadas de tu lista?</item>
         <item quantity="other">¿Eliminar %1$d palabras seleccionadas de tu lista?</item>
+    </plurals>
+    <plurals name="word_list_bulk_forward_only_confirm_message">
+        <item quantity="one">¿Dejar de practicar %1$d palabra en sentido inverso? El progreso inverso se conserva y se restaura si vuelves a activarlo.</item>
+        <item quantity="many">¿Dejar de practicar %1$d palabras en sentido inverso? El progreso inverso se conserva y se restaura si vuelves a activarlo.</item>
+        <item quantity="other">¿Dejar de practicar %1$d palabras en sentido inverso? El progreso inverso se conserva y se restaura si vuelves a activarlo.</item>
     </plurals>
 </resources>

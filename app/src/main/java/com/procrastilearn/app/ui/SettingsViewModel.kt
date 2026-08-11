@@ -80,6 +80,8 @@ class SettingsViewModel
         private val _availableToAddToday = MutableStateFlow(0)
         val availableToAddToday: StateFlow<Int> = _availableToAddToday
 
+        val importOptions: List<VocabularyImportOption> = transferManager.importOptions
+
         fun loadAvailableNewCount() {
             viewModelScope.launch {
                 val totalNew = vocabularyStatsDao.countNewTotal()
@@ -92,8 +94,6 @@ class SettingsViewModel
                 _availableToAddToday.value = (totalNew - remaining).coerceAtLeast(0)
             }
         }
-
-        val importOptions: List<VocabularyImportOption> = transferManager.importOptions
 
         fun onMixModeChange(mode: MixMode) {
             viewModelScope.launch { dayCountersStore.setMixMode(mode) }

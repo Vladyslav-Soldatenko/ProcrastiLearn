@@ -84,7 +84,7 @@ fun AboutUsDialog(
 
 @Preview(showBackground = true)
 @Composable
-fun AboutUsDialogPreview() {
+private fun AboutUsDialogPreview() {
     MyApplicationTheme {
         AboutUsDialog(
             onDismiss = {},

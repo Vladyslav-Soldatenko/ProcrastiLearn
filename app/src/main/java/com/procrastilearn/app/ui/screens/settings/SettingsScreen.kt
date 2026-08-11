@@ -72,6 +72,9 @@ import com.procrastilearn.app.ui.screens.settings.components.openAccessibilitySe
 import com.procrastilearn.app.ui.screens.settings.components.openOverlaySettings
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import com.procrastilearn.app.utils.isPermissionsGranted
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import java.time.LocalDate
 
 private const val MAX_RATING_DELAY_SECONDS = 60
@@ -104,6 +107,7 @@ sealed interface DialogState {
     object LanguageSelection : DialogState
 }
 
+@Suppress("DEPRECATION") // replacement androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel is not yet published
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -206,7 +210,7 @@ fun SettingsScreen(
                 val name = "vocabulary-export-${LocalDate.now()}.json"
                 exportLauncher.launch(name)
             },
-            importOptions = importOptions,
+            importOptions = importOptions.toImmutableList(),
             onImportOptionSelected = { option ->
                 pendingImportOptionId = option.id
                 val mimeTypes =
@@ -230,14 +234,10 @@ private fun SettingsTopBar() {
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 @Composable
 internal fun SettingsContent(
-    modifier: Modifier = Modifier,
     overlayGranted: Boolean,
     a11yEnabled: Boolean,
     mixMode: MixMode,
-    studyDirectionMode: StudyDirectionMode = StudyDirectionMode.FORWARD,
     newPerDay: Int,
-    availableNewCount: Int = 0,
-    availableToAddToday: Int = 0,
     reviewPerDay: Int,
     overlayInterval: Int,
     ratingDelaySeconds: Int,
@@ -249,19 +249,23 @@ internal fun SettingsContent(
     onOverlayClick: () -> Unit,
     onA11yClick: () -> Unit,
     onMixModeChange: (MixMode) -> Unit,
-    onStudyDirectionModeChange: (StudyDirectionMode) -> Unit = {},
-    onNewPerDayDialogOpen: () -> Unit = {},
     onNewPerDayChange: (Int) -> Unit,
-    onAddCardsForToday: (Int) -> Unit = {},
     onReviewPerDayChange: (Int) -> Unit,
     onOverlayIntervalChange: (Int) -> Unit,
     onRatingDelayChange: (Int) -> Unit,
     onOpenAiApiKeyChange: (String) -> Unit,
     onOpenAiPromptChange: (String) -> Unit,
     onOpenAiReversePromptChange: (String) -> Unit,
-    onLanguagePairChange: (Language, Language) -> Unit = { _, _ -> },
     onExportClick: () -> Unit,
-    importOptions: List<VocabularyImportOption> = emptyList(),
+    modifier: Modifier = Modifier,
+    studyDirectionMode: StudyDirectionMode = StudyDirectionMode.FORWARD,
+    availableNewCount: Int = 0,
+    availableToAddToday: Int = 0,
+    onStudyDirectionModeChange: (StudyDirectionMode) -> Unit = {},
+    onNewPerDayDialogOpen: () -> Unit = {},
+    onAddCardsForToday: (Int) -> Unit = {},
+    onLanguagePairChange: (Language, Language) -> Unit = { _, _ -> },
+    importOptions: ImmutableList<VocabularyImportOption> = persistentListOf(),
     onImportOptionSelected: (VocabularyImportOption) -> Unit = {},
 ) {
     var dialogState by remember { mutableStateOf<DialogState>(DialogState.None) }
@@ -642,7 +646,7 @@ data class PermissionStates(
 
 @Preview(showBackground = true)
 @Composable
-fun SettingsScreenPreview_AllGranted() {
+private fun SettingsScreenPreview_AllGranted() {
     MyApplicationTheme {
         SettingsContent(
             overlayGranted = true,
@@ -669,7 +673,7 @@ fun SettingsScreenPreview_AllGranted() {
             onOpenAiReversePromptChange = {},
             onExportClick = {},
             importOptions =
-                listOf(
+                persistentListOf(
                     VocabularyImportOption(
                         id = "apkg",
                         titleResId = R.string.settings_import_option_anki_apkg,

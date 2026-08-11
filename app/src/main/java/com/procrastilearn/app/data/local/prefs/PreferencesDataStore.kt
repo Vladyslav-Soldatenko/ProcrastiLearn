@@ -21,15 +21,9 @@ internal val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
 class PreferencesDataStore
     @Inject
     constructor(
-        @ApplicationContext private val context: Context,
+        @param:ApplicationContext private val context: Context,
     ) {
         private val dataStore = context.dataStore
-
-        companion object {
-            // Keys for stored values - like localStorage keys
-            val BLOCKED_APPS_KEY = stringSetPreferencesKey("blocked_apps")
-            val PROCRASTILEARN_ENABLED_KEY = booleanPreferencesKey("procrastilearn_enabled")
-        }
 
         // Observe blocked apps
         val blockedApps: Flow<Set<String>> =
@@ -83,5 +77,11 @@ class PreferencesDataStore
             dataStore.edit { preferences ->
                 preferences[PROCRASTILEARN_ENABLED_KEY] = enabled
             }
+        }
+
+        companion object {
+            // Keys for stored values - like localStorage keys
+            val BLOCKED_APPS_KEY = stringSetPreferencesKey("blocked_apps")
+            val PROCRASTILEARN_ENABLED_KEY = booleanPreferencesKey("procrastilearn_enabled")
         }
     }

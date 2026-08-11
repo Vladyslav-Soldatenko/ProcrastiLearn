@@ -22,8 +22,8 @@ android {
     minSdk = 30
     //noinspection OldTargetApi
     targetSdk = 36
-    versionCode = 11
-    versionName = "1.3.3"
+    versionCode = 12
+    versionName = "1.3.4"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
@@ -34,7 +34,10 @@ android {
     arg("appfunctions:aggregateAppFunctions", "true")
   }
   sourceSets {
-    getByName("androidTest").assets.setSrcDirs(listOf("$projectDir/schemas", "src/androidTest/assets"))
+    getByName("androidTest").assets.directories.apply {
+      clear()
+      addAll(listOf("$projectDir/schemas", "src/androidTest/assets"))
+    }
   }
 
   buildTypes {
@@ -80,6 +83,9 @@ android {
 
 kotlin {
   jvmToolchain(21)
+  compilerOptions {
+    allWarningsAsErrors = true
+  }
 }
 
 dependencies {
@@ -89,6 +95,7 @@ dependencies {
 
   implementation(libs.fsrs)
   implementation(libs.kotlinx.serialization.json)
+  implementation(libs.kotlinx.collections.immutable)
   implementation(libs.androidx.room.runtime)
   implementation(libs.androidx.room.ktx)
   androidTestImplementation(libs.androidx.room.testing)
@@ -114,6 +121,7 @@ dependencies {
   implementation(libs.androidx.ui.tooling.preview)
   implementation(libs.androidx.material3)
   implementation(libs.androidx.material.icons.extended)
+  lintChecks(libs.compose.lint.checks)
   implementation("${libs.zstd.jni.get()}@aar")
   testImplementation(libs.zstd.jni)
   testImplementation(libs.junit)

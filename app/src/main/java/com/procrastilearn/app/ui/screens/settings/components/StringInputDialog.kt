@@ -29,6 +29,9 @@ private const val MULTI_LINE_DEFAULT_COUNT = 4
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+// Branches are small, independent keyboard/visual-transform/line-count option toggles, not
+// entangled control flow.
+@Suppress("CognitiveComplexMethod")
 fun StringInputDialog(
     title: String,
     currentValue: String,

@@ -73,7 +73,11 @@ import com.procrastilearn.app.ui.toggled
 import io.github.oikvpqya.compose.fastscroller.VerticalScrollbar
 import io.github.oikvpqya.compose.fastscroller.material3.defaultMaterialScrollbarStyle
 import io.github.oikvpqya.compose.fastscroller.rememberScrollbarAdapter
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 
+@Suppress("DEPRECATION") // replacement androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel is not yet published
 @Composable
 fun WordListScreen(
     onNavigateBack: () -> Unit = {},
@@ -84,7 +88,7 @@ fun WordListScreen(
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
     WordListContent(
-        words = words,
+        words = words.toImmutableList(),
         selectionState = selectionState,
         searchQuery = searchQuery,
         onSearchQueryChange = { searchQuery = it },
@@ -97,14 +101,18 @@ fun WordListScreen(
         onDeselectAll = viewModel::deselectAll,
         onExitSelectionMode = viewModel::exitSelectionMode,
         onDeleteSelected = viewModel::deleteSelectedWords,
+        onSetSelectedBidirectional = viewModel::setSelectedWordsBidirectional,
         onNavigateBack = onNavigateBack,
     )
 }
 
 @Composable
-@Suppress("LongMethod")
+// Selection-mode header, search, empty states, and bulk-action dialogs are one screen's worth
+// of state; splitting further would mean threading shared MutableState across composable
+// boundaries for marginal gain, at real risk to this screen's bulk-selection correctness.
+@Suppress("LongMethod", "CognitiveComplexMethod")
 internal fun WordListContent(
-    words: List<VocabularyItem>,
+    words: ImmutableList<VocabularyItem>,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onDelete: (VocabularyItem) -> Unit,
@@ -118,6 +126,7 @@ internal fun WordListContent(
     onDeselectAll: () -> Unit = {},
     onExitSelectionMode: () -> Unit = {},
     onDeleteSelected: () -> Unit = {},
+    onSetSelectedBidirectional: (Boolean) -> Unit = {},
     onNavigateBack: () -> Unit = {},
 ) {
     val normalizedQuery = searchQuery.trim()
@@ -130,8 +139,13 @@ internal fun WordListContent(
 
     var showSelectionMenu by remember { mutableStateOf(false) }
     var showBulkDeleteDialog by remember { mutableStateOf(false) }
+    var showForwardOnlyDialog by remember { mutableStateOf(false) }
     val allDisplayedSelected =
         displayedWords.isNotEmpty() && displayedWords.all { it.id in selectionState.selectedIds }
+    val selectedWords = words.filter { it.id in selectionState.selectedIds }
+    val canEnableBidirectional = selectedWords.any { !it.bidirectional }
+    val canDisableBidirectional = selectedWords.any { it.bidirectional }
+    val bidirectionalSelectedCount = selectedWords.count { it.bidirectional }
 
     BackHandler(enabled = selectionState.isActive) {
         onExitSelectionMode()
@@ -185,40 +199,35 @@ internal fun WordListContent(
                             tint = MaterialTheme.colorScheme.primary,
                         )
                     }
-                    DropdownMenu(
+                    WordListSelectionMenu(
                         expanded = showSelectionMenu,
+                        allDisplayedSelected = allDisplayedSelected,
+                        canSelectAll = displayedWords.isNotEmpty(),
+                        canEnableBidirectional = canEnableBidirectional,
+                        canDisableBidirectional = canDisableBidirectional,
+                        canDelete = selectionState.selectedIds.isNotEmpty(),
                         onDismissRequest = { showSelectionMenu = false },
-                    ) {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text =
-                                        stringResource(
-                                            if (allDisplayedSelected) {
-                                                R.string.action_deselect_all
-                                            } else {
-                                                R.string.action_select_all
-                                            },
-                                        ),
-                                )
-                            },
-                            onClick = {
-                                showSelectionMenu = false
-                                if (allDisplayedSelected) {
-                                    onDeselectAll()
-                                } else {
-                                    onSelectAll(displayedWords.map { it.id })
-                                }
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(text = stringResource(R.string.action_delete)) },
-                            onClick = {
-                                showSelectionMenu = false
-                                showBulkDeleteDialog = true
-                            },
-                        )
-                    }
+                        onToggleSelectAll = {
+                            showSelectionMenu = false
+                            if (allDisplayedSelected) {
+                                onDeselectAll()
+                            } else {
+                                onSelectAll(displayedWords.map { it.id })
+                            }
+                        },
+                        onEnableBidirectional = {
+                            showSelectionMenu = false
+                            onSetSelectedBidirectional(true)
+                        },
+                        onDisableBidirectional = {
+                            showSelectionMenu = false
+                            showForwardOnlyDialog = true
+                        },
+                        onDelete = {
+                            showSelectionMenu = false
+                            showBulkDeleteDialog = true
+                        },
+                    )
                 }
             }
         }
@@ -343,10 +352,21 @@ internal fun WordListContent(
             },
         )
     }
+
+    if (showForwardOnlyDialog) {
+        ForwardOnlyConfirmDialog(
+            count = bidirectionalSelectedCount,
+            onDismiss = { showForwardOnlyDialog = false },
+            onConfirm = {
+                onSetSelectedBidirectional(false)
+                showForwardOnlyDialog = false
+            },
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-@Suppress("LongMethod")
+@Suppress("LongMethod", "CognitiveComplexMethod")
 @Composable
 fun WordListItem(
     item: VocabularyItem,
@@ -709,32 +729,34 @@ private fun BulkDeleteWordsDialog(
     )
 }
 
+private val previewWords =
+    persistentListOf(
+        VocabularyItem(
+            id = 1,
+            word = "Serendipity",
+            translation = "Happy accident; pleasant surprise",
+            isNew = true,
+        ),
+        VocabularyItem(
+            id = 2,
+            word = "Ephemeral",
+            translation = "Lasting for a very short time",
+            isNew = false,
+        ),
+        VocabularyItem(
+            id = 3,
+            word = "Peregrinate",
+            translation = "To travel or wander around",
+            isNew = false,
+        ),
+    )
+
 @Preview(showBackground = true)
 @Composable
 private fun WordListContentNoSearchPreview() {
     MyApplicationTheme {
         WordListContent(
-            words =
-                listOf(
-                    VocabularyItem(
-                        id = 1,
-                        word = "Serendipity",
-                        translation = "Happy accident; pleasant surprise",
-                        isNew = true,
-                    ),
-                    VocabularyItem(
-                        id = 2,
-                        word = "Ephemeral",
-                        translation = "Lasting for a very short time",
-                        isNew = false,
-                    ),
-                    VocabularyItem(
-                        id = 3,
-                        word = "Peregrinate",
-                        translation = "To travel or wander around",
-                        isNew = false,
-                    ),
-                ),
+            words = previewWords,
             searchQuery = "",
             onSearchQueryChange = {},
             onDelete = {},
@@ -749,27 +771,7 @@ private fun WordListContentNoSearchPreview() {
 private fun WordListContentFilteredPreview() {
     MyApplicationTheme {
         WordListContent(
-            words =
-                listOf(
-                    VocabularyItem(
-                        id = 1,
-                        word = "Serendipity",
-                        translation = "Happy accident; pleasant surprise",
-                        isNew = true,
-                    ),
-                    VocabularyItem(
-                        id = 2,
-                        word = "Ephemeral",
-                        translation = "Lasting for a very short time",
-                        isNew = false,
-                    ),
-                    VocabularyItem(
-                        id = 3,
-                        word = "Peregrinate",
-                        translation = "To travel or wander around",
-                        isNew = false,
-                    ),
-                ),
+            words = previewWords,
             searchQuery = "pe",
             onSearchQueryChange = {},
             onDelete = {},
@@ -784,27 +786,7 @@ private fun WordListContentFilteredPreview() {
 private fun WordListContentNoMatchesPreview() {
     MyApplicationTheme {
         WordListContent(
-            words =
-                listOf(
-                    VocabularyItem(
-                        id = 1,
-                        word = "Serendipity",
-                        translation = "Happy accident; pleasant surprise",
-                        isNew = true,
-                    ),
-                    VocabularyItem(
-                        id = 2,
-                        word = "Ephemeral",
-                        translation = "Lasting for a very short time",
-                        isNew = false,
-                    ),
-                    VocabularyItem(
-                        id = 3,
-                        word = "Peregrinate",
-                        translation = "To travel or wander around",
-                        isNew = false,
-                    ),
-                ),
+            words = previewWords,
             searchQuery = "xyz",
             onSearchQueryChange = {},
             onDelete = {},

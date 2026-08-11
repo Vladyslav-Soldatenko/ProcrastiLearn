@@ -20,6 +20,7 @@ import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import com.procrastilearn.app.testing.ComponentActivityRegistrationRule
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
+import kotlinx.collections.immutable.toImmutableList
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -500,7 +501,7 @@ class SettingsContentTest {
                     onOpenAiReversePromptChange = onOpenAiReversePromptChange,
                     onLanguagePairChange = onLanguagePairChange,
                     onExportClick = onExportClick,
-                    importOptions = importOptions,
+                    importOptions = importOptions.toImmutableList(),
                     onImportOptionSelected = onImportOptionSelected,
                 )
             }

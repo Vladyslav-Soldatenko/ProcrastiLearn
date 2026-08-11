@@ -22,18 +22,11 @@ import javax.inject.Singleton
 class AndroidNetworkConnectivityObserver
     @Inject
     constructor(
-        @ApplicationContext private val context: Context,
+        @param:ApplicationContext private val context: Context,
     ) : NetworkConnectivityObserver {
         private val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
-        override fun isOnline(): Boolean {
-            val network = connectivityManager.activeNetwork ?: return false
-            val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-            return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-        }
 
         // Shared/hot: a single NetworkCallback registration is multicast to every
         // collector (ViewModels, PendingWordSyncManager, ...) instead of each
@@ -74,6 +67,13 @@ class AndroidNetworkConnectivityObserver
                     started = SharingStarted.Eagerly,
                     replay = 1,
                 )
+
+        override fun isOnline(): Boolean {
+            val network = connectivityManager.activeNetwork ?: return false
+            val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+            return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        }
 
         override fun observe(): Flow<Boolean> = sharedNetworkState
     }

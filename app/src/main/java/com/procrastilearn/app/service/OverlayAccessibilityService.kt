@@ -38,12 +38,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class OverlayAccessibilityService : AccessibilityService() {
-    private companion object {
-        const val TAG = "OverlayAccessibilityService"
-        const val SECONDS_PER_MINUTE = 60
-        const val MILLIS_PER_SECOND = 1000L
-    }
-
     internal var windowManager: WindowManager? = null
     private var overlayView: View? = null
     private var lifecycleOwner: ServiceLifecycleOwner? = null
@@ -68,11 +62,36 @@ class OverlayAccessibilityService : AccessibilityService() {
         )
     }
 
+    // AccessibilityService instances are created by the OS, not Hilt, so there is no
+    // constructor-injection path here; these are populated from an EntryPoint accessor in
+    // initializeDependenciesIfNeeded() the same way @AndroidEntryPoint does it for
+    // Activities/Fragments under the hood.
+    @Suppress("LateinitUsage")
     internal lateinit var appPreferencesRepository: AppPreferencesRepository
+
+    @Suppress("LateinitUsage")
     internal lateinit var vocabularyRepository: VocabularyStudyRepository
+
+    @Suppress("LateinitUsage")
     internal lateinit var getNextVocabularyItemUseCase: GetNextVocabularyItemUseCase
+
+    @Suppress("LateinitUsage")
     internal lateinit var getSaveDifficultyRatingUseCase: SaveDifficultyRatingUseCase
+
+    @Suppress("LateinitUsage")
     internal lateinit var dayCountersStore: DayCountersStore
+
+    private var blockedPackages: Set<String> = emptySet()
+
+    private val ignoredPackages =
+        setOf(
+            "com.google.android.inputmethod.latin",
+            "com.android.inputmethod.latin",
+            "com.samsung.android.honeyboard",
+            "com.baidu.input",
+            "com.android.systemui",
+            "com.google.android.systemui",
+        )
 
     private fun initializeDependenciesIfNeeded() {
         if (!::appPreferencesRepository.isInitialized) {
@@ -91,18 +110,6 @@ class OverlayAccessibilityService : AccessibilityService() {
             dayCountersStore = serviceEntryPoint.dayCountersStore()
         }
     }
-
-    private var blockedPackages: Set<String> = emptySet()
-
-    private val ignoredPackages =
-        setOf(
-            "com.google.android.inputmethod.latin",
-            "com.android.inputmethod.latin",
-            "com.samsung.android.honeyboard",
-            "com.baidu.input",
-            "com.android.systemui",
-            "com.google.android.systemui",
-        )
 
     override fun onServiceConnected() {
         if (windowManager == null) {
@@ -137,7 +144,7 @@ class OverlayAccessibilityService : AccessibilityService() {
         }
     }
 
-    @Suppress("ReturnCount", "MagicNumber", "CyclomaticComplexMethod")
+    @Suppress("ReturnCount", "MagicNumber", "CyclomaticComplexMethod", "CognitiveComplexMethod")
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
 
@@ -297,6 +304,7 @@ class OverlayAccessibilityService : AccessibilityService() {
 
     private fun isIgnorableSystem(pkg: String): Boolean = pkg in ignoredPackages
 
+    @Suppress("DEPRECATION") // SOFT_INPUT_ADJUST_RESIZE has no WindowInsets-based equivalent for this overlay
     private fun showOverlay(initialItem: VocabularyItem) {
         if (!isProcrastilearnEnabled) {
             return
@@ -374,7 +382,7 @@ class OverlayAccessibilityService : AccessibilityService() {
     private fun requestAudioFocus() {
         if (focusRequest != null) return
 
-        val manager = audioManager ?: (getSystemService(AUDIO_SERVICE) as? AudioManager)
+        val manager = audioManager ?: getSystemService(AUDIO_SERVICE) as? AudioManager
         audioManager = manager ?: return
 
         val focusRequest =
@@ -405,5 +413,11 @@ class OverlayAccessibilityService : AccessibilityService() {
         stopIntervalTimer()
         serviceScope.cancel()
         super.onDestroy()
+    }
+
+    private companion object {
+        const val TAG = "OverlayAccessibilityService"
+        const val SECONDS_PER_MINUTE = 60
+        const val MILLIS_PER_SECOND = 1000L
     }
 }

@@ -2,7 +2,7 @@ package com.procrastilearn.app.data.local.prefs
 
 import javax.inject.Inject
 
-class TranslationPreferences
+data class TranslationPreferences
     @Inject
     constructor(
         val openAiStore: OpenAiPreferencesStore,

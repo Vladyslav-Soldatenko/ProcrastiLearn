@@ -5,4 +5,9 @@
     <issue id="AndroidGradlePluginVersion" severity="ignore" />
     <issue id="NewerVersionAvailable" severity="ignore" />
     <issue id="UnusedAttribute" severity="ignore" />
+    <!-- LocalOverlayColors is an internal theming token provider (OverlayTheme), the
+         same accepted pattern Material3 itself uses for color scheme propagation. -->
+    <issue id="ComposeCompositionLocalUsage">
+        <option name="allowed-composition-locals" value="LocalOverlayColors" />
+    </issue>
 </lint>

@@ -1,5 +1,6 @@
 package com.procrastilearn.app.navigation
 
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
@@ -22,7 +23,7 @@ import com.procrastilearn.app.R
 private data class BottomNavItem(
     val screen: Screen,
     val icon: ImageVector,
-    val label: String,
+    @param:StringRes val labelResId: Int,
 )
 
 private val bottomNavItems =
@@ -30,26 +31,25 @@ private val bottomNavItems =
         BottomNavItem(
             screen = Screen.Apps,
             icon = Icons.Default.AppRegistration,
-            label = "nav_apps",
+            labelResId = R.string.nav_apps,
         ),
         BottomNavItem(
             screen = Screen.AddWord,
             icon = Icons.Default.Add,
-            label = "nav_add_word",
+            labelResId = R.string.nav_add_word,
         ),
         BottomNavItem(
             screen = Screen.Dojo,
             icon = Icons.AutoMirrored.Filled.MenuBook,
-            label = "nav_dojo",
+            labelResId = R.string.nav_dojo,
         ),
         BottomNavItem(
             screen = Screen.Settings,
             icon = Icons.Default.Settings,
-            label = "nav_settings",
+            labelResId = R.string.nav_settings,
         ),
     )
 
-@Suppress("CyclomaticComplexMethod")
 @Composable
 fun BottomNavigationBar(
     navController: NavController,
@@ -80,33 +80,11 @@ fun BottomNavigationBar(
                 icon = {
                     Icon(
                         imageVector = item.icon,
-                        contentDescription =
-                            stringResource(
-                                id =
-                                    when (item.label) {
-                                        "nav_apps" -> R.string.nav_apps
-                                        "nav_add_word" -> R.string.nav_add_word
-                                        "nav_dojo" -> R.string.nav_dojo
-                                        "nav_settings" -> R.string.nav_settings
-                                        else -> R.string.nav_apps
-                                    },
-                            ),
+                        contentDescription = stringResource(id = item.labelResId),
                     )
                 },
                 label = {
-                    Text(
-                        text =
-                            stringResource(
-                                id =
-                                    when (item.label) {
-                                        "nav_apps" -> R.string.nav_apps
-                                        "nav_add_word" -> R.string.nav_add_word
-                                        "nav_dojo" -> R.string.nav_dojo
-                                        "nav_settings" -> R.string.nav_settings
-                                        else -> R.string.nav_apps
-                                    },
-                            ),
-                    )
+                    Text(text = stringResource(id = item.labelResId))
                 },
             )
         }

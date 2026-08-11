@@ -286,6 +286,9 @@
     <string name="word_list_more_actions">Plus d’actions</string>
     <string name="word_list_more_actions_selection">Actions de sélection</string>
     <string name="word_list_bulk_delete_confirm_title">Supprimer les mots sélectionnés</string>
+    <string name="word_list_bulk_bidirectional_enable">@string/add_word_bidirectional_toggle</string>
+    <string name="word_list_bulk_bidirectional_disable">Tester dans un seul sens</string>
+    <string name="word_list_bulk_forward_only_confirm_title">@string/word_list_bulk_bidirectional_disable</string>
     <string name="word_list_search_label">Rechercher</string>
     <string name="word_list_search_placeholder">Rechercher des mots</string>
     <string name="word_list_search_no_results">Aucun résultat trouvé</string>
@@ -326,5 +329,10 @@
         <item quantity="one">Supprimer %1$d mot de votre liste ?</item>
         <item quantity="many">Supprimer %1$d mots de votre liste ?</item>
         <item quantity="other">Supprimer %1$d mots de votre liste ?</item>
+    </plurals>
+    <plurals name="word_list_bulk_forward_only_confirm_message">
+        <item quantity="one">Arrêter de tester %1$d mot dans le sens inverse ? La progression inverse est conservée et restaurée si vous la réactivez.</item>
+        <item quantity="many">Arrêter de tester %1$d mots dans le sens inverse ? La progression inverse est conservée et restaurée si vous la réactivez.</item>
+        <item quantity="other">Arrêter de tester %1$d mots dans le sens inverse ? La progression inverse est conservée et restaurée si vous la réactivez.</item>
     </plurals>
 </resources>

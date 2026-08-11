@@ -17,4 +17,9 @@ interface VocabularyCatalogRepository {
     suspend fun deleteVocabularyItems(items: List<VocabularyItem>)
 
     suspend fun resetVocabularyProgress(item: VocabularyItem)
+
+    suspend fun setBidirectional(
+        ids: Set<Long>,
+        bidirectional: Boolean,
+    )
 }

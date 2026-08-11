@@ -153,78 +153,96 @@ fun LearningCard(
             // When translation is hidden, push footer to the bottom.
             if (!state.showAnswer) Spacer(modifier = Modifier.weight(1f))
 
-            // Footer swaps content in-place:
-            if (!state.showAnswer) {
-                // Bottom: Show translation button
-                val buttonModifier =
-                    if (addNavigationBarsPadding) {
-                        Modifier
-                            .fillMaxWidth()
-                            .height(showTranslationButtonHeight)
-                            .navigationBarsPadding()
-                    } else {
-                        Modifier
-                            .fillMaxWidth()
-                            .height(showTranslationButtonHeight)
-                    }
-                OutlinedButton(
-                    onClick = onToggleShowAnswer,
-                    modifier = buttonModifier,
-                    shape = RoundedCornerShape(14.dp),
-                    colors =
-                        ButtonDefaults.outlinedButtonColors(
-                            contentColor = OverlayThemeTokens.colors.showButtonContent,
-                        ),
-                ) {
-                    Text(
-                        stringResource(R.string.learning_show_translation),
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center,
-                    )
-                }
+            LearningCardFooter(
+                showAnswer = state.showAnswer,
+                onToggleShowAnswer = onToggleShowAnswer,
+                onDifficultySelected = onDifficultySelected,
+                ratingLockSecondsRemaining = ratingLockSecondsRemaining,
+                showTranslationButtonHeight = showTranslationButtonHeight,
+                addNavigationBarsPadding = addNavigationBarsPadding,
+            )
+        }
+    }
+}
+
+@Composable
+private fun LearningCardFooter(
+    showAnswer: Boolean,
+    onToggleShowAnswer: () -> Unit,
+    onDifficultySelected: (Rating) -> Unit,
+    ratingLockSecondsRemaining: Int,
+    showTranslationButtonHeight: androidx.compose.ui.unit.Dp,
+    addNavigationBarsPadding: Boolean,
+) {
+    if (!showAnswer) {
+        // Bottom: Show translation button
+        val buttonModifier =
+            if (addNavigationBarsPadding) {
+                Modifier
+                    .fillMaxWidth()
+                    .height(showTranslationButtonHeight)
+                    .navigationBarsPadding()
             } else {
-                // Bottom: divider + help + difficulty buttons (replaces the Show button)
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 6.dp),
-                    color = OverlayThemeTokens.colors.divider,
-                    thickness = 1.dp,
+                Modifier
+                    .fillMaxWidth()
+                    .height(showTranslationButtonHeight)
+            }
+        OutlinedButton(
+            onClick = onToggleShowAnswer,
+            modifier = buttonModifier,
+            shape = RoundedCornerShape(14.dp),
+            colors =
+                ButtonDefaults.outlinedButtonColors(
+                    contentColor = OverlayThemeTokens.colors.showButtonContent,
+                ),
+        ) {
+            Text(
+                stringResource(R.string.learning_show_translation),
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center,
+            )
+        }
+    } else {
+        // Bottom: divider + help + difficulty buttons (replaces the Show button)
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 6.dp),
+            color = OverlayThemeTokens.colors.divider,
+            thickness = 1.dp,
+        )
+        Box(
+            modifier =
+                Modifier
+                    .padding(top = 2.dp, bottom = 8.dp)
+                    .fillMaxWidth()
+                    .heightIn(min = 28.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (ratingLockSecondsRemaining > 0) {
+                Text(
+                    text = ratingLockSecondsRemaining.toString(),
+                    color = OverlayThemeTokens.colors.helpText,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.testTag("rating_lock_countdown"),
                 )
-                Box(
-                    modifier =
-                        Modifier
-                            .padding(top = 2.dp, bottom = 8.dp)
-                            .fillMaxWidth()
-                            .heightIn(min = 28.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (ratingLockSecondsRemaining > 0) {
-                        Text(
-                            text = ratingLockSecondsRemaining.toString(),
-                            color = OverlayThemeTokens.colors.helpText,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.testTag("rating_lock_countdown"),
-                        )
-                    } else {
-                        Text(
-                            text = stringResource(R.string.learning_question),
-                            color = OverlayThemeTokens.colors.helpText,
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
-                }
-                DifficultyButtons(
-                    onDifficultySelected = onDifficultySelected,
-                    enabled = ratingLockSecondsRemaining == 0,
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .navigationBarsPadding(),
+            } else {
+                Text(
+                    text = stringResource(R.string.learning_question),
+                    color = OverlayThemeTokens.colors.helpText,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
                 )
             }
         }
+        DifficultyButtons(
+            onDifficultySelected = onDifficultySelected,
+            enabled = ratingLockSecondsRemaining == 0,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding(),
+        )
     }
 }
 

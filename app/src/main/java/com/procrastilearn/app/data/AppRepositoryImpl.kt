@@ -14,7 +14,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AppRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) : AppRepository {
     @Suppress("TooGenericExceptionCaught", "SwallowedException")
     override suspend fun loadLaunchableApps(): List<AppInfo> =
