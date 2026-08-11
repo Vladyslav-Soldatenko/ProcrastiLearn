@@ -84,7 +84,7 @@ fun MixModeDialog(
 
 @Preview(showBackground = true)
 @Composable
-fun MixModeDialogPreview() {
+private fun MixModeDialogPreview() {
     MyApplicationTheme {
         MixModeDialog(
             currentMode = MixMode.MIX,

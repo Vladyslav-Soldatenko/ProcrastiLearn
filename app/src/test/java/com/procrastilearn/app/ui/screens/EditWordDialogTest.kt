@@ -20,6 +20,7 @@ import com.procrastilearn.app.testing.ComponentActivityRegistrationRule
 import io.mockk.called
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.collections.immutable.toImmutableList
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -327,7 +328,7 @@ class EditWordDialogTest {
     private fun setContent(words: List<VocabularyItem>) {
         composeTestRule.setContent {
             WordListContent(
-                words = words,
+                words = words.toImmutableList(),
                 searchQuery = "",
                 onSearchQueryChange = {},
                 onDelete = onDelete,

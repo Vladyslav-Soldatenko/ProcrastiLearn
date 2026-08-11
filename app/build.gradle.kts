@@ -89,6 +89,7 @@ dependencies {
 
   implementation(libs.fsrs)
   implementation(libs.kotlinx.serialization.json)
+  implementation(libs.kotlinx.collections.immutable)
   implementation(libs.androidx.room.runtime)
   implementation(libs.androidx.room.ktx)
   androidTestImplementation(libs.androidx.room.testing)
@@ -114,6 +115,7 @@ dependencies {
   implementation(libs.androidx.ui.tooling.preview)
   implementation(libs.androidx.material3)
   implementation(libs.androidx.material.icons.extended)
+  lintChecks(libs.compose.lint.checks)
   implementation("${libs.zstd.jni.get()}@aar")
   testImplementation(libs.zstd.jni)
   testImplementation(libs.junit)

@@ -13,6 +13,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.AppInfo
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Rule
@@ -30,10 +32,10 @@ class AppsListTest {
             MyApplicationTheme(dynamicColor = false) {
                 AppsList(
                     apps =
-                        listOf(
+                        persistentListOf(
                             AppInfo("Alpha App", "com.example.alpha"),
                         ),
-                    selectedKeys = emptySet(),
+                    selectedKeys = persistentSetOf(),
                     isEnabled = true,
                     isLoading = true,
                     errorMessage = null,
@@ -59,8 +61,8 @@ class AppsListTest {
         composeTestRule.setContent {
             MyApplicationTheme(dynamicColor = false) {
                 AppsList(
-                    apps = emptyList(),
-                    selectedKeys = emptySet(),
+                    apps = persistentListOf(),
+                    selectedKeys = persistentSetOf(),
                     isEnabled = false,
                     isLoading = false,
                     errorMessage = null,
@@ -84,8 +86,8 @@ class AppsListTest {
         composeTestRule.setContent {
             MyApplicationTheme(dynamicColor = false) {
                 AppsList(
-                    apps = emptyList(),
-                    selectedKeys = emptySet(),
+                    apps = persistentListOf(),
+                    selectedKeys = persistentSetOf(),
                     isEnabled = true,
                     isLoading = false,
                     errorMessage = errorMessage,
@@ -111,7 +113,7 @@ class AppsListTest {
     @Test
     fun showsAppNamesWhenDataAvailable() {
         val apps =
-            listOf(
+            persistentListOf(
                 AppInfo(label = "Alpha App", packageName = "com.example.alpha"),
                 AppInfo(label = "Beta App", packageName = "com.example.beta"),
             )
@@ -120,7 +122,7 @@ class AppsListTest {
             MyApplicationTheme(dynamicColor = false) {
                 AppsList(
                     apps = apps,
-                    selectedKeys = setOf("com.example.alpha"),
+                    selectedKeys = persistentSetOf("com.example.alpha"),
                     isEnabled = true,
                     isLoading = false,
                     errorMessage = null,
@@ -152,8 +154,8 @@ class AppsListTest {
         composeTestRule.setContent {
             MyApplicationTheme(dynamicColor = false) {
                 AppsList(
-                    apps = listOf(alpha),
-                    selectedKeys = emptySet(),
+                    apps = persistentListOf(alpha),
+                    selectedKeys = persistentSetOf(),
                     isEnabled = true,
                     isLoading = false,
                     errorMessage = null,
@@ -182,8 +184,8 @@ class AppsListTest {
         composeTestRule.setContent {
             MyApplicationTheme(dynamicColor = false) {
                 AppsList(
-                    apps = listOf(alpha),
-                    selectedKeys = setOf(alpha.packageName),
+                    apps = persistentListOf(alpha),
+                    selectedKeys = persistentSetOf(alpha.packageName),
                     isEnabled = false,
                     isLoading = false,
                     errorMessage = null,

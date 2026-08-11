@@ -92,7 +92,7 @@ fun StudyDirectionDialog(
 
 @Preview(showBackground = true)
 @Composable
-fun StudyDirectionDialogPreview() {
+private fun StudyDirectionDialogPreview() {
     MyApplicationTheme {
         StudyDirectionDialog(
             currentMode = StudyDirectionMode.FORWARD,

@@ -10,6 +10,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.procrastilearn.app.R
 import com.procrastilearn.app.ui.WordListViewModel
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
+import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -25,7 +26,7 @@ class WordListScreenBackNavigationTest {
         composeTestRule.setContent {
             MyApplicationTheme(dynamicColor = false) {
                 WordListContent(
-                    words = emptyList(),
+                    words = persistentListOf(),
                     searchQuery = "",
                     onSearchQueryChange = {},
                     onDelete = {},
@@ -53,7 +54,7 @@ class WordListScreenBackNavigationTest {
         composeTestRule.setContent {
             MyApplicationTheme(dynamicColor = false) {
                 WordListContent(
-                    words = emptyList(),
+                    words = persistentListOf(),
                     searchQuery = "",
                     onSearchQueryChange = {},
                     onDelete = {},
@@ -82,7 +83,7 @@ class WordListScreenBackNavigationTest {
         composeTestRule.setContent {
             MyApplicationTheme(dynamicColor = false) {
                 WordListContent(
-                    words = emptyList(),
+                    words = persistentListOf(),
                     searchQuery = "",
                     onSearchQueryChange = {},
                     onDelete = {},

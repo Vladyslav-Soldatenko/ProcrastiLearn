@@ -21,6 +21,9 @@ import com.procrastilearn.app.testing.ComponentActivityRegistrationRule
 import io.mockk.called
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableList
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -49,7 +52,7 @@ class AppsListTest {
     private lateinit var mockOnToggle: (AppInfo) -> Unit
 
     private val testApps =
-        listOf(
+        persistentListOf(
             AppInfo(
                 packageName = "com.app1",
                 label = "App 1",
@@ -81,8 +84,8 @@ class AppsListTest {
     fun `displays loading indicator when isLoading is true`() {
         composeTestRule.setContent {
             AppsList(
-                apps = emptyList(),
-                selectedKeys = emptySet(),
+                apps = persistentListOf(),
+                selectedKeys = persistentSetOf(),
                 isEnabled = true,
                 isLoading = true,
                 errorMessage = null,
@@ -102,8 +105,8 @@ class AppsListTest {
 
         composeTestRule.setContent {
             AppsList(
-                apps = emptyList(),
-                selectedKeys = emptySet(),
+                apps = persistentListOf(),
+                selectedKeys = persistentSetOf(),
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = errorMessage,
@@ -123,7 +126,7 @@ class AppsListTest {
         composeTestRule.setContent {
             AppsList(
                 apps = testApps,
-                selectedKeys = emptySet(),
+                selectedKeys = persistentSetOf(),
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
@@ -148,7 +151,7 @@ class AppsListTest {
         composeTestRule.setContent {
             AppsList(
                 apps = testApps,
-                selectedKeys = emptySet(),
+                selectedKeys = persistentSetOf(),
                 isEnabled = false,
                 isLoading = false,
                 errorMessage = null,
@@ -170,7 +173,7 @@ class AppsListTest {
         composeTestRule.setContent {
             AppsList(
                 apps = testApps,
-                selectedKeys = emptySet(),
+                selectedKeys = persistentSetOf(),
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
@@ -189,7 +192,7 @@ class AppsListTest {
         composeTestRule.setContent {
             AppsList(
                 apps = testApps,
-                selectedKeys = emptySet(),
+                selectedKeys = persistentSetOf(),
                 isEnabled = false,
                 isLoading = false,
                 errorMessage = null,
@@ -208,7 +211,7 @@ class AppsListTest {
         composeTestRule.setContent {
             AppsList(
                 apps = testApps,
-                selectedKeys = emptySet(),
+                selectedKeys = persistentSetOf(),
                 isEnabled = false,
                 isLoading = false,
                 errorMessage = null,
@@ -226,7 +229,7 @@ class AppsListTest {
 
     @Test
     fun `app checkboxes reflect selected state`() {
-        val selectedKeys = setOf("com.app1", "com.app3")
+        val selectedKeys = persistentSetOf("com.app1", "com.app3")
 
         composeTestRule.setContent {
             AppsList(
@@ -258,7 +261,7 @@ class AppsListTest {
         composeTestRule.setContent {
             AppsList(
                 apps = testApps,
-                selectedKeys = emptySet(),
+                selectedKeys = persistentSetOf(),
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
@@ -279,7 +282,7 @@ class AppsListTest {
         composeTestRule.setContent {
             AppsList(
                 apps = testApps,
-                selectedKeys = setOf("com.app1"),
+                selectedKeys = persistentSetOf("com.app1"),
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
@@ -300,7 +303,7 @@ class AppsListTest {
         composeTestRule.setContent {
             AppsList(
                 apps = testApps,
-                selectedKeys = emptySet(),
+                selectedKeys = persistentSetOf(),
                 isEnabled = false,
                 isLoading = false,
                 errorMessage = null,
@@ -321,7 +324,7 @@ class AppsListTest {
         composeTestRule.setContent {
             AppsList(
                 apps = testApps,
-                selectedKeys = emptySet(),
+                selectedKeys = persistentSetOf(),
                 isEnabled = false,
                 isLoading = false,
                 errorMessage = null,
@@ -342,7 +345,7 @@ class AppsListTest {
         composeTestRule.setContent {
             AppsList(
                 apps = testApps,
-                selectedKeys = emptySet(),
+                selectedKeys = persistentSetOf(),
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
@@ -362,8 +365,8 @@ class AppsListTest {
     fun `empty apps list displays only enable toggle`() {
         composeTestRule.setContent {
             AppsList(
-                apps = emptyList(),
-                selectedKeys = emptySet(),
+                apps = persistentListOf(),
+                selectedKeys = persistentSetOf(),
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
@@ -387,8 +390,8 @@ class AppsListTest {
 
         composeTestRule.setContent {
             AppsList(
-                apps = listOf(appWithoutIcon),
-                selectedKeys = emptySet(),
+                apps = persistentListOf(appWithoutIcon),
+                selectedKeys = persistentSetOf(),
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
@@ -415,12 +418,12 @@ class AppsListTest {
                     label = "App $index",
                     icon = null,
                 )
-            }
+            }.toImmutableList()
 
         composeTestRule.setContent {
             AppsList(
                 apps = manyApps,
-                selectedKeys = emptySet(),
+                selectedKeys = persistentSetOf(),
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,

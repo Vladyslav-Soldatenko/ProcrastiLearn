@@ -73,6 +73,9 @@ import com.procrastilearn.app.ui.toggled
 import io.github.oikvpqya.compose.fastscroller.VerticalScrollbar
 import io.github.oikvpqya.compose.fastscroller.material3.defaultMaterialScrollbarStyle
 import io.github.oikvpqya.compose.fastscroller.rememberScrollbarAdapter
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun WordListScreen(
@@ -84,7 +87,7 @@ fun WordListScreen(
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
     WordListContent(
-        words = words,
+        words = words.toImmutableList(),
         selectionState = selectionState,
         searchQuery = searchQuery,
         onSearchQueryChange = { searchQuery = it },
@@ -105,7 +108,7 @@ fun WordListScreen(
 @Composable
 @Suppress("LongMethod")
 internal fun WordListContent(
-    words: List<VocabularyItem>,
+    words: ImmutableList<VocabularyItem>,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onDelete: (VocabularyItem) -> Unit,
@@ -728,7 +731,7 @@ private fun WordListContentNoSearchPreview() {
     MyApplicationTheme {
         WordListContent(
             words =
-                listOf(
+                persistentListOf(
                     VocabularyItem(
                         id = 1,
                         word = "Serendipity",
@@ -763,7 +766,7 @@ private fun WordListContentFilteredPreview() {
     MyApplicationTheme {
         WordListContent(
             words =
-                listOf(
+                persistentListOf(
                     VocabularyItem(
                         id = 1,
                         word = "Serendipity",
@@ -798,7 +801,7 @@ private fun WordListContentNoMatchesPreview() {
     MyApplicationTheme {
         WordListContent(
             words =
-                listOf(
+                persistentListOf(
                     VocabularyItem(
                         id = 1,
                         word = "Serendipity",

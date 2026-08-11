@@ -26,10 +26,12 @@ import androidx.compose.ui.unit.dp
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 fun ImportSettingsItem(
-    options: List<VocabularyImportOption>,
+    options: ImmutableList<VocabularyImportOption>,
     onOptionSelected: (VocabularyImportOption) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -104,7 +106,7 @@ private fun ImportSettingsItemPreview() {
     MyApplicationTheme {
         ImportSettingsItem(
             options =
-                listOf(
+                persistentListOf(
                     VocabularyImportOption(
                         id = "apkg",
                         titleResId = R.string.settings_import_option_anki_apkg,
