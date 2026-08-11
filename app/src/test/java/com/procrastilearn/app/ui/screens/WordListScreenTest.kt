@@ -25,6 +25,7 @@ import com.procrastilearn.app.ui.WordListViewModel
 import io.mockk.called
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.collections.immutable.toImmutableList
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -216,7 +217,7 @@ class WordListScreenTest {
     ) {
         composeTestRule.setContent {
             WordListContent(
-                words = words,
+                words = words.toImmutableList(),
                 searchQuery = searchQuery,
                 onSearchQueryChange = onSearchQueryChangeOverride ?: {},
                 onDelete = onDelete,

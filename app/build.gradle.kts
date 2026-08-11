@@ -89,6 +89,7 @@ dependencies {
 
   implementation(libs.fsrs)
   implementation(libs.kotlinx.serialization.json)
+  implementation(libs.kotlinx.collections.immutable)
   implementation(libs.androidx.room.runtime)
   implementation(libs.androidx.room.ktx)
   androidTestImplementation(libs.androidx.room.testing)

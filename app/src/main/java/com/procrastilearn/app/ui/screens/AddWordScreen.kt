@@ -35,6 +35,8 @@ import com.procrastilearn.app.ui.AddWordLoadingAction
 import com.procrastilearn.app.ui.AddWordPreviewContent
 import com.procrastilearn.app.ui.AddWordViewModel
 import com.procrastilearn.app.ui.PendingWordUi
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 
 @Suppress("MagicNumber")
@@ -77,7 +79,7 @@ fun AddWordScreen(
         loadingAction = uiState.loadingAction,
         isOnline = uiState.isOnline,
         isAddLaterMode = uiState.isAddLaterMode,
-        pendingWords = uiState.pendingWords,
+        pendingWords = uiState.pendingWords.toImmutableList(),
         showBidirectionalOption = uiState.showBidirectionalOption,
         bidirectional = uiState.bidirectional,
         isCustomizingBackward = uiState.isCustomizingBackward,
@@ -113,7 +115,6 @@ internal fun AddWordContent(
     errorMessage: String?,
     isSuccess: Boolean,
     successMessage: String?,
-    modifier: Modifier = Modifier,
     openAiAvailable: Boolean,
     useAiForTranslation: Boolean,
     translationDirection: AiTranslationDirection,
@@ -127,7 +128,7 @@ internal fun AddWordContent(
     loadingAction: AddWordLoadingAction?,
     isOnline: Boolean,
     isAddLaterMode: Boolean,
-    pendingWords: List<PendingWordUi>,
+    pendingWords: ImmutableList<PendingWordUi>,
     onDeletePendingWord: (Long) -> Unit,
     onWordChange: (String) -> Unit,
     onTranslationChange: (String) -> Unit,
@@ -140,6 +141,7 @@ internal fun AddWordContent(
     onAddClick: () -> Unit,
     onExistingWordDialogCancel: () -> Unit,
     onExistingWordDialogProceed: () -> Unit,
+    modifier: Modifier = Modifier,
     showBidirectionalOption: Boolean = true,
     bidirectional: Boolean = false,
     isCustomizingBackward: Boolean = false,

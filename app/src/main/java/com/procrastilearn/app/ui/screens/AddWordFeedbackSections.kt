@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.procrastilearn.app.R
 import com.procrastilearn.app.ui.AddWordLoadingAction
 import com.procrastilearn.app.ui.PendingWordUi
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun ActionButtonsRow(
@@ -185,7 +186,7 @@ internal fun ErrorMessageCard(errorMessage: String?) {
 
 @Composable
 internal fun PendingWordsSection(
-    pendingWords: List<PendingWordUi>,
+    pendingWords: ImmutableList<PendingWordUi>,
     onDeletePendingWord: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {

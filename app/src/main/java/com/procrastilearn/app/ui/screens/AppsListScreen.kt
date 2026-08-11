@@ -10,16 +10,17 @@ import com.procrastilearn.app.domain.model.AppInfo
 import com.procrastilearn.app.ui.AppsViewModel
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import com.procrastilearn.app.ui.views.AppsList
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableSet
 
 @Composable
-fun AppsListScreen() {
-    val vm: AppsViewModel = hiltViewModel()
-    val state by vm.state.collectAsState()
+fun AppsListScreen(viewModel: AppsViewModel = hiltViewModel()) {
+    val state by viewModel.state.collectAsState()
 
     AppsListScreenContent(
         state = state,
-        onEnabledChange = vm::setEnabled,
-        onToggle = vm::toggle,
+        onEnabledChange = viewModel::setEnabled,
+        onToggle = viewModel::toggle,
     )
 }
 
@@ -31,8 +32,8 @@ internal fun AppsListScreenContent(
     modifier: Modifier = Modifier,
 ) {
     AppsList(
-        apps = state.apps,
-        selectedKeys = state.selected,
+        apps = state.apps.toImmutableList(),
+        selectedKeys = state.selected.toImmutableSet(),
         isEnabled = state.isEnabled,
         isLoading = state.isLoading,
         errorMessage = state.error,
