@@ -48,12 +48,17 @@ private val KEY_OVERLAY_SKIPPED = booleanPreferencesKey("overlay_skipped")
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
+    @Suppress("LateinitUsage") // Hilt field injection into Activity has no constructor path
     lateinit var processTextEventBus: ProcessTextEventBus
 
     @Inject
+    @Suppress("LateinitUsage") // Hilt field injection into Activity has no constructor path
     lateinit var languagePreferencesStore: LanguagePreferencesStore
 
-    @Suppress("LongMethod", "CyclomaticComplexMethod")
+    // The permission-gating state machine (accessibility/overlay/language onboarding) shares
+    // several `remember`-scoped states across branches; splitting it would mean threading that
+    // shared state across composable boundaries for marginal gain.
+    @Suppress("LongMethod", "CyclomaticComplexMethod", "CognitiveComplexMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

@@ -55,6 +55,9 @@ internal fun AddWordPreviewDialog(
 }
 
 @Composable
+// Branching is a handful of independent stored-vs-new-translation string/label choices, not
+// entangled control flow.
+@Suppress("CognitiveComplexMethod")
 private fun AddWordPreviewDialogContent(
     previewContent: AddWordPreviewContent,
     isConfirmLoading: Boolean,

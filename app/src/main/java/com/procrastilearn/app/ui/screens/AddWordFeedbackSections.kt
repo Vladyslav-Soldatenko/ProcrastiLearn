@@ -25,8 +25,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.procrastilearn.app.R
 import com.procrastilearn.app.ui.AddWordLoadingAction
@@ -34,6 +36,9 @@ import com.procrastilearn.app.ui.PendingWordUi
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
+// Remaining branches are independent, single-purpose UI toggles (preview-button visibility,
+// per-button loading state, add-later label) rather than entangled control flow.
+@Suppress("CognitiveComplexMethod")
 internal fun ActionButtonsRow(
     openAiAvailable: Boolean,
     useAiForTranslation: Boolean,
@@ -68,17 +73,12 @@ internal fun ActionButtonsRow(
                         pressedElevation = 4.dp,
                     ),
             ) {
-                if (isLoading && loadingAction == AddWordLoadingAction.PREVIEW) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    )
-                } else {
-                    Text(
-                        text = stringResource(R.string.add_word_button_preview),
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                }
+                ButtonSpinnerOrLabel(
+                    showSpinner = isLoading && loadingAction == AddWordLoadingAction.PREVIEW,
+                    spinnerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    spinnerSize = 20.dp,
+                    label = stringResource(R.string.add_word_button_preview),
+                )
             }
         }
 
@@ -122,16 +122,32 @@ internal fun ActionButtonsRow(
                 Text(
                     text =
                         stringResource(
-                            if (isAddLaterMode) {
-                                R.string.add_word_button_add_later
-                            } else {
-                                R.string.action_add
-                            },
+                            if (isAddLaterMode) R.string.add_word_button_add_later else R.string.action_add,
                         ),
                     style = MaterialTheme.typography.titleMedium,
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ButtonSpinnerOrLabel(
+    showSpinner: Boolean,
+    spinnerColor: Color,
+    spinnerSize: Dp,
+    label: String,
+) {
+    if (showSpinner) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(spinnerSize),
+            color = spinnerColor,
+        )
+    } else {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleMedium,
+        )
     }
 }
 

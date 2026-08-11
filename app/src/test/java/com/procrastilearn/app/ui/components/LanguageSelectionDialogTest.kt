@@ -182,6 +182,10 @@ class LanguageSelectionDialogTest {
         composeTestRule.onNodeWithText(displayName).performClick()
     }
 
+    // The parens around `{ dismissCount++ }` are load-bearing: they force it to parse as a
+    // lambda expression (matching onDismiss's function type) rather than as this if-branch's
+    // block body, which would evaluate to Unit and fail to compile.
+    @Suppress("UnnecessaryParentheses")
     private fun setContent(
         initialNativeLanguage: Language? = null,
         initialTargetLanguage: Language? = null,

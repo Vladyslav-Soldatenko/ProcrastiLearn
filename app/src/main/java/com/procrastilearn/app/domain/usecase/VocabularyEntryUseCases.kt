@@ -2,7 +2,7 @@ package com.procrastilearn.app.domain.usecase
 
 import javax.inject.Inject
 
-class VocabularyEntryUseCases
+data class VocabularyEntryUseCases
     @Inject
     constructor(
         val add: AddVocabularyItemUseCase,

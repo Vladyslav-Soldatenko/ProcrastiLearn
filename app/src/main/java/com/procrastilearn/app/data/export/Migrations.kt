@@ -4,6 +4,11 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 
+private const val FIELD_SCHEMA_VERSION = "schemaVersion"
+private const val FIELD_EXPORTED_AT = "exportedAt"
+private const val FIELD_APP_VERSION = "appVersion"
+private const val FIELD_WORDS = "words"
+
 fun interface SchemaMigration {
     fun migrate(root: JsonObject): JsonObject
 }
@@ -15,10 +20,10 @@ object V1ToV2 : SchemaMigration {
 
     override fun migrate(root: JsonObject): JsonObject =
         buildJsonObject {
-            put("schemaVersion", JsonPrimitive(TARGET_SCHEMA_VERSION))
-            put("exportedAt", JsonPrimitive(UNKNOWN_EXPORTED_AT))
-            put("appVersion", JsonPrimitive(UNKNOWN_APP_VERSION))
-            put("words", root.getValue("words"))
+            put(FIELD_SCHEMA_VERSION, JsonPrimitive(TARGET_SCHEMA_VERSION))
+            put(FIELD_EXPORTED_AT, JsonPrimitive(UNKNOWN_EXPORTED_AT))
+            put(FIELD_APP_VERSION, JsonPrimitive(UNKNOWN_APP_VERSION))
+            put(FIELD_WORDS, root.getValue(FIELD_WORDS))
         }
 }
 
@@ -27,10 +32,10 @@ object V2ToV3 : SchemaMigration {
 
     override fun migrate(root: JsonObject): JsonObject =
         buildJsonObject {
-            put("schemaVersion", JsonPrimitive(TARGET_SCHEMA_VERSION))
-            put("exportedAt", root.getValue("exportedAt"))
-            put("appVersion", root.getValue("appVersion"))
-            put("words", root.getValue("words"))
+            put(FIELD_SCHEMA_VERSION, JsonPrimitive(TARGET_SCHEMA_VERSION))
+            put(FIELD_EXPORTED_AT, root.getValue(FIELD_EXPORTED_AT))
+            put(FIELD_APP_VERSION, root.getValue(FIELD_APP_VERSION))
+            put(FIELD_WORDS, root.getValue(FIELD_WORDS))
         }
 }
 

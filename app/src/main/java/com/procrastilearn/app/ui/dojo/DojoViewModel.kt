@@ -167,19 +167,16 @@ class DojoViewModel
                             )
                     }.onFailure { exception ->
                         if (pendingRestoredItem != null) return@onFailure
-                        when (exception) {
-                            is NoAvailableItemsException -> {
-                                // No words available - empty state
-                                flashcardState.value =
-                                    FlashcardState(
-                                        vocabularyItem = null,
-                                        isLoading = false,
-                                        showAnswer = false,
-                                    )
-                            }
-                            else -> {
-                                flashcardState.value = flashcardState.value.copy(isLoading = false)
-                            }
+                        if (exception is NoAvailableItemsException) {
+                            // No words available - empty state
+                            flashcardState.value =
+                                FlashcardState(
+                                    vocabularyItem = null,
+                                    isLoading = false,
+                                    showAnswer = false,
+                                )
+                        } else {
+                            flashcardState.value = flashcardState.value.copy(isLoading = false)
                         }
                     }
             }

@@ -72,6 +72,15 @@ private fun AppsListScreenErrorPreview() {
     }
 }
 
+private val previewApps =
+    listOf(
+        AppInfo(label = "Focus Timer", packageName = "com.example.focus"),
+        AppInfo(label = "Study Buddy", packageName = "com.example.study"),
+        AppInfo(label = "Game Hub", packageName = "com.example.games"),
+    )
+
+private val previewSelectedKeys = setOf("com.example.focus", "com.example.games")
+
 @Preview(showBackground = true)
 @Composable
 private fun AppsListScreenContentPreview() {
@@ -79,13 +88,8 @@ private fun AppsListScreenContentPreview() {
         AppsListScreenContent(
             state =
                 AppsViewModel.UiState(
-                    apps =
-                        listOf(
-                            AppInfo(label = "Focus Timer", packageName = "com.example.focus"),
-                            AppInfo(label = "Study Buddy", packageName = "com.example.study"),
-                            AppInfo(label = "Game Hub", packageName = "com.example.games"),
-                        ),
-                    selected = setOf("com.example.focus", "com.example.games"),
+                    apps = previewApps,
+                    selected = previewSelectedKeys,
                     isLoading = false,
                     isEnabled = true,
                 ),
@@ -102,13 +106,8 @@ private fun AppsListScreenContentDisabledPreview() {
         AppsListScreenContent(
             state =
                 AppsViewModel.UiState(
-                    apps =
-                        listOf(
-                            AppInfo(label = "Focus Timer", packageName = "com.example.focus"),
-                            AppInfo(label = "Study Buddy", packageName = "com.example.study"),
-                            AppInfo(label = "Game Hub", packageName = "com.example.games"),
-                        ),
-                    selected = setOf("com.example.focus", "com.example.games"),
+                    apps = previewApps,
+                    selected = previewSelectedKeys,
                     isLoading = false,
                     isEnabled = false,
                 ),

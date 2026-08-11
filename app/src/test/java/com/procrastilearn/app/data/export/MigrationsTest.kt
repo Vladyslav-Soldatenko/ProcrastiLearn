@@ -18,6 +18,14 @@ class MigrationsTest {
             }
         }
 
+    private val v2Envelope =
+        buildJsonObject {
+            put("schemaVersion", JsonPrimitive(2))
+            put("exportedAt", JsonPrimitive(1_700_000_000_000L))
+            put("appVersion", JsonPrimitive("1.2.0"))
+            put("words", bareV1Array)
+        }
+
     @Test
     fun `V1ToV2 wraps the bare array in an envelope with a synthesised schemaVersion`() {
         val root = buildJsonObject { put("words", bareV1Array) }
@@ -58,14 +66,6 @@ class MigrationsTest {
 
         assertThat(migrated).isEqualTo(root)
     }
-
-    private val v2Envelope =
-        buildJsonObject {
-            put("schemaVersion", JsonPrimitive(2))
-            put("exportedAt", JsonPrimitive(1_700_000_000_000L))
-            put("appVersion", JsonPrimitive("1.2.0"))
-            put("words", bareV1Array)
-        }
 
     @Test
     fun `V2ToV3 re-stamps schemaVersion to 3 and preserves words unchanged`() {

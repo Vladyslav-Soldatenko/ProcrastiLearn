@@ -166,7 +166,10 @@ class VocabularyRepositoryImpl
         override fun observeBackwardOnlySkippedCount(): Flow<Int> =
             vocabularyStatsDao.observeBackwardOnlySkippedCount(System.currentTimeMillis())
 
-        @Suppress("LongMethod")
+        // FSRS scheduling + undo-snapshot + bidirectional-seed steps are one atomic review
+        // transaction; splitting risks desyncing the snapshot from the scheduling state it
+        // must be able to restore.
+        @Suppress("LongMethod", "CognitiveComplexMethod")
         override suspend fun reviewVocabularyItem(
             id: Long,
             rating: Rating,

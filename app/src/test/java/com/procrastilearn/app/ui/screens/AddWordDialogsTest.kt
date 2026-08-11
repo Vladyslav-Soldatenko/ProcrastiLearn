@@ -41,6 +41,13 @@ class AddWordDialogsTest {
             translation = "House\nHome\nA building",
         )
 
+    private val storedPreviewContent =
+        AddWordPreviewContent(
+            word = "Haus",
+            translation = "House\nHome\nA building",
+            isStoredTranslation = true,
+        )
+
     @Before
     fun setup() {
         onCancel = mockk(relaxed = true)
@@ -114,13 +121,6 @@ class AddWordDialogsTest {
             )
         }
     }
-
-    private val storedPreviewContent =
-        AddWordPreviewContent(
-            word = "Haus",
-            translation = "House\nHome\nA building",
-            isStoredTranslation = true,
-        )
 
     @Test
     fun `stored preview dialog displays stored title and regenerate label`() {

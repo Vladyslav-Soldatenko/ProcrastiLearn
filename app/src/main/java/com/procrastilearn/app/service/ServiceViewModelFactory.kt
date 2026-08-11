@@ -11,14 +11,11 @@ class ServiceViewModelFactory(
     private val saveDifficultyRatingUseCase: SaveDifficultyRatingUseCase,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T =
-        when {
-            modelClass.isAssignableFrom(OverlayViewModel::class.java) -> {
-                OverlayViewModel(
-                    getNextVocabularyItem = getNextVocabularyItemUseCase,
-                    saveDifficultyRating = saveDifficultyRatingUseCase,
-                ) as T
-            }
-            else -> throw IllegalArgumentException("Unknown ViewModel class")
-        }
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        require(modelClass.isAssignableFrom(OverlayViewModel::class.java)) { "Unknown ViewModel class" }
+        return OverlayViewModel(
+            getNextVocabularyItem = getNextVocabularyItemUseCase,
+            saveDifficultyRating = saveDifficultyRatingUseCase,
+        ) as T
+    }
 }
