@@ -34,7 +34,10 @@ android {
     arg("appfunctions:aggregateAppFunctions", "true")
   }
   sourceSets {
-    getByName("androidTest").assets.setSrcDirs(listOf("$projectDir/schemas", "src/androidTest/assets"))
+    getByName("androidTest").assets.directories.apply {
+      clear()
+      addAll(listOf("$projectDir/schemas", "src/androidTest/assets"))
+    }
   }
 
   buildTypes {
@@ -80,6 +83,9 @@ android {
 
 kotlin {
   jvmToolchain(21)
+  compilerOptions {
+    allWarningsAsErrors = true
+  }
 }
 
 dependencies {

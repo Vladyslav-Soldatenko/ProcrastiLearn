@@ -6,7 +6,7 @@ import com.procrastilearn.app.R
 enum class Language(
     val code: String,
     val englishName: String,
-    @StringRes val displayNameRes: Int,
+    @param:StringRes val displayNameRes: Int,
 ) {
     ENGLISH("en", "English", R.string.language_name_english),
     RUSSIAN("ru", "Russian", R.string.language_name_russian),

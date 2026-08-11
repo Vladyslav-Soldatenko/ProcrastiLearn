@@ -39,7 +39,8 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 
-@Suppress("MagicNumber")
+// DEPRECATION: androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel replacement isn't published yet
+@Suppress("MagicNumber", "DEPRECATION")
 @Composable
 fun AddWordScreen(
     viewModel: AddWordViewModel = hiltViewModel(),

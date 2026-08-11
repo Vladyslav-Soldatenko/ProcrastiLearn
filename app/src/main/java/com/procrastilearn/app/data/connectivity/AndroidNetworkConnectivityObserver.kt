@@ -22,7 +22,7 @@ import javax.inject.Singleton
 class AndroidNetworkConnectivityObserver
     @Inject
     constructor(
-        @ApplicationContext private val context: Context,
+        @param:ApplicationContext private val context: Context,
     ) : NetworkConnectivityObserver {
         private val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

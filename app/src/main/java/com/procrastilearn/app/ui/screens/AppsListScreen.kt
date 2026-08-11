@@ -13,6 +13,7 @@ import com.procrastilearn.app.ui.views.AppsList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
 
+@Suppress("DEPRECATION") // replacement androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel is not yet published
 @Composable
 fun AppsListScreen(viewModel: AppsViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()

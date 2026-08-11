@@ -296,6 +296,7 @@ class OverlayAccessibilityService : AccessibilityService() {
 
     private fun isIgnorableSystem(pkg: String): Boolean = pkg in ignoredPackages
 
+    @Suppress("DEPRECATION") // SOFT_INPUT_ADJUST_RESIZE has no WindowInsets-based equivalent for this overlay
     private fun showOverlay(initialItem: VocabularyItem) {
         if (!isProcrastilearnEnabled) {
             return

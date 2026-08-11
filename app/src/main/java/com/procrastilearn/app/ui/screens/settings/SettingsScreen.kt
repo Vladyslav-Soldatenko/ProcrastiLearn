@@ -102,6 +102,7 @@ sealed interface DialogState {
     object LanguageSelection : DialogState
 }
 
+@Suppress("DEPRECATION") // replacement androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel is not yet published
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
