@@ -457,7 +457,7 @@ class VocabularyRepositoryGetNextItemTest {
                     ),
                 )
 
-            val future = System.currentTimeMillis() + 3600000 // 1 hour from now
+            val future = System.currentTimeMillis() + 3_600_000 // 1 hour from now
             insertTestVocabulary(
                 word = "future",
                 translation = "futuro",

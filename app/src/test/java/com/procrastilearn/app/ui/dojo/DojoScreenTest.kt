@@ -38,9 +38,9 @@ class DojoScreenTest {
 
     private lateinit var context: Context
     private lateinit var onToggleShowAnswer: () -> Unit
-    private lateinit var onDifficultySelected: (Rating) -> Unit
+    private lateinit var onDifficultySelect: (Rating) -> Unit
     private lateinit var onUndo: () -> Unit
-    private lateinit var onUndoEventShown: () -> Unit
+    private lateinit var onUndoEventShow: () -> Unit
 
     private val sampleWord =
         VocabularyItem(id = 1L, word = "serendipity", translation = "happy accident", isNew = false)
@@ -49,9 +49,9 @@ class DojoScreenTest {
     fun setup() {
         context = ApplicationProvider.getApplicationContext()
         onToggleShowAnswer = mockk(relaxed = true)
-        onDifficultySelected = mockk(relaxed = true)
+        onDifficultySelect = mockk(relaxed = true)
         onUndo = mockk(relaxed = true)
-        onUndoEventShown = mockk(relaxed = true)
+        onUndoEventShow = mockk(relaxed = true)
     }
 
     private fun string(resId: Int) = context.getString(resId)
@@ -105,12 +105,12 @@ class DojoScreenTest {
     }
 
     @Test
-    fun `clicking a rating button invokes onDifficultySelected with that rating`() {
+    fun `clicking a rating button invokes onDifficultySelect with that rating`() {
         setContent(DojoUiState(vocabularyItem = sampleWord, showAnswer = true, isLoading = false))
 
         composeTestRule.onNodeWithText(string(R.string.rating_good)).performClick()
 
-        verify(exactly = 1) { onDifficultySelected(Rating.GOOD) }
+        verify(exactly = 1) { onDifficultySelect(Rating.GOOD) }
     }
 
     @Test
@@ -196,9 +196,9 @@ class DojoScreenTest {
             DojoScreen(
                 uiState = uiState,
                 onToggleShowAnswer = onToggleShowAnswer,
-                onDifficultySelected = onDifficultySelected,
+                onDifficultySelect = onDifficultySelect,
                 onUndo = onUndo,
-                onUndoEventShown = onUndoEventShown,
+                onUndoEventShow = onUndoEventShow,
             )
         }
         composeTestRule.waitForIdle()

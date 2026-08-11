@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -28,6 +29,7 @@ fun OverlayScreen(
     viewModel: OverlayViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val currentOnUnlock by rememberUpdatedState(onUnlock)
 
     // Initial load
     LaunchedEffect(Unit) {
@@ -36,7 +38,7 @@ fun OverlayScreen(
 
     // When unlocked, tell the service to remove the overlay
     LaunchedEffect(uiState.unlocked) {
-        if (uiState.unlocked) onUnlock()
+        if (uiState.unlocked) currentOnUnlock()
     }
 
     OverlayScreen(uiState, viewModel::onToggleShowAnswer, viewModel::onDifficultySelected)
@@ -48,7 +50,7 @@ fun OverlayScreen(
 internal fun OverlayScreen(
     uiState: OverlayUiState,
     onToggleShowAnswer: () -> Unit,
-    onDifficultySelected: (Rating) -> Unit,
+    onDifficultySelect: (Rating) -> Unit,
 ) {
     OverlayTheme {
         val backgroundGradient =
@@ -69,7 +71,7 @@ internal fun OverlayScreen(
             LearningCard(
                 state = uiState,
                 onToggleShowAnswer = onToggleShowAnswer,
-                onDifficultySelected = onDifficultySelected,
+                onDifficultySelect = onDifficultySelect,
                 ratingLockSecondsRemaining = uiState.ratingLockSecondsRemaining,
             )
         }
@@ -138,7 +140,7 @@ private fun OverlayScreenPreview(
         OverlayScreen(
             uiState = state,
             onToggleShowAnswer = {},
-            onDifficultySelected = {},
+            onDifficultySelect = {},
         )
     }
 }

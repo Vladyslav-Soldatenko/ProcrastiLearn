@@ -94,14 +94,14 @@ class DayCountersStoreTest {
     @Test
     fun counterMutationsUpdateValuesAsExpected() =
         runTest {
-            store.resetFor(20240131)
+            store.resetFor(20_240_131)
             store.markReviewShown()
             store.markReviewShown()
             store.markNewShown()
             store.markReviewShown()
 
             val counters = store.read().first()
-            assertThat(counters.yyyymmdd).isEqualTo(20240131)
+            assertThat(counters.yyyymmdd).isEqualTo(20_240_131)
             assertThat(counters.newShown).isEqualTo(1)
             assertThat(counters.reviewShown).isEqualTo(3)
             assertThat(counters.reviewsSinceLastNew).isEqualTo(1)
@@ -111,7 +111,7 @@ class DayCountersStoreTest {
     @Test
     fun addExtraNewTodayAccumulatesAcrossCalls() =
         runTest {
-            store.resetFor(20240131)
+            store.resetFor(20_240_131)
             store.addExtraNewToday(5, availableNew = 100)
             store.addExtraNewToday(3, availableNew = 100)
 
@@ -122,7 +122,7 @@ class DayCountersStoreTest {
     @Test
     fun addExtraNewTodayIgnoresZeroAndNegativeAmounts() =
         runTest {
-            store.resetFor(20240131)
+            store.resetFor(20_240_131)
             store.addExtraNewToday(10, availableNew = 100)
             store.addExtraNewToday(0, availableNew = 100)
             store.addExtraNewToday(-5, availableNew = 100)
@@ -136,7 +136,7 @@ class DayCountersStoreTest {
         runTest {
             // newPerDay defaults to 15, nothing shown yet -> 15 already "remaining".
             // Only 20 cards are unseen in the deck, so at most 5 more can be added.
-            store.resetFor(20240131)
+            store.resetFor(20_240_131)
 
             store.addExtraNewToday(50, availableNew = 20)
 
@@ -147,7 +147,7 @@ class DayCountersStoreTest {
     fun addExtraNewTodayAddsNothingWhenNoCapacityRemains() =
         runTest {
             // availableNew = 0: no unseen cards left, so no boost can be granted at all.
-            store.resetFor(20240131)
+            store.resetFor(20_240_131)
 
             store.addExtraNewToday(10, availableNew = 0)
 
@@ -157,7 +157,7 @@ class DayCountersStoreTest {
     @Test
     fun addExtraNewTodayRepeatedAddsStopAtCapacityInsteadOfAccumulatingPastIt() =
         runTest {
-            store.resetFor(20240131)
+            store.resetFor(20_240_131)
 
             store.addExtraNewToday(3, availableNew = 20) // remaining 15 -> +3 = 18, capacity was 5
             store.addExtraNewToday(3, availableNew = 20) // remaining 18 -> capacity now 2, clamps to +2
@@ -170,7 +170,7 @@ class DayCountersStoreTest {
         runTest {
             // newPerDay=15, 10 already shown -> 5 remaining. 8 unseen cards left in the
             // deck means only 3 more can be granted before remaining would exceed unseen.
-            store.resetFor(20240131)
+            store.resetFor(20_240_131)
             repeat(10) { store.markNewShown() }
 
             store.addExtraNewToday(100, availableNew = 8)
@@ -181,7 +181,7 @@ class DayCountersStoreTest {
     @Test
     fun addExtraNewTodayAllowsFullAmountWhenWithinCapacity() =
         runTest {
-            store.resetFor(20240131)
+            store.resetFor(20_240_131)
 
             store.addExtraNewToday(4, availableNew = 100)
 
@@ -191,21 +191,21 @@ class DayCountersStoreTest {
     @Test
     fun resetForClearsExtraNewToday() =
         runTest {
-            store.resetFor(20240131)
+            store.resetFor(20_240_131)
             store.addExtraNewToday(10, availableNew = 100)
             assertThat(store.read().first().extraNewToday).isEqualTo(10)
 
-            store.resetFor(20240201)
+            store.resetFor(20_240_201)
 
             val counters = store.read().first()
-            assertThat(counters.yyyymmdd).isEqualTo(20240201)
+            assertThat(counters.yyyymmdd).isEqualTo(20_240_201)
             assertThat(counters.extraNewToday).isEqualTo(0)
         }
 
     @Test
     fun restoreCountersSetsValuesAbsolutelyAndLeavesExtraNewTodayAndDayUntouched() =
         runTest {
-            store.resetFor(20240131)
+            store.resetFor(20_240_131)
             store.addExtraNewToday(7, availableNew = 100)
             store.markReviewShown()
             store.markReviewShown()
@@ -219,13 +219,13 @@ class DayCountersStoreTest {
             assertThat(counters.reviewsSinceLastNew).isEqualTo(0)
             // Untouched by restore:
             assertThat(counters.extraNewToday).isEqualTo(7)
-            assertThat(counters.yyyymmdd).isEqualTo(20240131)
+            assertThat(counters.yyyymmdd).isEqualTo(20_240_131)
         }
 
     @Test
     fun restoreCountersCanIncreaseValuesToo() =
         runTest {
-            store.resetFor(20240131)
+            store.resetFor(20_240_131)
 
             store.restoreCounters(newShown = 4, reviewShown = 9, reviewsSinceLastNew = 2)
 

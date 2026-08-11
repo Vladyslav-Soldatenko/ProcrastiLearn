@@ -21,7 +21,7 @@ class VocabularyExportEnvelopeTest {
         val envelope =
             VocabularyExportEnvelope(
                 schemaVersion = CURRENT_SCHEMA_VERSION,
-                exportedAt = 1785010756357,
+                exportedAt = 1_785_010_756_357,
                 appVersion = "1.3.1",
                 words =
                     listOf(
@@ -29,7 +29,7 @@ class VocabularyExportEnvelopeTest {
                             id = 1,
                             word = "test",
                             translation = "test123",
-                            createdAt = 1785010756357,
+                            createdAt = 1_785_010_756_357,
                             lastShownAt = null,
                             correctCount = 0,
                             incorrectCount = 0,
@@ -50,7 +50,7 @@ class VocabularyExportEnvelopeTest {
         val envelope =
             VocabularyExportEnvelope(
                 schemaVersion = CURRENT_SCHEMA_VERSION,
-                exportedAt = 1785010756357,
+                exportedAt = 1_785_010_756_357,
                 appVersion = "1.3.1",
                 words =
                     listOf(
@@ -58,15 +58,15 @@ class VocabularyExportEnvelopeTest {
                             id = 2,
                             word = "run",
                             translation = "бігати",
-                            createdAt = 1785010756357,
-                            lastShownAt = 1785010756400,
+                            createdAt = 1_785_010_756_357,
+                            lastShownAt = 1_785_010_756_400,
                             correctCount = 2,
                             incorrectCount = 1,
                             fsrsCardJson = "{\"fwd\":1}",
-                            fsrsDueAt = 1785010800000,
+                            fsrsDueAt = 1_785_010_800_000,
                             bidirectional = true,
                             backwardFsrsCardJson = "{\"bwd\":1}",
-                            backwardFsrsDueAt = 1785010900000,
+                            backwardFsrsDueAt = 1_785_010_900_000,
                             backwardCorrectCount = 3,
                             backwardIncorrectCount = 4,
                             backwardPromptOverride = "custom prompt",

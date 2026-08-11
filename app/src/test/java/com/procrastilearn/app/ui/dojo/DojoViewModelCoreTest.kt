@@ -69,7 +69,7 @@ class DojoViewModelCoreTest {
         countersFlow =
             MutableStateFlow(
                 DayCounters(
-                    yyyymmdd = 20260117,
+                    yyyymmdd = 20_260_117,
                     newShown = 3,
                     reviewShown = 5,
                     reviewsSinceLastNew = 2,

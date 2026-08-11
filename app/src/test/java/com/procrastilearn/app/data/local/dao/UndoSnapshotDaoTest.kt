@@ -49,7 +49,7 @@ class UndoSnapshotDaoTest {
     ) = UndoSnapshotEntity(
         vocabId = vocabId,
         createdAt = createdAt,
-        snapshotDay = 20260117,
+        snapshotDay = 20_260_117,
         ratingName = "GOOD",
         direction = "FORWARD",
         fsrsCardJson = "",

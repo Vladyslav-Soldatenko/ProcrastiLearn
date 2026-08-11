@@ -10,7 +10,7 @@ import kotlinx.collections.immutable.persistentListOf
 
 @Preview(showBackground = true, name = "Add Word • AI Enabled")
 @Composable
-private fun AddWordContentPreviewAiEnabled() {
+private fun AddWordContentAiEnabledPreview() {
     MyApplicationTheme {
         AddWordContent(
             onNavigateToList = {},
@@ -58,7 +58,7 @@ private fun AddWordContentPreviewAiEnabled() {
 
 @Preview(showBackground = true, name = "Add Word • Offline (Add later)")
 @Composable
-private fun AddWordContentPreviewOffline() {
+private fun AddWordContentOfflinePreview() {
     MyApplicationTheme {
         AddWordContent(
             onNavigateToList = {},
@@ -122,7 +122,7 @@ private fun PendingWordsSectionPreview() {
 
 @Preview(showBackground = true, name = "Translation Direction • EN->RU")
 @Composable
-private fun TranslationDirectionRowPreviewEnRu() {
+private fun TranslationDirectionRowEnRuPreview() {
     MyApplicationTheme {
         TranslationDirectionRow(
             direction = AiTranslationDirection.TARGET_TO_NATIVE,
@@ -135,7 +135,7 @@ private fun TranslationDirectionRowPreviewEnRu() {
 
 @Preview(showBackground = true, name = "Translation Direction • RU->EN")
 @Composable
-private fun TranslationDirectionRowPreviewRuEn() {
+private fun TranslationDirectionRowRuEnPreview() {
     MyApplicationTheme {
         TranslationDirectionRow(
             direction = AiTranslationDirection.NATIVE_TO_TARGET,
@@ -148,7 +148,7 @@ private fun TranslationDirectionRowPreviewRuEn() {
 
 @Preview(showBackground = true, name = "Add Word • Bidirectional Customized")
 @Composable
-private fun AddWordContentPreviewBidirectionalCustomized() {
+private fun AddWordContentBidirectionalCustomizedPreview() {
     MyApplicationTheme {
         AddWordContent(
             onNavigateToList = {},

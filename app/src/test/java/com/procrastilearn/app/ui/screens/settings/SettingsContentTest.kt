@@ -81,7 +81,7 @@ class SettingsContentTest {
     @Test
     fun `import option selection triggers callback`() {
         var selectedOptionId: String? = null
-        setContent(onImportOptionSelected = { selectedOptionId = it.id })
+        setContent(onImportOptionSelect = { selectedOptionId = it.id })
 
         composeTestRule.onNodeWithText(string(R.string.settings_import_row)).performScrollTo().performClick()
         composeTestRule.onNodeWithText(string(R.string.settings_import_option_anki_apkg)).performClick()
@@ -466,7 +466,7 @@ class SettingsContentTest {
         onLanguagePairChange: (Language, Language) -> Unit = { _, _ -> },
         onExportClick: () -> Unit = {},
         importOptions: List<VocabularyImportOption> = listOf(defaultImportOption),
-        onImportOptionSelected: (VocabularyImportOption) -> Unit = {},
+        onImportOptionSelect: (VocabularyImportOption) -> Unit = {},
     ) {
         composeTestRule.setContent {
             MyApplicationTheme {
@@ -514,7 +514,7 @@ class SettingsContentTest {
                     onA11yClick = onA11yClick,
                     onExportClick = onExportClick,
                     importOptions = importOptions.toImmutableList(),
-                    onImportOptionSelected = onImportOptionSelected,
+                    onImportOptionSelect = onImportOptionSelect,
                 )
             }
         }

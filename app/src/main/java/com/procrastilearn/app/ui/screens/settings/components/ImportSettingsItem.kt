@@ -32,7 +32,7 @@ import kotlinx.collections.immutable.persistentListOf
 @Composable
 fun ImportSettingsItem(
     options: ImmutableList<VocabularyImportOption>,
-    onOptionSelected: (VocabularyImportOption) -> Unit,
+    onOptionSelect: (VocabularyImportOption) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (options.isEmpty()) return
@@ -92,7 +92,7 @@ fun ImportSettingsItem(
                     },
                     onClick = {
                         expanded = false
-                        onOptionSelected(option)
+                        onOptionSelect(option)
                     },
                 )
             }
@@ -115,7 +115,7 @@ private fun ImportSettingsItemPreview() {
                         extensions = setOf("apkg"),
                     ),
                 ),
-            onOptionSelected = {},
+            onOptionSelect = {},
         )
     }
 }

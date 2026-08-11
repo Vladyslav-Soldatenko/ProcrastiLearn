@@ -125,6 +125,9 @@ internal fun WordListContent(
     onSelectAll: (List<Long>) -> Unit = {},
     onDeselectAll: () -> Unit = {},
     onExitSelectionMode: () -> Unit = {},
+    // "Selected" describes the already-selected items being deleted (an adjective), not a
+    // past-tense event report, so the present-tense-callback convention doesn't apply here.
+    @Suppress("ParameterNaming")
     onDeleteSelected: () -> Unit = {},
     onSetSelectedBidirectional: (Boolean) -> Unit = {},
     onNavigateBack: () -> Unit = {},

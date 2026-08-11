@@ -25,7 +25,7 @@ import com.procrastilearn.app.ui.theme.MyApplicationTheme
 @Composable
 fun StudyDirectionDialog(
     currentMode: StudyDirectionMode,
-    onModeSelected: (StudyDirectionMode) -> Unit,
+    onModeSelect: (StudyDirectionMode) -> Unit,
     onDismiss: () -> Unit,
 ) {
     AlertDialog(
@@ -38,13 +38,13 @@ fun StudyDirectionDialog(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .clickable { onModeSelected(mode) }
+                                .clickable { onModeSelect(mode) }
                                 .padding(vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(
                             selected = mode == currentMode,
-                            onClick = { onModeSelected(mode) },
+                            onClick = { onModeSelect(mode) },
                         )
                         Spacer(Modifier.width(8.dp))
                         Column {
@@ -96,7 +96,7 @@ private fun StudyDirectionDialogPreview() {
     MyApplicationTheme {
         StudyDirectionDialog(
             currentMode = StudyDirectionMode.FORWARD,
-            onModeSelected = {},
+            onModeSelect = {},
             onDismiss = {},
         )
     }

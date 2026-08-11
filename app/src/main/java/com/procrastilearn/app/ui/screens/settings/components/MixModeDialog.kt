@@ -25,7 +25,7 @@ import com.procrastilearn.app.ui.theme.MyApplicationTheme
 @Composable
 fun MixModeDialog(
     currentMode: MixMode,
-    onModeSelected: (MixMode) -> Unit,
+    onModeSelect: (MixMode) -> Unit,
     onDismiss: () -> Unit,
 ) {
     AlertDialog(
@@ -38,13 +38,13 @@ fun MixModeDialog(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .clickable { onModeSelected(mode) }
+                                .clickable { onModeSelect(mode) }
                                 .padding(vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(
                             selected = mode == currentMode,
-                            onClick = { onModeSelected(mode) },
+                            onClick = { onModeSelect(mode) },
                         )
                         Spacer(Modifier.width(8.dp))
                         Column {
@@ -88,7 +88,7 @@ private fun MixModeDialogPreview() {
     MyApplicationTheme {
         MixModeDialog(
             currentMode = MixMode.MIX,
-            onModeSelected = {},
+            onModeSelect = {},
             onDismiss = {},
         )
     }

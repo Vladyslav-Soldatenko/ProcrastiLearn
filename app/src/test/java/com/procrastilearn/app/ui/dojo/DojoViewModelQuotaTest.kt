@@ -65,7 +65,7 @@ class DojoViewModelQuotaTest {
         countersFlow =
             MutableStateFlow(
                 DayCounters(
-                    yyyymmdd = 20260117,
+                    yyyymmdd = 20_260_117,
                     newShown = 3,
                     reviewShown = 5,
                     reviewsSinceLastNew = 2,
@@ -123,7 +123,7 @@ class DojoViewModelQuotaTest {
             // Update counters
             countersFlow.value =
                 DayCounters(
-                    yyyymmdd = 20260117,
+                    yyyymmdd = 20_260_117,
                     newShown = 10,
                     reviewShown = 20,
                     reviewsSinceLastNew = 5,
@@ -166,7 +166,7 @@ class DojoViewModelQuotaTest {
             // newPerDay=20, newShown=3, extraNewToday=10 -> 20 + 10 - 3 = 27
             countersFlow.value =
                 DayCounters(
-                    yyyymmdd = 20260117,
+                    yyyymmdd = 20_260_117,
                     newShown = 3,
                     reviewShown = 5,
                     reviewsSinceLastNew = 2,
@@ -189,7 +189,7 @@ class DojoViewModelQuotaTest {
             // newPerDay=20, newShown=20 (fully consumed), extraNewToday=5 -> 5 remaining
             countersFlow.value =
                 DayCounters(
-                    yyyymmdd = 20260117,
+                    yyyymmdd = 20_260_117,
                     newShown = 20,
                     reviewShown = 5,
                     reviewsSinceLastNew = 2,
@@ -228,7 +228,7 @@ class DojoViewModelQuotaTest {
             // newPerDay=20, newShown=25, extraNewToday=3 -> 20 + 3 - 25 = -2 -> coerced to 0
             countersFlow.value =
                 DayCounters(
-                    yyyymmdd = 20260117,
+                    yyyymmdd = 20_260_117,
                     newShown = 25,
                     reviewShown = 5,
                     reviewsSinceLastNew = 2,
@@ -276,7 +276,7 @@ class DojoViewModelQuotaTest {
             coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
             countersFlow.value =
                 DayCounters(
-                    yyyymmdd = 20260117,
+                    yyyymmdd = 20_260_117,
                     newShown = 3,
                     reviewShown = 5,
                     reviewsSinceLastNew = 2,
@@ -330,7 +330,7 @@ class DojoViewModelQuotaTest {
             // Set new shown > new per day
             countersFlow.value =
                 DayCounters(
-                    yyyymmdd = 20260117,
+                    yyyymmdd = 20_260_117,
                     newShown = 25, // More than policy (20)
                     reviewShown = 5,
                     reviewsSinceLastNew = 2,

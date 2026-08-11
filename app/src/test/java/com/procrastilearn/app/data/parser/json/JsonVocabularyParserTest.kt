@@ -149,29 +149,29 @@ class JsonVocabularyParserTest {
                 id = 1,
                 word = "test",
                 translation = """test123""",
-                createdAt = 1785010756357,
-                lastShownAt = 1785011459260,
+                createdAt = 1_785_010_756_357,
+                lastShownAt = 1_785_011_459_260,
                 correctCount = 1,
                 incorrectCount = 0,
                 fsrsCardJson =
                     "{\"cardId\":-1695638824,\"difficulty\":6.243132948566265," +
                         "\"due\":\"2026-07-25T20:36:29.260Z\",\"lastReview\":\"2026-07-25T20:30:59.260Z\"," +
                         "\"stability\":1.1771,\"state\":\"LEARNING\",\"step\":0}",
-                fsrsDueAt = 1785011789260,
+                fsrsDueAt = 1_785_011_789_260,
             ),
             VocabularyExportItem(
                 id = 2,
                 word = "foo",
                 translation = """bar""",
-                createdAt = 1785010760751,
-                lastShownAt = 1785011460386,
+                createdAt = 1_785_010_760_751,
+                lastShownAt = 1_785_011_460_386,
                 correctCount = 1,
                 incorrectCount = 0,
                 fsrsCardJson =
                     "{\"cardId\":-1695634391,\"difficulty\":4.884631634813845," +
                         "\"due\":\"2026-07-25T20:41:00.386080Z\",\"lastReview\":\"2026-07-25T20:31:00.386080Z\"," +
                         "\"stability\":3.2602,\"state\":\"LEARNING\",\"step\":1}",
-                fsrsDueAt = 1785012060386,
+                fsrsDueAt = 1_785_012_060_386,
             ),
             VocabularyExportItem(
                 id = 3,
@@ -201,15 +201,15 @@ class JsonVocabularyParserTest {
 8. The catlicked the milk from the saucer.
 9. They built a cat tower for their pets.
 10. The catwalk showed models wearing avant-garde fashion.""",
-                createdAt = 1785010810566,
-                lastShownAt = 1785011469180,
+                createdAt = 1_785_010_810_566,
+                lastShownAt = 1_785_011_469_180,
                 correctCount = 0,
                 incorrectCount = 1,
                 fsrsCardJson =
                     "{\"cardId\":-1695584574,\"difficulty\":7.0114," +
                         "\"due\":\"2026-07-25T20:32:09.180957Z\",\"lastReview\":\"2026-07-25T20:31:09.180957Z\"," +
                         "\"stability\":0.2172,\"state\":\"LEARNING\",\"step\":0}",
-                fsrsDueAt = 1785011529180,
+                fsrsDueAt = 1_785_011_529_180,
             ),
             VocabularyExportItem(
                 id = 4,
@@ -234,7 +234,7 @@ class JsonVocabularyParserTest {
 8. The cat purred when I stroked its fur.
 9. Cats are known for their agility.
 10. He bought a new toy for his cat.""",
-                createdAt = 1785010837396,
+                createdAt = 1_785_010_837_396,
                 lastShownAt = null,
                 correctCount = 0,
                 incorrectCount = 0,
@@ -267,15 +267,15 @@ class JsonVocabularyParserTest {
 8. 听见狗叫就知道有人来了。 (/Tīngjiàn gǒu jiào jiù zhīdào yǒu rén lái le/)
 9. 请不要打扰那只正在哺乳的小狗。 (/Qǐng búyào dǎrǎo nà zhī zhèngzài bǔrǔ de xiǎo gǒu/)
 10. 他把狗牵在绳子上。 (/Tā bǎ gǒu qiān zài shéngzi shàng/)""",
-                createdAt = 1785010859128,
-                lastShownAt = 1785011461880,
+                createdAt = 1_785_010_859_128,
+                lastShownAt = 1_785_011_461_880,
                 correctCount = 1,
                 incorrectCount = 0,
                 fsrsCardJson =
                     "{\"cardId\":-1695536013,\"difficulty\":2.482438522375997," +
                         "\"due\":\"2026-08-06T20:31:01.880409Z\",\"lastReview\":\"2026-07-25T20:31:01.880409Z\"," +
                         "\"stability\":16.1507,\"state\":\"REVIEW\",\"step\":null}",
-                fsrsDueAt = 1786048261880,
+                fsrsDueAt = 1_786_048_261_880,
             ),
         )
 }

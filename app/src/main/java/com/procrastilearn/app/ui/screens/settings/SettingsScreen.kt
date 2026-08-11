@@ -223,7 +223,7 @@ fun SettingsScreen(
                 exportLauncher.launch(name)
             },
             importOptions = importOptions.toImmutableList(),
-            onImportOptionSelected = { option ->
+            onImportOptionSelect = { option ->
                 pendingImportOptionId = option.id
                 val mimeTypes =
                     option.mimeTypes.takeIf { it.isNotEmpty() }
@@ -257,7 +257,7 @@ internal fun SettingsContent(
     onExportClick: () -> Unit,
     modifier: Modifier = Modifier,
     importOptions: ImmutableList<VocabularyImportOption> = persistentListOf(),
-    onImportOptionSelected: (VocabularyImportOption) -> Unit = {},
+    onImportOptionSelect: (VocabularyImportOption) -> Unit = {},
 ) {
     val mixMode = studySettings.mixMode
     val studyDirectionMode = studySettings.studyDirectionMode
@@ -385,7 +385,7 @@ internal fun SettingsContent(
             if (importOptions.isNotEmpty()) {
                 ImportSettingsItem(
                     options = importOptions,
-                    onOptionSelected = onImportOptionSelected,
+                    onOptionSelect = onImportOptionSelect,
                 )
 
                 Spacer(Modifier.height(4.dp))
@@ -425,7 +425,7 @@ private fun SettingsDialogs(
         DialogState.MixMode -> {
             MixModeDialog(
                 currentMode = studySettings.mixMode,
-                onModeSelected = {
+                onModeSelect = {
                     studyCallbacks.onMixModeChange(it)
                     dismiss()
                 },
@@ -435,7 +435,7 @@ private fun SettingsDialogs(
         DialogState.StudyDirection -> {
             StudyDirectionDialog(
                 currentMode = studySettings.studyDirectionMode,
-                onModeSelected = {
+                onModeSelect = {
                     studyCallbacks.onStudyDirectionModeChange(it)
                     dismiss()
                 },
@@ -617,7 +617,7 @@ data class PermissionStates(
 
 @Preview(showBackground = true)
 @Composable
-private fun SettingsScreenPreview_AllGranted() {
+private fun SettingsScreenAllGrantedPreview() {
     MyApplicationTheme {
         SettingsContent(
             overlayGranted = true,
@@ -672,7 +672,7 @@ private fun SettingsScreenPreview_AllGranted() {
                         extensions = setOf("apkg"),
                     ),
                 ),
-            onImportOptionSelected = {},
+            onImportOptionSelect = {},
         )
     }
 }

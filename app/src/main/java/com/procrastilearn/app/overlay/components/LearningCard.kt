@@ -56,7 +56,7 @@ import io.github.openspacedrepetition.Rating
 fun LearningCard(
     state: OverlayUiState,
     onToggleShowAnswer: () -> Unit,
-    onDifficultySelected: (Rating) -> Unit,
+    onDifficultySelect: (Rating) -> Unit,
     ratingLockSecondsRemaining: Int,
     modifier: Modifier = Modifier,
     showTranslationButtonHeight: androidx.compose.ui.unit.Dp = 52.dp,
@@ -156,7 +156,7 @@ fun LearningCard(
             LearningCardFooter(
                 showAnswer = state.showAnswer,
                 onToggleShowAnswer = onToggleShowAnswer,
-                onDifficultySelected = onDifficultySelected,
+                onDifficultySelect = onDifficultySelect,
                 ratingLockSecondsRemaining = ratingLockSecondsRemaining,
                 showTranslationButtonHeight = showTranslationButtonHeight,
                 addNavigationBarsPadding = addNavigationBarsPadding,
@@ -169,7 +169,7 @@ fun LearningCard(
 private fun LearningCardFooter(
     showAnswer: Boolean,
     onToggleShowAnswer: () -> Unit,
-    onDifficultySelected: (Rating) -> Unit,
+    onDifficultySelect: (Rating) -> Unit,
     ratingLockSecondsRemaining: Int,
     showTranslationButtonHeight: androidx.compose.ui.unit.Dp,
     addNavigationBarsPadding: Boolean,
@@ -204,51 +204,53 @@ private fun LearningCardFooter(
         }
     } else {
         // Bottom: divider + help + difficulty buttons (replaces the Show button)
-        HorizontalDivider(
-            modifier = Modifier.padding(vertical = 6.dp),
-            color = OverlayThemeTokens.colors.divider,
-            thickness = 1.dp,
-        )
-        Box(
-            modifier =
-                Modifier
-                    .padding(top = 2.dp, bottom = 8.dp)
-                    .fillMaxWidth()
-                    .heightIn(min = 28.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            if (ratingLockSecondsRemaining > 0) {
-                Text(
-                    text = ratingLockSecondsRemaining.toString(),
-                    color = OverlayThemeTokens.colors.helpText,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.testTag("rating_lock_countdown"),
-                )
-            } else {
-                Text(
-                    text = stringResource(R.string.learning_question),
-                    color = OverlayThemeTokens.colors.helpText,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center,
-                )
+        Column {
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 6.dp),
+                color = OverlayThemeTokens.colors.divider,
+                thickness = 1.dp,
+            )
+            Box(
+                modifier =
+                    Modifier
+                        .padding(top = 2.dp, bottom = 8.dp)
+                        .fillMaxWidth()
+                        .heightIn(min = 28.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (ratingLockSecondsRemaining > 0) {
+                    Text(
+                        text = ratingLockSecondsRemaining.toString(),
+                        color = OverlayThemeTokens.colors.helpText,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.testTag("rating_lock_countdown"),
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.learning_question),
+                        color = OverlayThemeTokens.colors.helpText,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
+            DifficultyButtons(
+                onDifficultySelect = onDifficultySelect,
+                enabled = ratingLockSecondsRemaining == 0,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding(),
+            )
         }
-        DifficultyButtons(
-            onDifficultySelected = onDifficultySelected,
-            enabled = ratingLockSecondsRemaining == 0,
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding(),
-        )
     }
 }
 
 @Composable
 private fun DifficultyButtons(
-    onDifficultySelected: (Rating) -> Unit,
+    onDifficultySelect: (Rating) -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -265,7 +267,7 @@ private fun DifficultyButtons(
                 containerColor = OverlayThemeTokens.colors.difficultyAgainContainer,
                 contentColor = OverlayThemeTokens.colors.difficultyAgainContent,
                 enabled,
-                onClick = { onDifficultySelected(Rating.AGAIN) },
+                onClick = { onDifficultySelect(Rating.AGAIN) },
                 modifier = Modifier.weight(1f),
             )
             DifficultyButton(
@@ -273,7 +275,7 @@ private fun DifficultyButtons(
                 containerColor = OverlayThemeTokens.colors.difficultyHardContainer,
                 contentColor = OverlayThemeTokens.colors.difficultyHardContent,
                 enabled,
-                onClick = { onDifficultySelected(Rating.HARD) },
+                onClick = { onDifficultySelect(Rating.HARD) },
                 modifier = Modifier.weight(1f),
             )
         }
@@ -286,7 +288,7 @@ private fun DifficultyButtons(
                 containerColor = OverlayThemeTokens.colors.difficultyGoodContainer,
                 contentColor = OverlayThemeTokens.colors.difficultyGoodContent,
                 enabled,
-                onClick = { onDifficultySelected(Rating.GOOD) },
+                onClick = { onDifficultySelect(Rating.GOOD) },
                 modifier = Modifier.weight(1f),
             )
             DifficultyButton(
@@ -294,7 +296,7 @@ private fun DifficultyButtons(
                 containerColor = OverlayThemeTokens.colors.difficultyEasyContainer,
                 contentColor = OverlayThemeTokens.colors.difficultyEasyContent,
                 enabled,
-                onClick = { onDifficultySelected(Rating.EASY) },
+                onClick = { onDifficultySelect(Rating.EASY) },
                 modifier = Modifier.weight(1f),
             )
         }

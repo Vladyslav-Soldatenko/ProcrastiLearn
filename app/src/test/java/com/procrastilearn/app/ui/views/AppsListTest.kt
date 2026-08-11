@@ -89,7 +89,7 @@ class AppsListTest {
                 isEnabled = true,
                 isLoading = true,
                 errorMessage = null,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
@@ -110,7 +110,7 @@ class AppsListTest {
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = errorMessage,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
@@ -130,7 +130,7 @@ class AppsListTest {
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
@@ -155,7 +155,7 @@ class AppsListTest {
                 isEnabled = false,
                 isLoading = false,
                 errorMessage = null,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
@@ -177,7 +177,7 @@ class AppsListTest {
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
@@ -196,7 +196,7 @@ class AppsListTest {
                 isEnabled = false,
                 isLoading = false,
                 errorMessage = null,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
@@ -215,7 +215,7 @@ class AppsListTest {
                 isEnabled = false,
                 isLoading = false,
                 errorMessage = null,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
@@ -238,7 +238,7 @@ class AppsListTest {
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
@@ -265,7 +265,7 @@ class AppsListTest {
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
@@ -286,7 +286,7 @@ class AppsListTest {
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
@@ -307,7 +307,7 @@ class AppsListTest {
                 isEnabled = false,
                 isLoading = false,
                 errorMessage = null,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
@@ -328,7 +328,7 @@ class AppsListTest {
                 isEnabled = false,
                 isLoading = false,
                 errorMessage = null,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
@@ -349,7 +349,7 @@ class AppsListTest {
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
@@ -370,7 +370,7 @@ class AppsListTest {
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
@@ -395,7 +395,7 @@ class AppsListTest {
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
@@ -427,7 +427,7 @@ class AppsListTest {
                 isEnabled = true,
                 isLoading = false,
                 errorMessage = null,
-                onToggleEnabled = mockOnToggleEnabled,
+                onEnabledChange = mockOnToggleEnabled,
                 onToggle = mockOnToggle,
             )
         }
