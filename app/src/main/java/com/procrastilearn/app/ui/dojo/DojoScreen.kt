@@ -138,6 +138,7 @@ internal fun DojoScreen(
                                         state = overlayState,
                                         onToggleShowAnswer = onToggleShowAnswer,
                                         onDifficultySelected = onDifficultySelected,
+                                        ratingLockSecondsRemaining = 0,
                                         showTranslationButtonHeight = 56.dp,
                                         addNavigationBarsPadding = false,
                                     )

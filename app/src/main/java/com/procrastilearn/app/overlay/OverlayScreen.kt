@@ -70,6 +70,7 @@ internal fun OverlayScreen(
                 state = uiState,
                 onToggleShowAnswer = onToggleShowAnswer,
                 onDifficultySelected = onDifficultySelected,
+                ratingLockSecondsRemaining = uiState.ratingLockSecondsRemaining,
             )
         }
     }
@@ -97,6 +98,14 @@ private class OverlayUiStateProvider : PreviewParameterProvider<OverlayUiState> 
                 showAnswer = true,
                 unlocked = false,
                 isLoading = false,
+            ),
+            OverlayUiState(
+                vocabularyItem = sampleWord,
+                showAnswer = true,
+                unlocked = false,
+                isLoading = false,
+                ratingDelaySeconds = 5,
+                ratingLockSecondsRemaining = 3,
             ),
             OverlayUiState(
                 vocabularyItem = null,

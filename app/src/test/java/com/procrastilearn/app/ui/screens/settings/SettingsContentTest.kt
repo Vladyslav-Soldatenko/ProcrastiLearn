@@ -68,6 +68,7 @@ class SettingsContentTest {
         composeTestRule.onNodeWithText(string(R.string.settings_add_cards_for_today_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_new_cards_per_day_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_reviews_per_day_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_language_pair_title)).assertIsDisplayed()
         composeTestRule
             .onNodeWithText(string(R.string.settings_overlay_headline))
@@ -277,6 +278,41 @@ class SettingsContentTest {
     }
 
     @Test
+    fun `confirming rating delay value invokes callback and closes dialog`() {
+        var ratingDelay: Int? = null
+        setContent(onRatingDelayChange = { ratingDelay = it })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).performClick()
+
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("8")
+
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+
+        assertThat(ratingDelay).isEqualTo(8)
+        // dialog dismissed after submission; ensure primary row still visible
+        composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `rating delay OK is disabled once entered value exceeds the sixty second cap`() {
+        var ratingDelay: Int? = null
+        setContent(onRatingDelayChange = { ratingDelay = it })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).performClick()
+
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("61")
+
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+
+        assertThat(ratingDelay).isNull()
+    }
+
+    @Test
     fun `overlay permission click delegates to callback`() {
         var overlayClicks = 0
         setContent(onOverlayClick = { overlayClicks++ })
@@ -406,6 +442,7 @@ class SettingsContentTest {
         availableToAddToday: Int = 100,
         reviewPerDay: Int = 50,
         overlayInterval: Int = 5,
+        ratingDelaySeconds: Int = 0,
         openAiApiKey: String? = null,
         openAiPrompt: String = "Prompt",
         openAiReversePrompt: String = "Reverse prompt",
@@ -422,6 +459,7 @@ class SettingsContentTest {
         onAddCardsForToday: (Int) -> Unit = {},
         onReviewPerDayChange: (Int) -> Unit = {},
         onOverlayIntervalChange: (Int) -> Unit = {},
+        onRatingDelayChange: (Int) -> Unit = {},
         onOpenAiApiKeyChange: (String) -> Unit = {},
         onOpenAiPromptChange: (String) -> Unit = {},
         onOpenAiReversePromptChange: (String) -> Unit = {},
@@ -435,31 +473,45 @@ class SettingsContentTest {
                 SettingsContent(
                     overlayGranted = overlayGranted,
                     a11yEnabled = a11yEnabled,
-                    mixMode = mixMode,
-                    studyDirectionMode = studyDirectionMode,
-                    newPerDay = newPerDay,
-                    availableNewCount = availableNewCount,
-                    availableToAddToday = availableToAddToday,
-                    reviewPerDay = reviewPerDay,
-                    overlayInterval = overlayInterval,
-                    openAiApiKey = openAiApiKey,
-                    openAiPrompt = openAiPrompt,
-                    openAiReversePrompt = openAiReversePrompt,
-                    nativeLanguage = nativeLanguage,
-                    targetLanguage = targetLanguage,
+                    studySettings =
+                        StudySettings(
+                            mixMode = mixMode,
+                            studyDirectionMode = studyDirectionMode,
+                            newPerDay = newPerDay,
+                            availableNewCount = availableNewCount,
+                            availableToAddToday = availableToAddToday,
+                            reviewPerDay = reviewPerDay,
+                            overlayInterval = overlayInterval,
+                            ratingDelaySeconds = ratingDelaySeconds,
+                        ),
+                    studyCallbacks =
+                        StudySettingsCallbacks(
+                            onMixModeChange = onMixModeChange,
+                            onStudyDirectionModeChange = onStudyDirectionModeChange,
+                            onNewPerDayDialogOpen = onNewPerDayDialogOpen,
+                            onNewPerDayChange = onNewPerDayChange,
+                            onAddCardsForToday = onAddCardsForToday,
+                            onReviewPerDayChange = onReviewPerDayChange,
+                            onOverlayIntervalChange = onOverlayIntervalChange,
+                            onRatingDelayChange = onRatingDelayChange,
+                        ),
+                    aiSettings =
+                        AiSettings(
+                            openAiApiKey = openAiApiKey,
+                            openAiPrompt = openAiPrompt,
+                            openAiReversePrompt = openAiReversePrompt,
+                            nativeLanguage = nativeLanguage,
+                            targetLanguage = targetLanguage,
+                        ),
+                    aiCallbacks =
+                        AiSettingsCallbacks(
+                            onOpenAiApiKeyChange = onOpenAiApiKeyChange,
+                            onOpenAiPromptChange = onOpenAiPromptChange,
+                            onOpenAiReversePromptChange = onOpenAiReversePromptChange,
+                            onLanguagePairChange = onLanguagePairChange,
+                        ),
                     onOverlayClick = onOverlayClick,
                     onA11yClick = onA11yClick,
-                    onMixModeChange = onMixModeChange,
-                    onStudyDirectionModeChange = onStudyDirectionModeChange,
-                    onNewPerDayDialogOpen = onNewPerDayDialogOpen,
-                    onNewPerDayChange = onNewPerDayChange,
-                    onAddCardsForToday = onAddCardsForToday,
-                    onReviewPerDayChange = onReviewPerDayChange,
-                    onOverlayIntervalChange = onOverlayIntervalChange,
-                    onOpenAiApiKeyChange = onOpenAiApiKeyChange,
-                    onOpenAiPromptChange = onOpenAiPromptChange,
-                    onOpenAiReversePromptChange = onOpenAiReversePromptChange,
-                    onLanguagePairChange = onLanguagePairChange,
                     onExportClick = onExportClick,
                     importOptions = importOptions.toImmutableList(),
                     onImportOptionSelected = onImportOptionSelected,

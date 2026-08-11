@@ -96,6 +96,7 @@ class SettingsViewModelTest {
                     reviewPerDay = 150,
                     overlayInterval = 10,
                     mixMode = MixMode.MIX,
+                    ratingDelaySeconds = 4,
                 ),
             )
         countersFlow =
@@ -167,6 +168,7 @@ class SettingsViewModelTest {
                 assertThat(hydrated.newPerDay).isEqualTo(20)
                 assertThat(hydrated.reviewPerDay).isEqualTo(150)
                 assertThat(hydrated.overlayInterval).isEqualTo(10)
+                assertThat(hydrated.ratingDelaySeconds).isEqualTo(4)
                 assertThat(hydrated.openAiApiKey).isNull()
                 assertThat(hydrated.openAiPrompt).isEqualTo(OpenAiPromptDefaults.translationPrompt)
                 assertThat(hydrated.openAiReversePrompt).isEqualTo(OpenAiPromptDefaults.reverseTranslationPrompt)
@@ -179,6 +181,7 @@ class SettingsViewModelTest {
                         newPerDay = 5,
                         reviewPerDay = 80,
                         overlayInterval = 3,
+                        ratingDelaySeconds = 12,
                     )
                 apiKeyFlow.value = "abc"
                 promptFlow.value = "custom prompt"
@@ -190,6 +193,7 @@ class SettingsViewModelTest {
                 assertThat(updated.newPerDay).isEqualTo(5)
                 assertThat(updated.reviewPerDay).isEqualTo(80)
                 assertThat(updated.overlayInterval).isEqualTo(3)
+                assertThat(updated.ratingDelaySeconds).isEqualTo(12)
                 assertThat(updated.openAiApiKey).isEqualTo("abc")
                 assertThat(updated.openAiPrompt).isEqualTo("custom prompt")
                 assertThat(updated.openAiReversePrompt).isEqualTo("custom reverse prompt")
@@ -372,6 +376,18 @@ class SettingsViewModelTest {
             advanceUntilIdle()
 
             coVerify { dayCountersStore.setOverlayInterval(9) }
+        }
+
+    @Test
+    fun `onRatingDelayChange delegates to store`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            coEvery { dayCountersStore.setRatingDelaySeconds(any()) } returns Unit
+
+            viewModel.onRatingDelayChange(15)
+            advanceUntilIdle()
+
+            coVerify { dayCountersStore.setRatingDelaySeconds(15) }
         }
 
     @Test

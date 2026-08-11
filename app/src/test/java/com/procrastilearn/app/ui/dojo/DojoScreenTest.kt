@@ -3,6 +3,7 @@ package com.procrastilearn.app.ui.dojo
 import android.content.Context
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -110,6 +111,18 @@ class DojoScreenTest {
         composeTestRule.onNodeWithText(string(R.string.rating_good)).performClick()
 
         verify(exactly = 1) { onDifficultySelected(Rating.GOOD) }
+    }
+
+    @Test
+    fun `rating buttons are enabled immediately on reveal, unaffected by the overlay rating delay`() {
+        setContent(DojoUiState(vocabularyItem = sampleWord, showAnswer = true, isLoading = false))
+
+        listOf(
+            R.string.rating_again,
+            R.string.rating_hard,
+            R.string.rating_good,
+            R.string.rating_easy,
+        ).forEach { resId -> composeTestRule.onNodeWithText(string(resId)).assertIsEnabled() }
     }
 
     @Test

@@ -61,6 +61,7 @@ import com.procrastilearn.app.ui.screens.settings.components.OpenAiApiKeySetting
 import com.procrastilearn.app.ui.screens.settings.components.OpenAiPromptSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.OpenAiReversePromptSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.OverlayPermissionItem
+import com.procrastilearn.app.ui.screens.settings.components.RatingDelaySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ReviewPerDaySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.SettingsSectionHeader
 import com.procrastilearn.app.ui.screens.settings.components.ShowOverlayIntervalSettingsItem
@@ -76,6 +77,8 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import java.time.LocalDate
 
+private const val MAX_RATING_DELAY_SECONDS = 60
+
 sealed interface DialogState {
     object None : DialogState
 
@@ -90,6 +93,8 @@ sealed interface DialogState {
     object ReviewPerDay : DialogState
 
     object OverlayInterval : DialogState
+
+    object RatingDelay : DialogState
 
     object AboutUs : DialogState
 
@@ -174,31 +179,45 @@ fun SettingsScreen(
             modifier = Modifier.padding(innerPadding),
             overlayGranted = permissionStates.overlayGranted,
             a11yEnabled = permissionStates.a11yEnabled,
-            mixMode = state.mixMode,
-            studyDirectionMode = state.studyDirectionMode,
-            newPerDay = state.newPerDay,
-            availableNewCount = availableNewCount,
-            availableToAddToday = availableToAddToday,
-            reviewPerDay = state.reviewPerDay,
-            overlayInterval = state.overlayInterval,
-            openAiApiKey = state.openAiApiKey,
-            openAiPrompt = state.openAiPrompt,
-            openAiReversePrompt = state.openAiReversePrompt,
-            nativeLanguage = state.nativeLanguage,
-            targetLanguage = state.targetLanguage,
+            studySettings =
+                StudySettings(
+                    mixMode = state.mixMode,
+                    studyDirectionMode = state.studyDirectionMode,
+                    newPerDay = state.newPerDay,
+                    availableNewCount = availableNewCount,
+                    availableToAddToday = availableToAddToday,
+                    reviewPerDay = state.reviewPerDay,
+                    overlayInterval = state.overlayInterval,
+                    ratingDelaySeconds = state.ratingDelaySeconds,
+                ),
+            studyCallbacks =
+                StudySettingsCallbacks(
+                    onMixModeChange = viewModel::onMixModeChange,
+                    onStudyDirectionModeChange = viewModel::onStudyDirectionModeChange,
+                    onNewPerDayDialogOpen = viewModel::loadAvailableNewCount,
+                    onNewPerDayChange = viewModel::onNewPerDayChange,
+                    onAddCardsForToday = viewModel::onAddCardsForToday,
+                    onReviewPerDayChange = viewModel::onReviewPerDayChange,
+                    onOverlayIntervalChange = viewModel::onOverlayIntervalChange,
+                    onRatingDelayChange = viewModel::onRatingDelayChange,
+                ),
+            aiSettings =
+                AiSettings(
+                    openAiApiKey = state.openAiApiKey,
+                    openAiPrompt = state.openAiPrompt,
+                    openAiReversePrompt = state.openAiReversePrompt,
+                    nativeLanguage = state.nativeLanguage,
+                    targetLanguage = state.targetLanguage,
+                ),
+            aiCallbacks =
+                AiSettingsCallbacks(
+                    onOpenAiApiKeyChange = viewModel::onOpenAiApiKeyChange,
+                    onOpenAiPromptChange = viewModel::onOpenAiPromptChange,
+                    onOpenAiReversePromptChange = viewModel::onOpenAiReversePromptChange,
+                    onLanguagePairChange = viewModel::onLanguagePairChange,
+                ),
             onOverlayClick = { openOverlaySettings(ctx) },
             onA11yClick = { openAccessibilitySettings(ctx) },
-            onMixModeChange = viewModel::onMixModeChange,
-            onStudyDirectionModeChange = viewModel::onStudyDirectionModeChange,
-            onNewPerDayDialogOpen = viewModel::loadAvailableNewCount,
-            onNewPerDayChange = viewModel::onNewPerDayChange,
-            onAddCardsForToday = viewModel::onAddCardsForToday,
-            onReviewPerDayChange = viewModel::onReviewPerDayChange,
-            onOverlayIntervalChange = viewModel::onOverlayIntervalChange,
-            onOpenAiApiKeyChange = viewModel::onOpenAiApiKeyChange,
-            onOpenAiPromptChange = viewModel::onOpenAiPromptChange,
-            onOpenAiReversePromptChange = viewModel::onOpenAiReversePromptChange,
-            onLanguagePairChange = viewModel::onLanguagePairChange,
             onExportClick = {
                 val name = "vocabulary-export-${LocalDate.now()}.json"
                 exportLauncher.launch(name)
@@ -229,36 +248,30 @@ private fun SettingsTopBar() {
 internal fun SettingsContent(
     overlayGranted: Boolean,
     a11yEnabled: Boolean,
-    mixMode: MixMode,
-    newPerDay: Int,
-    reviewPerDay: Int,
-    overlayInterval: Int,
-    openAiApiKey: String?,
-    openAiPrompt: String,
-    openAiReversePrompt: String,
-    nativeLanguage: Language,
-    targetLanguage: Language,
+    studySettings: StudySettings,
+    studyCallbacks: StudySettingsCallbacks,
+    aiSettings: AiSettings,
+    aiCallbacks: AiSettingsCallbacks,
     onOverlayClick: () -> Unit,
     onA11yClick: () -> Unit,
-    onMixModeChange: (MixMode) -> Unit,
-    onNewPerDayChange: (Int) -> Unit,
-    onReviewPerDayChange: (Int) -> Unit,
-    onOverlayIntervalChange: (Int) -> Unit,
-    onOpenAiApiKeyChange: (String) -> Unit,
-    onOpenAiPromptChange: (String) -> Unit,
-    onOpenAiReversePromptChange: (String) -> Unit,
     onExportClick: () -> Unit,
     modifier: Modifier = Modifier,
-    studyDirectionMode: StudyDirectionMode = StudyDirectionMode.FORWARD,
-    availableNewCount: Int = 0,
-    availableToAddToday: Int = 0,
-    onStudyDirectionModeChange: (StudyDirectionMode) -> Unit = {},
-    onNewPerDayDialogOpen: () -> Unit = {},
-    onAddCardsForToday: (Int) -> Unit = {},
-    onLanguagePairChange: (Language, Language) -> Unit = { _, _ -> },
     importOptions: ImmutableList<VocabularyImportOption> = persistentListOf(),
     onImportOptionSelected: (VocabularyImportOption) -> Unit = {},
 ) {
+    val mixMode = studySettings.mixMode
+    val studyDirectionMode = studySettings.studyDirectionMode
+    val newPerDay = studySettings.newPerDay
+    val reviewPerDay = studySettings.reviewPerDay
+    val overlayInterval = studySettings.overlayInterval
+    val ratingDelaySeconds = studySettings.ratingDelaySeconds
+    val nativeLanguage = aiSettings.nativeLanguage
+    val targetLanguage = aiSettings.targetLanguage
+    val openAiApiKey = aiSettings.openAiApiKey
+    val openAiPrompt = aiSettings.openAiPrompt
+    val openAiReversePrompt = aiSettings.openAiReversePrompt
+    val onNewPerDayDialogOpen = studyCallbacks.onNewPerDayDialogOpen
+    val onAddCardsForToday = studyCallbacks.onAddCardsForToday
     var dialogState by remember { mutableStateOf<DialogState>(DialogState.None) }
 
     Box(
@@ -317,6 +330,13 @@ internal fun SettingsContent(
             ShowOverlayIntervalSettingsItem(
                 value = overlayInterval,
                 onClick = { dialogState = DialogState.OverlayInterval },
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            RatingDelaySettingsItem(
+                value = ratingDelaySeconds,
+                onClick = { dialogState = DialogState.RatingDelay },
             )
 
             Spacer(Modifier.height(4.dp))
@@ -381,81 +401,121 @@ internal fun SettingsContent(
         }
     }
 
-    // Dialogs
+    SettingsDialogs(
+        dialogState = dialogState,
+        onDialogStateChange = { dialogState = it },
+        studySettings = studySettings,
+        studyCallbacks = studyCallbacks,
+        aiSettings = aiSettings,
+        aiCallbacks = aiCallbacks,
+    )
+}
+
+@Composable
+private fun SettingsDialogs(
+    dialogState: DialogState,
+    onDialogStateChange: (DialogState) -> Unit,
+    studySettings: StudySettings,
+    studyCallbacks: StudySettingsCallbacks,
+    aiSettings: AiSettings,
+    aiCallbacks: AiSettingsCallbacks,
+) {
+    val dismiss = { onDialogStateChange(DialogState.None) }
     when (dialogState) {
         DialogState.MixMode -> {
             MixModeDialog(
-                currentMode = mixMode,
+                currentMode = studySettings.mixMode,
                 onModeSelected = {
-                    onMixModeChange(it)
-                    dialogState = DialogState.None
+                    studyCallbacks.onMixModeChange(it)
+                    dismiss()
                 },
-                onDismiss = { dialogState = DialogState.None },
+                onDismiss = dismiss,
             )
         }
         DialogState.StudyDirection -> {
             StudyDirectionDialog(
-                currentMode = studyDirectionMode,
+                currentMode = studySettings.studyDirectionMode,
                 onModeSelected = {
-                    onStudyDirectionModeChange(it)
-                    dialogState = DialogState.None
+                    studyCallbacks.onStudyDirectionModeChange(it)
+                    dismiss()
                 },
-                onDismiss = { dialogState = DialogState.None },
+                onDismiss = dismiss,
             )
         }
         DialogState.AddCardsForToday -> {
             NumberInputDialog(
-                title = stringResource(R.string.settings_add_cards_for_today_dialog_title, availableToAddToday),
+                title =
+                    stringResource(
+                        R.string.settings_add_cards_for_today_dialog_title,
+                        studySettings.availableToAddToday,
+                    ),
                 currentValue = 0,
                 minValue = 1,
-                maxValue = availableToAddToday,
+                maxValue = studySettings.availableToAddToday,
                 onValueConfirm = {
-                    onAddCardsForToday(it)
-                    dialogState = DialogState.None
+                    studyCallbacks.onAddCardsForToday(it)
+                    dismiss()
                 },
-                onDismiss = { dialogState = DialogState.None },
+                onDismiss = dismiss,
             )
         }
         DialogState.NewPerDay -> {
             NumberInputDialog(
-                title = stringResource(R.string.settings_new_cards_per_day_dialog_title, availableNewCount),
-                currentValue = newPerDay,
+                title =
+                    stringResource(
+                        R.string.settings_new_cards_per_day_dialog_title,
+                        studySettings.availableNewCount,
+                    ),
+                currentValue = studySettings.newPerDay,
                 minValue = 0,
                 onValueConfirm = {
-                    onNewPerDayChange(it)
-                    dialogState = DialogState.None
+                    studyCallbacks.onNewPerDayChange(it)
+                    dismiss()
                 },
-                onDismiss = { dialogState = DialogState.None },
+                onDismiss = dismiss,
             )
         }
         DialogState.ReviewPerDay -> {
             NumberInputDialog(
                 title = stringResource(R.string.settings_reviews_per_day_title),
-                currentValue = reviewPerDay,
+                currentValue = studySettings.reviewPerDay,
                 minValue = 0,
                 onValueConfirm = {
-                    onReviewPerDayChange(it)
-                    dialogState = DialogState.None
+                    studyCallbacks.onReviewPerDayChange(it)
+                    dismiss()
                 },
-                onDismiss = { dialogState = DialogState.None },
+                onDismiss = dismiss,
             )
         }
         DialogState.OverlayInterval -> {
             NumberInputDialog(
                 title = stringResource(R.string.settings_overlay_interval_title),
-                currentValue = overlayInterval,
+                currentValue = studySettings.overlayInterval,
                 minValue = 0,
                 onValueConfirm = {
-                    onOverlayIntervalChange(it)
-                    dialogState = DialogState.None
+                    studyCallbacks.onOverlayIntervalChange(it)
+                    dismiss()
                 },
-                onDismiss = { dialogState = DialogState.None },
+                onDismiss = dismiss,
+            )
+        }
+        DialogState.RatingDelay -> {
+            NumberInputDialog(
+                title = stringResource(R.string.settings_rating_delay_title),
+                currentValue = studySettings.ratingDelaySeconds,
+                minValue = 0,
+                maxValue = MAX_RATING_DELAY_SECONDS,
+                onValueConfirm = {
+                    studyCallbacks.onRatingDelayChange(it)
+                    dismiss()
+                },
+                onDismiss = dismiss,
             )
         }
         DialogState.AboutUs -> {
             val url = "https://gist.github.com/Vladyslav-Soldatenko/adb5953ce000b9e8515d3dcd87773aef"
             AboutUsDialog(
-                onDismiss = { dialogState = DialogState.None },
+                onDismiss = dismiss,
                 privacyPolicyUrl = url,
             )
         }
@@ -463,12 +523,12 @@ internal fun SettingsContent(
         DialogState.OpenAiApiKey -> {
             StringInputDialog(
                 title = stringResource(R.string.settings_openai_api_key_dialog_title),
-                currentValue = openAiApiKey.orEmpty(),
+                currentValue = aiSettings.openAiApiKey.orEmpty(),
                 onValueConfirm = {
-                    onOpenAiApiKeyChange(it)
-                    dialogState = DialogState.None
+                    aiCallbacks.onOpenAiApiKeyChange(it)
+                    dismiss()
                 },
-                onDismiss = { dialogState = DialogState.None },
+                onDismiss = dismiss,
                 isPassword = true,
             )
         }
@@ -477,15 +537,15 @@ internal fun SettingsContent(
                 title =
                     stringResource(
                         R.string.settings_openai_prompt_dialog_title,
-                        targetLanguage.code.uppercase(),
-                        nativeLanguage.code.uppercase(),
+                        aiSettings.targetLanguage.code.uppercase(),
+                        aiSettings.nativeLanguage.code.uppercase(),
                     ),
-                currentValue = openAiPrompt,
+                currentValue = aiSettings.openAiPrompt,
                 onValueConfirm = {
-                    onOpenAiPromptChange(it)
-                    dialogState = DialogState.None
+                    aiCallbacks.onOpenAiPromptChange(it)
+                    dismiss()
                 },
-                onDismiss = { dialogState = DialogState.None },
+                onDismiss = dismiss,
                 isPassword = false,
                 singleLine = false,
                 maxLines = 12,
@@ -497,15 +557,15 @@ internal fun SettingsContent(
                 title =
                     stringResource(
                         R.string.settings_openai_reverse_prompt_dialog_title,
-                        nativeLanguage.code.uppercase(),
-                        targetLanguage.code.uppercase(),
+                        aiSettings.nativeLanguage.code.uppercase(),
+                        aiSettings.targetLanguage.code.uppercase(),
                     ),
-                currentValue = openAiReversePrompt,
+                currentValue = aiSettings.openAiReversePrompt,
                 onValueConfirm = {
-                    onOpenAiReversePromptChange(it)
-                    dialogState = DialogState.None
+                    aiCallbacks.onOpenAiReversePromptChange(it)
+                    dismiss()
                 },
-                onDismiss = { dialogState = DialogState.None },
+                onDismiss = dismiss,
                 isPassword = false,
                 singleLine = false,
                 maxLines = 12,
@@ -515,13 +575,13 @@ internal fun SettingsContent(
 
         DialogState.LanguageSelection -> {
             LanguageSelectionDialog(
-                initialNativeLanguage = nativeLanguage,
-                initialTargetLanguage = targetLanguage,
+                initialNativeLanguage = aiSettings.nativeLanguage,
+                initialTargetLanguage = aiSettings.targetLanguage,
                 onConfirm = { native, target ->
-                    onLanguagePairChange(native, target)
-                    dialogState = DialogState.None
+                    aiCallbacks.onLanguagePairChange(native, target)
+                    dismiss()
                 },
-                onDismiss = { dialogState = DialogState.None },
+                onDismiss = dismiss,
             )
         }
 
@@ -562,24 +622,45 @@ private fun SettingsScreenPreview_AllGranted() {
         SettingsContent(
             overlayGranted = true,
             a11yEnabled = true,
-            mixMode = MixMode.MIX,
-            newPerDay = 20,
-            reviewPerDay = 200,
-            overlayInterval = 6,
-            openAiApiKey = null,
-            openAiPrompt = "Prompt",
-            openAiReversePrompt = "Reverse prompt",
-            nativeLanguage = Language.ENGLISH,
-            targetLanguage = Language.RUSSIAN,
+            studySettings =
+                StudySettings(
+                    mixMode = MixMode.MIX,
+                    studyDirectionMode = StudyDirectionMode.FORWARD,
+                    newPerDay = 20,
+                    availableNewCount = 0,
+                    availableToAddToday = 0,
+                    reviewPerDay = 200,
+                    overlayInterval = 6,
+                    ratingDelaySeconds = 0,
+                ),
+            studyCallbacks =
+                StudySettingsCallbacks(
+                    onMixModeChange = {},
+                    onStudyDirectionModeChange = {},
+                    onNewPerDayDialogOpen = {},
+                    onNewPerDayChange = {},
+                    onAddCardsForToday = {},
+                    onReviewPerDayChange = {},
+                    onOverlayIntervalChange = {},
+                    onRatingDelayChange = {},
+                ),
+            aiSettings =
+                AiSettings(
+                    openAiApiKey = null,
+                    openAiPrompt = "Prompt",
+                    openAiReversePrompt = "Reverse prompt",
+                    nativeLanguage = Language.ENGLISH,
+                    targetLanguage = Language.RUSSIAN,
+                ),
+            aiCallbacks =
+                AiSettingsCallbacks(
+                    onOpenAiApiKeyChange = {},
+                    onOpenAiPromptChange = {},
+                    onOpenAiReversePromptChange = {},
+                    onLanguagePairChange = { _, _ -> },
+                ),
             onOverlayClick = {},
             onA11yClick = {},
-            onMixModeChange = {},
-            onNewPerDayChange = {},
-            onReviewPerDayChange = {},
-            onOverlayIntervalChange = {},
-            onOpenAiApiKeyChange = {},
-            onOpenAiPromptChange = {},
-            onOpenAiReversePromptChange = {},
             onExportClick = {},
             importOptions =
                 persistentListOf(

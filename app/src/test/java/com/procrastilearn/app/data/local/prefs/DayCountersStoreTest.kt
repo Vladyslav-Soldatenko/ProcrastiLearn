@@ -55,6 +55,7 @@ class DayCountersStoreTest {
             assertThat(policy.overlayInterval).isEqualTo(0)
             assertThat(policy.mixMode).isEqualTo(MixMode.MIX)
             assertThat(policy.studyDirectionMode).isEqualTo(StudyDirectionMode.BIDIRECTIONAL)
+            assertThat(policy.ratingDelaySeconds).isEqualTo(0)
         }
 
     @Test
@@ -256,5 +257,53 @@ class DayCountersStoreTest {
             assertThat(policy.newPerDay).isEqualTo(0)
             assertThat(policy.reviewPerDay).isEqualTo(0)
             assertThat(policy.overlayInterval).isEqualTo(0)
+        }
+
+    @Test
+    fun setRatingDelaySecondsRoundTrips() =
+        runTest {
+            store.setRatingDelaySeconds(5)
+
+            assertThat(store.readPolicy().first().ratingDelaySeconds).isEqualTo(5)
+        }
+
+    @Test
+    fun setRatingDelaySecondsDoesNotClampOutOfRangeValues() =
+        runTest {
+            // Range validation is the settings dialog's job (min/maxValue on the input),
+            // not the store's -- it stores whatever it is given, including out-of-range input.
+            store.setRatingDelaySeconds(-1)
+            assertThat(store.readPolicy().first().ratingDelaySeconds).isEqualTo(-1)
+
+            store.setRatingDelaySeconds(999)
+            assertThat(store.readPolicy().first().ratingDelaySeconds).isEqualTo(999)
+        }
+
+    @Test
+    fun setRatingDelaySecondsStoresBoundaryValuesVerbatim() =
+        runTest {
+            store.setRatingDelaySeconds(0)
+            assertThat(store.readPolicy().first().ratingDelaySeconds).isEqualTo(0)
+
+            store.setRatingDelaySeconds(60)
+            assertThat(store.readPolicy().first().ratingDelaySeconds).isEqualTo(60)
+        }
+
+    @Test
+    fun setRatingDelaySecondsLeavesOtherPolicyFieldsUntouched() =
+        runTest {
+            store.setNewPerDay(50)
+            store.setReviewPerDay(60)
+            store.setOverlayInterval(7)
+            store.setMixMode(MixMode.NEW_FIRST)
+
+            store.setRatingDelaySeconds(10)
+
+            val policy = store.readPolicy().first()
+            assertThat(policy.newPerDay).isEqualTo(50)
+            assertThat(policy.reviewPerDay).isEqualTo(60)
+            assertThat(policy.overlayInterval).isEqualTo(7)
+            assertThat(policy.mixMode).isEqualTo(MixMode.NEW_FIRST)
+            assertThat(policy.ratingDelaySeconds).isEqualTo(10)
         }
 }

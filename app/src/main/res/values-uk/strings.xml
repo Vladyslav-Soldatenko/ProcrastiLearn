@@ -182,6 +182,11 @@
     <string name="settings_overlay_interval_title">Показувати оверлей кожні X хвилин</string>
     <string name="settings_overlay_interval_headline">Показувати оверлей кожні X хвилин, поки відкрито заблокований додаток</string>
 
+    <!-- Rating delay -->
+    <string name="settings_rating_delay_title">Затримка оцінювання</string>
+    <string name="settings_rating_delay_headline">Зачекайте, перш ніж оцінити картку</string>
+    <string name="settings_rating_delay_off">Вимкнено</string>
+
     <string name="settings_overlay_headline">Дозвіл на оверлей</string>
     <string name="settings_overlay_support">
         Потрібен, щоб показувати навчальну картку поверх вибраних додатків.
@@ -306,6 +311,12 @@
         <item quantity="few">%d картки</item>
         <item quantity="many">%d карток</item>
         <item quantity="other">%d картки</item>
+    </plurals>
+    <plurals name="rating_delay_seconds">
+        <item quantity="one">%d секунда</item>
+        <item quantity="few">%d секунди</item>
+        <item quantity="many">%d секунд</item>
+        <item quantity="other">%d секунди</item>
     </plurals>
     <plurals name="overlay_minutes_interval">
         <item quantity="one">Кожну %d хвилину</item>

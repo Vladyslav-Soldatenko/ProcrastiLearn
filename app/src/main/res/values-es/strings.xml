@@ -182,6 +182,11 @@
     <string name="settings_overlay_interval_title">Mostrar superposición cada X minutos</string>
     <string name="settings_overlay_interval_headline">Mostrar superposición cada X minutos mientras la app bloqueada esté abierta</string>
 
+    <!-- Rating delay -->
+    <string name="settings_rating_delay_title">Retraso de valoración</string>
+    <string name="settings_rating_delay_headline">Espera antes de poder valorar una tarjeta</string>
+    <string name="settings_rating_delay_off">Desactivado</string>
+
     <string name="settings_overlay_headline">Permiso de superposición</string>
     <string name="settings_overlay_support">
         Necesario para mostrar la tarjeta de aprendizaje sobre las apps seleccionadas.
@@ -309,6 +314,11 @@
         <item quantity="one">Cada %d minuto</item>
         <item quantity="many">Cada %d minutos</item>
         <item quantity="other">Cada %d minutos</item>
+    </plurals>
+    <plurals name="rating_delay_seconds">
+        <item quantity="one">%d segundo</item>
+        <item quantity="many">%d segundos</item>
+        <item quantity="other">%d segundos</item>
     </plurals>
     <plurals name="word_list_selection_count">
         <item quantity="one">%1$d seleccionada</item>
