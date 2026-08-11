@@ -6,6 +6,7 @@ plugins {
   alias(libs.plugins.hilt.android) apply false
   alias(libs.plugins.ktlint)
   alias(libs.plugins.detekt)
+  alias(libs.plugins.dependency.analysis)
 }
 
 apply(from = "gradle/scripts/bump-version.gradle.kts")
