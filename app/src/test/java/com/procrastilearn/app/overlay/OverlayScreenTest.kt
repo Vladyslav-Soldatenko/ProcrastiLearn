@@ -179,7 +179,7 @@ class OverlayScreenTest {
                         ratingLockSecondsRemaining = 3,
                     ),
                 onToggleShowAnswer = {},
-                onDifficultySelected = { selectedRating = it },
+                onDifficultySelect = { selectedRating = it },
             )
         }
         composeTestRule.waitForIdle()
@@ -211,7 +211,7 @@ class OverlayScreenTest {
                         ratingLockSecondsRemaining = 0,
                     ),
                 onToggleShowAnswer = {},
-                onDifficultySelected = {},
+                onDifficultySelect = {},
             )
         }
         composeTestRule.waitForIdle()
@@ -233,7 +233,7 @@ class OverlayScreenTest {
                         ratingLockSecondsRemaining = 0,
                     ),
                 onToggleShowAnswer = {},
-                onDifficultySelected = {},
+                onDifficultySelect = {},
             )
         }
         composeTestRule.waitForIdle()
