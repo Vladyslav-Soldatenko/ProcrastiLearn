@@ -6,6 +6,7 @@ plugins {
   alias(libs.plugins.hilt.android)
   alias(libs.plugins.ktlint)
   alias(libs.plugins.detekt)
+  alias(libs.plugins.dependency.analysis)
   jacoco
 }
 
@@ -97,7 +98,6 @@ dependencies {
   implementation(libs.kotlinx.serialization.json)
   implementation(libs.kotlinx.collections.immutable)
   implementation(libs.androidx.room.runtime)
-  implementation(libs.androidx.room.ktx)
   androidTestImplementation(libs.androidx.room.testing)
   ksp(libs.androidx.room.compiler)
 
@@ -113,7 +113,6 @@ dependencies {
     exclude(group = "org.apache.httpcomponents.core5", module = "httpcore5-h2")
   }
   implementation(libs.androidx.core.ktx)
-  implementation(libs.androidx.lifecycle.runtime.ktx)
   implementation(libs.androidx.activity.compose)
   implementation(platform(libs.androidx.compose.bom))
   implementation(libs.androidx.ui)
@@ -122,7 +121,11 @@ dependencies {
   implementation(libs.androidx.material3)
   implementation(libs.androidx.material.icons.extended)
   lintChecks(libs.compose.lint.checks)
+  detektPlugins(libs.compose.rules.detekt)
   implementation("${libs.zstd.jni.get()}@aar")
+  // Not redundant despite the main `@aar` dependency above: AnkiApkgVocabularyParserTest loads
+  // the native zstd JNI binding on the plain JVM test classpath, which the AAR classifier alone
+  // does not provide there. See DAGP exclude() below.
   testImplementation(libs.zstd.jni)
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.junit)
@@ -130,20 +133,16 @@ dependencies {
   androidTestImplementation(libs.androidx.espresso.intents)
   testImplementation(platform(libs.androidx.compose.bom))
   testImplementation(libs.androidx.ui.test.junit4)
-  testImplementation(libs.androidx.ui.test.manifest)
-  testReleaseImplementation(libs.androidx.ui.test.manifest)
   androidTestImplementation(platform(libs.androidx.compose.bom))
   androidTestImplementation(libs.androidx.ui.test.junit4)
-  androidTestImplementation(libs.androidx.test.uiautomator)
   debugImplementation(libs.androidx.ui.tooling)
-  debugImplementation(libs.androidx.ui.test.manifest)
+  debugRuntimeOnly(libs.androidx.ui.test.manifest)
 
   testImplementation(libs.junit)
   testImplementation(libs.kotlinx.coroutines.test)
   testImplementation(libs.androidx.room.testing)
   testImplementation(libs.androidx.test.core)
-  testImplementation(libs.androidx.test.runner)
-  testImplementation(libs.androidx.junit)
+  testRuntimeOnly(libs.androidx.test.runner)
   testImplementation(libs.mockk)
   testImplementation(libs.turbine)
   testImplementation(libs.truth)
@@ -153,7 +152,29 @@ tasks.named("check") {
   dependsOn("ktlintCheck")
   dependsOn("detekt")
   dependsOn("lint")
+  dependsOn("projectHealth")
 }
+
+dependencyAnalysis {
+  issues {
+    onUnusedDependencies {
+      severity("fail")
+      exclude(
+        // AnkiApkgVocabularyParserTest loads the native zstd JNI binding on the plain JVM test
+        // classpath; the `@aar`-classified main dependency alone doesn't provide that there.
+        "com.github.luben:zstd-jni",
+        // Umbrella artifact; the actually-used classes live in its openai-java-core and
+        // openai-java-client-okhttp children. Swapping to declare those directly needs a
+        // deliberate pass to carry over the httpclient5 excludes below, not an automated removal.
+        "com.openai:openai-java",
+      )
+    }
+    onIncorrectConfiguration {
+      severity("fail")
+    }
+  }
+}
+
 ktlint {
   version.set("1.3.1")
   android.set(true)

@@ -102,7 +102,7 @@ class SettingsViewModelTest {
         countersFlow =
             MutableStateFlow(
                 DayCounters(
-                    yyyymmdd = 20260716,
+                    yyyymmdd = 20_260_716,
                     newShown = 0,
                     reviewShown = 0,
                     reviewsSinceLastNew = 0,

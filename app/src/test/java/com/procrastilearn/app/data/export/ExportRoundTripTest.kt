@@ -13,7 +13,7 @@ import org.junit.Test
 import java.io.File
 import kotlin.random.Random
 
-private const val FUZZ_SEED = 20260726L
+private const val FUZZ_SEED = 20_260_726L
 private const val MAX_TIMESTAMP = 2_000_000_000_000L
 private const val MAX_REVIEW_COUNT = 50
 private const val MAX_WORD_SUFFIX = 100_000

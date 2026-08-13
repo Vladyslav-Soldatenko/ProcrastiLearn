@@ -39,7 +39,7 @@ class AppsListTest {
                     isEnabled = true,
                     isLoading = true,
                     errorMessage = null,
-                    onToggleEnabled = {},
+                    onEnabledChange = {},
                     onToggle = {},
                 )
             }
@@ -66,7 +66,7 @@ class AppsListTest {
                     isEnabled = false,
                     isLoading = false,
                     errorMessage = null,
-                    onToggleEnabled = { toggledValues += it },
+                    onEnabledChange = { toggledValues += it },
                     onToggle = {},
                 )
             }
@@ -91,7 +91,7 @@ class AppsListTest {
                     isEnabled = true,
                     isLoading = false,
                     errorMessage = errorMessage,
-                    onToggleEnabled = {},
+                    onEnabledChange = {},
                     onToggle = {},
                 )
             }
@@ -126,7 +126,7 @@ class AppsListTest {
                     isEnabled = true,
                     isLoading = false,
                     errorMessage = null,
-                    onToggleEnabled = {},
+                    onEnabledChange = {},
                     onToggle = {},
                 )
             }
@@ -159,7 +159,7 @@ class AppsListTest {
                     isEnabled = true,
                     isLoading = false,
                     errorMessage = null,
-                    onToggleEnabled = {},
+                    onEnabledChange = {},
                     onToggle = { toggledApps += it },
                 )
             }
@@ -189,7 +189,7 @@ class AppsListTest {
                     isEnabled = false,
                     isLoading = false,
                     errorMessage = null,
-                    onToggleEnabled = {},
+                    onEnabledChange = {},
                     onToggle = { toggledApps += it },
                 )
             }

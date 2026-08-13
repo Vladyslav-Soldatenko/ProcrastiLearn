@@ -67,14 +67,14 @@ fun LanguageSelectionDialog(
                         label = stringResource(R.string.language_selection_native_label),
                         selected = nativeLanguage,
                         excluding = targetLanguage,
-                        onSelected = { nativeLanguage = it },
+                        onSelect = { nativeLanguage = it },
                         testTag = "language_selection_native_field",
                     )
                     LanguageDropdownField(
                         label = stringResource(R.string.language_selection_target_label),
                         selected = targetLanguage,
                         excluding = nativeLanguage,
-                        onSelected = { targetLanguage = it },
+                        onSelect = { targetLanguage = it },
                         testTag = "language_selection_target_field",
                     )
                 }
@@ -111,7 +111,7 @@ private fun LanguageDropdownField(
     label: String,
     selected: Language?,
     excluding: Language?,
-    onSelected: (Language) -> Unit,
+    onSelect: (Language) -> Unit,
     testTag: String,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -143,7 +143,7 @@ private fun LanguageDropdownField(
                     DropdownMenuItem(
                         text = { Text(stringResource(language.displayNameRes)) },
                         onClick = {
-                            onSelected(language)
+                            onSelect(language)
                             expanded = false
                         },
                     )

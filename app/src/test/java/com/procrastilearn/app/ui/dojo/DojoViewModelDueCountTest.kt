@@ -70,7 +70,7 @@ class DojoViewModelDueCountTest {
         countersFlow =
             MutableStateFlow(
                 DayCounters(
-                    yyyymmdd = 20260117,
+                    yyyymmdd = 20_260_117,
                     newShown = 3,
                     reviewShown = 5,
                     reviewsSinceLastNew = 2,
@@ -263,7 +263,7 @@ class DojoViewModelDueCountTest {
             // Set review quota to 0
             countersFlow.value =
                 DayCounters(
-                    yyyymmdd = 20260117,
+                    yyyymmdd = 20_260_117,
                     newShown = 3,
                     reviewShown = 100, // Exhausted review quota
                     reviewsSinceLastNew = 50,

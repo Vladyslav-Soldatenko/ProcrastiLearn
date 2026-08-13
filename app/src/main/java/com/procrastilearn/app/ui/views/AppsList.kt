@@ -51,7 +51,7 @@ fun AppsList(
     isEnabled: Boolean,
     isLoading: Boolean,
     errorMessage: String?,
-    onToggleEnabled: (Boolean) -> Unit,
+    onEnabledChange: (Boolean) -> Unit,
     onToggle: (AppInfo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -62,7 +62,7 @@ fun AppsList(
         item {
             EnableProcrastilearnRow(
                 enabled = isEnabled,
-                onEnabledChange = onToggleEnabled,
+                onEnabledChange = onEnabledChange,
             )
         }
 

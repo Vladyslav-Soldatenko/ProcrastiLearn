@@ -20,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -59,9 +60,9 @@ fun DojoScreen(viewModel: DojoViewModel = hiltViewModel()) {
 internal fun DojoScreen(
     uiState: DojoUiState,
     onToggleShowAnswer: () -> Unit,
-    onDifficultySelected: (Rating) -> Unit,
+    onDifficultySelect: (Rating) -> Unit,
     onUndo: () -> Unit = {},
-    onUndoEventShown: () -> Unit = {},
+    onUndoEventShow: () -> Unit = {},
 ) {
     MyApplicationTheme {
         val snackbarHostState = remember { SnackbarHostState() }
@@ -75,10 +76,11 @@ internal fun DojoScreen(
                 )
             }
 
+        val currentOnUndoEventShown by rememberUpdatedState(onUndoEventShow)
         LaunchedEffect(undoEvent?.id) {
             if (undoMessage != null) {
                 snackbarHostState.showSnackbar(message = undoMessage)
-                onUndoEventShown()
+                currentOnUndoEventShown()
             }
         }
 
@@ -137,7 +139,7 @@ internal fun DojoScreen(
                                     LearningCard(
                                         state = overlayState,
                                         onToggleShowAnswer = onToggleShowAnswer,
-                                        onDifficultySelected = onDifficultySelected,
+                                        onDifficultySelect = onDifficultySelect,
                                         ratingLockSecondsRemaining = 0,
                                         showTranslationButtonHeight = 56.dp,
                                         addNavigationBarsPadding = false,
@@ -258,7 +260,7 @@ private fun DojoScreenPreview(
         DojoScreen(
             uiState = state,
             onToggleShowAnswer = {},
-            onDifficultySelected = {},
+            onDifficultySelect = {},
         )
     }
 }

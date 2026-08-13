@@ -38,7 +38,7 @@ internal fun AppsListScreenContent(
         isEnabled = state.isEnabled,
         isLoading = state.isLoading,
         errorMessage = state.error,
-        onToggleEnabled = onEnabledChange,
+        onEnabledChange = onEnabledChange,
         onToggle = onToggle,
         modifier = modifier,
     )
