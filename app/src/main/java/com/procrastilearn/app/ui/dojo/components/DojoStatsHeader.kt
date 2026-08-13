@@ -38,7 +38,7 @@ fun DojoStatsHeader(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(horizontal = 4.dp, vertical = 8.dp),
+                .padding(horizontal = 4.dp, vertical = 2.dp),
     ) {
         IconButton(
             onClick = onUndo,
