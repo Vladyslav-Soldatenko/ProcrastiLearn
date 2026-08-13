@@ -27,10 +27,6 @@ complexity:
         # Room @Dao interfaces legitimately accumulate many small single-purpose query methods;
         # match the TooManyFunctions.thresholdInClasses tuning above instead of forcing DAO splits.
         threshold: 20
-    # LabeledExpression intentionally left at detekt's default (inactive): every occurrence in this
-    # codebase was an idiomatic return@launch/return@withLock/return@withContext-style early exit,
-    # not an actual complexity smell, and detekt has no way to scope the check without a blanket
-    # exemption list that would also swallow genuinely confusing labels in future code.
 
 coroutines:
     GlobalCoroutineUsage:
