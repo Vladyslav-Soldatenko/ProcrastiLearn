@@ -1,0 +1,2 @@
+Añadido un ajuste de retraso en la valoración para bloquear brevemente los botones de valoración en la tarjeta de bloqueo y evitar clics rápidos solo para cerrarla.
+Reducida un poco la cabecera del dojo para dejar más espacio a las tarjetas.

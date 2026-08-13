@@ -1,0 +1,2 @@
+Ajout d'un délai de verrouillage réglable pour les boutons de notation sur la carte de verrouillage, afin d'éviter les clics rapides juste pour la fermer.
+Réduction de la hauteur de l'en-tête du dojo pour laisser plus de place aux cartes.

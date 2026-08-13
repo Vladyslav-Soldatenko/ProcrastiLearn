@@ -1,0 +1,2 @@
+Add a rating delay setting to lock overlay rating buttons to prevent quick clicks just to close overlay.
+Shrink the dojo header a bit to leave more room for cards.

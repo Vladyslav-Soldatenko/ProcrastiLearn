@@ -1,0 +1,2 @@
+Aggiunta un'impostazione per il ritardo di valutazione, che blocca brevemente i pulsanti di valutazione sulla carta di blocco per evitare clic rapidi fatti solo per chiuderla.
+Ridotta leggermente l'altezza dell'intestazione del dojo per lasciare più spazio alle carte.
