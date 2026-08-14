@@ -96,8 +96,6 @@ class SettingsAnkiImportE2eTest {
             )
         }
 
-        // End-to-end proof that the whole pipeline (parser ordering -> merge -> position
-        // assignment) is wired correctly - not just that the right set of words landed.
         val actualOrder = runBlocking { loadImportedEntitiesOrderedByPosition() }.map { it.word }
         assertEquals(
             "Imported rows should be ordered by Anki's own new-card position (cards.due), " +

@@ -21,16 +21,6 @@ private val IMG_TAG_REGEX = Regex("""<img\b[^>]*>""", RegexOption.IGNORE_CASE)
 private val SOUND_TAG_REGEX = Regex("""\[sound:[^]]*]""", RegexOption.IGNORE_CASE)
 private val FIELD_REFERENCE_REGEX = Regex("""\{\{([^{}]+)\}\}""")
 
-/**
- * Orders notes by Anki's own new-card position (`cards.due` where `type = 0`), so an imported
- * deck (e.g. sorted by word frequency) is studied in that same order rather than an arbitrary
- * one. A note's position is the minimum `due` among its own "new" cards, which also resolves
- * note types that generate multiple cards per note (e.g. Basic-and-reversed) to a single
- * deterministic value without special-casing. Notes with no `type = 0` card (already reviewed
- * in Anki, or no card row at all) sort after every note that has one, tie-broken by `notes.id`
- * for full determinism (`due` itself is not guaranteed unique). Multiple decks in one file are
- * intentionally flattened together — nothing here reads or filters by `did`.
- */
 private val NOTE_ORDER_QUERY =
     """
     SELECT mid, flds FROM (

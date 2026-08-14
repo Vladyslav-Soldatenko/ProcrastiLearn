@@ -10,9 +10,6 @@ import androidx.room.Update
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import kotlinx.coroutines.flow.Flow
 
-// Arity from covering every read/write shape a single `vocabulary` table CRUD DAO needs
-// (single vs. bulk insert/update/delete, word/id lookups, import support), not from an
-// undecomposed monolith - review/stats-specific queries already live in their own DAOs.
 @Suppress("TooManyFunctions")
 @Dao
 interface VocabularyDao {
@@ -46,10 +43,6 @@ interface VocabularyDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertVocabulary(item: VocabularyEntity): Long
 
-    // Deliberately plain ABORT (no REPLACE): callers are expected to have already
-    // split their batch into genuinely-new rows (this) vs existing-row updates
-    // (updateAllVocabulary), via a word-based lookup — see VocabularyTransferManager.
-    // ABORT-on-conflict here is a correctness safety net, not the primary dedup path.
     @Insert
     suspend fun insertAllVocabulary(items: List<VocabularyEntity>)
 
@@ -59,8 +52,6 @@ interface VocabularyDao {
     @Update
     suspend fun updateAllVocabulary(items: List<VocabularyEntity>)
 
-    // Applies a pre-split import batch atomically: brand-new rows are inserted,
-    // rows that matched an existing word (by VocabularyTransferManager) are updated.
     @Transaction
     suspend fun applyImportBatch(
         toInsert: List<VocabularyEntity>,

@@ -1,6 +1,7 @@
 package com.procrastilearn.app.data.repository
 
 import androidx.room.withTransaction
+import com.procrastilearn.app.data.local.dao.MAX_SQLITE_BIND_ARGS
 import com.procrastilearn.app.data.local.dao.VocabularyFsrsStateRestore
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.UndoSnapshotEntity
@@ -36,10 +37,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val UNDO_STACK_CAP = 3
-
-// SQLite's default SQLITE_MAX_VARIABLE_NUMBER is 999 on older Android versions; stay
-// comfortably under it when binding id lists for bulk operations.
-private const val MAX_SQLITE_BIND_ARGS = 900
 
 // How far past the first-ever review of a bidirectional card its other direction's due
 // date is seeded, so the just-answered card's opposite direction doesn't immediately
@@ -82,8 +79,6 @@ class VocabularyRepositoryImpl
                 // Keep FSRS card JSON, but leave dueAt as 0 until first rating.
                 val cardJson = Card.builder().build().toJson()
                 val dueAt = 0L
-                // Read-then-insert must be atomic so two concurrent adds can't read the same
-                // stale max and assign the same position.
                 appDatabase.withTransaction {
                     val position = vocabularyDao.getMaxPosition() + 1
                     vocabularyDao.insertVocabulary(

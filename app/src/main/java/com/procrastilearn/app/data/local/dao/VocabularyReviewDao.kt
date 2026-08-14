@@ -116,9 +116,6 @@ interface VocabularyReviewDao {
         requireBidirectional: Boolean = false,
     ): Long?
 
-    // Pick the lowest-position "new" row (import/creation order). Tie-broken by id since
-    // position values are not guaranteed unique (e.g. Anki's own cards.due can tie, and
-    // pre-migration-backfilled/default rows can share a position).
     @Query(
         """
         SELECT id FROM vocabulary

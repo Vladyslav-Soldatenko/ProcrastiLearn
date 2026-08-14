@@ -83,10 +83,6 @@ val MIGRATION_4_5 =
     object : Migration(4, 5) {
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL("ALTER TABLE `vocabulary` ADD COLUMN `position` INTEGER NOT NULL DEFAULT 0")
-            // SQLite's ADD COLUMN DEFAULT can't express a row-varying value. `id` is already
-            // monotonically increasing in creation order, so reusing it directly preserves
-            // correct relative ordering for existing rows in one O(n) UPDATE, with no
-            // window-function dependency.
             db.execSQL("UPDATE `vocabulary` SET `position` = `id`")
             db.execSQL(
                 "CREATE INDEX IF NOT EXISTS `index_vocabulary_fsrsDueAt_backwardFsrsDueAt_position` " +

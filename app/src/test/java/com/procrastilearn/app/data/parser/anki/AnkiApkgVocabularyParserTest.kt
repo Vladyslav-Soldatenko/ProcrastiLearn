@@ -20,9 +20,6 @@ class AnkiApkgVocabularyParserTest {
 
     @Test
     fun `parses vocabulary items from apkg ordered by Anki's own new-card position`() {
-        // Fixture's cards.due (type=0) values: test2=276, TestTitle=8475, bold...=8475
-        // (ties with TestTitle, loses on note id), agree=8476. Order below matches that,
-        // not file/insertion order - see AnkiApkgVocabularyParser's NOTE_ORDER_QUERY.
         val deckFile = loadResource("import/anki/procrastilearn-test-deck.apkg")
 
         val result = parser.parse(deckFile)
@@ -71,8 +68,6 @@ class AnkiApkgVocabularyParserTest {
             buildSyntheticApkg(
                 notes =
                     listOf(
-                        // Two cards per note (e.g. Basic-and-reversed): due 900 and 50.
-                        // The note's position must be the minimum, 50.
                         SyntheticNote(id = 1, mid = 1, flds = "multi-card${FLDS_SEP}translation"),
                         SyntheticNote(id = 2, mid = 1, flds = "single-card${FLDS_SEP}translation"),
                     ),
@@ -101,19 +96,14 @@ class AnkiApkgVocabularyParserTest {
                     ),
                 cards =
                     listOf(
-                        // type=2 (review) - due here means a day-count, not a position; must not
-                        // be treated as a new-card position at all.
                         SyntheticCard(id = 10, nid = 1, type = 2, due = 1),
                         SyntheticCard(id = 11, nid = 2, type = 0, due = 500),
-                        // type=1 (learning) - also not a new-card position.
                         SyntheticCard(id = 12, nid = 3, type = 1, due = 2),
                     ),
             )
 
         val result = parser.parse(deckFile)
 
-        // The one genuinely new note comes first; the two non-new notes follow, ordered by
-        // note id since neither has a meaningful due-as-position value.
         assertThat(result.map { it.word })
             .containsExactly("still-new", "reviewed-early", "reviewed-late")
             .inOrder()
@@ -130,7 +120,6 @@ class AnkiApkgVocabularyParserTest {
                     ),
                 cards =
                     listOf(
-                        // No card row at all for note id 1.
                         SyntheticCard(id = 10, nid = 2, type = 0, due = 5),
                     ),
             )

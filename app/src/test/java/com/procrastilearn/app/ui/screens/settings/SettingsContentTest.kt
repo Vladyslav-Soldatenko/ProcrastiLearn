@@ -121,7 +121,6 @@ class SettingsContentTest {
         composeTestRule.onNodeWithText(string(R.string.settings_new_card_order_random)).performClick()
 
         assertThat(selectedOrder).isEqualTo(NewCardOrder.RANDOM)
-        // dialog dismissed after selection
         composeTestRule.onNodeWithText(string(R.string.settings_reviews_per_day_title)).assertIsDisplayed()
     }
 
