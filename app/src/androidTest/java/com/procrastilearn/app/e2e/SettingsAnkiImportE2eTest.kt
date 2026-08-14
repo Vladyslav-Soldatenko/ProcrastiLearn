@@ -20,6 +20,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.procrastilearn.app.MainActivity
 import com.procrastilearn.app.R
+import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.mapper.toDomain
 import com.procrastilearn.app.di.DatabaseEntryPoint
 import com.procrastilearn.app.domain.model.VocabularyItem
@@ -94,6 +95,16 @@ class SettingsAnkiImportE2eTest {
                 actual.isNew,
             )
         }
+
+        // End-to-end proof that the whole pipeline (parser ordering -> merge -> position
+        // assignment) is wired correctly - not just that the right set of words landed.
+        val actualOrder = runBlocking { loadImportedEntitiesOrderedByPosition() }.map { it.word }
+        assertEquals(
+            "Imported rows should be ordered by Anki's own new-card position (cards.due), " +
+                "not arbitrary insertion order",
+            expectedWordOrder,
+            actualOrder,
+        )
     }
 
     private fun resetDatabase() {
@@ -163,6 +174,16 @@ class SettingsAnkiImportE2eTest {
                 .map { it.toDomain() }
         }
 
+    private suspend fun loadImportedEntitiesOrderedByPosition(): List<VocabularyEntity> =
+        withContext(Dispatchers.IO) {
+            databaseEntryPoint()
+                .appDatabase()
+                .vocabularyDao()
+                .getAllVocabulary()
+                .first()
+                .sortedBy { it.position }
+        }
+
     private suspend fun hasImportedExpectedItems(): Boolean {
         val actualWords = loadImportedItems().map { it.word }.toSet()
         return expectedVocabularyItems.all { it.word in actualWords }
@@ -177,6 +198,16 @@ class SettingsAnkiImportE2eTest {
         private const val TIMEOUT_IMPORT_MS = 50_000L
         private const val ROW_TIMEOUT_MS = 10_000L
         private const val ANKI_MIME_TYPE = "application/apkg"
+
+        // Matches the fixture's cards.due (type=0) values: test2=276, TestTitle=8475,
+        // bold...=8475 (ties with TestTitle, loses on note id), agree=8476.
+        private val expectedWordOrder =
+            listOf(
+                "test2",
+                "TestTitle",
+                "bold italic underline superscript subscript difCollor textHighlight",
+                listOf("agree", "əˈɡriː").joinToString(separator = "\n"),
+            )
 
         private val expectedVocabularyItems =
             listOf(

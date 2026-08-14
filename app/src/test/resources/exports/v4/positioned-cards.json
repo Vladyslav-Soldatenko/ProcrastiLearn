@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 4,
+  "exportedAt": 1786100000000,
+  "appVersion": "1.5.0",
+  "words": [
+    {
+      "id": 1,
+      "word": "haus",
+      "translation": "house",
+      "createdAt": 1786010756357,
+      "lastShownAt": null,
+      "correctCount": 0,
+      "incorrectCount": 0,
+      "fsrsCardJson": "",
+      "fsrsDueAt": 0,
+      "bidirectional": false,
+      "backwardFsrsCardJson": "",
+      "backwardFsrsDueAt": 0,
+      "backwardCorrectCount": 0,
+      "backwardIncorrectCount": 0,
+      "backwardPromptOverride": null,
+      "backwardAnswerOverride": null,
+      "position": 1
+    },
+    {
+      "id": 2,
+      "word": "baum",
+      "translation": "tree",
+      "createdAt": 1786010760751,
+      "lastShownAt": null,
+      "correctCount": 0,
+      "incorrectCount": 0,
+      "fsrsCardJson": "",
+      "fsrsDueAt": 0,
+      "bidirectional": false,
+      "backwardFsrsCardJson": "",
+      "backwardFsrsDueAt": 0,
+      "backwardCorrectCount": 0,
+      "backwardIncorrectCount": 0,
+      "backwardPromptOverride": null,
+      "backwardAnswerOverride": null,
+      "position": 2
+    }
+  ]
+}

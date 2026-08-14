@@ -26,6 +26,14 @@ class MigrationsTest {
             put("words", bareV1Array)
         }
 
+    private val v3Envelope =
+        buildJsonObject {
+            put("schemaVersion", JsonPrimitive(3))
+            put("exportedAt", JsonPrimitive(1_700_000_000_000L))
+            put("appVersion", JsonPrimitive("1.3.0"))
+            put("words", bareV1Array)
+        }
+
     @Test
     fun `V1ToV2 wraps the bare array in an envelope with a synthesised schemaVersion`() {
         val root = buildJsonObject { put("words", bareV1Array) }
@@ -137,5 +145,62 @@ class MigrationsTest {
         assertThat(item.backwardIncorrectCount).isEqualTo(0)
         assertThat(item.backwardPromptOverride).isNull()
         assertThat(item.backwardAnswerOverride).isNull()
+    }
+
+    @Test
+    fun `V3ToV4 re-stamps schemaVersion to 4 and preserves words unchanged`() {
+        val migrated = V3ToV4.migrate(v3Envelope)
+
+        assertThat(migrated.getValue("schemaVersion").jsonPrimitive.int).isEqualTo(4)
+        assertThat(migrated.getValue("words")).isEqualTo(bareV1Array)
+    }
+
+    @Test
+    fun `V3ToV4 preserves exportedAt and appVersion unchanged`() {
+        val migrated = V3ToV4.migrate(v3Envelope)
+
+        assertThat(migrated.getValue("exportedAt")).isEqualTo(v3Envelope.getValue("exportedAt"))
+        assertThat(migrated.getValue("appVersion")).isEqualTo(v3Envelope.getValue("appVersion"))
+    }
+
+    @Test
+    fun `migrate from 3 runs V3ToV4 and lands exactly on CURRENT_SCHEMA_VERSION`() {
+        val migrated = Migrations.migrate(v3Envelope, from = 3)
+
+        assertThat(migrated.getValue("schemaVersion").jsonPrimitive.int).isEqualTo(CURRENT_SCHEMA_VERSION)
+    }
+
+    @Test
+    fun `V3ToV4 migration decodes a genuine v3 payload without position, defaulting it to zero`() {
+        val rawV3Json =
+            """
+            {
+              "schemaVersion": 3,
+              "exportedAt": 1700000000000,
+              "appVersion": "1.3.0",
+              "words": [
+                {
+                  "id": 1,
+                  "word": "Baum",
+                  "translation": "tree",
+                  "createdAt": 1000,
+                  "lastShownAt": 2000,
+                  "correctCount": 3,
+                  "incorrectCount": 1,
+                  "fsrsCardJson": "{\"cardId\":42}",
+                  "fsrsDueAt": 5000,
+                  "bidirectional": true
+                }
+              ]
+            }
+            """.trimIndent()
+
+        val outcome = VocabularyExportSerializer.decode(rawV3Json)
+
+        check(outcome is ImportOutcome.Success) { "Expected a successful decode, got $outcome" }
+        val item = outcome.items.single()
+        assertThat(item.word).isEqualTo("Baum")
+        assertThat(item.bidirectional).isTrue()
+        assertThat(item.position).isEqualTo(0L)
     }
 }

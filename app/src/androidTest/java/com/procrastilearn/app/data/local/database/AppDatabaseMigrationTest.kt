@@ -239,6 +239,130 @@ class AppDatabaseMigrationTest {
             }
     }
 
+    @Test
+    fun migrate4To5AddsPositionColumnBackfilledFromId() {
+        helper.createDatabase(TEST_DB, 4).apply {
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
+                VALUES ('first', 'a', 0, 0, 0, '', 0)
+                """.trimIndent(),
+            )
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
+                VALUES ('second', 'b', 0, 0, 0, '', 0)
+                """.trimIndent(),
+            )
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
+                VALUES ('third', 'c', 0, 0, 0, '', 0)
+                """.trimIndent(),
+            )
+            close()
+        }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                5,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+            )
+
+        migrated.query("SELECT word, id, position FROM vocabulary ORDER BY id ASC").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals("first", cursor.getString(0))
+            assertEquals(cursor.getLong(1), cursor.getLong(2))
+            assertTrue(cursor.moveToNext())
+            assertEquals("second", cursor.getString(0))
+            assertEquals(cursor.getLong(1), cursor.getLong(2))
+            assertTrue(cursor.moveToNext())
+            assertEquals("third", cursor.getString(0))
+            assertEquals(cursor.getLong(1), cursor.getLong(2))
+            assertTrue(cursor.isLast)
+        }
+    }
+
+    @Test
+    fun migrate4To5DefaultsPositionToZeroWhenInsertedWithoutIt() {
+        helper.createDatabase(TEST_DB, 4).apply { close() }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                5,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+            )
+
+        migrated.execSQL(
+            """
+            INSERT INTO vocabulary
+                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
+            VALUES ('newword', 'x', 0, 0, 0, '', 0)
+            """.trimIndent(),
+        )
+        migrated.query("SELECT position FROM vocabulary WHERE word = 'newword'").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(0, cursor.getLong(0))
+        }
+    }
+
+    @Test
+    fun migrate4To5AllowsInsertingExplicitPositionAndQueryingByIt() {
+        helper.createDatabase(TEST_DB, 4).apply { close() }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                5,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+            )
+
+        migrated.execSQL(
+            """
+            INSERT INTO vocabulary
+                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
+            VALUES ('later', 'y', 0, 0, 0, '', 0, 500)
+            """.trimIndent(),
+        )
+        migrated.execSQL(
+            """
+            INSERT INTO vocabulary
+                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
+            VALUES ('sooner', 'z', 0, 0, 0, '', 0, 10)
+            """.trimIndent(),
+        )
+
+        migrated
+            .query(
+                """
+                SELECT word FROM vocabulary
+                WHERE fsrsDueAt = 0 AND backwardFsrsDueAt = 0
+                ORDER BY position ASC, id ASC
+                LIMIT 1
+                """.trimIndent(),
+            ).use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals("sooner", cursor.getString(0))
+            }
+    }
+
     private companion object {
         const val TEST_DB = "migration-test"
     }

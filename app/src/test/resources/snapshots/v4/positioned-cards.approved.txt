@@ -5,16 +5,16 @@ backwardFsrsDueAt: 0
 backwardIncorrectCount: 0
 backwardPromptOverride: null
 bidirectional: false
-correctCount: 4
-createdAt: 1749000000000
-fsrsCardJson: {"cardId":123456,"state":"REVIEW"}
-fsrsDueAt: 1750500000000
+correctCount: 0
+createdAt: 1786010756357
+fsrsCardJson: 
+fsrsDueAt: 0
 id: 1
-incorrectCount: 1
-lastShownAt: 1749500000000
-position: 0
-translation: apple
-word: Apfel
+incorrectCount: 0
+lastShownAt: null
+position: 1
+translation: house
+word: haus
 
 backwardAnswerOverride: null
 backwardCorrectCount: 0
@@ -24,12 +24,12 @@ backwardIncorrectCount: 0
 backwardPromptOverride: null
 bidirectional: false
 correctCount: 0
-createdAt: 1749100000000
+createdAt: 1786010760751
 fsrsCardJson: 
 fsrsDueAt: 0
 id: 2
 incorrectCount: 0
 lastShownAt: null
-position: 0
-translation: to learn
-word: lernen
+position: 2
+translation: tree
+word: baum

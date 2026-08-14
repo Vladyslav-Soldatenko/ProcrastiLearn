@@ -200,6 +200,22 @@ class VocabularyMapperTest {
     }
 
     @Test
+    fun `toEntity defaults position to zero when not provided`() {
+        val item = VocabularyItem(id = 9, word = "gehen", translation = "go", isNew = false)
+
+        assertThat(item.toEntity().position).isEqualTo(0L)
+    }
+
+    @Test
+    fun `toEntity passes through a provided position`() {
+        val item = VocabularyItem(id = 9, word = "gehen", translation = "go", isNew = false)
+
+        val result = item.toEntity(position = 42L)
+
+        assertThat(result.position).isEqualTo(42L)
+    }
+
+    @Test
     fun `toEntity leaves backward FSRS progress columns at defaults for a new item`() {
         val item = VocabularyItem(id = 9, word = "gehen", translation = "go", isNew = false, bidirectional = true)
 
@@ -224,6 +240,7 @@ class VocabularyMapperTest {
                 incorrectCount = 4,
                 fsrsCardJson = "{\"card\":1}",
                 fsrsDueAt = 333L,
+                position = 88L,
             )
 
         val result = item.toEntity()
@@ -237,6 +254,25 @@ class VocabularyMapperTest {
         assertThat(result.incorrectCount).isEqualTo(4)
         assertThat(result.fsrsCardJson).isEqualTo("{\"card\":1}")
         assertThat(result.fsrsDueAt).isEqualTo(333L)
+        assertThat(result.position).isEqualTo(88L)
+    }
+
+    @Test
+    fun `VocabularyExportItem toEntity defaults position to zero when the export predates the field`() {
+        val item =
+            VocabularyExportItem(
+                id = 7,
+                word = "gehen",
+                translation = "go",
+                createdAt = 111L,
+                lastShownAt = 222L,
+                correctCount = 3,
+                incorrectCount = 4,
+                fsrsCardJson = "{\"card\":1}",
+                fsrsDueAt = 333L,
+            )
+
+        assertThat(item.toEntity().position).isEqualTo(0L)
     }
 
     @Test
@@ -292,6 +328,7 @@ class VocabularyMapperTest {
                 backwardIncorrectCount = 6,
                 backwardPromptOverride = "prompt",
                 backwardAnswerOverride = "answer",
+                position = 99L,
             )
 
         val result = entity.toExportItem()
@@ -312,5 +349,6 @@ class VocabularyMapperTest {
         assertThat(result.backwardIncorrectCount).isEqualTo(6)
         assertThat(result.backwardPromptOverride).isEqualTo("prompt")
         assertThat(result.backwardAnswerOverride).isEqualTo("answer")
+        assertThat(result.position).isEqualTo(99L)
     }
 }

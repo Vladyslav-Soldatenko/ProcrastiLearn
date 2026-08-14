@@ -16,6 +16,7 @@ import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import com.procrastilearn.app.testing.ComponentActivityRegistrationRule
@@ -67,6 +68,7 @@ class SettingsContentTest {
         composeTestRule.onNodeWithText(string(R.string.settings_study_mode_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_add_cards_for_today_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_new_cards_per_day_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.settings_new_card_order_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_reviews_per_day_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_language_pair_title)).assertIsDisplayed()
@@ -100,6 +102,27 @@ class SettingsContentTest {
         assertThat(selectedMode).isEqualTo(MixMode.REVIEWS_FIRST)
         // dialog dismissed after selection
         composeTestRule.onNodeWithText(string(R.string.settings_new_cards_per_day_title)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `new card order settings item displays the current order`() {
+        setContent(newCardOrder = NewCardOrder.RANDOM)
+
+        composeTestRule.onNodeWithText(string(R.string.settings_new_card_order_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.settings_new_card_order_random)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `selecting new card order option updates callback and closes dialog`() {
+        var selectedOrder: NewCardOrder? = null
+        setContent(onNewCardOrderChange = { selectedOrder = it })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_new_card_order_title)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.settings_new_card_order_random)).performClick()
+
+        assertThat(selectedOrder).isEqualTo(NewCardOrder.RANDOM)
+        // dialog dismissed after selection
+        composeTestRule.onNodeWithText(string(R.string.settings_reviews_per_day_title)).assertIsDisplayed()
     }
 
     @Test
@@ -443,6 +466,7 @@ class SettingsContentTest {
         reviewPerDay: Int = 50,
         overlayInterval: Int = 5,
         ratingDelaySeconds: Int = 0,
+        newCardOrder: NewCardOrder = NewCardOrder.SEQUENTIAL,
         openAiApiKey: String? = null,
         openAiPrompt: String = "Prompt",
         openAiReversePrompt: String = "Reverse prompt",
@@ -460,6 +484,7 @@ class SettingsContentTest {
         onReviewPerDayChange: (Int) -> Unit = {},
         onOverlayIntervalChange: (Int) -> Unit = {},
         onRatingDelayChange: (Int) -> Unit = {},
+        onNewCardOrderChange: (NewCardOrder) -> Unit = {},
         onOpenAiApiKeyChange: (String) -> Unit = {},
         onOpenAiPromptChange: (String) -> Unit = {},
         onOpenAiReversePromptChange: (String) -> Unit = {},
@@ -483,6 +508,7 @@ class SettingsContentTest {
                             reviewPerDay = reviewPerDay,
                             overlayInterval = overlayInterval,
                             ratingDelaySeconds = ratingDelaySeconds,
+                            newCardOrder = newCardOrder,
                         ),
                     studyCallbacks =
                         StudySettingsCallbacks(
@@ -494,6 +520,7 @@ class SettingsContentTest {
                             onReviewPerDayChange = onReviewPerDayChange,
                             onOverlayIntervalChange = onOverlayIntervalChange,
                             onRatingDelayChange = onRatingDelayChange,
+                            onNewCardOrderChange = onNewCardOrderChange,
                         ),
                     aiSettings =
                         AiSettings(

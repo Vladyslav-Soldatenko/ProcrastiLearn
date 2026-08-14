@@ -42,6 +42,7 @@ import com.procrastilearn.app.data.export.VocabularyImportFailureReason
 import com.procrastilearn.app.data.export.VocabularyImportResult
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import com.procrastilearn.app.ui.SettingsViewModel
@@ -55,6 +56,8 @@ import com.procrastilearn.app.ui.screens.settings.components.ImportSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.LanguagePairSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.MixModeDialog
 import com.procrastilearn.app.ui.screens.settings.components.MixModeSettingsItem
+import com.procrastilearn.app.ui.screens.settings.components.NewCardOrderDialog
+import com.procrastilearn.app.ui.screens.settings.components.NewCardOrderSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NewPerDaySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NumberInputDialog
 import com.procrastilearn.app.ui.screens.settings.components.OpenAiApiKeySettingsItem
@@ -89,6 +92,8 @@ sealed interface DialogState {
     object AddCardsForToday : DialogState
 
     object NewPerDay : DialogState
+
+    object NewCardOrder : DialogState
 
     object ReviewPerDay : DialogState
 
@@ -189,6 +194,7 @@ fun SettingsScreen(
                     reviewPerDay = state.reviewPerDay,
                     overlayInterval = state.overlayInterval,
                     ratingDelaySeconds = state.ratingDelaySeconds,
+                    newCardOrder = state.newCardOrder,
                 ),
             studyCallbacks =
                 StudySettingsCallbacks(
@@ -200,6 +206,7 @@ fun SettingsScreen(
                     onReviewPerDayChange = viewModel::onReviewPerDayChange,
                     onOverlayIntervalChange = viewModel::onOverlayIntervalChange,
                     onRatingDelayChange = viewModel::onRatingDelayChange,
+                    onNewCardOrderChange = viewModel::onNewCardOrderChange,
                 ),
             aiSettings =
                 AiSettings(
@@ -265,6 +272,7 @@ internal fun SettingsContent(
     val reviewPerDay = studySettings.reviewPerDay
     val overlayInterval = studySettings.overlayInterval
     val ratingDelaySeconds = studySettings.ratingDelaySeconds
+    val newCardOrder = studySettings.newCardOrder
     val nativeLanguage = aiSettings.nativeLanguage
     val targetLanguage = aiSettings.targetLanguage
     val openAiApiKey = aiSettings.openAiApiKey
@@ -319,6 +327,13 @@ internal fun SettingsContent(
                     onNewPerDayDialogOpen()
                     dialogState = DialogState.NewPerDay
                 },
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            NewCardOrderSettingsItem(
+                newCardOrder = newCardOrder,
+                onClick = { dialogState = DialogState.NewCardOrder },
             )
 
             Spacer(Modifier.height(4.dp))
@@ -475,6 +490,16 @@ private fun SettingsDialogs(
                 onDismiss = dismiss,
             )
         }
+        DialogState.NewCardOrder -> {
+            NewCardOrderDialog(
+                currentOrder = studySettings.newCardOrder,
+                onOrderSelect = {
+                    studyCallbacks.onNewCardOrderChange(it)
+                    dismiss()
+                },
+                onDismiss = dismiss,
+            )
+        }
         DialogState.ReviewPerDay -> {
             NumberInputDialog(
                 title = stringResource(R.string.settings_reviews_per_day_title),
@@ -520,6 +545,22 @@ private fun SettingsDialogs(
             )
         }
 
+        DialogState.None -> { /* No dialog shown */ }
+
+        else -> {
+            AiSettingsDialogs(dialogState, dismiss, aiSettings, aiCallbacks)
+        }
+    }
+}
+
+@Composable
+private fun AiSettingsDialogs(
+    dialogState: DialogState,
+    dismiss: () -> Unit,
+    aiSettings: AiSettings,
+    aiCallbacks: AiSettingsCallbacks,
+) {
+    when (dialogState) {
         DialogState.OpenAiApiKey -> {
             StringInputDialog(
                 title = stringResource(R.string.settings_openai_api_key_dialog_title),
@@ -585,7 +626,9 @@ private fun SettingsDialogs(
             )
         }
 
-        DialogState.None -> { /* No dialog shown */ }
+        else -> {
+            Unit
+        }
     }
 }
 
@@ -632,6 +675,7 @@ private fun SettingsScreenAllGrantedPreview() {
                     reviewPerDay = 200,
                     overlayInterval = 6,
                     ratingDelaySeconds = 0,
+                    newCardOrder = NewCardOrder.SEQUENTIAL,
                 ),
             studyCallbacks =
                 StudySettingsCallbacks(
@@ -643,6 +687,7 @@ private fun SettingsScreenAllGrantedPreview() {
                     onReviewPerDayChange = {},
                     onOverlayIntervalChange = {},
                     onRatingDelayChange = {},
+                    onNewCardOrderChange = {},
                 ),
             aiSettings =
                 AiSettings(

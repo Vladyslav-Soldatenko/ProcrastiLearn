@@ -1,5 +1,6 @@
 package com.procrastilearn.app.data.local.dao
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -50,6 +51,7 @@ class VocabularyDaoTest {
         incorrectCount: Int = 0,
         backwardCorrectCount: Int = 0,
         backwardIncorrectCount: Int = 0,
+        position: Long = 0L,
     ): Long =
         dao.insertVocabulary(
             VocabularyEntity(
@@ -66,6 +68,7 @@ class VocabularyDaoTest {
                 incorrectCount = incorrectCount,
                 backwardCorrectCount = backwardCorrectCount,
                 backwardIncorrectCount = backwardIncorrectCount,
+                position = position,
             ),
         )
 
@@ -226,5 +229,136 @@ class VocabularyDaoTest {
             val entity = entityById(id)
             assertThat(entity.bidirectional).isFalse()
             assertThat(entity.backwardFsrsDueAt).isEqualTo(0L)
+        }
+
+    @Test
+    fun `getVocabularyByWords matches case-insensitively`() =
+        runTest {
+            insert("Haus")
+            insert("Baum")
+            insert("Katze")
+
+            val results = dao.getVocabularyByWords(listOf("haus", "KATZE", "missing"))
+
+            assertThat(results.map { it.word }).containsExactly("Haus", "Katze")
+        }
+
+    @Test
+    fun `getVocabularyByWords returns empty list when nothing matches`() =
+        runTest {
+            insert("Haus")
+
+            assertThat(dao.getVocabularyByWords(listOf("nope"))).isEmpty()
+        }
+
+    @Test
+    fun `getVocabularyByWords returns empty list for an empty word list`() =
+        runTest {
+            insert("Haus")
+
+            assertThat(dao.getVocabularyByWords(emptyList())).isEmpty()
+        }
+
+    @Test
+    fun `getMaxPosition returns zero on an empty table`() =
+        runTest {
+            assertThat(dao.getMaxPosition()).isEqualTo(0L)
+        }
+
+    @Test
+    fun `getMaxPosition returns the highest position across all rows`() =
+        runTest {
+            insert("a", position = 3L)
+            insert("b", position = 42L)
+            insert("c", position = 17L)
+
+            assertThat(dao.getMaxPosition()).isEqualTo(42L)
+        }
+
+    @Test
+    fun `insertAllVocabulary no longer replaces on a duplicate word - it throws`() =
+        runTest {
+            insert("Haus", translation = "old")
+
+            var thrown: Throwable? = null
+            try {
+                dao.insertAllVocabulary(listOf(VocabularyEntity(word = "haus", translation = "new")))
+            } catch (e: SQLiteConstraintException) {
+                thrown = e
+            }
+            assertThat(thrown).isNotNull()
+
+            // The original row must survive untouched - no silent REPLACE occurred.
+            assertThat(dao.getVocabularyByWord("Haus")?.translation).isEqualTo("old")
+        }
+
+    @Test
+    fun `updateAllVocabulary updates every row in the batch by id`() =
+        runTest {
+            val first = insert("Haus", translation = "house")
+            val second = insert("Baum", translation = "tree")
+
+            dao.updateAllVocabulary(
+                listOf(
+                    entityById(first).copy(translation = "updated-house"),
+                    entityById(second).copy(translation = "updated-tree"),
+                ),
+            )
+
+            assertThat(entityById(first).translation).isEqualTo("updated-house")
+            assertThat(entityById(second).translation).isEqualTo("updated-tree")
+        }
+
+    @Test
+    fun `applyImportBatch inserts new rows and updates existing rows together`() =
+        runTest {
+            val existing = insert("Haus", translation = "old", position = 1L)
+
+            dao.applyImportBatch(
+                toInsert = listOf(VocabularyEntity(word = "Baum", translation = "tree", position = 2L)),
+                toUpdate = listOf(entityById(existing).copy(translation = "new")),
+            )
+
+            assertThat(entityById(existing).translation).isEqualTo("new")
+            val inserted = requireNotNull(dao.getVocabularyByWord("Baum"))
+            assertThat(inserted.translation).isEqualTo("tree")
+            assertThat(inserted.position).isEqualTo(2L)
+        }
+
+    @Test
+    fun `applyImportBatch with empty lists is a no-op`() =
+        runTest {
+            insert("Haus")
+
+            dao.applyImportBatch(toInsert = emptyList(), toUpdate = emptyList())
+
+            assertThat(dao.getAllVocabulary().let { flow -> flow }).isNotNull()
+        }
+
+    @Test
+    fun `applyImportBatch rolls back the whole batch when one insert violates a constraint`() =
+        runTest {
+            insert("Haus", translation = "existing")
+
+            var thrown: Throwable? = null
+            try {
+                dao.applyImportBatch(
+                    toInsert =
+                        listOf(
+                            VocabularyEntity(word = "Baum", translation = "tree", position = 1L),
+                            // Duplicates the existing row's word - violates the unique index.
+                            VocabularyEntity(word = "haus", translation = "duplicate", position = 2L),
+                        ),
+                    toUpdate = emptyList(),
+                )
+            } catch (e: SQLiteConstraintException) {
+                thrown = e
+            }
+            assertThat(thrown).isNotNull()
+
+            // Transactional: the "Baum" insert that would have otherwise succeeded must
+            // also be rolled back, since it shared the same @Transaction as the failing one.
+            assertThat(dao.getVocabularyByWord("Baum")).isNull()
+            assertThat(dao.getVocabularyByWord("Haus")?.translation).isEqualTo("existing")
         }
 }

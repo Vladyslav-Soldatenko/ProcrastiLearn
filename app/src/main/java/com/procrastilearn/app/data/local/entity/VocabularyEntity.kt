@@ -13,6 +13,7 @@ import androidx.room.PrimaryKey
         Index(value = ["word"], unique = true),
         Index(value = ["backwardFsrsDueAt"]),
         Index(value = ["fsrsDueAt", "backwardFsrsDueAt"]),
+        Index(value = ["fsrsDueAt", "backwardFsrsDueAt", "position"]),
     ],
 )
 data class VocabularyEntity(
@@ -36,4 +37,8 @@ data class VocabularyEntity(
     // null = derive backward prompt/answer by swapping translation/word at read time
     val backwardPromptOverride: String? = null,
     val backwardAnswerOverride: String? = null,
+    // New-card queue order, assigned once at creation and never modified afterward
+    // (not by reset, edit, or re-import merge). See VocabularyTransferManager/
+    // VocabularyRepositoryImpl for assignment rules.
+    val position: Long = 0L,
 )

@@ -115,4 +115,18 @@ interface VocabularyReviewDao {
         offset: Int,
         requireBidirectional: Boolean = false,
     ): Long?
+
+    // Pick the lowest-position "new" row (import/creation order). Tie-broken by id since
+    // position values are not guaranteed unique (e.g. Anki's own cards.due can tie, and
+    // pre-migration-backfilled/default rows can share a position).
+    @Query(
+        """
+        SELECT id FROM vocabulary
+        WHERE fsrsDueAt = 0 AND backwardFsrsDueAt = 0
+          AND (:requireBidirectional = 0 OR bidirectional = 1)
+        ORDER BY position ASC, id ASC
+        LIMIT 1
+    """,
+    )
+    suspend fun pickNewIdByPositionAsc(requireBidirectional: Boolean = false): Long?
 }
