@@ -88,5 +88,8 @@ val MIGRATION_4_5 =
                 "CREATE INDEX IF NOT EXISTS `index_vocabulary_fsrsDueAt_backwardFsrsDueAt_position` " +
                     "ON `vocabulary` (`fsrsDueAt`, `backwardFsrsDueAt`, `position`)",
             )
+            db.execSQL(
+                "CREATE UNIQUE INDEX IF NOT EXISTS `index_vocabulary_position` ON `vocabulary` (`position`)",
+            )
         }
     }

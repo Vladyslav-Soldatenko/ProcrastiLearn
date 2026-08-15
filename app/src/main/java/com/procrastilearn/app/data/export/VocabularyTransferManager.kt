@@ -148,17 +148,13 @@ class VocabularyTransferManager
 
             val toInsert = mutableListOf<VocabularyEntity>()
             val toUpdate = mutableListOf<VocabularyEntity>()
-            var nextPosition = vocabularyDao.getMaxPosition() + 1
             for (item in deduped.values) {
                 val existing = existingByWord[item.word.lowercase()]
                 if (existing != null) {
                     toUpdate += existing.copy(translation = item.translation)
                 } else {
                     val cardJson = Card.builder().build().toJson()
-                    toInsert +=
-                        item
-                            .toEntity(fsrsCardJson = cardJson, fsrsDueAt = 0L, position = nextPosition++)
-                            .copy(id = 0L)
+                    toInsert += item.toEntity(fsrsCardJson = cardJson, fsrsDueAt = 0L).copy(id = 0L)
                 }
             }
             vocabularyDao.applyImportBatch(toInsert, toUpdate)

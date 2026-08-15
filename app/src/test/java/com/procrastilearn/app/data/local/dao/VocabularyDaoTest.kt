@@ -19,6 +19,7 @@ import org.robolectric.RobolectricTestRunner
 class VocabularyDaoTest {
     private lateinit var database: AppDatabase
     private lateinit var dao: VocabularyDao
+    private var nextTestPosition = 1L
 
     @Before
     fun setup() {
@@ -51,7 +52,7 @@ class VocabularyDaoTest {
         incorrectCount: Int = 0,
         backwardCorrectCount: Int = 0,
         backwardIncorrectCount: Int = 0,
-        position: Long = 0L,
+        position: Long = nextTestPosition++,
     ): Long =
         dao.insertVocabulary(
             VocabularyEntity(
@@ -282,7 +283,7 @@ class VocabularyDaoTest {
 
             var thrown: Throwable? = null
             try {
-                dao.insertAllVocabulary(listOf(VocabularyEntity(word = "haus", translation = "new")))
+                dao.insertAllVocabulary(listOf(VocabularyEntity(word = "haus", translation = "new", position = 999L)))
             } catch (e: SQLiteConstraintException) {
                 thrown = e
             }
@@ -315,14 +316,66 @@ class VocabularyDaoTest {
             val existing = insert("Haus", translation = "old", position = 1L)
 
             dao.applyImportBatch(
-                toInsert = listOf(VocabularyEntity(word = "Baum", translation = "tree", position = 2L)),
+                toInsert = listOf(VocabularyEntity(word = "Baum", translation = "tree", position = 999L)),
                 toUpdate = listOf(entityById(existing).copy(translation = "new")),
             )
 
             assertThat(entityById(existing).translation).isEqualTo("new")
             val inserted = requireNotNull(dao.getVocabularyByWord("Baum"))
             assertThat(inserted.translation).isEqualTo("tree")
+            // The caller-supplied position (999) is ignored - applyImportBatch always assigns
+            // MAX(position)+1 itself, atomically with the insert.
             assertThat(inserted.position).isEqualTo(2L)
+        }
+
+    @Test
+    fun `applyImportBatch assigns sequential positions across a multi-row batch, ignoring caller-supplied values`() =
+        runTest {
+            insert("Existing", position = 10L)
+
+            dao.applyImportBatch(
+                toInsert =
+                    listOf(
+                        VocabularyEntity(word = "a", translation = "a", position = 1L),
+                        VocabularyEntity(word = "b", translation = "b", position = 1L),
+                        VocabularyEntity(word = "c", translation = "c", position = 1L),
+                    ),
+                toUpdate = emptyList(),
+            )
+
+            assertThat(requireNotNull(dao.getVocabularyByWord("a")).position).isEqualTo(11L)
+            assertThat(requireNotNull(dao.getVocabularyByWord("b")).position).isEqualTo(12L)
+            assertThat(requireNotNull(dao.getVocabularyByWord("c")).position).isEqualTo(13L)
+        }
+
+    @Test
+    fun `applyImportBatch continues numbering from the prior MAX(position) on a later call`() =
+        runTest {
+            dao.applyImportBatch(
+                toInsert = listOf(VocabularyEntity(word = "a", translation = "a")),
+                toUpdate = emptyList(),
+            )
+            dao.applyImportBatch(
+                toInsert = listOf(VocabularyEntity(word = "b", translation = "b")),
+                toUpdate = emptyList(),
+            )
+
+            assertThat(requireNotNull(dao.getVocabularyByWord("a")).position).isEqualTo(1L)
+            assertThat(requireNotNull(dao.getVocabularyByWord("b")).position).isEqualTo(2L)
+        }
+
+    @Test
+    fun `inserting two rows with the same explicit position throws`() =
+        runTest {
+            insert("Haus", position = 5L)
+
+            var thrown: Throwable? = null
+            try {
+                dao.insertAllVocabulary(listOf(VocabularyEntity(word = "Baum", translation = "tree", position = 5L)))
+            } catch (e: SQLiteConstraintException) {
+                thrown = e
+            }
+            assertThat(thrown).isNotNull()
         }
 
     @Test

@@ -1,5 +1,6 @@
 package com.procrastilearn.app.data.local.database
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.room.testing.MigrationTestHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -361,6 +362,44 @@ class AppDatabaseMigrationTest {
                 assertTrue(cursor.moveToFirst())
                 assertEquals("sooner", cursor.getString(0))
             }
+    }
+
+    @Test
+    fun migrate4To5EnforcesUniquePosition() {
+        helper.createDatabase(TEST_DB, 4).apply { close() }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                5,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+            )
+
+        migrated.execSQL(
+            """
+            INSERT INTO vocabulary
+                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
+            VALUES ('first', 'a', 0, 0, 0, '', 0, 7)
+            """.trimIndent(),
+        )
+
+        var thrown: Throwable? = null
+        try {
+            migrated.execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
+                VALUES ('second', 'b', 0, 0, 0, '', 0, 7)
+                """.trimIndent(),
+            )
+        } catch (e: SQLiteConstraintException) {
+            thrown = e
+        }
+        assertTrue(thrown != null)
     }
 
     private companion object {

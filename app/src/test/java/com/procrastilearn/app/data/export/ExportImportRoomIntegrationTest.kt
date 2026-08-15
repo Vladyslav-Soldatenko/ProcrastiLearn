@@ -7,6 +7,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.mapper.toEntity
+import com.procrastilearn.app.domain.model.VocabularyExportItem
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -93,6 +94,31 @@ class ExportImportRoomIntegrationTest {
             assertThat(stored.backwardAnswerOverride).isNull()
         }
 
+    @Test
+    fun `applyImportBatch rebases a JSON item's stale foreign position into a non-empty library`() =
+        runTest {
+            val dao = database.vocabularyDao()
+            dao.insertVocabulary(VocabularyEntity(word = "existing", translation = "x", position = 200L))
+            val foreignItem =
+                VocabularyExportItem(
+                    id = 999L,
+                    word = "imported",
+                    translation = "y",
+                    createdAt = 0L,
+                    lastShownAt = null,
+                    correctCount = 0,
+                    incorrectCount = 0,
+                    fsrsCardJson = "",
+                    fsrsDueAt = 0L,
+                    position = 5L,
+                )
+
+            dao.applyImportBatch(toInsert = listOf(foreignItem.toEntity().copy(id = 0L)), toUpdate = emptyList())
+
+            val stored = requireNotNull(dao.getVocabularyByWord("imported"))
+            assertThat(stored.position).isEqualTo(201L)
+        }
+
     private fun corpusFiles(): List<File> {
         val corpusRoot = File("src/test/resources/exports")
         return corpusRoot
@@ -112,9 +138,15 @@ class ExportImportRoomIntegrationTest {
             return "${fixture.path}: expected a decodable fixture but got $outcome"
         }
 
-        dao.insertAllVocabulary(outcome.items.map { it.toEntity() })
+        // Fixtures predating the position field (v1-v3) all decode every item to position 0 -
+        // reassign distinct positions here purely to satisfy the DB's unique constraint; this
+        // test is about decode/round-trip fidelity, not position-assignment semantics (that's
+        // covered by VocabularyDaoTest and VocabularyTransferManagerTest instead).
+        val itemsWithUniquePositions =
+            outcome.items.mapIndexed { index, item -> item.copy(position = index.toLong() + 1) }
+        dao.insertAllVocabulary(itemsWithUniquePositions.map { it.toEntity() })
 
-        val expected = outcome.items.map { it.toEntity() }.sortedBy { it.id }
+        val expected = itemsWithUniquePositions.map { it.toEntity() }.sortedBy { it.id }
         val stored = dao.getAllVocabulary().first().sortedBy { it.id }
         return mismatchMessage(fixture, expected, stored)
     }

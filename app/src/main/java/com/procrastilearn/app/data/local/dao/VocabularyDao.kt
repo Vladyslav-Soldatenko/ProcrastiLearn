@@ -57,7 +57,10 @@ interface VocabularyDao {
         toInsert: List<VocabularyEntity>,
         toUpdate: List<VocabularyEntity>,
     ) {
-        if (toInsert.isNotEmpty()) insertAllVocabulary(toInsert)
+        if (toInsert.isNotEmpty()) {
+            var nextPosition = getMaxPosition() + 1
+            insertAllVocabulary(toInsert.map { it.copy(position = nextPosition++) })
+        }
         if (toUpdate.isNotEmpty()) updateAllVocabulary(toUpdate)
     }
 

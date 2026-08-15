@@ -41,6 +41,7 @@ class VocabularyRepositoryBidirectionalTest {
     private lateinit var dayCountersStore: DayCountersStore
     private lateinit var scheduler: Scheduler
     private lateinit var repository: VocabularyRepositoryImpl
+    private var nextTestPosition = 1L
 
     @Before
     fun setup() {
@@ -98,6 +99,7 @@ class VocabularyRepositoryBidirectionalTest {
                 fsrsDueAt = fsrsDueAt,
                 backwardFsrsDueAt = backwardFsrsDueAt,
                 correctCount = correctCount,
+                position = nextTestPosition++,
                 incorrectCount = incorrectCount,
             ),
         )

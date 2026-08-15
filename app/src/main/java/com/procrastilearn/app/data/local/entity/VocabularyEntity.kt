@@ -14,6 +14,7 @@ import androidx.room.PrimaryKey
         Index(value = ["backwardFsrsDueAt"]),
         Index(value = ["fsrsDueAt", "backwardFsrsDueAt"]),
         Index(value = ["fsrsDueAt", "backwardFsrsDueAt", "position"]),
+        Index(value = ["position"], unique = true),
     ],
 )
 data class VocabularyEntity(

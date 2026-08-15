@@ -138,7 +138,7 @@ class VocabularyTransferManagerTest {
         }
 
     @Test
-    fun `importFromUri inserts a genuinely new apkg item with id reset and an appended position`() =
+    fun `importFromUri inserts a genuinely new apkg item with id reset`() =
         runTest {
             val parsedItem = VocabularyItem(id = 0, word = "Hallo", translation = "Hello", isNew = true)
             val parser =
@@ -151,7 +151,6 @@ class VocabularyTransferManagerTest {
 
                     override fun parse(file: File): List<VocabularyItem> = listOf(parsedItem)
                 }
-            coEvery { vocabularyDao.getMaxPosition() } returns 10L
             coEvery { vocabularyDao.getVocabularyByWords(any()) } returns emptyList()
             coEvery { vocabularyDao.applyImportBatch(any(), any()) } returns Unit
             val manager = buildManager(parsers = setOf(parser))
@@ -171,7 +170,8 @@ class VocabularyTransferManagerTest {
             assertThat(inserted.id).isEqualTo(0L)
             assertThat(inserted.word).isEqualTo("Hallo")
             assertThat(inserted.translation).isEqualTo("Hello")
-            assertThat(inserted.position).isEqualTo(11L)
+            // Position assignment for toInsert rows is owned entirely by applyImportBatch (see
+            // VocabularyDaoTest), not by the manager, so it isn't asserted here.
             assertThat(inserted.fsrsDueAt).isEqualTo(0L)
             assertThat(inserted.fsrsCardJson).isNotEmpty()
         }
@@ -200,7 +200,6 @@ class VocabularyTransferManagerTest {
                     fsrsCardJson = "existing-progress-json",
                     correctCount = 5,
                 )
-            coEvery { vocabularyDao.getMaxPosition() } returns 100L
             coEvery { vocabularyDao.getVocabularyByWords(any()) } returns listOf(existingEntity)
             coEvery { vocabularyDao.applyImportBatch(any(), any()) } returns Unit
             val manager = buildManager(parsers = setOf(parser))
@@ -242,7 +241,6 @@ class VocabularyTransferManagerTest {
                             VocabularyItem(word = "CAT", translation = "third", isNew = true),
                         )
                 }
-            coEvery { vocabularyDao.getMaxPosition() } returns 0L
             coEvery { vocabularyDao.getVocabularyByWords(any()) } returns emptyList()
             coEvery { vocabularyDao.applyImportBatch(any(), any()) } returns Unit
             val manager = buildManager(parsers = setOf(parser))
@@ -275,7 +273,6 @@ class VocabularyTransferManagerTest {
                     override fun parse(file: File): List<VocabularyItem> =
                         words.map { VocabularyItem(word = it, translation = it, isNew = true) }
                 }
-            coEvery { vocabularyDao.getMaxPosition() } returns 0L
             coEvery { vocabularyDao.getVocabularyByWords(any()) } returns emptyList()
             coEvery { vocabularyDao.applyImportBatch(any(), any()) } returns Unit
             val manager = buildManager(parsers = setOf(parser))
@@ -293,7 +290,7 @@ class VocabularyTransferManagerTest {
         }
 
     @Test
-    fun `importFromUri inserts a genuinely new export item with id reset, position carried through verbatim`() =
+    fun `importFromUri inserts a genuinely new export item with id reset`() =
         runTest {
             val exportItem =
                 VocabularyExportItem(
@@ -334,9 +331,10 @@ class VocabularyTransferManagerTest {
             coVerify { vocabularyDao.applyImportBatch(capture(toInsert), any()) }
             // id is reset to 0 rather than reusing the exported file's id 4 - this is what
             // prevents a coincidental id collision with an unrelated row from aborting the
-            // whole import (see VocabularyTransferManager.importExportItems).
+            // whole import (see VocabularyTransferManager.importExportItems). Whatever
+            // position the source file carried is irrelevant here - applyImportBatch always
+            // reassigns a fresh position for every toInsert row (see VocabularyDaoTest).
             assertThat(toInsert.captured.single().id).isEqualTo(0L)
-            assertThat(toInsert.captured.single().position).isEqualTo(77L)
         }
 
     @Test
@@ -431,7 +429,7 @@ class VocabularyTransferManagerTest {
         }
 
     @Test
-    fun `export then import json into an empty library re-inserts with a fresh id, same position`() =
+    fun `export then import json into an empty library re-inserts with a fresh id`() =
         runTest {
             val parser = JsonVocabularyParser()
             val manager = buildManager(parsers = setOf(parser))
@@ -464,7 +462,8 @@ class VocabularyTransferManagerTest {
             coVerify { vocabularyDao.applyImportBatch(capture(toInsert), any()) }
             val reimported = toInsert.captured.single()
             assertThat(reimported.id).isEqualTo(0L)
-            assertThat(reimported.position).isEqualTo(55L)
-            assertThat(reimported).isEqualTo(entity.copy(id = 0L))
+            // applyImportBatch (not the manager) owns position assignment for toInsert rows,
+            // so the re-exported position of 55 carried in the file is not asserted here.
+            assertThat(reimported.copy(position = 55L)).isEqualTo(entity.copy(id = 0L))
         }
 }

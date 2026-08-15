@@ -20,6 +20,7 @@ class VocabularyReviewDaoTest {
     private lateinit var database: AppDatabase
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var dao: VocabularyReviewDao
+    private var nextTestPosition = 1L
 
     @Before
     fun setup() {
@@ -48,7 +49,7 @@ class VocabularyReviewDaoTest {
         incorrectCount: Int = 0,
         backwardCorrectCount: Int = 0,
         backwardIncorrectCount: Int = 0,
-        position: Long = 0L,
+        position: Long = nextTestPosition++,
     ): Long =
         vocabularyDao.insertVocabulary(
             VocabularyEntity(
@@ -100,16 +101,6 @@ class VocabularyReviewDaoTest {
             insert("mid", position = 100L)
 
             assertThat(dao.pickNewIdByPositionAsc()).isEqualTo(early)
-        }
-
-    @Test
-    fun `pickNewIdByPositionAsc ties break by ascending id`() =
-        runTest {
-            val first = insert("first", position = 5L)
-            val second = insert("second", position = 5L)
-            check(first < second)
-
-            assertThat(dao.pickNewIdByPositionAsc()).isEqualTo(first)
         }
 
     @Test
