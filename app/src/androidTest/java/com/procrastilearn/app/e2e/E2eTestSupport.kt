@@ -11,11 +11,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.procrastilearn.app.R
 
-// Generous enough to cover MainActivity's cold-start (Hilt injection, DataStore reads, first
-// Compose frame) on slow CI emulators — nodeVisibleWithin returns as soon as the node appears,
-// so this doesn't slow down fast environments, only raises the worst-case ceiling. A tighter
-// budget risks one gating screen's slow first render eating the whole repeat() iteration,
-// leaving the next gating screen (e.g. the overlay permission dialog) never dismissed.
 private const val ONBOARDING_STEP_TIMEOUT_MS = 10_000L
 private const val NODE_POLL_INTERVAL_MS = 100L
 
