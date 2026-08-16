@@ -122,7 +122,16 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: ./gradlew connectedDebugAndroidTest --no-daemon
+          script: |
+            adb logcat -c
+            adb logcat -v threadtime > /tmp/logcat.txt &
+            LOGCAT_PID=$!
+            set +e
+            ./gradlew connectedDebugAndroidTest --no-daemon
+            GRADLE_EXIT=$?
+            set -e
+            kill "$LOGCAT_PID" 2>/dev/null || true
+            exit $GRADLE_EXIT
 
       - name: Upload instrumented test reports
         if: failure()
@@ -130,3 +139,10 @@ jobs:
         with:
           name: instrumented-test-reports
           path: app/build/reports/androidTests/
+
+      - name: Upload logcat
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrumented-logcat
+          path: /tmp/logcat.txt
