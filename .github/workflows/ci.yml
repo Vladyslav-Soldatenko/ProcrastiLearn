@@ -71,7 +71,9 @@ jobs:
           path: app/build/reports/lint-results-debug.html
 
   instrumented-tests:
-    needs: verify
+    # TODO(before merge): restore `needs: verify` - dropped temporarily to run this job in
+    # parallel with verify instead of waiting ~7min for it, while iterating on the emulator
+    # setup itself.
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
