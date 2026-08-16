@@ -3,6 +3,7 @@ package com.procrastilearn.app.e2e
 import android.content.Context
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -31,6 +32,23 @@ fun ComposeTestRule.waitUntilNodeExists(
     }
 }
 
+@OptIn(ExperimentalTestApi::class)
+fun ComposeTestRule.waitUntilNodeGone(
+    matcher: SemanticsMatcher,
+    timeoutMillis: Long,
+) {
+    waitUntil(timeoutMillis) {
+        try {
+            onNode(matcher, useUnmergedTree = true).fetchSemanticsNode()
+            false
+        } catch (_: AssertionError) {
+            true
+        } catch (_: IllegalStateException) {
+            true
+        }
+    }
+}
+
 fun ComposeTestRule.nodeVisibleWithin(
     matcher: SemanticsMatcher,
     timeoutMillis: Long,
@@ -38,19 +56,29 @@ fun ComposeTestRule.nodeVisibleWithin(
     val deadline = System.currentTimeMillis() + timeoutMillis
     while (System.currentTimeMillis() < deadline) {
         waitForIdle()
-        val exists =
+        val displayed =
             try {
-                onNode(matcher, useUnmergedTree = true).fetchSemanticsNode()
+                onNode(matcher, useUnmergedTree = true).assertIsDisplayed()
                 true
             } catch (_: AssertionError) {
                 false
             } catch (_: IllegalStateException) {
                 false
             }
-        if (exists) return true
+        if (displayed) return true
         Thread.sleep(NODE_POLL_INTERVAL_MS)
     }
     return false
+}
+
+@OptIn(ExperimentalTestApi::class)
+fun ComposeTestRule.assertEventuallyDisplayed(
+    matcher: SemanticsMatcher,
+    timeoutMillis: Long,
+) {
+    check(nodeVisibleWithin(matcher, timeoutMillis)) {
+        "Node matching $matcher was not displayed within ${timeoutMillis}ms"
+    }
 }
 
 private object OnboardingState {
