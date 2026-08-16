@@ -53,7 +53,14 @@ fun ComposeTestRule.nodeVisibleWithin(
     return false
 }
 
+private object OnboardingState {
+    @Volatile
+    var dismissed = false
+}
+
 fun ComposeTestRule.dismissOnboardingIfPresent(context: Context) {
+    if (OnboardingState.dismissed) return
+
     val notNow = context.getString(R.string.action_not_now)
     repeat(2) {
         if (nodeVisibleWithin(hasText(notNow), ONBOARDING_STEP_TIMEOUT_MS)) {
@@ -77,7 +84,10 @@ fun ComposeTestRule.dismissOnboardingIfPresent(context: Context) {
     }
 
     val languageTitle = context.getString(R.string.language_selection_dialog_title)
-    if (!nodeVisibleWithin(hasText(languageTitle), ONBOARDING_STEP_TIMEOUT_MS)) return
+    if (!nodeVisibleWithin(hasText(languageTitle), ONBOARDING_STEP_TIMEOUT_MS)) {
+        OnboardingState.dismissed = true
+        return
+    }
 
     onNodeWithTag("language_selection_native_field", useUnmergedTree = true).performClick()
     waitForIdle()
@@ -91,4 +101,6 @@ fun ComposeTestRule.dismissOnboardingIfPresent(context: Context) {
 
     onNodeWithText(context.getString(R.string.action_continue), useUnmergedTree = true).performClick()
     waitForIdle()
+
+    OnboardingState.dismissed = true
 }
