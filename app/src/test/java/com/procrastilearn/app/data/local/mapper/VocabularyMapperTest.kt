@@ -273,6 +273,35 @@ class VocabularyMapperTest {
     }
 
     @Test
+    fun `toEntity from VocabularyItem populates normalizedWord as a lowercased trimmed fold`() {
+        val item = VocabularyItem(id = 1, word = "  CAFÉ  ", translation = "coffee", isNew = true)
+
+        val result = item.toEntity()
+
+        assertThat(result.normalizedWord).isEqualTo("café")
+    }
+
+    @Test
+    fun `export item toEntity populates normalizedWord as a lowercased trimmed fold`() {
+        val item =
+            VocabularyExportItem(
+                id = 1,
+                word = "  ПРИВЕТ  ",
+                translation = "hello",
+                createdAt = 0L,
+                lastShownAt = null,
+                correctCount = 0,
+                incorrectCount = 0,
+                fsrsCardJson = "",
+                fsrsDueAt = 0L,
+            )
+
+        val result = item.toEntity()
+
+        assertThat(result.normalizedWord).isEqualTo("привет")
+    }
+
+    @Test
     fun `VocabularyEntity toExportItem maps every field including bidirectional ones`() {
         val entity =
             VocabularyEntity(

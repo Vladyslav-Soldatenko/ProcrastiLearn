@@ -6,6 +6,7 @@ import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -227,4 +228,102 @@ class VocabularyDaoTest {
             assertThat(entity.bidirectional).isFalse()
             assertThat(entity.backwardFsrsDueAt).isEqualTo(0L)
         }
+
+    @Test
+    fun `getVocabularyByWord finds an exact match`() =
+        runTest {
+            insert("Haus")
+
+            val result = dao.getVocabularyByWord(VocabularyEntity.normalizeWord("Haus"))
+
+            assertThat(result?.word).isEqualTo("Haus")
+        }
+
+    @Test
+    fun `getVocabularyByWord finds an ASCII case-different match`() =
+        runTest {
+            insert("Haus")
+
+            val result = dao.getVocabularyByWord(VocabularyEntity.normalizeWord("haus"))
+
+            assertThat(result?.word).isEqualTo("Haus")
+        }
+
+    @Test
+    fun `getVocabularyByWord finds a non-ASCII case-different match`() =
+        runTest {
+            insert("café")
+
+            val result = dao.getVocabularyByWord(VocabularyEntity.normalizeWord("CAFÉ"))
+
+            assertThat(result?.word).isEqualTo("café")
+        }
+
+    @Test
+    fun `getVocabularyByWord finds a Cyrillic case-different match`() =
+        runTest {
+            insert("привет")
+
+            val result = dao.getVocabularyByWord(VocabularyEntity.normalizeWord("ПРИВЕТ"))
+
+            assertThat(result?.word).isEqualTo("привет")
+        }
+
+    @Test
+    fun `getVocabularyByWord returns null for a genuinely different word`() =
+        runTest {
+            insert("café")
+
+            val result = dao.getVocabularyByWord(VocabularyEntity.normalizeWord("cafeteria"))
+
+            assertThat(result).isNull()
+        }
+
+    @Test
+    fun `getVocabularyByWord treats an accent difference as a different word`() =
+        runTest {
+            insert("café")
+
+            val result = dao.getVocabularyByWord(VocabularyEntity.normalizeWord("cafe"))
+
+            assertThat(result).isNull()
+        }
+
+    @Test
+    fun `getVocabularyByWord matches regardless of surrounding whitespace`() =
+        runTest {
+            insert("Haus")
+
+            val result = dao.getVocabularyByWord(VocabularyEntity.normalizeWord("  Haus  "))
+
+            assertThat(result?.word).isEqualTo("Haus")
+        }
+
+    @Test
+    fun `insertVocabulary replaces an existing row for a non-ASCII case variant`() =
+        runTest {
+            insert("café", correctCount = 3)
+
+            dao.insertVocabulary(VocabularyEntity(word = "CAFÉ", translation = "coffee"))
+
+            val all = dao.getAllVocabulary().first()
+            assertThat(all).hasSize(1)
+            assertThat(all.single().word).isEqualTo("CAFÉ")
+        }
+
+    @Test
+    fun `insertVocabulary keeps distinct rows for words differing only by accent`() =
+        runTest {
+            insert("café")
+
+            dao.insertVocabulary(VocabularyEntity(word = "cafe", translation = "coffee"))
+
+            val all = dao.getAllVocabulary().first()
+            assertThat(all.map { it.word }).containsExactly("café", "cafe")
+        }
+
+    @Test
+    fun `normalizeWord folds Turkish dotless I the same as any other locale`() {
+        assertThat(VocabularyEntity.normalizeWord("I")).isEqualTo("i")
+    }
 }

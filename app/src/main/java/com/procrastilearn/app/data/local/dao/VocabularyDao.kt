@@ -21,11 +21,11 @@ interface VocabularyDao {
     @Query(
         """
         SELECT * FROM vocabulary
-        WHERE word = :word COLLATE NOCASE
+        WHERE normalizedWord = :normalizedWord
         LIMIT 1
         """,
     )
-    suspend fun getVocabularyByWord(word: String): VocabularyEntity?
+    suspend fun getVocabularyByWord(normalizedWord: String): VocabularyEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertVocabulary(item: VocabularyEntity): Long

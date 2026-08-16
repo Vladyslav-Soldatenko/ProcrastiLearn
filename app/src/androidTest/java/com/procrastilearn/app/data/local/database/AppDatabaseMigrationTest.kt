@@ -239,6 +239,193 @@ class AppDatabaseMigrationTest {
             }
     }
 
+    @Test
+    fun migrate4To5BackfillsNormalizedWordFromExistingRows() {
+        helper.createDatabase(TEST_DB, 4).apply {
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
+                VALUES ('CAFÉ', 'coffee', 0, 0, 0, '', 0)
+                """.trimIndent(),
+            )
+            close()
+        }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                5,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+            )
+
+        migrated.query("SELECT word, normalizedWord FROM vocabulary").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals("CAFÉ", cursor.getString(0))
+            assertEquals("café", cursor.getString(1))
+        }
+    }
+
+    @Test
+    fun migrate4To5MergesPreexistingNonAsciiCaseDuplicatesKeepingRowWithMoreProgress() {
+        helper.createDatabase(TEST_DB, 4).apply {
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
+                VALUES ('café', 'coffee', 0, 5, 2, '', 0)
+                """.trimIndent(),
+            )
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
+                VALUES ('CAFÉ', 'coffee (dup)', 0, 0, 0, '', 0)
+                """.trimIndent(),
+            )
+            close()
+        }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                5,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+            )
+
+        migrated.query("SELECT COUNT(*) FROM vocabulary").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(1, cursor.getInt(0))
+        }
+        migrated.query("SELECT word, correctCount FROM vocabulary").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals("café", cursor.getString(0))
+            assertEquals(5, cursor.getInt(1))
+        }
+    }
+
+    @Test
+    fun migrate4To5TieBreaksKeptDuplicateByLowestId() {
+        helper.createDatabase(TEST_DB, 4).apply {
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
+                VALUES ('café', 'first', 0, 0, 0, '', 0)
+                """.trimIndent(),
+            )
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
+                VALUES ('CAFÉ', 'second', 0, 0, 0, '', 0)
+                """.trimIndent(),
+            )
+            close()
+        }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                5,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+            )
+
+        migrated.query("SELECT translation FROM vocabulary").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals("first", cursor.getString(0))
+            assertTrue(cursor.isLast)
+        }
+    }
+
+    @Test
+    fun migrate4To5EnforcesUniqueNormalizedWordGoingForward() {
+        helper.createDatabase(TEST_DB, 4).apply {
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
+                VALUES ('café', 'coffee', 0, 0, 0, '', 0)
+                """.trimIndent(),
+            )
+            close()
+        }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                5,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+            )
+
+        var threw = false
+        try {
+            migrated.execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, normalizedWord)
+                VALUES ('CAFÉ', 'coffee (dup)', 0, 0, 0, '', 0, 'café')
+                """.trimIndent(),
+            )
+        } catch (expected: android.database.sqlite.SQLiteConstraintException) {
+            threw = true
+        }
+        assertTrue(threw)
+    }
+
+    @Test
+    fun migrate4To5PreservesRowsWithDistinctNormalizedWords() {
+        helper.createDatabase(TEST_DB, 4).apply {
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
+                VALUES ('Katze', 'Cat', 0, 3, 1, 'card-json', 500)
+                """.trimIndent(),
+            )
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
+                VALUES ('Hund', 'Dog', 0, 1, 0, '', 0)
+                """.trimIndent(),
+            )
+            close()
+        }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                5,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+            )
+
+        migrated.query("SELECT COUNT(*) FROM vocabulary").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(2, cursor.getInt(0))
+        }
+    }
+
     private companion object {
         const val TEST_DB = "migration-test"
     }
