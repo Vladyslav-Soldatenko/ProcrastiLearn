@@ -62,11 +62,21 @@ fun ComposeTestRule.dismissOnboardingIfPresent(context: Context) {
     val notNow = context.getString(R.string.action_not_now)
     repeat(2) {
         if (nodeVisibleWithin(hasText(notNow), ONBOARDING_STEP_TIMEOUT_MS)) {
+            val notNowNode = onNodeWithText(notNow, useUnmergedTree = true)
             // ProminentA11yDisclosureScreen is a full-screen scrollable Column (not a compact
-            // AlertDialog), so on small emulator viewports its "Not now" button can be below the
-            // fold: present in the semantics tree (nodeVisibleWithin finds it) but at screen
-            // coordinates performClick() can't actually hit without scrolling to it first.
-            onNodeWithText(notNow, useUnmergedTree = true).performScrollTo().performClick()
+            // AlertDialog like OverlayPermissionDialog, the other screen this loop can hit), so
+            // on small emulator viewports its "Not now" button can be below the fold: present in
+            // the semantics tree (nodeVisibleWithin finds it) but at screen coordinates
+            // performClick() can't actually hit without scrolling to it first. performScrollTo()
+            // throws when the node has no scrollable ancestor at all, which is exactly the case
+            // for OverlayPermissionDialog's button - it's already fully visible, so skip the
+            // scroll there instead of failing the test over it.
+            try {
+                notNowNode.performScrollTo()
+            } catch (_: AssertionError) {
+                // No scrollable ancestor - already visible, nothing to scroll to.
+            }
+            notNowNode.performClick()
             waitForIdle()
         }
     }
