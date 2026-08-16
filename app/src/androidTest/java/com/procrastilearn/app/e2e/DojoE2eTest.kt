@@ -221,7 +221,8 @@ class DojoE2eTest {
     private fun insertVocabulary(entity: VocabularyEntity) {
         runBlocking {
             withContext(Dispatchers.IO) {
-                entryPoint().appDatabase().vocabularyDao().insertVocabulary(entity)
+                val dao = entryPoint().appDatabase().vocabularyDao()
+                dao.insertVocabulary(entity.copy(position = dao.getMaxPosition() + 1))
             }
         }
     }

@@ -246,22 +246,25 @@ class AppDatabaseMigrationTest {
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
-                VALUES ('first', 'a', 0, 0, 0, '', 0)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount)
+                VALUES ('first', 'a', 0, 0, 0, '', 0, 0, '', 0, 0, 0)
                 """.trimIndent(),
             )
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
-                VALUES ('second', 'b', 0, 0, 0, '', 0)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount)
+                VALUES ('second', 'b', 0, 0, 0, '', 0, 0, '', 0, 0, 0)
                 """.trimIndent(),
             )
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
-                VALUES ('third', 'c', 0, 0, 0, '', 0)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount)
+                VALUES ('third', 'c', 0, 0, 0, '', 0, 0, '', 0, 0, 0)
                 """.trimIndent(),
             )
             close()
@@ -310,8 +313,9 @@ class AppDatabaseMigrationTest {
         migrated.execSQL(
             """
             INSERT INTO vocabulary
-                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
-            VALUES ('newword', 'x', 0, 0, 0, '', 0)
+                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                 bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount)
+            VALUES ('newword', 'x', 0, 0, 0, '', 0, 0, '', 0, 0, 0)
             """.trimIndent(),
         )
         migrated.query("SELECT position FROM vocabulary WHERE word = 'newword'").use { cursor ->
@@ -338,15 +342,17 @@ class AppDatabaseMigrationTest {
         migrated.execSQL(
             """
             INSERT INTO vocabulary
-                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
-            VALUES ('later', 'y', 0, 0, 0, '', 0, 500)
+                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                 bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount, position)
+            VALUES ('later', 'y', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 500)
             """.trimIndent(),
         )
         migrated.execSQL(
             """
             INSERT INTO vocabulary
-                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
-            VALUES ('sooner', 'z', 0, 0, 0, '', 0, 10)
+                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                 bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount, position)
+            VALUES ('sooner', 'z', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 10)
             """.trimIndent(),
         )
 
@@ -382,8 +388,9 @@ class AppDatabaseMigrationTest {
         migrated.execSQL(
             """
             INSERT INTO vocabulary
-                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
-            VALUES ('first', 'a', 0, 0, 0, '', 0, 7)
+                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                 bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount, position)
+            VALUES ('first', 'a', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 7)
             """.trimIndent(),
         )
 
@@ -392,8 +399,9 @@ class AppDatabaseMigrationTest {
             migrated.execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
-                VALUES ('second', 'b', 0, 0, 0, '', 0, 7)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount, position)
+                VALUES ('second', 'b', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 7)
                 """.trimIndent(),
             )
         } catch (e: SQLiteConstraintException) {

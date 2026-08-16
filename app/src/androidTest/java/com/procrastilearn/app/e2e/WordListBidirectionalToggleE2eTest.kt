@@ -150,7 +150,8 @@ class WordListBidirectionalToggleE2eTest {
     ): Long =
         runBlocking {
             withContext(Dispatchers.IO) {
-                entryPoint().appDatabase().vocabularyDao().insertVocabulary(
+                val dao = entryPoint().appDatabase().vocabularyDao()
+                dao.insertVocabulary(
                     VocabularyEntity(
                         word = word,
                         translation = translation,
@@ -158,6 +159,7 @@ class WordListBidirectionalToggleE2eTest {
                         correctCount = correctCount,
                         fsrsCardJson = "",
                         fsrsDueAt = fsrsDueAt,
+                        position = dao.getMaxPosition() + 1,
                     ),
                 )
             }
