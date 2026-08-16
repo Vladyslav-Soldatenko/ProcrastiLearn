@@ -126,11 +126,21 @@ jobs:
             adb logcat -c
             adb logcat -v threadtime > /tmp/logcat.txt &
             LOGCAT_PID=$!
+            mkdir -p /tmp/screens
+            (
+              i=0
+              while [ $i -lt 90 ]; do
+                sleep 3
+                i=$((i + 1))
+                adb exec-out screencap -p > "/tmp/screens/screen_$(printf '%03d' $i).png" 2>/dev/null
+              done
+            ) &
+            SCREENSHOT_PID=$!
             set +e
             ./gradlew connectedDebugAndroidTest --no-daemon
             GRADLE_EXIT=$?
             set -e
-            kill "$LOGCAT_PID" 2>/dev/null || true
+            kill "$LOGCAT_PID" "$SCREENSHOT_PID" 2>/dev/null || true
             exit $GRADLE_EXIT
 
       - name: Upload instrumented test reports
@@ -139,6 +149,13 @@ jobs:
         with:
           name: instrumented-test-reports
           path: app/build/reports/androidTests/
+
+      - name: Upload screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrumented-screenshots
+          path: /tmp/screens/
 
       - name: Upload logcat
         if: failure()
