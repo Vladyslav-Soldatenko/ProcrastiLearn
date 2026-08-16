@@ -8,9 +8,10 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.procrastilearn.app.R
 
-private const val ONBOARDING_STEP_TIMEOUT_MS = 1_000L
+private const val ONBOARDING_STEP_TIMEOUT_MS = 1_500L
 private const val NODE_POLL_INTERVAL_MS = 100L
 
 @OptIn(ExperimentalTestApi::class)
@@ -52,17 +53,41 @@ fun ComposeTestRule.nodeVisibleWithin(
     return false
 }
 
+private object OnboardingState {
+    @Volatile
+    var dismissed = false
+}
+
 fun ComposeTestRule.dismissOnboardingIfPresent(context: Context) {
+    if (OnboardingState.dismissed) return
+
     val notNow = context.getString(R.string.action_not_now)
     repeat(2) {
         if (nodeVisibleWithin(hasText(notNow), ONBOARDING_STEP_TIMEOUT_MS)) {
-            onNodeWithText(notNow, useUnmergedTree = true).performClick()
+            val notNowNode = onNodeWithText(notNow, useUnmergedTree = true)
+            // ProminentA11yDisclosureScreen is a full-screen scrollable Column (not a compact
+            // AlertDialog like OverlayPermissionDialog, the other screen this loop can hit), so
+            // on small emulator viewports its "Not now" button can be below the fold: present in
+            // the semantics tree (nodeVisibleWithin finds it) but at screen coordinates
+            // performClick() can't actually hit without scrolling to it first. performScrollTo()
+            // throws when the node has no scrollable ancestor at all, which is exactly the case
+            // for OverlayPermissionDialog's button - it's already fully visible, so skip the
+            // scroll there instead of failing the test over it.
+            try {
+                notNowNode.performScrollTo()
+            } catch (_: AssertionError) {
+                // No scrollable ancestor - already visible, nothing to scroll to.
+            }
+            notNowNode.performClick()
             waitForIdle()
         }
     }
 
     val languageTitle = context.getString(R.string.language_selection_dialog_title)
-    if (!nodeVisibleWithin(hasText(languageTitle), ONBOARDING_STEP_TIMEOUT_MS)) return
+    if (!nodeVisibleWithin(hasText(languageTitle), ONBOARDING_STEP_TIMEOUT_MS)) {
+        OnboardingState.dismissed = true
+        return
+    }
 
     onNodeWithTag("language_selection_native_field", useUnmergedTree = true).performClick()
     waitForIdle()
@@ -76,4 +101,6 @@ fun ComposeTestRule.dismissOnboardingIfPresent(context: Context) {
 
     onNodeWithText(context.getString(R.string.action_continue), useUnmergedTree = true).performClick()
     waitForIdle()
+
+    OnboardingState.dismissed = true
 }
