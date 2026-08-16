@@ -207,7 +207,7 @@ class WordEditE2eTest {
         newValue: String,
     ) {
         composeTestRule
-            .onNode(hasText(string(labelResId)).and(hasSetTextAction()), useUnmergedTree = true)
+            .onNode(hasText(string(labelResId)).and(hasSetTextAction()))
             .performTextReplacement(newValue)
     }
 
