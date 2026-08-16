@@ -12,6 +12,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.procrastilearn.app.MainActivity
@@ -61,8 +62,8 @@ class WordEditE2eTest {
 
         navigateToWordList()
         openEditDialogFor(originalWord)
-        replaceFieldText(originalWord, "flarnbicket-updated")
-        replaceFieldText(originalTranslation, "gloomventra-updated")
+        replaceFieldText(R.string.add_word_label_word, "flarnbicket-updated")
+        replaceFieldText(R.string.add_word_label_translation, "gloomventra-updated")
         clickAction(R.string.action_save)
 
         assertNull(vocabularyByWord(originalWord))
@@ -78,7 +79,7 @@ class WordEditE2eTest {
 
         navigateToWordList()
         openEditDialogFor(word)
-        replaceFieldText(word, "prendolack-changed")
+        replaceFieldText(R.string.add_word_label_word, "prendolack-changed")
         clickAction(R.string.action_cancel)
 
         assertNull(vocabularyByWord("prendolack-changed"))
@@ -202,12 +203,12 @@ class WordEditE2eTest {
     }
 
     private fun replaceFieldText(
-        currentValue: String,
+        labelResId: Int,
         newValue: String,
     ) {
-        val field = composeTestRule.onNode(hasText(currentValue).and(hasSetTextAction()), useUnmergedTree = true)
-        field.performTextClearance()
-        field.performTextInput(newValue)
+        composeTestRule
+            .onNode(hasText(string(labelResId)).and(hasSetTextAction()), useUnmergedTree = true)
+            .performTextReplacement(newValue)
     }
 
     private fun clickAction(actionResId: Int) {
