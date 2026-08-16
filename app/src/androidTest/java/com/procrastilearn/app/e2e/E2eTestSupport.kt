@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.procrastilearn.app.R
 
 // Generous enough to cover MainActivity's cold-start (Hilt injection, DataStore reads, first
@@ -61,7 +62,11 @@ fun ComposeTestRule.dismissOnboardingIfPresent(context: Context) {
     val notNow = context.getString(R.string.action_not_now)
     repeat(2) {
         if (nodeVisibleWithin(hasText(notNow), ONBOARDING_STEP_TIMEOUT_MS)) {
-            onNodeWithText(notNow, useUnmergedTree = true).performClick()
+            // ProminentA11yDisclosureScreen is a full-screen scrollable Column (not a compact
+            // AlertDialog), so on small emulator viewports its "Not now" button can be below the
+            // fold: present in the semantics tree (nodeVisibleWithin finds it) but at screen
+            // coordinates performClick() can't actually hit without scrolling to it first.
+            onNodeWithText(notNow, useUnmergedTree = true).performScrollTo().performClick()
             waitForIdle()
         }
     }
