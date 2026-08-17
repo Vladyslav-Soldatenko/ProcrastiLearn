@@ -38,6 +38,7 @@ fun VocabularyEntity.toDomain(direction: StudyDirection = StudyDirection.FORWARD
 fun VocabularyItem.toEntity(
     fsrsCardJson: String = "",
     fsrsDueAt: Long = 0L,
+    position: Long = 0L,
 ): VocabularyEntity =
     VocabularyEntity(
         id = id,
@@ -48,6 +49,7 @@ fun VocabularyItem.toEntity(
         bidirectional = bidirectional,
         backwardPromptOverride = backwardPromptOverride,
         backwardAnswerOverride = backwardAnswerOverride,
+        position = position,
     )
 
 fun VocabularyExportItem.toEntity(): VocabularyEntity =
@@ -68,6 +70,7 @@ fun VocabularyExportItem.toEntity(): VocabularyEntity =
         backwardIncorrectCount = backwardIncorrectCount,
         backwardPromptOverride = backwardPromptOverride,
         backwardAnswerOverride = backwardAnswerOverride,
+        position = position,
     )
 
 fun VocabularyEntity.toFsrsState(): VocabularyFsrsState =
@@ -114,4 +117,5 @@ fun VocabularyEntity.toExportItem(): VocabularyExportItem =
         backwardIncorrectCount = backwardIncorrectCount,
         backwardPromptOverride = backwardPromptOverride,
         backwardAnswerOverride = backwardAnswerOverride,
+        position = position,
     )

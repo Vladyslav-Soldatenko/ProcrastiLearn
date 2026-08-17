@@ -84,6 +84,7 @@ class AddCardsForTodayIntegrationTest {
                     id = 0,
                     word = "word$i",
                     translation = "trans$i",
+                    position = i.toLong() + 1,
                 ),
             )
         }

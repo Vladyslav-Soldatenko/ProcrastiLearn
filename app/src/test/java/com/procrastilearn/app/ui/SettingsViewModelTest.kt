@@ -22,12 +22,12 @@ import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.LanguagePair
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.model.VocabularyExportItem
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.parser.VocabularyExportParser
 import com.procrastilearn.app.domain.parser.VocabularyParser
-import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
 import com.procrastilearn.app.utils.MainDispatcherRule
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -62,7 +62,6 @@ class SettingsViewModelTest {
     private lateinit var languagePreferencesStore: LanguagePreferencesStore
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var vocabularyStatsDao: VocabularyStatsDao
-    private lateinit var vocabularyRepository: VocabularyCatalogRepository
     private lateinit var policyFlow: MutableStateFlow<LearningPreferencesConfig>
     private lateinit var countersFlow: MutableStateFlow<DayCounters>
     private lateinit var apiKeyFlow: MutableStateFlow<String?>
@@ -88,7 +87,6 @@ class SettingsViewModelTest {
         languagePreferencesStore = mockk(relaxed = true)
         vocabularyDao = mockk()
         vocabularyStatsDao = mockk()
-        vocabularyRepository = mockk(relaxed = true)
         policyFlow =
             MutableStateFlow(
                 LearningPreferencesConfig(
@@ -135,7 +133,6 @@ class SettingsViewModelTest {
             transferManager =
                 VocabularyTransferManager(
                     vocabularyDao = vocabularyDao,
-                    vocabularyRepository = vocabularyRepository,
                     parsers = parsers,
                     ioDispatcher = mainDispatcherRule.testDispatcher,
                 ),
@@ -169,6 +166,7 @@ class SettingsViewModelTest {
                 assertThat(hydrated.reviewPerDay).isEqualTo(150)
                 assertThat(hydrated.overlayInterval).isEqualTo(10)
                 assertThat(hydrated.ratingDelaySeconds).isEqualTo(4)
+                assertThat(hydrated.newCardOrder).isEqualTo(NewCardOrder.SEQUENTIAL)
                 assertThat(hydrated.openAiApiKey).isNull()
                 assertThat(hydrated.openAiPrompt).isEqualTo(OpenAiPromptDefaults.translationPrompt)
                 assertThat(hydrated.openAiReversePrompt).isEqualTo(OpenAiPromptDefaults.reverseTranslationPrompt)
@@ -182,6 +180,7 @@ class SettingsViewModelTest {
                         reviewPerDay = 80,
                         overlayInterval = 3,
                         ratingDelaySeconds = 12,
+                        newCardOrder = NewCardOrder.RANDOM,
                     )
                 apiKeyFlow.value = "abc"
                 promptFlow.value = "custom prompt"
@@ -194,6 +193,7 @@ class SettingsViewModelTest {
                 assertThat(updated.reviewPerDay).isEqualTo(80)
                 assertThat(updated.overlayInterval).isEqualTo(3)
                 assertThat(updated.ratingDelaySeconds).isEqualTo(12)
+                assertThat(updated.newCardOrder).isEqualTo(NewCardOrder.RANDOM)
                 assertThat(updated.openAiApiKey).isEqualTo("abc")
                 assertThat(updated.openAiPrompt).isEqualTo("custom prompt")
                 assertThat(updated.openAiReversePrompt).isEqualTo("custom reverse prompt")
@@ -391,6 +391,18 @@ class SettingsViewModelTest {
         }
 
     @Test
+    fun `onNewCardOrderChange delegates to store`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            coEvery { dayCountersStore.setNewCardOrder(any()) } returns Unit
+
+            viewModel.onNewCardOrderChange(NewCardOrder.RANDOM)
+            advanceUntilIdle()
+
+            coVerify { dayCountersStore.setNewCardOrder(NewCardOrder.RANDOM) }
+        }
+
+    @Test
     fun `onOpenAiApiKeyChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
@@ -468,7 +480,7 @@ class SettingsViewModelTest {
 
             assertThat(completion.await().isSuccess).isTrue()
             val payload = tempFile.readText()
-            assertThat(payload).contains("\"schemaVersion\": 3")
+            assertThat(payload).contains("\"schemaVersion\": 4")
             assertThat(payload).contains("\"id\": 1")
             assertThat(payload).contains("\"word\": \"Haus\"")
             assertThat(payload).contains("\"translation\": \"House\"")
@@ -503,7 +515,7 @@ class SettingsViewModelTest {
         }
 
     @Test
-    fun `importVocabularyFromUri delegates parsed items to repository`() =
+    fun `importVocabularyFromUri inserts a genuinely new apkg item via applyImportBatch`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val parsedItem = VocabularyItem(id = 0, word = "Hallo", translation = "Hello", isNew = true)
             val parser =
@@ -516,7 +528,9 @@ class SettingsViewModelTest {
 
                     override fun parse(file: File): List<VocabularyItem> = listOf(parsedItem)
                 }
-            coEvery { vocabularyRepository.addVocabularyItem(any()) } returns Unit
+            coEvery { vocabularyDao.getMaxPosition() } returns 0L
+            coEvery { vocabularyDao.getVocabularyByWords(any()) } returns emptyList()
+            coEvery { vocabularyDao.applyImportBatch(any(), any()) } returns Unit
             val viewModel = buildViewModel(parsers = setOf(parser))
             val tempFile =
                 kotlin.io.path
@@ -530,11 +544,13 @@ class SettingsViewModelTest {
             advanceUntilIdle()
 
             assertThat(result).isEqualTo(VocabularyImportResult.Success(importedCount = 1))
-            coVerify { vocabularyRepository.addVocabularyItem(parsedItem) }
+            val toInsert = slot<List<VocabularyEntity>>()
+            coVerify { vocabularyDao.applyImportBatch(capture(toInsert), any()) }
+            assertThat(toInsert.captured.single().word).isEqualTo("Hallo")
         }
 
     @Test
-    fun `importVocabularyFromUri uses export parser to insert full entities`() =
+    fun `importVocabularyFromUri uses export parser to merge full entities via applyImportBatch`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val exportItem =
                 VocabularyExportItem(
@@ -560,7 +576,8 @@ class SettingsViewModelTest {
 
                     override fun parseExport(file: File): List<VocabularyExportItem> = listOf(exportItem)
                 }
-            coEvery { vocabularyDao.insertAllVocabulary(any()) } returns Unit
+            coEvery { vocabularyDao.getVocabularyByWords(any()) } returns emptyList()
+            coEvery { vocabularyDao.applyImportBatch(any(), any()) } returns Unit
             val viewModel = buildViewModel(parsers = setOf(parser))
             val tempFile =
                 kotlin.io.path
@@ -574,12 +591,11 @@ class SettingsViewModelTest {
             advanceUntilIdle()
 
             assertThat(result).isEqualTo(VocabularyImportResult.Success(importedCount = 1))
-            coVerify { vocabularyDao.insertAllVocabulary(any()) }
-            coVerify(exactly = 0) { vocabularyRepository.addVocabularyItem(any()) }
+            coVerify { vocabularyDao.applyImportBatch(any(), any()) }
         }
 
     @Test
-    fun `export then import json preserves all entity fields`() =
+    fun `export then import json into an empty library re-inserts with a fresh id`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val parser =
                 com.procrastilearn.app.data.parser.json
@@ -598,7 +614,8 @@ class SettingsViewModelTest {
                     fsrsDueAt = 333L,
                 )
             every { vocabularyDao.getAllVocabulary() } returns flowOf(listOf(entity))
-            coEvery { vocabularyDao.insertAllVocabulary(any()) } returns Unit
+            coEvery { vocabularyDao.getVocabularyByWords(any()) } returns emptyList()
+            coEvery { vocabularyDao.applyImportBatch(any(), any()) } returns Unit
 
             val tempFile =
                 kotlin.io.path
@@ -617,8 +634,8 @@ class SettingsViewModelTest {
 
             assertThat(importResult).isEqualTo(VocabularyImportResult.Success(importedCount = 1))
             val inserted = slot<List<VocabularyEntity>>()
-            coVerify { vocabularyDao.insertAllVocabulary(capture(inserted)) }
-            assertThat(inserted.captured).containsExactly(entity)
+            coVerify { vocabularyDao.applyImportBatch(capture(inserted), any()) }
+            assertThat(inserted.captured).containsExactly(entity.copy(id = 0L))
         }
 
     @Test
@@ -639,7 +656,7 @@ class SettingsViewModelTest {
             assertThat(result).isEqualTo(
                 VocabularyImportResult.Failure(VocabularyImportFailureReason.UNSUPPORTED_FORMAT),
             )
-            coVerify(exactly = 0) { vocabularyRepository.addVocabularyItem(any()) }
+            coVerify(exactly = 0) { vocabularyDao.applyImportBatch(any(), any()) }
         }
 
     @Test
@@ -670,6 +687,6 @@ class SettingsViewModelTest {
             assertThat(result).isEqualTo(
                 VocabularyImportResult.Failure(VocabularyImportFailureReason.PARSE_ERROR),
             )
-            coVerify(exactly = 0) { vocabularyRepository.addVocabularyItem(any()) }
+            coVerify(exactly = 0) { vocabularyDao.applyImportBatch(any(), any()) }
         }
 }

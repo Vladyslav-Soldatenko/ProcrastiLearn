@@ -2,6 +2,8 @@ package com.procrastilearn.app.domain.model
 
 enum class MixMode { MIX, REVIEWS_FIRST, NEW_FIRST }
 
+enum class NewCardOrder { RANDOM, SEQUENTIAL }
+
 enum class StudyDirectionMode { FORWARD, BACKWARD, BIDIRECTIONAL }
 
 val StudyDirectionMode.includesForward: Boolean get() = this != StudyDirectionMode.BACKWARD
@@ -15,4 +17,5 @@ data class LearningPreferencesConfig(
     val overlayInterval: Int = 6,
     val studyDirectionMode: StudyDirectionMode = StudyDirectionMode.FORWARD,
     val ratingDelaySeconds: Int = 0,
+    val newCardOrder: NewCardOrder = NewCardOrder.SEQUENTIAL,
 )

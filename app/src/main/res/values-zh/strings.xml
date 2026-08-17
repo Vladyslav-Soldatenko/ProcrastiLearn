@@ -147,6 +147,13 @@
     <string name="settings_study_mode_reviews_first_desc">先展示所有复习卡片，再展示新词</string>
     <string name="settings_study_mode_new_first_desc">先展示新词，再展示复习卡片</string>
 
+    <!-- New card order -->
+    <string name="settings_new_card_order_title">新卡片顺序</string>
+    <string name="settings_new_card_order_sequential">顺序</string>
+    <string name="settings_new_card_order_random">随机</string>
+    <string name="settings_new_card_order_sequential_desc">按导入顺序展示新卡片</string>
+    <string name="settings_new_card_order_random_desc">以随机顺序展示新卡片</string>
+
     <!-- Review direction -->
     <string name="settings_review_direction_title">复习方向</string>
     <string name="settings_review_direction_forward">正向</string>

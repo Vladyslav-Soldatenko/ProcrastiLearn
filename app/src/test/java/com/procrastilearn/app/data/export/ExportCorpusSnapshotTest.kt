@@ -68,6 +68,7 @@ internal fun VocabularyExportItem.stableRender(): String =
         "id: $id",
         "incorrectCount: $incorrectCount",
         "lastShownAt: ${lastShownAt ?: "null"}",
+        "position: $position",
         "translation: $translation",
         "word: $word",
     ).joinToString("\n")

@@ -1,6 +1,7 @@
 package com.procrastilearn.app.data.repository
 
 import androidx.room.withTransaction
+import com.procrastilearn.app.data.local.dao.MAX_SQLITE_BIND_ARGS
 import com.procrastilearn.app.data.local.dao.VocabularyFsrsStateRestore
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.UndoSnapshotEntity
@@ -10,6 +11,7 @@ import com.procrastilearn.app.data.local.mapper.toEntity
 import com.procrastilearn.app.data.local.mapper.toFsrsState
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirection
 import com.procrastilearn.app.domain.model.UndoResult
 import com.procrastilearn.app.domain.model.VocabularyItem
@@ -35,10 +37,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val UNDO_STACK_CAP = 3
-
-// SQLite's default SQLITE_MAX_VARIABLE_NUMBER is 999 on older Android versions; stay
-// comfortably under it when binding id lists for bulk operations.
-private const val MAX_SQLITE_BIND_ARGS = 900
 
 // How far past the first-ever review of a bidirectional card its other direction's due
 // date is seeded, so the just-answered card's opposite direction doesn't immediately
@@ -81,7 +79,12 @@ class VocabularyRepositoryImpl
                 // Keep FSRS card JSON, but leave dueAt as 0 until first rating.
                 val cardJson = Card.builder().build().toJson()
                 val dueAt = 0L
-                vocabularyDao.insertVocabulary(item.toEntity(fsrsCardJson = cardJson, fsrsDueAt = dueAt))
+                appDatabase.withTransaction {
+                    val position = vocabularyDao.getMaxPosition() + 1
+                    vocabularyDao.insertVocabulary(
+                        item.toEntity(fsrsCardJson = cardJson, fsrsDueAt = dueAt, position = position),
+                    )
+                }
             }
 
         override suspend fun updateVocabularyItem(item: VocabularyItem): Unit =
@@ -352,7 +355,11 @@ class VocabularyRepositoryImpl
 
                         // If we want a new now (ratio hit) or no reviews due, try new (within daily cap)
                         newRemaining > 0 && (wantNew || dueCount == 0) ->
-                            pickNewCandidate(totalNew = totalNew, backwardOnlyMode = backwardOnlyMode)
+                            pickNewCandidate(
+                                totalNew = totalNew,
+                                backwardOnlyMode = backwardOnlyMode,
+                                newCardOrder = policy.newCardOrder,
+                            )
 
                         // Don't fall back to random/upcoming if limits are reached
                         else -> null
@@ -427,13 +434,20 @@ class VocabularyRepositoryImpl
         private suspend fun pickNewCandidate(
             totalNew: Int,
             backwardOnlyMode: Boolean,
+            newCardOrder: NewCardOrder,
         ): PickedCandidate? {
             if (totalNew <= 0) return null
-            val offset = kotlin.random.Random.nextInt(totalNew)
             val id =
-                vocabularyReviewDao.pickNewIdByOffset(offset, requireBidirectional = backwardOnlyMode)
-                    ?: vocabularyReviewDao.pickNewIdByOffset(0, requireBidirectional = backwardOnlyMode)
-                    ?: return null
+                when (newCardOrder) {
+                    NewCardOrder.SEQUENTIAL -> {
+                        vocabularyReviewDao.pickNewIdByPositionAsc(requireBidirectional = backwardOnlyMode)
+                    }
+                    NewCardOrder.RANDOM -> {
+                        val offset = kotlin.random.Random.nextInt(totalNew)
+                        vocabularyReviewDao.pickNewIdByOffset(offset, requireBidirectional = backwardOnlyMode)
+                            ?: vocabularyReviewDao.pickNewIdByOffset(0, requireBidirectional = backwardOnlyMode)
+                    }
+                } ?: return null
             return PickedCandidate(id, if (backwardOnlyMode) StudyDirection.BACKWARD else StudyDirection.FORWARD)
         }
 

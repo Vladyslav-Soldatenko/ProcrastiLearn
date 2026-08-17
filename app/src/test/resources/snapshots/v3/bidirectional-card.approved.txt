@@ -12,6 +12,7 @@ fsrsDueAt: 1785011789260
 id: 1
 incorrectCount: 0
 lastShownAt: 1785011459260
+position: 0
 translation: house
 word: haus
 
@@ -29,5 +30,6 @@ fsrsDueAt: 1785012060386
 id: 2
 incorrectCount: 1
 lastShownAt: 1785011460386
+position: 0
 translation: бігати
 word: run

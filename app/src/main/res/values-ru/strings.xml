@@ -159,6 +159,13 @@
         <string name="settings_study_mode_reviews_first_desc">Показывать все повторения перед новыми карточками</string>
         <string name="settings_study_mode_new_first_desc">Показывать новые карточки перед повторениями</string>
 
+        <!-- New card order -->
+        <string name="settings_new_card_order_title">Порядок новых карточек</string>
+        <string name="settings_new_card_order_sequential">По порядку</string>
+        <string name="settings_new_card_order_random">Случайный</string>
+        <string name="settings_new_card_order_sequential_desc">Показывать новые карточки в порядке импорта</string>
+        <string name="settings_new_card_order_random_desc">Показывать новые карточки в случайном порядке</string>
+
         <!-- Review direction -->
         <string name="settings_review_direction_title">Направление повторения</string>
         <string name="settings_review_direction_forward">Прямое</string>

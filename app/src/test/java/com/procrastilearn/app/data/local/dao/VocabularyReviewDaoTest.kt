@@ -20,6 +20,7 @@ class VocabularyReviewDaoTest {
     private lateinit var database: AppDatabase
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var dao: VocabularyReviewDao
+    private var nextTestPosition = 1L
 
     @Before
     fun setup() {
@@ -48,6 +49,7 @@ class VocabularyReviewDaoTest {
         incorrectCount: Int = 0,
         backwardCorrectCount: Int = 0,
         backwardIncorrectCount: Int = 0,
+        position: Long = nextTestPosition++,
     ): Long =
         vocabularyDao.insertVocabulary(
             VocabularyEntity(
@@ -60,6 +62,7 @@ class VocabularyReviewDaoTest {
                 incorrectCount = incorrectCount,
                 backwardCorrectCount = backwardCorrectCount,
                 backwardIncorrectCount = backwardIncorrectCount,
+                position = position,
             ),
         )
 
@@ -88,6 +91,42 @@ class VocabularyReviewDaoTest {
             insert("a", bidirectional = false)
 
             assertThat(dao.pickNewIdByOffset(5, requireBidirectional = false)).isNull()
+        }
+
+    @Test
+    fun `pickNewIdByPositionAsc returns the lowest-position new row`() =
+        runTest {
+            insert("late", position = 500L)
+            val early = insert("early", position = 10L)
+            insert("mid", position = 100L)
+
+            assertThat(dao.pickNewIdByPositionAsc()).isEqualTo(early)
+        }
+
+    @Test
+    fun `pickNewIdByPositionAsc ignores rows that are no longer new`() =
+        runTest {
+            insert("reviewed", position = 1L, fsrsDueAt = 1000L)
+            val stillNew = insert("new", position = 2L)
+
+            assertThat(dao.pickNewIdByPositionAsc()).isEqualTo(stillNew)
+        }
+
+    @Test
+    fun `pickNewIdByPositionAsc with requireBidirectional true never returns a bidirectional false row`() =
+        runTest {
+            insert("a", bidirectional = false, position = 0L)
+            val b = insert("b", bidirectional = true, position = 999L)
+
+            assertThat(dao.pickNewIdByPositionAsc(requireBidirectional = true)).isEqualTo(b)
+        }
+
+    @Test
+    fun `pickNewIdByPositionAsc returns null when there are no new rows`() =
+        runTest {
+            insert("reviewed", fsrsDueAt = 1000L)
+
+            assertThat(dao.pickNewIdByPositionAsc()).isNull()
         }
 
     @Test

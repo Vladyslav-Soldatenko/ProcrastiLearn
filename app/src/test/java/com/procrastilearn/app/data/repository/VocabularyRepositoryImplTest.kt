@@ -48,6 +48,7 @@ class VocabularyRepositoryImplTest {
     private lateinit var scheduler: Scheduler
     private lateinit var undoSnapshotDao: UndoSnapshotDao
     private lateinit var repository: VocabularyRepositoryImpl
+    private var nextTestPosition = 1L
 
     @Before
     fun setup() {
@@ -106,6 +107,7 @@ class VocabularyRepositoryImplTest {
                 correctCount = correctCount,
                 incorrectCount = incorrectCount,
                 lastShownAt = lastShownAt,
+                position = nextTestPosition++,
             ),
         )
 
@@ -292,6 +294,7 @@ class VocabularyRepositoryImplTest {
                 incorrectCount = incorrectCount,
                 backwardCorrectCount = backwardCorrectCount,
                 backwardIncorrectCount = backwardIncorrectCount,
+                position = nextTestPosition++,
             ),
         )
 

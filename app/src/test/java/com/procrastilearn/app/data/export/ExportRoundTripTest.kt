@@ -120,6 +120,7 @@ internal fun randomItem(
         backwardIncorrectCount = random.nextInt(MAX_REVIEW_COUNT),
         backwardPromptOverride = if (random.nextBoolean()) "prompt-${random.nextInt(MAX_WORD_SUFFIX)}" else null,
         backwardAnswerOverride = if (random.nextBoolean()) "answer-${random.nextInt(MAX_WORD_SUFFIX)}" else null,
+        position = random.nextLong(MAX_TIMESTAMP),
     )
 
 internal fun typicalItemJson(item: VocabularyExportItem): JsonObject =
@@ -140,6 +141,7 @@ internal fun typicalItemJson(item: VocabularyExportItem): JsonObject =
         put("backwardIncorrectCount", JsonPrimitive(item.backwardIncorrectCount))
         put("backwardPromptOverride", item.backwardPromptOverride?.let { JsonPrimitive(it) } ?: JsonNull)
         put("backwardAnswerOverride", item.backwardAnswerOverride?.let { JsonPrimitive(it) } ?: JsonNull)
+        put("position", JsonPrimitive(item.position))
     }
 
 @OptIn(ExperimentalSerializationApi::class)

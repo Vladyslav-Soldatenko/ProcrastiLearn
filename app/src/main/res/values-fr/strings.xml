@@ -162,6 +162,13 @@
     <string name="settings_study_mode_reviews_first_desc">Afficher toutes les révisions avant les nouvelles cartes</string>
     <string name="settings_study_mode_new_first_desc">Afficher les nouvelles cartes avant les révisions</string>
 
+    <!-- New card order -->
+    <string name="settings_new_card_order_title">Ordre des nouvelles cartes</string>
+    <string name="settings_new_card_order_sequential">Séquentiel</string>
+    <string name="settings_new_card_order_random">Aléatoire</string>
+    <string name="settings_new_card_order_sequential_desc">Afficher les nouvelles cartes dans l’ordre d’importation</string>
+    <string name="settings_new_card_order_random_desc">Afficher les nouvelles cartes dans un ordre aléatoire</string>
+
     <!-- Review direction -->
     <string name="settings_review_direction_title">Sens de révision</string>
     <string name="settings_review_direction_forward">Direct</string>

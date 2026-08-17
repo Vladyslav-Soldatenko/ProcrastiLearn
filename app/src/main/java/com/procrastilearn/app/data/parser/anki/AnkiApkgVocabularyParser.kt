@@ -21,6 +21,18 @@ private val IMG_TAG_REGEX = Regex("""<img\b[^>]*>""", RegexOption.IGNORE_CASE)
 private val SOUND_TAG_REGEX = Regex("""\[sound:[^]]*]""", RegexOption.IGNORE_CASE)
 private val FIELD_REFERENCE_REGEX = Regex("""\{\{([^{}]+)\}\}""")
 
+private val NOTE_ORDER_QUERY =
+    """
+    SELECT mid, flds FROM (
+        SELECT n.id AS note_id, n.mid AS mid, n.flds AS flds,
+               MIN(CASE WHEN c.type = 0 THEN c.due END) AS min_new_due
+        FROM notes n
+        LEFT JOIN cards c ON c.nid = n.id
+        GROUP BY n.id
+    )
+    ORDER BY (min_new_due IS NULL) ASC, min_new_due ASC, note_id ASC
+    """.trimIndent()
+
 class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
     override val id: String = "apkg"
 
@@ -158,7 +170,7 @@ class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
         val database = SQLiteDatabase.openDatabase(databaseFile.path, null, SQLiteDatabase.OPEN_READONLY)
         return database.use { db ->
             val noteModelsByMid = readNoteModelsByMid(db)
-            db.rawQuery("SELECT mid, flds FROM notes", null).use { cursor ->
+            db.rawQuery(NOTE_ORDER_QUERY, null).use { cursor ->
                 buildList {
                     while (cursor.moveToNext()) {
                         val mid = cursor.getLong(0)

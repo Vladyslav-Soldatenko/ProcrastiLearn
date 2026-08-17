@@ -78,3 +78,18 @@ val MIGRATION_3_4 =
             db.execSQL("ALTER TABLE `undo_snapshot` ADD COLUMN `backwardIncorrectCount` INTEGER NOT NULL DEFAULT 0")
         }
     }
+
+val MIGRATION_4_5 =
+    object : Migration(4, 5) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `vocabulary` ADD COLUMN `position` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("UPDATE `vocabulary` SET `position` = `id`")
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_vocabulary_fsrsDueAt_backwardFsrsDueAt_position` " +
+                    "ON `vocabulary` (`fsrsDueAt`, `backwardFsrsDueAt`, `position`)",
+            )
+            db.execSQL(
+                "CREATE UNIQUE INDEX IF NOT EXISTS `index_vocabulary_position` ON `vocabulary` (`position`)",
+            )
+        }
+    }

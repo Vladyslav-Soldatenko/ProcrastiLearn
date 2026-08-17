@@ -41,6 +41,7 @@ class VocabularyRepositoryGetNextItemTest {
     private lateinit var dayCountersStore: DayCountersStore
     private lateinit var scheduler: Scheduler
     private lateinit var repository: VocabularyRepositoryImpl
+    private var nextTestPosition = 1L
 
     @Before
     fun setup() {
@@ -92,6 +93,7 @@ class VocabularyRepositoryGetNextItemTest {
                 correctCount = correctCount,
                 incorrectCount = incorrectCount,
                 lastShownAt = lastShownAt,
+                position = nextTestPosition++,
             ),
         )
 

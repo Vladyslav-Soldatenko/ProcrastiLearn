@@ -1,0 +1,60 @@
+package com.procrastilearn.app.ui.screens.settings.components
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.procrastilearn.app.R
+import com.procrastilearn.app.domain.model.NewCardOrder
+
+@Composable
+fun NewCardOrderSettingsItem(
+    newCardOrder: NewCardOrder,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val orderText =
+        when (newCardOrder) {
+            NewCardOrder.SEQUENTIAL -> stringResource(R.string.settings_new_card_order_sequential)
+            NewCardOrder.RANDOM -> stringResource(R.string.settings_new_card_order_random)
+        }
+
+    ListItem(
+        headlineContent = { Text(stringResource(R.string.settings_new_card_order_title)) },
+        supportingContent = {
+            Text(
+                orderText,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        },
+        leadingContent = {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.Sort,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        trailingContent = {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        modifier =
+            modifier
+                .clickable { onClick() }
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .fillMaxWidth(),
+    )
+}

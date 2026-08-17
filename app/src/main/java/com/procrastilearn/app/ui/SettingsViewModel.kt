@@ -12,6 +12,7 @@ import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
 import com.procrastilearn.app.data.local.prefs.TranslationPreferences
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,6 +33,7 @@ data class SettingsUiState(
     val reviewPerDay: Int = 100,
     val overlayInterval: Int = 6,
     val ratingDelaySeconds: Int = 0,
+    val newCardOrder: NewCardOrder = NewCardOrder.SEQUENTIAL,
     val openAiApiKey: String? = null,
     val openAiPrompt: String = OpenAiPromptDefaults.translationPrompt,
     val openAiReversePrompt: String = OpenAiPromptDefaults.reverseTranslationPrompt,
@@ -64,6 +66,7 @@ class SettingsViewModel
                         reviewPerDay = policy.reviewPerDay,
                         overlayInterval = policy.overlayInterval,
                         ratingDelaySeconds = policy.ratingDelaySeconds,
+                        newCardOrder = policy.newCardOrder,
                         openAiApiKey = apiKey,
                         openAiPrompt = prompt,
                         openAiReversePrompt = reversePrompt,
@@ -123,6 +126,10 @@ class SettingsViewModel
 
         fun onRatingDelayChange(value: Int) {
             viewModelScope.launch { dayCountersStore.setRatingDelaySeconds(value) }
+        }
+
+        fun onNewCardOrderChange(order: NewCardOrder) {
+            viewModelScope.launch { dayCountersStore.setNewCardOrder(order) }
         }
 
         fun onOpenAiApiKeyChange(value: String) {

@@ -1,0 +1,379 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 5,
+    "identityHash": "d4a6f34c49cf9e9bed103ea5d901b920",
+    "entities": [
+      {
+        "tableName": "vocabulary",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `word` TEXT NOT NULL COLLATE NOCASE, `translation` TEXT NOT NULL COLLATE NOCASE, `createdAt` INTEGER NOT NULL, `lastShownAt` INTEGER, `correctCount` INTEGER NOT NULL, `incorrectCount` INTEGER NOT NULL, `fsrsCardJson` TEXT NOT NULL, `fsrsDueAt` INTEGER NOT NULL, `bidirectional` INTEGER NOT NULL, `backwardFsrsCardJson` TEXT NOT NULL, `backwardFsrsDueAt` INTEGER NOT NULL, `backwardCorrectCount` INTEGER NOT NULL, `backwardIncorrectCount` INTEGER NOT NULL, `backwardPromptOverride` TEXT, `backwardAnswerOverride` TEXT, `position` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "word",
+            "columnName": "word",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "translation",
+            "columnName": "translation",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastShownAt",
+            "columnName": "lastShownAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "correctCount",
+            "columnName": "correctCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "incorrectCount",
+            "columnName": "incorrectCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fsrsCardJson",
+            "columnName": "fsrsCardJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fsrsDueAt",
+            "columnName": "fsrsDueAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bidirectional",
+            "columnName": "bidirectional",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "backwardFsrsCardJson",
+            "columnName": "backwardFsrsCardJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "backwardFsrsDueAt",
+            "columnName": "backwardFsrsDueAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "backwardCorrectCount",
+            "columnName": "backwardCorrectCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "backwardIncorrectCount",
+            "columnName": "backwardIncorrectCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "backwardPromptOverride",
+            "columnName": "backwardPromptOverride",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "backwardAnswerOverride",
+            "columnName": "backwardAnswerOverride",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_vocabulary_fsrsDueAt",
+            "unique": false,
+            "columnNames": [
+              "fsrsDueAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_vocabulary_fsrsDueAt` ON `${TABLE_NAME}` (`fsrsDueAt`)"
+          },
+          {
+            "name": "index_vocabulary_correctCount_incorrectCount",
+            "unique": false,
+            "columnNames": [
+              "correctCount",
+              "incorrectCount"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_vocabulary_correctCount_incorrectCount` ON `${TABLE_NAME}` (`correctCount`, `incorrectCount`)"
+          },
+          {
+            "name": "index_vocabulary_word",
+            "unique": true,
+            "columnNames": [
+              "word"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_vocabulary_word` ON `${TABLE_NAME}` (`word`)"
+          },
+          {
+            "name": "index_vocabulary_backwardFsrsDueAt",
+            "unique": false,
+            "columnNames": [
+              "backwardFsrsDueAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_vocabulary_backwardFsrsDueAt` ON `${TABLE_NAME}` (`backwardFsrsDueAt`)"
+          },
+          {
+            "name": "index_vocabulary_fsrsDueAt_backwardFsrsDueAt",
+            "unique": false,
+            "columnNames": [
+              "fsrsDueAt",
+              "backwardFsrsDueAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_vocabulary_fsrsDueAt_backwardFsrsDueAt` ON `${TABLE_NAME}` (`fsrsDueAt`, `backwardFsrsDueAt`)"
+          },
+          {
+            "name": "index_vocabulary_fsrsDueAt_backwardFsrsDueAt_position",
+            "unique": false,
+            "columnNames": [
+              "fsrsDueAt",
+              "backwardFsrsDueAt",
+              "position"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_vocabulary_fsrsDueAt_backwardFsrsDueAt_position` ON `${TABLE_NAME}` (`fsrsDueAt`, `backwardFsrsDueAt`, `position`)"
+          },
+          {
+            "name": "index_vocabulary_position",
+            "unique": true,
+            "columnNames": [
+              "position"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_vocabulary_position` ON `${TABLE_NAME}` (`position`)"
+          }
+        ]
+      },
+      {
+        "tableName": "pending_words",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `word` TEXT NOT NULL COLLATE NOCASE, `direction` TEXT NOT NULL, `createdAt` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "word",
+            "columnName": "word",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "direction",
+            "columnName": "direction",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_pending_words_word",
+            "unique": true,
+            "columnNames": [
+              "word"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_pending_words_word` ON `${TABLE_NAME}` (`word`)"
+          }
+        ]
+      },
+      {
+        "tableName": "undo_snapshot",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `vocabId` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `snapshotDay` INTEGER NOT NULL, `ratingName` TEXT NOT NULL, `direction` TEXT NOT NULL, `fsrsCardJson` TEXT NOT NULL, `fsrsDueAt` INTEGER NOT NULL, `lastShownAt` INTEGER, `correctCount` INTEGER NOT NULL, `incorrectCount` INTEGER NOT NULL, `backwardFsrsCardJson` TEXT NOT NULL, `backwardFsrsDueAt` INTEGER NOT NULL, `backwardCorrectCount` INTEGER NOT NULL, `backwardIncorrectCount` INTEGER NOT NULL, `newShown` INTEGER NOT NULL, `reviewShown` INTEGER NOT NULL, `reviewsSinceLastNew` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vocabId",
+            "columnName": "vocabId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "snapshotDay",
+            "columnName": "snapshotDay",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ratingName",
+            "columnName": "ratingName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "direction",
+            "columnName": "direction",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fsrsCardJson",
+            "columnName": "fsrsCardJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fsrsDueAt",
+            "columnName": "fsrsDueAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastShownAt",
+            "columnName": "lastShownAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "correctCount",
+            "columnName": "correctCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "incorrectCount",
+            "columnName": "incorrectCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "backwardFsrsCardJson",
+            "columnName": "backwardFsrsCardJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "backwardFsrsDueAt",
+            "columnName": "backwardFsrsDueAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "backwardCorrectCount",
+            "columnName": "backwardCorrectCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "backwardIncorrectCount",
+            "columnName": "backwardIncorrectCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "newShown",
+            "columnName": "newShown",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reviewShown",
+            "columnName": "reviewShown",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reviewsSinceLastNew",
+            "columnName": "reviewsSinceLastNew",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_undo_snapshot_vocabId",
+            "unique": false,
+            "columnNames": [
+              "vocabId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_undo_snapshot_vocabId` ON `${TABLE_NAME}` (`vocabId`)"
+          },
+          {
+            "name": "index_undo_snapshot_createdAt",
+            "unique": false,
+            "columnNames": [
+              "createdAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_undo_snapshot_createdAt` ON `${TABLE_NAME}` (`createdAt`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd4a6f34c49cf9e9bed103ea5d901b920')"
+    ]
+  }
+}

@@ -162,6 +162,13 @@
     <string name="settings_study_mode_reviews_first_desc">Muestra todos los repasos antes que las tarjetas nuevas</string>
     <string name="settings_study_mode_new_first_desc">Muestra las tarjetas nuevas antes que los repasos</string>
 
+    <!-- New card order -->
+    <string name="settings_new_card_order_title">Orden de tarjetas nuevas</string>
+    <string name="settings_new_card_order_sequential">Secuencial</string>
+    <string name="settings_new_card_order_random">Aleatorio</string>
+    <string name="settings_new_card_order_sequential_desc">Mostrar las tarjetas nuevas en el orden en que se importaron</string>
+    <string name="settings_new_card_order_random_desc">Mostrar las tarjetas nuevas en orden aleatorio</string>
+
     <!-- Review direction -->
     <string name="settings_review_direction_title">Dirección del repaso</string>
     <string name="settings_review_direction_forward">Directa</string>

@@ -20,10 +20,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.procrastilearn.app.MainActivity
 import com.procrastilearn.app.R
-import com.procrastilearn.app.data.local.entity.VocabularyEntity
-import com.procrastilearn.app.data.local.mapper.toDomain
+import com.procrastilearn.app.data.repository.todayStamp
 import com.procrastilearn.app.di.DatabaseEntryPoint
-import com.procrastilearn.app.domain.model.VocabularyItem
+import com.procrastilearn.app.di.PreferencesEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -31,14 +30,13 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class SettingsAnkiImportE2eTest {
+class AnkiImportOrderE2eTest {
     @get:Rule(order = 0)
     val intentsRule = IntentsRule()
 
@@ -57,16 +55,16 @@ class SettingsAnkiImportE2eTest {
         instrumentation = InstrumentationRegistry.getInstrumentation()
         targetContext = instrumentation.targetContext
         instrumentationContext = instrumentation.context
-        resetDatabase()
+        resetAppState()
     }
 
     @After
     fun afterEach() {
-        resetDatabase()
+        resetAppState()
     }
 
     @Test
-    fun importAnkiDeck_addsVocabularyItems() {
+    fun importAnkiDeck_preservesOriginalDeckOrder() {
         val deckUri = stagedDeckUri()
         prepareDocumentPickerResponse(deckUri)
 
@@ -75,43 +73,82 @@ class SettingsAnkiImportE2eTest {
         openImportAndSelectAnki()
 
         composeTestRule.waitUntil(timeoutMillis = TIMEOUT_IMPORT_MS) {
-            runBlocking { hasImportedExpectedItems() }
-        }
-        val actualItems = runBlocking { loadImportedItems() }
-
-        val actualByWord = actualItems.associateBy { it.word }
-
-        expectedVocabularyItems.forEach { expected ->
-            val actual = actualByWord[expected.word]
-            assertNotNull("Expected word ${expected.word} to be imported", actual)
-            assertEquals(
-                "Mismatch for imported word ${expected.word}",
-                expected.translation,
-                actual!!.translation,
-            )
-            assertEquals(
-                "Imported word ${expected.word} should be marked as new",
-                true,
-                actual.isNew,
-            )
+            runBlocking { importedCount() == EXPECTED_NOTE_COUNT }
         }
 
-        val actualOrder = runBlocking { loadImportedEntitiesOrderedByPosition() }.map { it.word }
+        val ranksInPositionOrder = runBlocking { loadRanksOrderedByPosition() }
         assertEquals(
             "Imported rows should be ordered by Anki's own new-card position (cards.due), " +
                 "not arbitrary insertion order",
-            expectedWordOrder,
-            actualOrder,
+            (1..EXPECTED_NOTE_COUNT).toList(),
+            ranksInPositionOrder,
         )
     }
 
-    private fun resetDatabase() {
+    @Test
+    fun importAnkiDeck_dojoServesNewCardsInPreservedOrder() {
+        val deckUri = stagedDeckUri()
+        prepareDocumentPickerResponse(deckUri)
+
+        composeTestRule.dismissOnboardingIfPresent(targetContext)
+        navigateToSettings()
+        openImportAndSelectAnki()
+
+        composeTestRule.waitUntil(timeoutMillis = TIMEOUT_IMPORT_MS) {
+            runBlocking { importedCount() == EXPECTED_NOTE_COUNT }
+        }
+
+        allowExactlyTodaysNewCardQuota(EXPECTED_NOTE_COUNT)
+        navigateToDojo()
+
+        val showTranslationLabel = targetContext.getString(R.string.learning_show_translation)
+        val ratingGoodLabel = targetContext.getString(R.string.rating_good)
+
+        expectedWordOrder.forEach { word ->
+            composeTestRule.waitUntilNodeExists(hasText(showTranslationLabel), DEFAULT_TIMEOUT_MS)
+            composeTestRule.onNodeWithText(showTranslationLabel).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.waitUntilNodeExists(hasText("Word: $word", substring = true), DEFAULT_TIMEOUT_MS)
+
+            composeTestRule.onNodeWithText(ratingGoodLabel).performClick()
+        }
+
+        composeTestRule.waitUntilNodeExists(
+            hasText(targetContext.getString(R.string.dojo_empty_title)),
+            DEFAULT_TIMEOUT_MS,
+        )
+    }
+
+    private fun resetAppState() {
         val entryPoint = databaseEntryPoint()
+        val prefsEntryPoint = preferencesEntryPoint()
         runBlocking {
             withContext(Dispatchers.IO) {
                 entryPoint.appDatabase().vocabularyDao().deleteAllVocabulary()
+                prefsEntryPoint.dayCountersStore().resetFor(todayStamp())
+                prefsEntryPoint.dayCountersStore().setNewPerDay(DEFAULT_NEW_PER_DAY)
             }
         }
+    }
+
+    private fun allowExactlyTodaysNewCardQuota(count: Int) {
+        runBlocking {
+            withContext(Dispatchers.IO) {
+                val store = preferencesEntryPoint().dayCountersStore()
+                store.resetFor(todayStamp())
+                store.setNewPerDay(count)
+            }
+        }
+    }
+
+    private fun navigateToDojo() {
+        val dojoLabel = targetContext.getString(R.string.nav_dojo)
+        composeTestRule.waitUntilNodeExists(hasText(dojoLabel), DEFAULT_TIMEOUT_MS)
+        composeTestRule
+            .onNodeWithContentDescription(dojoLabel, useUnmergedTree = true)
+            .performClick()
+        composeTestRule.waitForIdle()
     }
 
     private fun stagedDeckUri(): Uri =
@@ -162,17 +199,17 @@ class SettingsAnkiImportE2eTest {
         composeTestRule.onNodeWithText(ankiOption, useUnmergedTree = true).performClick()
     }
 
-    private suspend fun loadImportedItems(): List<VocabularyItem> =
+    private suspend fun importedCount(): Int =
         withContext(Dispatchers.IO) {
             databaseEntryPoint()
                 .appDatabase()
                 .vocabularyDao()
                 .getAllVocabulary()
                 .first()
-                .map { it.toDomain() }
+                .size
         }
 
-    private suspend fun loadImportedEntitiesOrderedByPosition(): List<VocabularyEntity> =
+    private suspend fun loadRanksOrderedByPosition(): List<Int> =
         withContext(Dispatchers.IO) {
             databaseEntryPoint()
                 .appDatabase()
@@ -180,68 +217,53 @@ class SettingsAnkiImportE2eTest {
                 .getAllVocabulary()
                 .first()
                 .sortedBy { it.position }
+                .map { entity ->
+                    requireNotNull(RANK_REGEX.find(entity.translation)) {
+                        "Expected a \"Rank: N\" field in translation but got: ${entity.translation}"
+                    }.groupValues[1].toInt()
+                }
         }
-
-    private suspend fun hasImportedExpectedItems(): Boolean {
-        val actualWords = loadImportedItems().map { it.word }.toSet()
-        return expectedVocabularyItems.all { it.word in actualWords }
-    }
 
     private fun databaseEntryPoint(): DatabaseEntryPoint =
         EntryPointAccessors.fromApplication(targetContext.applicationContext, DatabaseEntryPoint::class.java)
 
+    private fun preferencesEntryPoint(): PreferencesEntryPoint =
+        EntryPointAccessors.fromApplication(targetContext.applicationContext, PreferencesEntryPoint::class.java)
+
     private companion object {
-        private const val DECK_FILE_NAME = "procrastilearn-test-deck.apkg"
+        private const val DECK_FILE_NAME = "English-German_Ordered_Deck.apkg"
+        private const val EXPECTED_NOTE_COUNT = 20
         private const val DEFAULT_TIMEOUT_MS = 50_000L
         private const val TIMEOUT_IMPORT_MS = 50_000L
         private const val ROW_TIMEOUT_MS = 10_000L
         private const val ANKI_MIME_TYPE = "application/apkg"
 
-        // Matches the fixture's cards.due (type=0) values: test2=276, TestTitle=8475,
-        // bold...=8475 (ties with TestTitle, loses on note id), agree=8476.
+        private const val DEFAULT_NEW_PER_DAY = 15
+
+        private val RANK_REGEX = Regex("""Rank: (\d+)""")
+
         private val expectedWordOrder =
             listOf(
-                "test2",
-                "TestTitle",
-                "bold italic underline superscript subscript difCollor textHighlight",
-                listOf("agree", "əˈɡriː").joinToString(separator = "\n"),
-            )
-
-        private val expectedVocabularyItems =
-            listOf(
-                VocabularyItem(
-                    word = "TestTitle",
-                    translation = "testBack description",
-                    isNew = true,
-                ),
-                VocabularyItem(
-                    word = "test2",
-                    translation = "test description2",
-                    isNew = true,
-                ),
-                VocabularyItem(
-                    word = "bold italic underline superscript subscript difCollor textHighlight",
-                    translation =
-                        listOf(
-                            "bold italic underline superscript subscript difCollor textHighlight ",
-                            "",
-                            "ul1",
-                            "ul2",
-                            "",
-                            "ol1",
-                            "ol2",
-                        ).joinToString(separator = "\n"),
-                    isNew = true,
-                ),
-                VocabularyItem(
-                    word = listOf("agree", "əˈɡriː").joinToString(separator = "\n"),
-                    translation =
-                        listOf(
-                            "Meaning: To agree is to have the same opinion or belief as another person.",
-                            "Example: The students agree they have too much homework.",
-                        ).joinToString(separator = "\n"),
-                    isNew = true,
-                ),
+                "der",
+                "und",
+                "in",
+                "sein, ist, war, ist gewesen",
+                "ein",
+                "haben, hat, hatte, hat gehabt",
+                "sie",
+                "werden, wird, wurde, ist geworden",
+                "von",
+                "ich",
+                "nicht",
+                "es",
+                "mit",
+                "sich",
+                "er",
+                "auf",
+                "für",
+                "auch",
+                "an",
+                "dass",
             )
     }
 }

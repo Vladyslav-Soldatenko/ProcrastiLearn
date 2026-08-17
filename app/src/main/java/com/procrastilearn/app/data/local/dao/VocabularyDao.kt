@@ -5,10 +5,12 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import kotlinx.coroutines.flow.Flow
 
+@Suppress("TooManyFunctions")
 @Dao
 interface VocabularyDao {
     // Existing
@@ -27,14 +29,40 @@ interface VocabularyDao {
     )
     suspend fun getVocabularyByWord(word: String): VocabularyEntity?
 
+    @Query(
+        """
+        SELECT * FROM vocabulary
+        WHERE word COLLATE NOCASE IN (:words)
+        """,
+    )
+    suspend fun getVocabularyByWords(words: List<String>): List<VocabularyEntity>
+
+    @Query("SELECT COALESCE(MAX(position), 0) FROM vocabulary")
+    suspend fun getMaxPosition(): Long
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertVocabulary(item: VocabularyEntity): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insertAllVocabulary(items: List<VocabularyEntity>)
 
     @Update
     suspend fun updateVocabulary(item: VocabularyEntity)
+
+    @Update
+    suspend fun updateAllVocabulary(items: List<VocabularyEntity>)
+
+    @Transaction
+    suspend fun applyImportBatch(
+        toInsert: List<VocabularyEntity>,
+        toUpdate: List<VocabularyEntity>,
+    ) {
+        if (toInsert.isNotEmpty()) {
+            var nextPosition = getMaxPosition() + 1
+            insertAllVocabulary(toInsert.map { it.copy(position = nextPosition++) })
+        }
+        if (toUpdate.isNotEmpty()) updateAllVocabulary(toUpdate)
+    }
 
     @Delete
     suspend fun deleteVocabulary(item: VocabularyEntity)

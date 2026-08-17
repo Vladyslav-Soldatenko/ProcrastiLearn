@@ -21,6 +21,7 @@ class VocabularyStatsDaoTest {
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var reviewDao: VocabularyReviewDao
     private lateinit var dao: VocabularyStatsDao
+    private var nextTestPosition = 1L
 
     @Before
     fun setup() {
@@ -54,6 +55,7 @@ class VocabularyStatsDaoTest {
                 bidirectional = bidirectional,
                 fsrsDueAt = fsrsDueAt,
                 backwardFsrsDueAt = backwardFsrsDueAt,
+                position = nextTestPosition++,
             ),
         )
 
