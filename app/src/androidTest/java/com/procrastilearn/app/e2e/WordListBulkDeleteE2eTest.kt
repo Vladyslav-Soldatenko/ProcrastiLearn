@@ -162,11 +162,13 @@ class WordListBulkDeleteE2eTest {
     ): Long =
         runBlocking {
             withContext(Dispatchers.IO) {
-                entryPoint().appDatabase().vocabularyDao().insertVocabulary(
+                val dao = entryPoint().appDatabase().vocabularyDao()
+                dao.insertVocabulary(
                     VocabularyEntity(
                         word = word,
                         translation = translation,
                         fsrsCardJson = "",
+                        position = dao.getMaxPosition() + 1,
                     ),
                 )
             }
