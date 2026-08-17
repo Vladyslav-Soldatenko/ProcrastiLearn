@@ -63,6 +63,44 @@ class AnkiApkgVocabularyParserTest {
     }
 
     @Test
+    fun `parses the ordered deck fixture with German words in the deck's due order`() {
+        val deckFile = loadResource("import/anki/English-German_Ordered_Deck.apkg")
+
+        val result = parser.parse(deckFile)
+
+        val germanWords =
+            result.map { item ->
+                item.translation
+                    .lineSequence()
+                    .first { it.startsWith("Word: ") }
+                    .removePrefix("Word: ")
+            }
+        assertThat(germanWords)
+            .containsExactly(
+                "der",
+                "und",
+                "in",
+                "sein, ist, war, ist gewesen",
+                "ein",
+                "haben, hat, hatte, hat gehabt",
+                "sie",
+                "werden, wird, wurde, ist geworden",
+                "von",
+                "ich",
+                "nicht",
+                "es",
+                "mit",
+                "sich",
+                "er",
+                "auf",
+                "für",
+                "auch",
+                "an",
+                "dass",
+            ).inOrder()
+    }
+
+    @Test
     fun `orders a note with multiple cards by the minimum due among its type=0 cards`() {
         val deckFile =
             buildSyntheticApkg(
