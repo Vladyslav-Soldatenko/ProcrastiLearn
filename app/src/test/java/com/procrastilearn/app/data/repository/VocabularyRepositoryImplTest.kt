@@ -96,6 +96,7 @@ class VocabularyRepositoryImplTest {
         correctCount: Int = 0,
         incorrectCount: Int = 0,
         lastShownAt: Long = 0L,
+        position: Long = nextTestPosition++,
     ): Long =
         vocabularyDao.insertVocabulary(
             VocabularyEntity(
@@ -107,7 +108,7 @@ class VocabularyRepositoryImplTest {
                 correctCount = correctCount,
                 incorrectCount = incorrectCount,
                 lastShownAt = lastShownAt,
-                position = nextTestPosition++,
+                position = position,
             ),
         )
 
@@ -487,6 +488,19 @@ class VocabularyRepositoryImplTest {
                 val reviewedItem = emission.first { it.word == "alt" }
                 assertThat(newItem.isNew).isTrue()
                 assertThat(reviewedItem.isNew).isFalse()
+                cancelAndConsumeRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `getAllVocabulary emits domain items ordered by position, not insertion order`() =
+        runTest {
+            insertTestVocabulary("inserted-first", "a", position = 20L)
+            insertTestVocabulary("inserted-second", "b", position = 10L)
+
+            repository.getAllVocabulary().test {
+                val words = awaitItem().map { it.word }
+                assertThat(words).containsExactly("inserted-second", "inserted-first").inOrder()
                 cancelAndConsumeRemainingEvents()
             }
         }

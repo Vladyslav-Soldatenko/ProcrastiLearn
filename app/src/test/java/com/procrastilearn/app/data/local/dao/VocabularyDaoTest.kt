@@ -7,6 +7,7 @@ import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -413,5 +414,79 @@ class VocabularyDaoTest {
             // also be rolled back, since it shared the same @Transaction as the failing one.
             assertThat(dao.getVocabularyByWord("Baum")).isNull()
             assertThat(dao.getVocabularyByWord("Haus")?.translation).isEqualTo("existing")
+        }
+
+    @Test
+    fun `getAllVocabulary returns rows ordered by position ascending, not insertion order`() =
+        runTest {
+            insert("first-inserted", position = 30L)
+            insert("second-inserted", position = 10L)
+            insert("third-inserted", position = 20L)
+
+            val words = dao.getAllVocabulary().first().map { it.word }
+
+            assertThat(words).containsExactly("second-inserted", "third-inserted", "first-inserted").inOrder()
+        }
+
+    @Test
+    fun `getAllVocabulary on an empty table emits an empty list`() =
+        runTest {
+            assertThat(dao.getAllVocabulary().first()).isEmpty()
+        }
+
+    @Test
+    fun `getAllVocabulary with a single row emits a single-element list`() =
+        runTest {
+            insert("Haus", position = 1L)
+
+            assertThat(dao.getAllVocabulary().first().map { it.word }).containsExactly("Haus")
+        }
+
+    @Test
+    fun `getAllVocabulary reflects a position update on the next collection`() =
+        runTest {
+            val movedId = insert("moved", position = 1L)
+            insert("anchor", position = 2L)
+
+            assertThat(dao.getAllVocabulary().first().map { it.word })
+                .containsExactly("moved", "anchor")
+                .inOrder()
+
+            dao.updateVocabulary(entityById(movedId).copy(position = 3L))
+
+            assertThat(dao.getAllVocabulary().first().map { it.word })
+                .containsExactly("anchor", "moved")
+                .inOrder()
+        }
+
+    @Test
+    fun `getAllVocabulary keeps remaining rows in position order after a middle row is deleted`() =
+        runTest {
+            insert("low", position = 1L)
+            val middleId = insert("middle", position = 2L)
+            insert("high", position = 3L)
+
+            dao.deleteVocabulary(entityById(middleId))
+
+            assertThat(dao.getAllVocabulary().first().map { it.word })
+                .containsExactly("low", "high")
+                .inOrder()
+        }
+
+    @Test
+    fun `getAllVocabulary orders by position even when that disagrees with both id and alphabetical order`() =
+        runTest {
+            // Insertion order (and thus id order) is z, a, m; alphabetical order is a, m, z;
+            // position order is m, z, a - all three orderings disagree, so only a genuine
+            // position-based ORDER BY can make this assertion pass.
+            insert("zzz-first-inserted", position = 30L)
+            insert("aaa-second-inserted", position = 10L)
+            insert("mmm-third-inserted", position = 5L)
+
+            val words = dao.getAllVocabulary().first().map { it.word }
+
+            assertThat(words)
+                .containsExactly("mmm-third-inserted", "aaa-second-inserted", "zzz-first-inserted")
+                .inOrder()
         }
 }
