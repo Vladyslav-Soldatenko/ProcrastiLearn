@@ -241,7 +241,8 @@ internal fun WordListContent(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+                    .padding(bottom = 16.dp)
+                    .testTag("word_list_search_field"),
             label = { Text(text = stringResource(R.string.word_list_search_label)) },
             placeholder = { Text(text = stringResource(R.string.word_list_search_placeholder)) },
             leadingIcon = {
