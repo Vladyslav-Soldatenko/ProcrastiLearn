@@ -33,6 +33,8 @@ class WordListSearchE2eTest {
 
     private lateinit var targetContext: Context
 
+    private var nextPosition = 1L
+
     @Before
     fun beforeEach() {
         targetContext = InstrumentationRegistry.getInstrumentation().targetContext
@@ -123,8 +125,6 @@ class WordListSearchE2eTest {
     }
 
     private fun itemTag(id: Long) = "word_list_item_$id"
-
-    private var nextPosition = 1L
 
     private fun seedWord(
         word: String,
