@@ -246,6 +246,7 @@ class OverlayE2eTest {
 
     private companion object {
         const val DEFAULT_TIMEOUT_MS = 15_000L
+
         // The installed-apps list is loaded via PackageManager.queryIntentActivities() plus a
         // per-app icon-load loop (AppRepositoryImpl.loadLaunchableApps()). On a cold emulator this
         // can be slow the first time it runs (odex/vdex verification of large system packages like
