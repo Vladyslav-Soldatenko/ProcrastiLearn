@@ -692,12 +692,14 @@ class WordListScreenTest {
     @Test
     fun `dragging the first row's handle to the end invokes onReorder with the fully reordered id list`() {
         setContent(words = words)
+        val handle = composeTestRule.onNodeWithTag("word_list_drag_handle_${words[0].id}")
 
-        composeTestRule.onNodeWithTag("word_list_drag_handle_${words[0].id}").performTouchInput {
-            down(center)
-            repeat(dragStepCount) { moveBy(Offset(0f, dragStepPx)) }
-            up()
+        handle.performTouchInput { down(center) }
+        repeat(dragStepCount) {
+            handle.performTouchInput { moveBy(Offset(0f, dragStepPx)) }
+            composeTestRule.waitForIdle()
         }
+        handle.performTouchInput { up() }
 
         verify(exactly = 1) { onReorder(listOf(words[1].id, words[2].id, words[0].id)) }
     }
@@ -705,13 +707,18 @@ class WordListScreenTest {
     @Test
     fun `a drag that returns to its starting position invokes onReorder with the original unchanged order`() {
         setContent(words = words)
+        val handle = composeTestRule.onNodeWithTag("word_list_drag_handle_${words[0].id}")
 
-        composeTestRule.onNodeWithTag("word_list_drag_handle_${words[0].id}").performTouchInput {
-            down(center)
-            repeat(dragStepCount) { moveBy(Offset(0f, dragStepPx)) }
-            repeat(dragStepCount) { moveBy(Offset(0f, -dragStepPx)) }
-            up()
+        handle.performTouchInput { down(center) }
+        repeat(dragStepCount) {
+            handle.performTouchInput { moveBy(Offset(0f, dragStepPx)) }
+            composeTestRule.waitForIdle()
         }
+        repeat(dragStepCount) {
+            handle.performTouchInput { moveBy(Offset(0f, -dragStepPx)) }
+            composeTestRule.waitForIdle()
+        }
+        handle.performTouchInput { up() }
 
         verify(exactly = 1) { onReorder(words.map { it.id }) }
     }
