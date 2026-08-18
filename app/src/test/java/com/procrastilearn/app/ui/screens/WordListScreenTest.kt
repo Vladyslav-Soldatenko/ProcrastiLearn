@@ -2,12 +2,14 @@ package com.procrastilearn.app.ui.screens
 
 import android.content.Context
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithText
@@ -38,8 +40,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class WordListScreenTest {
     private val composeTestRule = createComposeRule()
-    private val dragStepPx = 800f
-    private val dragStepCount = 40
+    private val dragStepCount = 10
 
     @get:Rule
     val rules: TestRule =
@@ -692,14 +693,8 @@ class WordListScreenTest {
     @Test
     fun `dragging the first row's handle to the end invokes onReorder with the fully reordered id list`() {
         setContent(words = words)
-        val handle = composeTestRule.onNodeWithTag("word_list_drag_handle_${words[0].id}")
 
-        handle.performTouchInput { down(center) }
-        repeat(dragStepCount) {
-            handle.performTouchInput { moveBy(Offset(0f, dragStepPx)) }
-            composeTestRule.waitForIdle()
-        }
-        handle.performTouchInput { up() }
+        dragHandleToItem(fromWordId = words[0].id, toItemWordId = words[2].id)
 
         verify(exactly = 1) { onReorder(listOf(words[1].id, words[2].id, words[0].id)) }
     }
@@ -708,19 +703,48 @@ class WordListScreenTest {
     fun `a drag that returns to its starting position invokes onReorder with the original unchanged order`() {
         setContent(words = words)
         val handle = composeTestRule.onNodeWithTag("word_list_drag_handle_${words[0].id}")
+        val stepDeltaY = stepDeltaYTowardItem(handle, targetItemWordId = words[2].id)
 
         handle.performTouchInput { down(center) }
         repeat(dragStepCount) {
-            handle.performTouchInput { moveBy(Offset(0f, dragStepPx)) }
+            handle.performTouchInput { moveBy(Offset(0f, stepDeltaY)) }
             composeTestRule.waitForIdle()
         }
         repeat(dragStepCount) {
-            handle.performTouchInput { moveBy(Offset(0f, -dragStepPx)) }
+            handle.performTouchInput { moveBy(Offset(0f, -stepDeltaY)) }
             composeTestRule.waitForIdle()
         }
         handle.performTouchInput { up() }
 
         verify(exactly = 1) { onReorder(words.map { it.id }) }
+    }
+
+    // Guessing a fixed pixel distance is unreliable across environments/densities, so this
+    // computes the real on-screen distance from the handle's current position to the target
+    // row's position (captured once, before the drag starts - items between the drag's start
+    // and its not-yet-reached target don't move until the drag actually reaches them).
+    private fun stepDeltaYTowardItem(
+        handleNode: SemanticsNodeInteraction,
+        targetItemWordId: Long,
+    ): Float {
+        val handleCenterY = handleNode.getBoundsInRoot().center.y
+        val targetCenterY = composeTestRule.onNodeWithTag("word_list_item_$targetItemWordId").getBoundsInRoot().center.y
+        return (targetCenterY - handleCenterY) / dragStepCount
+    }
+
+    private fun dragHandleToItem(
+        fromWordId: Long,
+        toItemWordId: Long,
+    ) {
+        val handle = composeTestRule.onNodeWithTag("word_list_drag_handle_$fromWordId")
+        val stepDeltaY = stepDeltaYTowardItem(handle, toItemWordId)
+
+        handle.performTouchInput { down(center) }
+        repeat(dragStepCount) {
+            handle.performTouchInput { moveBy(Offset(0f, stepDeltaY)) }
+            composeTestRule.waitForIdle()
+        }
+        handle.performTouchInput { up() }
     }
 
     @Test
