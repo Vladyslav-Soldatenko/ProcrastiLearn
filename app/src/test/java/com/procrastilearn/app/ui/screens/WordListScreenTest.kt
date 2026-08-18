@@ -38,7 +38,8 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class WordListScreenTest {
     private val composeTestRule = createComposeRule()
-    private val dragDistancePx = 2000f
+    private val dragStepPx = 100f
+    private val dragStepCount = 40
 
     @get:Rule
     val rules: TestRule =
@@ -694,7 +695,7 @@ class WordListScreenTest {
 
         composeTestRule.onNodeWithTag("word_list_drag_handle_${words[0].id}").performTouchInput {
             down(center)
-            moveTo(center + Offset(0f, dragDistancePx))
+            repeat(dragStepCount) { moveBy(Offset(0f, dragStepPx)) }
             up()
         }
 
@@ -707,8 +708,8 @@ class WordListScreenTest {
 
         composeTestRule.onNodeWithTag("word_list_drag_handle_${words[0].id}").performTouchInput {
             down(center)
-            moveTo(center + Offset(0f, dragDistancePx))
-            moveTo(center)
+            repeat(dragStepCount) { moveBy(Offset(0f, dragStepPx)) }
+            repeat(dragStepCount) { moveBy(Offset(0f, -dragStepPx)) }
             up()
         }
 
