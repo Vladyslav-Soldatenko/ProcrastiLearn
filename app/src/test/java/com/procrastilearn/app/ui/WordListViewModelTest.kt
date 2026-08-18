@@ -62,6 +62,23 @@ class WordListViewModelTest {
         }
 
     @Test
+    fun `words preserves the repository's emitted order even when it does not match ascending id`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            val higherId = VocabularyItem(id = 2, word = "Baum", translation = "Tree", isNew = false)
+            val lowerId = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = true)
+
+            viewModel.words.test {
+                assertThat(awaitItem()).isEmpty()
+
+                vocabularyFlow.tryEmit(listOf(higherId, lowerId))
+
+                assertThat(awaitItem()).containsExactly(higherId, lowerId).inOrder()
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
     fun `deleteWord delegates to repository`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val item = VocabularyItem(id = 10, word = "lesen", translation = "read", isNew = false)

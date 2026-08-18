@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface VocabularyDao {
     // Existing
-    @Query("SELECT * FROM vocabulary")
+    @Query("SELECT * FROM vocabulary ORDER BY position ASC, id ASC")
     fun getAllVocabulary(): Flow<List<VocabularyEntity>>
 
     @Query("SELECT * FROM vocabulary WHERE id = :id")
