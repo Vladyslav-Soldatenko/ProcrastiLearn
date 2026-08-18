@@ -38,7 +38,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class WordListScreenTest {
     private val composeTestRule = createComposeRule()
-    private val dragStepPx = 100f
+    private val dragStepPx = 800f
     private val dragStepCount = 40
 
     @get:Rule
