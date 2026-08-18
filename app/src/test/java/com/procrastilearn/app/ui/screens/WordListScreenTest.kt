@@ -40,6 +40,7 @@ import org.robolectric.RobolectricTestRunner
 class WordListScreenTest {
     private val composeTestRule = createComposeRule()
     private val dragStepCount = 10
+    private val dragOvershootFactor = 2f
 
     @get:Rule
     val rules: TestRule =
@@ -727,13 +728,16 @@ class WordListScreenTest {
         return (bounds.top + bounds.bottom) / 2f
     }
 
+    // Landing exactly on the target row's original center is one swap short in practice (the
+    // dragged item needs to cross past a row's threshold, not just reach its midpoint), so aim
+    // well beyond it rather than exactly at it.
     private fun stepDeltaYTowardItem(
         handleNode: SemanticsNodeInteraction,
         targetItemWordId: Long,
     ): Float {
         val handleCenterY = centerYPx(handleNode)
         val targetCenterY = centerYPx(composeTestRule.onNodeWithTag("word_list_item_$targetItemWordId"))
-        return (targetCenterY - handleCenterY) / dragStepCount
+        return (targetCenterY - handleCenterY) * dragOvershootFactor / dragStepCount
     }
 
     private fun dragHandleToItem(
