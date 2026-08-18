@@ -299,6 +299,7 @@
     <string name="word_list_search_label">Rechercher</string>
     <string name="word_list_search_placeholder">Rechercher des mots</string>
     <string name="word_list_search_no_results">Aucun résultat trouvé</string>
+    <string name="word_list_drag_handle_content_description">Réorganiser <xliff:g id="word_name">%1$s</xliff:g></string>
 
     <!-- ─── Apps list ──────────────────────────────────────────────────────── -->
     <string name="apps_list_enable_procrastilearn_title">Activer ProcrastiLearn</string>

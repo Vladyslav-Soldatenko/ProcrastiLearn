@@ -145,6 +145,28 @@ class VocabularyMapperTest {
     }
 
     @Test
+    fun `toDomain carries position through for FORWARD direction`() {
+        val entity = VocabularyEntity(id = 1, word = "a", translation = "b", position = 42L)
+
+        assertThat(entity.toDomain(StudyDirection.FORWARD).position).isEqualTo(42L)
+    }
+
+    @Test
+    fun `toDomain carries position through for BACKWARD direction`() {
+        val entity = VocabularyEntity(id = 1, word = "a", translation = "b", position = 42L)
+
+        assertThat(entity.toDomain(StudyDirection.BACKWARD).position).isEqualTo(42L)
+    }
+
+    @Test
+    fun `toEntity ignores item position and uses only the explicit position parameter`() {
+        val item = VocabularyItem(id = 9, word = "gehen", translation = "go", isNew = false, position = 555L)
+
+        assertThat(item.toEntity().position).isEqualTo(0L)
+        assertThat(item.toEntity(position = 42L).position).isEqualTo(42L)
+    }
+
+    @Test
     fun `toEntity maps domain values with default scheduling metadata`() {
         val item =
             VocabularyItem(

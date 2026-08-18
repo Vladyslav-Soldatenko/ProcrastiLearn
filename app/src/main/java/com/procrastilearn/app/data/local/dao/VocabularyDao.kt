@@ -40,6 +40,9 @@ interface VocabularyDao {
     @Query("SELECT COALESCE(MAX(position), 0) FROM vocabulary")
     suspend fun getMaxPosition(): Long
 
+    @Query("SELECT id FROM vocabulary ORDER BY position ASC, id ASC")
+    suspend fun getAllIdsOrderedByPosition(): List<Long>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertVocabulary(item: VocabularyEntity): Long
 
@@ -72,6 +75,30 @@ interface VocabularyDao {
 
     @Query("DELETE FROM vocabulary")
     suspend fun deleteAllVocabulary()
+
+    @Query("UPDATE vocabulary SET position = :position WHERE id = :id")
+    suspend fun updatePosition(
+        id: Long,
+        position: Long,
+    )
+
+    // Two-phase write: negative placeholders first, then real 1-based positions. No two rows
+    // are ever assigned the same value at the same instant, so this can never trip the UNIQUE
+    // index on position regardless of the rows' current on-disk values. Callers must pass the
+    // complete current id set - a partial list leaves excluded rows' old positions untouched,
+    // which can collide with a newly-assigned value and abort the whole transaction.
+    @Transaction
+    suspend fun reorderVocabulary(orderedIds: List<Long>) {
+        orderedIds.forEachIndexed { index, id -> updatePosition(id, -(index + 1L)) }
+        orderedIds.forEachIndexed { index, id -> updatePosition(id, index + 1L) }
+    }
+
+    @Transaction
+    suspend fun deleteVocabularyAndRenumber(items: List<VocabularyEntity>) {
+        if (items.isEmpty()) return
+        deleteVocabulary(items)
+        reorderVocabulary(getAllIdsOrderedByPosition())
+    }
 
     @Query(
         """

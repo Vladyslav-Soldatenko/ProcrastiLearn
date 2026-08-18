@@ -265,6 +265,7 @@
         <string name="word_list_search_label">Поиск</string>
         <string name="word_list_search_placeholder">Поиск слов</string>
         <string name="word_list_search_no_results">Совпадений не найдено</string>
+        <string name="word_list_drag_handle_content_description">Изменить порядок <xliff:g id="word_name">%1$s</xliff:g></string>
 
         <!-- ─── Apps list ──────────────────────────────────────────────────────── -->
         <string name="apps_list_enable_procrastilearn_title">включить ProcrastiLearn</string>

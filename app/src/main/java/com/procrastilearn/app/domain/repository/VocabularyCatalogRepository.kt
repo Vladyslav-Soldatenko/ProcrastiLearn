@@ -22,4 +22,6 @@ interface VocabularyCatalogRepository {
         ids: Set<Long>,
         bidirectional: Boolean,
     )
+
+    suspend fun reorderVocabulary(orderedIds: List<Long>)
 }

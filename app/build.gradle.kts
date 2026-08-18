@@ -106,6 +106,7 @@ dependencies {
   ksp(libs.hilt.compiler)
   implementation(libs.androidx.hilt.navigation.compose)
   implementation(libs.fastscroller.material3)
+  implementation(libs.reorderable)
 
   implementation(libs.openai.java) {
     exclude(group = "org.apache.httpcomponents.client5", module = "httpclient5")

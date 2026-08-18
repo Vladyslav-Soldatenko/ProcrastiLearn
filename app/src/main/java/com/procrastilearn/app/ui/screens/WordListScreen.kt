@@ -1,6 +1,7 @@
 package com.procrastilearn.app.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
@@ -45,6 +47,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,6 +79,12 @@ import io.github.oikvpqya.compose.fastscroller.rememberScrollbarAdapter
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.draggableHandle
+import sh.calvin.reorderable.rememberReorderableLazyListState
+
+private val DEFAULT_ELEVATION = 2.dp
+private val DRAGGING_ELEVATION = 8.dp
 
 @Suppress("DEPRECATION") // replacement androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel is not yet published
 @Composable
@@ -102,6 +111,7 @@ fun WordListScreen(
         onExitSelectionMode = viewModel::exitSelectionMode,
         onDeleteSelected = viewModel::deleteSelectedWords,
         onSetSelectedBidirectional = viewModel::setSelectedWordsBidirectional,
+        onReorder = viewModel::reorderWords,
         onNavigateBack = onNavigateBack,
     )
 }
@@ -130,12 +140,25 @@ internal fun WordListContent(
     @Suppress("ParameterNaming")
     onDeleteSelected: () -> Unit = {},
     onSetSelectedBidirectional: (Boolean) -> Unit = {},
+    onReorder: (List<Long>) -> Unit = {},
     onNavigateBack: () -> Unit = {},
 ) {
     val normalizedQuery = searchQuery.trim()
+
+    // Live drag state, distinct from the persisted `words`: mutated in real time as the user
+    // drags (so rows animate out of the way immediately), only resynced from `words` when no
+    // drag is in progress so an unrelated Flow re-emission (e.g. a review elsewhere touching
+    // the same table) can't yank an in-progress drag out from under the user's finger.
+    var isReordering by remember { mutableStateOf(false) }
+    var localOrder by remember { mutableStateOf<List<VocabularyItem>>(words) }
+    LaunchedEffect(words) {
+        if (!isReordering) localOrder = words
+    }
+    val canReorder = normalizedQuery.isBlank() && !selectionState.isActive && words.size >= 2
+
     val displayedWords =
         if (normalizedQuery.isBlank()) {
-            words
+            localOrder
         } else {
             words.filter { it.word.contains(normalizedQuery, ignoreCase = true) }
         }
@@ -299,6 +322,13 @@ internal fun WordListContent(
             else -> {
                 // Remember list state so both list & scrollbar share it
                 val listState = rememberLazyListState()
+                val reorderableLazyListState =
+                    rememberReorderableLazyListState(listState) { from, to ->
+                        localOrder =
+                            localOrder.toMutableList().apply {
+                                add(to.index, removeAt(from.index))
+                            }
+                    }
 
                 // Take the remaining height under the header and overlay the scrollbar
                 Box(
@@ -316,16 +346,31 @@ internal fun WordListContent(
                             items = displayedWords,
                             key = { it.id },
                         ) { item ->
-                            WordListItem(
-                                item = item,
-                                onDelete = { onDelete(item) },
-                                onEdit = { editedItem -> onEdit(editedItem) },
-                                onReset = { onReset(item) },
-                                isSelectionMode = selectionState.isActive,
-                                isSelected = item.id in selectionState.selectedIds,
-                                onLongPress = { onEnterSelectionMode(item.id) },
-                                onToggle = { onToggleSelection(item.id) },
-                            )
+                            ReorderableItem(reorderableLazyListState, key = item.id) { isDragging ->
+                                WordListItem(
+                                    item = item,
+                                    onDelete = { onDelete(item) },
+                                    onEdit = { editedItem -> onEdit(editedItem) },
+                                    onReset = { onReset(item) },
+                                    isSelectionMode = selectionState.isActive,
+                                    isSelected = item.id in selectionState.selectedIds,
+                                    onLongPress = { onEnterSelectionMode(item.id) },
+                                    onToggle = { onToggleSelection(item.id) },
+                                    showDragHandle = canReorder,
+                                    isDragging = isDragging,
+                                    dragHandleModifier =
+                                        Modifier
+                                            .testTag("word_list_drag_handle_${item.id}")
+                                            .draggableHandle(
+                                                enabled = canReorder,
+                                                onDragStarted = { isReordering = true },
+                                                onDragStopped = {
+                                                    isReordering = false
+                                                    onReorder(localOrder.map { it.id })
+                                                },
+                                            ),
+                                )
+                            }
                         }
                     }
 
@@ -382,11 +427,18 @@ fun WordListItem(
     isSelected: Boolean = false,
     onLongPress: () -> Unit = {},
     onToggle: () -> Unit = {},
+    showDragHandle: Boolean = false,
+    isDragging: Boolean = false,
+    dragHandleModifier: Modifier = Modifier,
 ) {
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showResetDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
+    val cardElevation by animateDpAsState(
+        targetValue = if (isDragging) DRAGGING_ELEVATION else DEFAULT_ELEVATION,
+        label = "wordListItemElevation",
+    )
 
     Card(
         modifier =
@@ -406,7 +458,7 @@ fun WordListItem(
                         MaterialTheme.colorScheme.surface
                     },
             ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = cardElevation),
     ) {
         Row(
             modifier =
@@ -422,6 +474,19 @@ fun WordListItem(
                     onCheckedChange = { onToggle() },
                     modifier = Modifier.testTag("word_list_checkbox_${item.id}"),
                 )
+                Spacer(modifier = Modifier.width(8.dp))
+            } else if (showDragHandle) {
+                IconButton(
+                    modifier = dragHandleModifier,
+                    onClick = {},
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.DragHandle,
+                        contentDescription =
+                            stringResource(R.string.word_list_drag_handle_content_description, item.word),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 Spacer(modifier = Modifier.width(8.dp))
             }
 

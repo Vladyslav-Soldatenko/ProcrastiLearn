@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -95,6 +96,29 @@ class WordListViewModel
             viewModelScope.launch {
                 repository.setBidirectional(ids, bidirectional)
                 exitSelectionMode()
+            }
+        }
+
+        // The set-equality guard is a correctness guard, not just tidiness: it's what keeps
+        // repository.reorderVocabulary from ever being called with a partial id set, which
+        // would leave excluded rows' stale positions colliding with the newly-assigned ones.
+        // Reordering is a low-stakes convenience action, so unlike every other method here, a
+        // repository failure is swallowed rather than left to propagate - the UI already
+        // reflects the attempted order locally and will resync to the last-persisted order on
+        // the next `words` emission.
+        fun reorderWords(orderedIds: List<Long>) {
+            val currentIds = words.value.map { it.id }
+            if (orderedIds.size < 2 || currentIds.size < 2) return
+            if (orderedIds.toSet() != currentIds.toSet()) return
+            if (orderedIds == currentIds) return
+            viewModelScope.launch {
+                try {
+                    repository.reorderVocabulary(orderedIds)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    // Swallowed intentionally - see comment above.
+                }
             }
         }
 
