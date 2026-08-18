@@ -2,7 +2,6 @@ package com.procrastilearn.app.ui.screens
 
 import android.content.Context
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -10,7 +9,6 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
-import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithText
@@ -724,14 +722,17 @@ class WordListScreenTest {
     // computes the real on-screen distance from the handle's current position to the target
     // row's position (captured once, before the drag starts - items between the drag's start
     // and its not-yet-reached target don't move until the drag actually reaches them).
-    private fun centerY(rect: Rect): Float = (rect.top + rect.bottom) / 2f
+    private fun centerYPx(node: SemanticsNodeInteraction): Float {
+        val bounds = node.fetchSemanticsNode().boundsInRoot
+        return (bounds.top + bounds.bottom) / 2f
+    }
 
     private fun stepDeltaYTowardItem(
         handleNode: SemanticsNodeInteraction,
         targetItemWordId: Long,
     ): Float {
-        val handleCenterY = centerY(handleNode.getBoundsInRoot())
-        val targetCenterY = centerY(composeTestRule.onNodeWithTag("word_list_item_$targetItemWordId").getBoundsInRoot())
+        val handleCenterY = centerYPx(handleNode)
+        val targetCenterY = centerYPx(composeTestRule.onNodeWithTag("word_list_item_$targetItemWordId"))
         return (targetCenterY - handleCenterY) / dragStepCount
     }
 
