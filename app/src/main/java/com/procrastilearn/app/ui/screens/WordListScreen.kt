@@ -119,7 +119,7 @@ fun WordListScreen(
 // Selection-mode header, search, empty states, and bulk-action dialogs are one screen's worth
 // of state; splitting further would mean threading shared MutableState across composable
 // boundaries for marginal gain, at real risk to this screen's bulk-selection correctness.
-@Suppress("LongMethod", "CognitiveComplexMethod")
+@Suppress("LongMethod", "CognitiveComplexMethod", "CyclomaticComplexMethod")
 internal fun WordListContent(
     words: ImmutableList<VocabularyItem>,
     searchQuery: String,
@@ -422,13 +422,13 @@ fun WordListItem(
     onEdit: (VocabularyItem) -> Unit,
     onReset: () -> Unit,
     modifier: Modifier = Modifier,
+    dragHandleModifier: Modifier = Modifier,
     isSelectionMode: Boolean = false,
     isSelected: Boolean = false,
     onLongPress: () -> Unit = {},
     onToggle: () -> Unit = {},
     showDragHandle: Boolean = false,
     isDragging: Boolean = false,
-    dragHandleModifier: Modifier = Modifier,
 ) {
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }

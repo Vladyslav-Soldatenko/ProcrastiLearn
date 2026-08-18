@@ -52,6 +52,11 @@ internal fun todayStamp(): Int =
 class NoAvailableItemsException : Exception("Daily limits reached and no reviews due")
 
 @Singleton
+// Function count comes from implementing two domain interfaces
+// (VocabularyCatalogRepository + VocabularyStudyRepository) in one class, not from an
+// undecomposed monolith - splitting further would separate methods that share the same DAOs
+// and transactional invariants.
+@Suppress("TooManyFunctions")
 class VocabularyRepositoryImpl
     @Inject
     constructor(

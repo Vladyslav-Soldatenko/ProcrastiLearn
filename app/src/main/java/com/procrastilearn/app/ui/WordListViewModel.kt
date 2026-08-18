@@ -106,6 +106,7 @@ class WordListViewModel
         // repository failure is swallowed rather than left to propagate - the UI already
         // reflects the attempted order locally and will resync to the last-persisted order on
         // the next `words` emission.
+        @Suppress("TooGenericExceptionCaught", "SwallowedException")
         fun reorderWords(orderedIds: List<Long>) {
             val currentIds = words.value.map { it.id }
             if (orderedIds.size < 2 || currentIds.size < 2) return

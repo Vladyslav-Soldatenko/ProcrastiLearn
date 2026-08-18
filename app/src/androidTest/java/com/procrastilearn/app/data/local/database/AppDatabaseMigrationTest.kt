@@ -11,6 +11,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+// One independent test per historical schema migration and edge case; splitting would scatter
+// that migration history across files for no benefit.
+@Suppress("LargeClass")
 class AppDatabaseMigrationTest {
     @get:Rule
     val helper: MigrationTestHelper =
