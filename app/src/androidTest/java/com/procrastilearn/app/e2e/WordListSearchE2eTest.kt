@@ -51,7 +51,7 @@ class WordListSearchE2eTest {
         val otherId = seedWord(word = "sunderpike", translation = "broken-spear")
 
         navigateToWordList()
-        composeTestRule.onNodeWithTag(itemTag(matchingId)).assertExists()
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(matchingId)), DEFAULT_TIMEOUT_MS)
         composeTestRule.onNodeWithTag(itemTag(otherId)).assertExists()
 
         typeInSearchField("glimmer")
@@ -96,7 +96,7 @@ class WordListSearchE2eTest {
         composeTestRule.onNodeWithTag("word_list_search_field").performTextClearance()
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithTag(itemTag(idA)).assertExists()
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(idA)), DEFAULT_TIMEOUT_MS)
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(idB)), DEFAULT_TIMEOUT_MS)
     }
 
@@ -124,6 +124,8 @@ class WordListSearchE2eTest {
 
     private fun itemTag(id: Long) = "word_list_item_$id"
 
+    private var nextPosition = 1L
+
     private fun seedWord(
         word: String,
         translation: String,
@@ -135,6 +137,7 @@ class WordListSearchE2eTest {
                         word = word,
                         translation = translation,
                         fsrsCardJson = "",
+                        position = nextPosition++,
                     ),
                 )
             }

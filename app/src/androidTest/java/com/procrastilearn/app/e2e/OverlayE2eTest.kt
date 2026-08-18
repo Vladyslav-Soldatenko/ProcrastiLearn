@@ -106,7 +106,9 @@ class OverlayE2eTest {
 
         val rowTag = "app_row_$TARGET_PACKAGE"
         val checkboxTag = "app_checkbox_$TARGET_PACKAGE"
+
         composeTestRule.waitUntilNodeExists(hasScrollAction(), DEFAULT_TIMEOUT_MS)
+        composeTestRule.waitUntilNodeGone(hasTestTag("apps_list_loading_indicator"), APPS_LIST_TIMEOUT_MS)
         composeTestRule
             .onNode(hasScrollAction())
             .performScrollToNode(hasTestTag(rowTag))
@@ -244,6 +246,11 @@ class OverlayE2eTest {
 
     private companion object {
         const val DEFAULT_TIMEOUT_MS = 15_000L
+        // The installed-apps list is loaded via PackageManager.queryIntentActivities() plus a
+        // per-app icon-load loop (AppRepositoryImpl.loadLaunchableApps()). On a cold emulator this
+        // can be slow the first time it runs (odex/vdex verification of large system packages like
+        // Google Play services), well past DEFAULT_TIMEOUT_MS, so give it its own longer budget.
+        const val APPS_LIST_TIMEOUT_MS = 30_000L
         const val LAUNCH_POLL_TIMEOUT_MS = 3_000L
         const val LAUNCH_RETRY_COUNT = 3
         const val SERVICE_BIND_POLL_MS = 100L
