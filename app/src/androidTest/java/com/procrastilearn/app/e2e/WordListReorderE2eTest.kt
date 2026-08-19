@@ -5,6 +5,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -66,8 +67,7 @@ class WordListReorderE2eTest {
         navigateToWordList()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(zetaId)), DEFAULT_TIMEOUT_MS)
 
-        dragHandleBy(alphaId, LARGE_DRAG_OFFSET_PX)
-        composeTestRule.waitForIdle()
+        dragHandleToItem(alphaId, zetaId)
 
         composeTestRule.activity.recreate()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(alphaId)), DEFAULT_TIMEOUT_MS)
@@ -82,8 +82,7 @@ class WordListReorderE2eTest {
         navigateToWordList()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(zetaId)), DEFAULT_TIMEOUT_MS)
 
-        dragHandleBy(zetaId, -LARGE_DRAG_OFFSET_PX)
-        composeTestRule.waitForIdle()
+        dragHandleToItem(zetaId, alphaId)
 
         composeTestRule.activity.recreate()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(alphaId)), DEFAULT_TIMEOUT_MS)
@@ -99,8 +98,7 @@ class WordListReorderE2eTest {
         navigateToWordList()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(dId)), DEFAULT_TIMEOUT_MS)
 
-        dragHandleBy(bId, LARGE_DRAG_OFFSET_PX)
-        composeTestRule.waitForIdle()
+        dragHandleToItem(bId, dId)
 
         composeTestRule.activity.recreate()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(aId)), DEFAULT_TIMEOUT_MS)
@@ -151,8 +149,12 @@ class WordListReorderE2eTest {
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(gammaId)), DEFAULT_TIMEOUT_MS)
 
         val handle = composeTestRule.onNodeWithTag(dragHandleTag(alphaId))
+        val stepDeltaY = stepDeltaYTowardItem(handle, gammaId)
         handle.performTouchInput { down(center) }
-        handle.performTouchInput { moveTo(center + Offset(0f, LARGE_DRAG_OFFSET_PX)) }
+        repeat(DRAG_STEP_COUNT / 2) {
+            handle.performTouchInput { moveBy(Offset(0f, stepDeltaY)) }
+            composeTestRule.waitForIdle()
+        }
         // A configuration change delivers ACTION_CANCEL to any in-flight touch sequence before
         // tearing the view hierarchy down - simulate that rather than leaving the gesture
         // truly dangling across the recreate() call.
@@ -171,12 +173,18 @@ class WordListReorderE2eTest {
         navigateToWordList()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(firstId)), DEFAULT_TIMEOUT_MS)
 
+        // A fixed absolute Y risks landing outside the actual device screen entirely (which the
+        // library treats as no valid position at all, not clamped to the nearest edge) - aim
+        // relative to the handle's own real measured position instead, comfortably below it but
+        // still within plausible screen bounds, then hold there so the auto-scroll loop has real
+        // wall-clock time to actually advance between each held position report.
         val handle = composeTestRule.onNodeWithTag(dragHandleTag(firstId))
+        val edgeTargetY = centerYPx(handle) + AUTO_SCROLL_TARGET_OFFSET_PX
         handle.performTouchInput { down(center) }
-        handle.performTouchInput { moveTo(Offset(center.x, AUTO_SCROLL_EDGE_Y_PX)) }
+        handle.performTouchInput { moveTo(Offset(center.x, edgeTargetY)) }
         repeat(AUTO_SCROLL_HOLD_STEPS) {
             Thread.sleep(AUTO_SCROLL_STEP_DELAY_MS)
-            handle.performTouchInput { moveTo(Offset(center.x, AUTO_SCROLL_EDGE_Y_PX)) }
+            handle.performTouchInput { moveTo(Offset(center.x, edgeTargetY)) }
         }
         handle.performTouchInput { up() }
         composeTestRule.waitForIdle()
@@ -202,9 +210,7 @@ class WordListReorderE2eTest {
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(betaId)), DEFAULT_TIMEOUT_MS)
         assertEquals(alphaId, pickNewIdByPositionAsc())
 
-        dragHandleBy(alphaId, LARGE_DRAG_OFFSET_PX)
-        composeTestRule.waitForIdle()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(alphaId)), DEFAULT_TIMEOUT_MS)
+        dragHandleToItem(alphaId, betaId)
 
         assertEquals(betaId, pickNewIdByPositionAsc())
     }
@@ -217,9 +223,7 @@ class WordListReorderE2eTest {
         navigateToWordList()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(cId)), DEFAULT_TIMEOUT_MS)
 
-        dragHandleBy(aId, LARGE_DRAG_OFFSET_PX)
-        composeTestRule.waitForIdle()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(aId)), DEFAULT_TIMEOUT_MS)
+        dragHandleToItem(aId, cId)
         assertEquals(listOf(bId, cId, aId), displayedWordIdsInOrder())
 
         longPressItem(bId)
@@ -239,8 +243,7 @@ class WordListReorderE2eTest {
         navigateToWordList()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(importedIds[1])), DEFAULT_TIMEOUT_MS)
 
-        dragHandleBy(importedIds[1], -LARGE_DRAG_OFFSET_PX)
-        composeTestRule.waitForIdle()
+        dragHandleToItem(importedIds[1], existingId)
 
         composeTestRule.activity.recreate()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(existingId)), DEFAULT_TIMEOUT_MS)
@@ -287,15 +290,41 @@ class WordListReorderE2eTest {
         composeTestRule.waitForIdle()
     }
 
-    private fun dragHandleBy(
-        id: Long,
-        offsetYPx: Float,
+    // A single large moveTo() jump doesn't reliably register as a real drag - the target
+    // position can land outside the list's actual content bounds entirely, which the library
+    // treats as "no valid drop target" rather than clamping to the nearest one. Real on-screen
+    // row positions (not a guessed pixel distance) split into several incremental moveBy()
+    // steps, with idle time between each for layout to catch up, is what actually works.
+    private fun centerYPx(node: SemanticsNodeInteraction): Float {
+        val bounds = node.fetchSemanticsNode().boundsInRoot
+        return (bounds.top + bounds.bottom) / 2f
+    }
+
+    private fun stepDeltaYTowardItem(
+        handleNode: SemanticsNodeInteraction,
+        targetItemWordId: Long,
+    ): Float {
+        val handleCenterY = centerYPx(handleNode)
+        val targetCenterY = centerYPx(composeTestRule.onNodeWithTag(itemTag(targetItemWordId)))
+        return (targetCenterY - handleCenterY) / DRAG_STEP_COUNT
+    }
+
+    // Landing exactly on the target row's original center is one swap short in practice, so
+    // aim well beyond it rather than exactly at it.
+    private fun dragHandleToItem(
+        fromWordId: Long,
+        toItemWordId: Long,
     ) {
-        composeTestRule.onNodeWithTag(dragHandleTag(id)).performTouchInput {
-            down(center)
-            moveTo(center + Offset(0f, offsetYPx))
-            up()
+        val handle = composeTestRule.onNodeWithTag(dragHandleTag(fromWordId))
+        val stepDeltaY = stepDeltaYTowardItem(handle, toItemWordId) * DRAG_OVERSHOOT_FACTOR
+
+        handle.performTouchInput { down(center) }
+        repeat(DRAG_STEP_COUNT) {
+            handle.performTouchInput { moveBy(Offset(0f, stepDeltaY)) }
+            composeTestRule.waitForIdle()
         }
+        handle.performTouchInput { up() }
+        composeTestRule.waitForIdle()
     }
 
     private fun itemTag(id: Long) = "word_list_item_$id"
@@ -374,10 +403,11 @@ class WordListReorderE2eTest {
 
     private companion object {
         const val DEFAULT_TIMEOUT_MS = 15_000L
-        const val LARGE_DRAG_OFFSET_PX = 3000f
         const val WORD_COUNT_EXCEEDING_ONE_SCREEN = 40
-        const val AUTO_SCROLL_EDGE_Y_PX = 5000f
+        const val AUTO_SCROLL_TARGET_OFFSET_PX = 1800f
         const val AUTO_SCROLL_HOLD_STEPS = 15
         const val AUTO_SCROLL_STEP_DELAY_MS = 300L
+        const val DRAG_STEP_COUNT = 10
+        const val DRAG_OVERSHOOT_FACTOR = 2f
     }
 }
