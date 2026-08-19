@@ -7,7 +7,11 @@ import android.content.Intent
 import android.os.ParcelFileDescriptor
 import android.view.accessibility.AccessibilityManager
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -16,6 +20,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.procrastilearn.app.MainActivity
@@ -67,7 +72,8 @@ class OverlayE2eTest {
         waitUntilAccessibilityServiceBound()
 
         resetAppState()
-        seedWord()
+        seedWord(SEEDED_WORD, "seeded-translation", position = 0L)
+        seedWord(SECOND_WORD, "seeded-translation-2", position = 1L)
         runBlocking(Dispatchers.IO) {
             appPreferencesRepository().setBlockedApps(emptySet())
             appPreferencesRepository().setProcrastilearnEnabled(true)
@@ -82,6 +88,7 @@ class OverlayE2eTest {
             appPreferencesRepository().setProcrastilearnEnabled(false)
             appPreferencesRepository().setBlockedApps(emptySet())
             appPreferencesRepository().setProcrastilearnEnabled(true)
+            dayCountersStore().setRatingDelaySeconds(0)
         }
         resetAppState()
 
@@ -98,6 +105,121 @@ class OverlayE2eTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun selectingAndOpeningBlockedAppShowsOverlayThenHidesAfterRating() {
+        selectTargetAppAsBlocked()
+
+        launchTargetAppUntilOverlayAppears()
+
+        composeTestRule.assertEventuallyDisplayed(hasText(SEEDED_WORD, substring = true), DEFAULT_TIMEOUT_MS)
+        revealTranslation()
+
+        listOf(
+            R.string.rating_again,
+            R.string.rating_hard,
+            R.string.rating_good,
+            R.string.rating_easy,
+        ).forEach { resId -> composeTestRule.assertEventuallyDisplayed(hasText(string(resId)), DEFAULT_TIMEOUT_MS) }
+
+        composeTestRule.onNodeWithText(string(R.string.rating_good)).performClick()
+
+        composeTestRule.waitUntilNodeGone(hasText(SEEDED_WORD, substring = true), DEFAULT_TIMEOUT_MS)
+        composeTestRule.waitUntilNodeGone(hasText(string(R.string.rating_good)), DEFAULT_TIMEOUT_MS)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun revealingTranslationWithRatingDelayShowsCountdownAndDisablesRatingButtons() {
+        setRatingDelayViaSettings(RATING_DELAY_SECONDS)
+        selectTargetAppAsBlocked()
+
+        launchTargetAppUntilOverlayAppears()
+        revealTranslation()
+
+        composeTestRule.assertEventuallyDisplayed(hasTestTag("rating_lock_countdown"), DEFAULT_TIMEOUT_MS)
+        listOf(
+            R.string.rating_again,
+            R.string.rating_hard,
+            R.string.rating_good,
+            R.string.rating_easy,
+        ).forEach { resId ->
+            composeTestRule.onNodeWithText(string(resId)).assertIsNotEnabled()
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun attemptingToRateWhileLockedIsANoOp() {
+        setRatingDelayViaSettings(RATING_DELAY_SECONDS)
+        selectTargetAppAsBlocked()
+
+        launchTargetAppUntilOverlayAppears()
+        revealTranslation()
+
+        composeTestRule.assertEventuallyDisplayed(hasTestTag("rating_lock_countdown"), DEFAULT_TIMEOUT_MS)
+        listOf(
+            R.string.rating_again,
+            R.string.rating_hard,
+            R.string.rating_good,
+            R.string.rating_easy,
+        ).forEach { resId ->
+            composeTestRule.onNodeWithText(string(resId)).assertIsNotEnabled()
+        }
+
+        composeTestRule.onNodeWithText(string(R.string.rating_good)).performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.assertEventuallyDisplayed(hasText(string(R.string.rating_good)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.onNodeWithText(string(R.string.rating_good)).assertIsNotEnabled()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun ratingButtonsUnlockAndRatingSucceedsAfterCountdownExpires() {
+        setRatingDelayViaSettings(RATING_DELAY_SECONDS)
+        selectTargetAppAsBlocked()
+
+        launchTargetAppUntilOverlayAppears()
+        revealTranslation()
+
+        composeTestRule.assertEventuallyDisplayed(hasTestTag("rating_lock_countdown"), DEFAULT_TIMEOUT_MS)
+        waitForRatingUnlock()
+
+        composeTestRule.onNodeWithText(string(R.string.rating_good)).assertIsEnabled()
+        composeTestRule.onNodeWithText(string(R.string.rating_good)).performClick()
+
+        composeTestRule.waitUntilNodeGone(hasText(string(R.string.rating_good)), DEFAULT_TIMEOUT_MS)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun newOverlaySessionRequiresFullDelayAgain() {
+        setRatingDelayViaSettings(RATING_DELAY_SECONDS)
+        selectTargetAppAsBlocked()
+
+        launchTargetAppUntilOverlayAppears()
+        revealTranslation()
+        composeTestRule.assertEventuallyDisplayed(hasTestTag("rating_lock_countdown"), DEFAULT_TIMEOUT_MS)
+        waitForRatingUnlock()
+        composeTestRule.onNodeWithText(string(R.string.rating_good)).performClick()
+        composeTestRule.waitUntilNodeGone(hasText(string(R.string.rating_good)), DEFAULT_TIMEOUT_MS)
+
+        launchTargetAppUntilOverlayAppears()
+        revealTranslation()
+
+        composeTestRule.assertEventuallyDisplayed(hasTestTag("rating_lock_countdown"), DEFAULT_TIMEOUT_MS)
+        composeTestRule
+            .onNodeWithTag("rating_lock_countdown", useUnmergedTree = true)
+            .assertTextEquals(RATING_DELAY_SECONDS.toString())
+        listOf(
+            R.string.rating_again,
+            R.string.rating_hard,
+            R.string.rating_good,
+            R.string.rating_easy,
+        ).forEach { resId ->
+            composeTestRule.onNodeWithText(string(resId)).assertIsNotEnabled()
+        }
+    }
+
+    private fun selectTargetAppAsBlocked() {
         composeTestRule.waitUntilNodeExists(hasText(string(R.string.nav_apps)), DEFAULT_TIMEOUT_MS)
         composeTestRule
             .onNodeWithContentDescription(string(R.string.nav_apps), useUnmergedTree = true)
@@ -116,50 +238,65 @@ class OverlayE2eTest {
         composeTestRule.waitForIdle()
 
         waitUntilBlockedAppsContains(TARGET_PACKAGE)
+    }
 
-        launchTargetAppUntilOverlayAppears()
-
-        // The overlay window can transiently report as not-shown for a beat while the window
-        // manager settles the app-switch transition animation, so require displayed to be
-        // stable under a short poll rather than asserting instantaneously.
-        composeTestRule.assertEventuallyDisplayed(hasText(SEEDED_WORD, substring = true), DEFAULT_TIMEOUT_MS)
+    private fun revealTranslation() {
         composeTestRule.onNodeWithText(string(R.string.learning_show_translation)).performClick()
         composeTestRule.waitForIdle()
+    }
 
-        listOf(
-            R.string.rating_again,
-            R.string.rating_hard,
-            R.string.rating_good,
-            R.string.rating_easy,
-        ).forEach { resId -> composeTestRule.assertEventuallyDisplayed(hasText(string(resId)), DEFAULT_TIMEOUT_MS) }
+    private fun setRatingDelayViaSettings(seconds: Int) {
+        composeTestRule.waitUntilNodeExists(hasText(string(R.string.nav_settings)), DEFAULT_TIMEOUT_MS)
+        composeTestRule
+            .onNodeWithContentDescription(string(R.string.nav_settings), useUnmergedTree = true)
+            .performClick()
+        composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText(string(R.string.rating_good)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).performClick()
+        composeTestRule.waitForIdle()
 
-        composeTestRule.waitUntilNodeGone(hasText(SEEDED_WORD, substring = true), DEFAULT_TIMEOUT_MS)
-        composeTestRule.waitUntilNodeGone(hasText(string(R.string.rating_good)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.onNode(hasSetTextAction()).performTextReplacement(seconds.toString())
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithContentDescription(string(R.string.nav_apps), useUnmergedTree = true)
+            .performClick()
+        composeTestRule.waitForIdle()
+    }
+
+    private fun waitForRatingUnlock() {
+        composeTestRule.waitUntilNodeGone(hasTestTag("rating_lock_countdown"), RATING_LOCK_TIMEOUT_MS)
     }
 
     private fun launchTargetAppUntilOverlayAppears() {
-        repeat(LAUNCH_RETRY_COUNT) { attempt ->
+        repeat(LAUNCH_RETRY_COUNT) {
+            goHome()
+
             targetContext.packageManager.getLaunchIntentForPackage(TARGET_PACKAGE)?.let { intent ->
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 targetContext.startActivity(intent)
             }
 
-            if (composeTestRule.nodeVisibleWithin(hasText(SEEDED_WORD, substring = true), LAUNCH_POLL_TIMEOUT_MS)) {
+            if (composeTestRule.nodeVisibleWithin(
+                    hasText(string(R.string.learning_show_translation)),
+                    LAUNCH_POLL_TIMEOUT_MS,
+                )
+            ) {
                 return
             }
-
-            if (attempt < LAUNCH_RETRY_COUNT - 1) {
-                targetContext.startActivity(
-                    Intent(Intent.ACTION_MAIN).apply {
-                        addCategory(Intent.CATEGORY_HOME)
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    },
-                )
-                composeTestRule.waitForIdle()
-            }
         }
+    }
+
+    private fun goHome() {
+        targetContext.startActivity(
+            Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            },
+        )
+        composeTestRule.waitForIdle()
+        Thread.sleep(GO_HOME_SETTLE_MS)
     }
 
     private fun waitUntilAccessibilityServiceBound() {
@@ -188,16 +325,21 @@ class OverlayE2eTest {
 
     private fun string(resId: Int) = targetContext.getString(resId)
 
-    private fun seedWord() {
+    private fun seedWord(
+        word: String,
+        translation: String,
+        position: Long = 0L,
+    ) {
         runBlocking(Dispatchers.IO) {
             databaseEntryPoint().appDatabase().vocabularyDao().insertVocabulary(
                 VocabularyEntity(
-                    word = SEEDED_WORD,
-                    translation = "seeded-translation",
+                    word = word,
+                    translation = translation,
                     correctCount = 0,
                     incorrectCount = 0,
                     fsrsCardJson = "",
                     fsrsDueAt = 0L,
+                    position = position,
                 ),
             )
         }
@@ -257,5 +399,9 @@ class OverlayE2eTest {
         const val SERVICE_BIND_POLL_MS = 100L
         const val TARGET_PACKAGE = "com.android.settings"
         const val SEEDED_WORD = "overlayflashword"
+        const val SECOND_WORD = "overlayflashwordtwo"
+        const val RATING_DELAY_SECONDS = 3
+        const val RATING_LOCK_TIMEOUT_MS = 10_000L
+        const val GO_HOME_SETTLE_MS = 500L
     }
 }
