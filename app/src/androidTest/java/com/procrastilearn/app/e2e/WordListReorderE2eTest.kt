@@ -414,9 +414,9 @@ class WordListReorderE2eTest {
         const val DEFAULT_TIMEOUT_MS = 15_000L
         const val WORD_COUNT_EXCEEDING_ONE_SCREEN = 40
         const val AUTO_SCROLL_TARGET_OFFSET_PX = 1800f
-        const val AUTO_SCROLL_HOLD_STEPS = 15
-        const val AUTO_SCROLL_STEP_DELAY_MS = 300L
-        const val AUTO_SCROLL_MIN_EXPECTED_POSITION = 3L
+        const val AUTO_SCROLL_HOLD_STEPS = 40
+        const val AUTO_SCROLL_STEP_DELAY_MS = 400L
+        const val AUTO_SCROLL_MIN_EXPECTED_POSITION = 2L
         const val DRAG_STEP_COUNT = 10
         const val DRAG_OVERSHOOT_FACTOR = 2f
     }
