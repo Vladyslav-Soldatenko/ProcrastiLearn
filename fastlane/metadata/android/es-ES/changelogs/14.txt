@@ -1,0 +1,2 @@
+Añadida la reordenación por arrastrar y soltar en Mi vocabulario.
+Conservado el orden original de las tarjetas al importar desde Anki.

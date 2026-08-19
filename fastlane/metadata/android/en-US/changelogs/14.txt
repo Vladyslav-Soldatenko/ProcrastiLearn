@@ -1,0 +1,2 @@
+Add drag-and-drop reordering to My Vocabulary.
+Preserve the original card order when importing from Anki.

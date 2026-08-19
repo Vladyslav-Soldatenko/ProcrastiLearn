@@ -1,0 +1,2 @@
+Ajout du glisser-déposer pour réorganiser Mon vocabulaire.
+Conservation de l'ordre d'origine des cartes lors de l'import depuis Anki.
