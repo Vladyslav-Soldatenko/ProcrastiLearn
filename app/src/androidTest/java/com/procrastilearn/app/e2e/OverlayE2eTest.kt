@@ -254,6 +254,7 @@ class OverlayE2eTest {
 
         composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).performClick()
         composeTestRule.waitForIdle()
+        composeTestRule.waitUntilNodeExists(hasText(string(R.string.settings_rating_delay_title)), DEFAULT_TIMEOUT_MS)
 
         val ratingDelayField = composeTestRule.onNode(hasSetTextAction())
         ratingDelayField.performClick()
