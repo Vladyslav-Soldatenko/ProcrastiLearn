@@ -1,8 +1,11 @@
 package com.procrastilearn.app.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.DragInteraction
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
@@ -45,10 +49,12 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -59,6 +65,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -76,6 +83,13 @@ import io.github.oikvpqya.compose.fastscroller.rememberScrollbarAdapter
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.collect
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
+
+private val DEFAULT_ELEVATION = 2.dp
+private val DRAGGING_ELEVATION = 8.dp
+private const val MAX_TRANSLATION_LINES = 4
 
 @Suppress("DEPRECATION") // replacement androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel is not yet published
 @Composable
@@ -102,6 +116,7 @@ fun WordListScreen(
         onExitSelectionMode = viewModel::exitSelectionMode,
         onDeleteSelected = viewModel::deleteSelectedWords,
         onSetSelectedBidirectional = viewModel::setSelectedWordsBidirectional,
+        onReorder = viewModel::reorderWords,
         onNavigateBack = onNavigateBack,
     )
 }
@@ -110,7 +125,7 @@ fun WordListScreen(
 // Selection-mode header, search, empty states, and bulk-action dialogs are one screen's worth
 // of state; splitting further would mean threading shared MutableState across composable
 // boundaries for marginal gain, at real risk to this screen's bulk-selection correctness.
-@Suppress("LongMethod", "CognitiveComplexMethod")
+@Suppress("LongMethod", "CognitiveComplexMethod", "CyclomaticComplexMethod")
 internal fun WordListContent(
     words: ImmutableList<VocabularyItem>,
     searchQuery: String,
@@ -130,12 +145,38 @@ internal fun WordListContent(
     @Suppress("ParameterNaming")
     onDeleteSelected: () -> Unit = {},
     onSetSelectedBidirectional: (Boolean) -> Unit = {},
+    onReorder: (List<Long>) -> Unit = {},
     onNavigateBack: () -> Unit = {},
 ) {
     val normalizedQuery = searchQuery.trim()
+
+    // Live drag state, distinct from the persisted `words`: mutated in real time as the user
+    // drags (so rows animate out of the way immediately), only resynced from `words` when no
+    // drag is in progress so an unrelated Flow re-emission (e.g. a review elsewhere touching
+    // the same table) can't yank an in-progress drag out from under the user's finger.
+    var isReordering by remember { mutableStateOf(false) }
+    var localOrder by remember { mutableStateOf<List<VocabularyItem>>(words) }
+    LaunchedEffect(words) {
+        if (!isReordering) localOrder = words
+    }
+    val canReorder = normalizedQuery.isBlank() && !selectionState.isActive && words.size >= 2
+
+    // draggableHandle's onDragStopped fires on BOTH a completed drop and a system-initiated
+    // cancel (e.g. a config change interrupting the gesture) with no way to tell them apart -
+    // committing from there would write a still-in-progress reorder on interruption. Only a
+    // genuine DragInteraction.Stop should commit; Cancel (and everything else) is a no-op, so
+    // an interrupted drag reverts to the last-persisted order instead of writing a partial one.
+    val dragInteractionSource = remember { MutableInteractionSource() }
+    val currentOnReorder = rememberUpdatedState(onReorder)
+    LaunchedEffect(dragInteractionSource) {
+        dragInteractionSource.interactions.collect { interaction ->
+            if (interaction is DragInteraction.Stop) currentOnReorder.value(localOrder.map { it.id })
+        }
+    }
+
     val displayedWords =
         if (normalizedQuery.isBlank()) {
-            words
+            localOrder
         } else {
             words.filter { it.word.contains(normalizedQuery, ignoreCase = true) }
         }
@@ -299,6 +340,13 @@ internal fun WordListContent(
             else -> {
                 // Remember list state so both list & scrollbar share it
                 val listState = rememberLazyListState()
+                val reorderableLazyListState =
+                    rememberReorderableLazyListState(listState) { from, to ->
+                        localOrder =
+                            localOrder.toMutableList().apply {
+                                add(to.index, removeAt(from.index))
+                            }
+                    }
 
                 // Take the remaining height under the header and overlay the scrollbar
                 Box(
@@ -316,16 +364,29 @@ internal fun WordListContent(
                             items = displayedWords,
                             key = { it.id },
                         ) { item ->
-                            WordListItem(
-                                item = item,
-                                onDelete = { onDelete(item) },
-                                onEdit = { editedItem -> onEdit(editedItem) },
-                                onReset = { onReset(item) },
-                                isSelectionMode = selectionState.isActive,
-                                isSelected = item.id in selectionState.selectedIds,
-                                onLongPress = { onEnterSelectionMode(item.id) },
-                                onToggle = { onToggleSelection(item.id) },
-                            )
+                            ReorderableItem(reorderableLazyListState, key = item.id) { isDragging ->
+                                WordListItem(
+                                    item = item,
+                                    onDelete = { onDelete(item) },
+                                    onEdit = { editedItem -> onEdit(editedItem) },
+                                    onReset = { onReset(item) },
+                                    isSelectionMode = selectionState.isActive,
+                                    isSelected = item.id in selectionState.selectedIds,
+                                    onLongPress = { onEnterSelectionMode(item.id) },
+                                    onToggle = { onToggleSelection(item.id) },
+                                    showDragHandle = canReorder,
+                                    isDragging = isDragging,
+                                    dragHandleModifier =
+                                        Modifier
+                                            .testTag("word_list_drag_handle_${item.id}")
+                                            .draggableHandle(
+                                                enabled = canReorder,
+                                                interactionSource = dragInteractionSource,
+                                                onDragStarted = { isReordering = true },
+                                                onDragStopped = { isReordering = false },
+                                            ),
+                                )
+                            }
                         }
                     }
 
@@ -378,15 +439,22 @@ fun WordListItem(
     onEdit: (VocabularyItem) -> Unit,
     onReset: () -> Unit,
     modifier: Modifier = Modifier,
+    dragHandleModifier: Modifier = Modifier,
     isSelectionMode: Boolean = false,
     isSelected: Boolean = false,
     onLongPress: () -> Unit = {},
     onToggle: () -> Unit = {},
+    showDragHandle: Boolean = false,
+    isDragging: Boolean = false,
 ) {
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showResetDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
+    val cardElevation by animateDpAsState(
+        targetValue = if (isDragging) DRAGGING_ELEVATION else DEFAULT_ELEVATION,
+        label = "wordListItemElevation",
+    )
 
     Card(
         modifier =
@@ -406,7 +474,7 @@ fun WordListItem(
                         MaterialTheme.colorScheme.surface
                     },
             ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = cardElevation),
     ) {
         Row(
             modifier =
@@ -422,6 +490,19 @@ fun WordListItem(
                     onCheckedChange = { onToggle() },
                     modifier = Modifier.testTag("word_list_checkbox_${item.id}"),
                 )
+                Spacer(modifier = Modifier.width(8.dp))
+            } else if (showDragHandle) {
+                IconButton(
+                    modifier = dragHandleModifier,
+                    onClick = {},
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.DragHandle,
+                        contentDescription =
+                            stringResource(R.string.word_list_drag_handle_content_description, item.word),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 Spacer(modifier = Modifier.width(8.dp))
             }
 
@@ -439,6 +520,8 @@ fun WordListItem(
                     text = item.translation,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = MAX_TRANSLATION_LINES,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
 

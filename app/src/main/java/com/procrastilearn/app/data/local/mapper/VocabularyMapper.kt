@@ -20,6 +20,7 @@ fun VocabularyEntity.toDomain(direction: StudyDirection = StudyDirection.FORWARD
                 bidirectional = bidirectional,
                 backwardPromptOverride = backwardPromptOverride,
                 backwardAnswerOverride = backwardAnswerOverride,
+                position = position,
             )
         StudyDirection.BACKWARD ->
             VocabularyItem(
@@ -31,6 +32,7 @@ fun VocabularyEntity.toDomain(direction: StudyDirection = StudyDirection.FORWARD
                 bidirectional = bidirectional,
                 backwardPromptOverride = backwardPromptOverride,
                 backwardAnswerOverride = backwardAnswerOverride,
+                position = position,
             )
     }
 }

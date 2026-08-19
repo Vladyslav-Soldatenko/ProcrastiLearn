@@ -11,4 +11,5 @@ data class VocabularyItem(
     val bidirectional: Boolean = false,
     val backwardPromptOverride: String? = null,
     val backwardAnswerOverride: String? = null,
+    val position: Long = 0L,
 )

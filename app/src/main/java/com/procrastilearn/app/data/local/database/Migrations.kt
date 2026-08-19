@@ -93,3 +93,21 @@ val MIGRATION_4_5 =
             )
         }
     }
+
+val MIGRATION_5_6 =
+    object : Migration(5, 6) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            val orderedIds = mutableListOf<Long>()
+            db.query("SELECT id FROM vocabulary ORDER BY position ASC, id ASC").use { cursor ->
+                while (cursor.moveToNext()) {
+                    orderedIds.add(cursor.getLong(0))
+                }
+            }
+            orderedIds.forEachIndexed { index, id ->
+                db.execSQL("UPDATE vocabulary SET position = ? WHERE id = ?", arrayOf(-(index + 1L), id))
+            }
+            orderedIds.forEachIndexed { index, id ->
+                db.execSQL("UPDATE vocabulary SET position = ? WHERE id = ?", arrayOf(index + 1L, id))
+            }
+        }
+    }

@@ -1,6 +1,8 @@
 package com.procrastilearn.app.ui.screens
 
 import android.content.Context
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -37,6 +39,8 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class WordListScreenTest {
     private val composeTestRule = createComposeRule()
+    private val dragStepCount = 10
+    private val dragOvershootFactor = 2f
 
     @get:Rule
     val rules: TestRule =
@@ -56,6 +60,7 @@ class WordListScreenTest {
     private lateinit var onExitSelectionMode: () -> Unit
     private lateinit var onDeleteSelected: () -> Unit
     private lateinit var onSetSelectedBidirectional: (Boolean) -> Unit
+    private lateinit var onReorder: (List<Long>) -> Unit
 
     private val words =
         listOf(
@@ -78,6 +83,7 @@ class WordListScreenTest {
         onExitSelectionMode = mockk(relaxed = true)
         onDeleteSelected = mockk(relaxed = true)
         onSetSelectedBidirectional = mockk(relaxed = true)
+        onReorder = mockk(relaxed = true)
     }
 
     private fun string(resId: Int) = context.getString(resId)
@@ -232,6 +238,7 @@ class WordListScreenTest {
                 onExitSelectionMode = onExitSelectionMode,
                 onDeleteSelected = onDeleteSelected,
                 onSetSelectedBidirectional = onSetSelectedBidirectional,
+                onReorder = onReorder,
             )
         }
     }
@@ -648,5 +655,109 @@ class WordListScreenTest {
         composeTestRule
             .onNodeWithContentDescription(string(R.string.word_list_more_actions_selection))
             .performClick()
+    }
+
+    @Test
+    fun `drag handle is shown and checkbox hidden with no search, no selection, and two or more words`() {
+        setContent(words = words)
+
+        words.forEach {
+            composeTestRule.onNodeWithTag("word_list_drag_handle_${it.id}").assertIsDisplayed()
+            composeTestRule.onNodeWithTag("word_list_checkbox_${it.id}").assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun `drag handle is hidden for every row when a search query is active`() {
+        setContent(words = words, searchQuery = "pe")
+
+        composeTestRule.onNodeWithTag("word_list_drag_handle_${words[2].id}").assertDoesNotExist()
+    }
+
+    @Test
+    fun `drag handle is hidden for every row when selection mode is active`() {
+        setContent(words = words, selectionState = WordListViewModel.SelectionState(isActive = true))
+
+        words.forEach {
+            composeTestRule.onNodeWithTag("word_list_drag_handle_${it.id}").assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun `drag handle is hidden when there is only a single word`() {
+        setContent(words = words.take(1))
+
+        composeTestRule.onNodeWithTag("word_list_drag_handle_${words[0].id}").assertDoesNotExist()
+    }
+
+    @Test
+    fun `dragging the first row's handle past the second row invokes onReorder with them swapped`() {
+        setContent(words = words)
+
+        dragHandleToItem(fromWordId = words[0].id, toItemWordId = words[1].id)
+
+        verify(exactly = 1) { onReorder(listOf(words[1].id, words[0].id, words[2].id)) }
+    }
+
+    @Test
+    fun `a drag that returns to its starting position invokes onReorder with the original unchanged order`() {
+        setContent(words = words)
+        val handle = composeTestRule.onNodeWithTag("word_list_drag_handle_${words[0].id}")
+        val stepDeltaY = stepDeltaYTowardItem(handle, targetItemWordId = words[1].id)
+
+        handle.performTouchInput { down(center) }
+        repeat(dragStepCount) {
+            handle.performTouchInput { moveBy(Offset(0f, stepDeltaY)) }
+            composeTestRule.waitForIdle()
+        }
+        repeat(dragStepCount) {
+            handle.performTouchInput { moveBy(Offset(0f, -stepDeltaY)) }
+            composeTestRule.waitForIdle()
+        }
+        handle.performTouchInput { up() }
+
+        verify(exactly = 1) { onReorder(words.map { it.id }) }
+    }
+
+    private fun centerYPx(node: SemanticsNodeInteraction): Float {
+        val bounds = node.fetchSemanticsNode().boundsInRoot
+        return (bounds.top + bounds.bottom) / 2f
+    }
+
+    private fun stepDeltaYTowardItem(
+        handleNode: SemanticsNodeInteraction,
+        targetItemWordId: Long,
+    ): Float {
+        val handleCenterY = centerYPx(handleNode)
+        val targetCenterY = centerYPx(composeTestRule.onNodeWithTag("word_list_item_$targetItemWordId"))
+        return (targetCenterY - handleCenterY) * dragOvershootFactor / dragStepCount
+    }
+
+    private fun dragHandleToItem(
+        fromWordId: Long,
+        toItemWordId: Long,
+    ) {
+        val handle = composeTestRule.onNodeWithTag("word_list_drag_handle_$fromWordId")
+        val stepDeltaY = stepDeltaYTowardItem(handle, toItemWordId)
+
+        handle.performTouchInput { down(center) }
+        repeat(dragStepCount) {
+            handle.performTouchInput { moveBy(Offset(0f, stepDeltaY)) }
+            composeTestRule.waitForIdle()
+        }
+        handle.performTouchInput { up() }
+    }
+
+    @Test
+    fun `tapping the drag handle without dragging does not invoke any row action`() {
+        setContent(words = words)
+
+        composeTestRule.onNodeWithTag("word_list_drag_handle_${words[0].id}").performClick()
+
+        verify { onToggleSelection wasNot called }
+        verify { onEnterSelectionMode wasNot called }
+        verify { onDelete wasNot called }
+        verify { onEdit wasNot called }
+        verify { onReset wasNot called }
     }
 }

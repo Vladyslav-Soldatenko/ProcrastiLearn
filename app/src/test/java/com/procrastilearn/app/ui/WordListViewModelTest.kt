@@ -480,4 +480,119 @@ class WordListViewModelTest {
 
             coVerify(exactly = 1) { repository.setBidirectional(setOf(7L), true) }
         }
+
+    @Test
+    fun `reorderWords with a valid new order delegates to repository`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val first = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = true)
+            val second = first.copy(id = 2, word = "Baum", translation = "Tree")
+            val third = first.copy(id = 3, word = "Auto", translation = "Car")
+            val viewModel = buildViewModel()
+            coEvery { repository.reorderVocabulary(any()) } returns Unit
+            viewModel.awaitWords(listOf(first, second, third))
+
+            viewModel.reorderWords(listOf(third.id, first.id, second.id))
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { repository.reorderVocabulary(listOf(third.id, first.id, second.id)) }
+        }
+
+    @Test
+    fun `reorderWords with a single id does nothing`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val first = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = true)
+            val second = first.copy(id = 2, word = "Baum", translation = "Tree")
+            val viewModel = buildViewModel()
+            viewModel.awaitWords(listOf(first, second))
+
+            viewModel.reorderWords(listOf(first.id))
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { repository.reorderVocabulary(any()) }
+        }
+
+    @Test
+    fun `reorderWords with an empty list does nothing`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val first = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = true)
+            val second = first.copy(id = 2, word = "Baum", translation = "Tree")
+            val viewModel = buildViewModel()
+            viewModel.awaitWords(listOf(first, second))
+
+            viewModel.reorderWords(emptyList())
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { repository.reorderVocabulary(any()) }
+        }
+
+    @Test
+    fun `reorderWords when the current word list has fewer than two items does nothing`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val first = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = true)
+            val viewModel = buildViewModel()
+            viewModel.awaitWords(listOf(first))
+
+            viewModel.reorderWords(listOf(first.id, 999L))
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { repository.reorderVocabulary(any()) }
+        }
+
+    @Test
+    fun `reorderWords when the given order already matches the current order does nothing`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val first = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = true)
+            val second = first.copy(id = 2, word = "Baum", translation = "Tree")
+            val viewModel = buildViewModel()
+            viewModel.awaitWords(listOf(first, second))
+
+            viewModel.reorderWords(listOf(first.id, second.id))
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { repository.reorderVocabulary(any()) }
+        }
+
+    @Test
+    fun `reorderWords when the given id set contains an id foreign to the current word list does nothing`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val first = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = true)
+            val second = first.copy(id = 2, word = "Baum", translation = "Tree")
+            val viewModel = buildViewModel()
+            viewModel.awaitWords(listOf(first, second))
+
+            viewModel.reorderWords(listOf(first.id, 999L))
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { repository.reorderVocabulary(any()) }
+        }
+
+    @Test
+    fun `reorderWords when the given id set is missing an id present in the current word list does nothing`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val first = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = true)
+            val second = first.copy(id = 2, word = "Baum", translation = "Tree")
+            val third = first.copy(id = 3, word = "Auto", translation = "Car")
+            val viewModel = buildViewModel()
+            viewModel.awaitWords(listOf(first, second, third))
+
+            viewModel.reorderWords(listOf(first.id, first.id, second.id))
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { repository.reorderVocabulary(any()) }
+        }
+
+    @Test
+    fun `reorderWords when the repository throws does not crash`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val first = VocabularyItem(id = 1, word = "Haus", translation = "House", isNew = true)
+            val second = first.copy(id = 2, word = "Baum", translation = "Tree")
+            val viewModel = buildViewModel()
+            coEvery { repository.reorderVocabulary(any()) } throws RuntimeException("boom")
+            viewModel.awaitWords(listOf(first, second))
+
+            viewModel.reorderWords(listOf(second.id, first.id))
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { repository.reorderVocabulary(listOf(second.id, first.id)) }
+        }
 }

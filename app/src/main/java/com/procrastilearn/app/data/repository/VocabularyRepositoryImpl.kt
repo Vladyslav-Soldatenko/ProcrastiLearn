@@ -52,6 +52,7 @@ internal fun todayStamp(): Int =
 class NoAvailableItemsException : Exception("Daily limits reached and no reviews due")
 
 @Singleton
+@Suppress("TooManyFunctions")
 class VocabularyRepositoryImpl
     @Inject
     constructor(
@@ -120,8 +121,16 @@ class VocabularyRepositoryImpl
             withContext(io) {
                 if (items.isEmpty()) return@withContext
                 appDatabase.withTransaction {
-                    vocabularyDao.deleteVocabulary(items.map { it.toEntity() })
+                    vocabularyDao.deleteVocabularyAndRenumber(items.map { it.toEntity() })
                     undoSnapshotDao.deleteForVocabIds(items.map { it.id })
+                }
+            }
+
+        override suspend fun reorderVocabulary(orderedIds: List<Long>): Unit =
+            withContext(io) {
+                if (orderedIds.isEmpty()) return@withContext
+                appDatabase.withTransaction {
+                    vocabularyDao.reorderVocabulary(orderedIds)
                 }
             }
 

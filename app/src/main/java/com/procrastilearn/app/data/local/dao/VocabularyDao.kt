@@ -40,6 +40,9 @@ interface VocabularyDao {
     @Query("SELECT COALESCE(MAX(position), 0) FROM vocabulary")
     suspend fun getMaxPosition(): Long
 
+    @Query("SELECT id FROM vocabulary ORDER BY position ASC, id ASC")
+    suspend fun getAllIdsOrderedByPosition(): List<Long>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertVocabulary(item: VocabularyEntity): Long
 
@@ -72,6 +75,25 @@ interface VocabularyDao {
 
     @Query("DELETE FROM vocabulary")
     suspend fun deleteAllVocabulary()
+
+    @Query("UPDATE vocabulary SET position = :position WHERE id = :id")
+    suspend fun updatePosition(
+        id: Long,
+        position: Long,
+    )
+
+    @Transaction
+    suspend fun reorderVocabulary(orderedIds: List<Long>) {
+        orderedIds.forEachIndexed { index, id -> updatePosition(id, -(index + 1L)) }
+        orderedIds.forEachIndexed { index, id -> updatePosition(id, index + 1L) }
+    }
+
+    @Transaction
+    suspend fun deleteVocabularyAndRenumber(items: List<VocabularyEntity>) {
+        if (items.isEmpty()) return
+        deleteVocabulary(items)
+        reorderVocabulary(getAllIdsOrderedByPosition())
+    }
 
     @Query(
         """
