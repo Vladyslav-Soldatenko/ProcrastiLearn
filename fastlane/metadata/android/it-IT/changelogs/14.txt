@@ -1,0 +1,2 @@
+Aggiunto il trascinamento per riordinare Il mio vocabolario.
+Mantenuto l'ordine originale delle carte durante l'importazione da Anki.
