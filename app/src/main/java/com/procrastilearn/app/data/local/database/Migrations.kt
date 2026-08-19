@@ -94,13 +94,6 @@ val MIGRATION_4_5 =
         }
     }
 
-// Pure data-fix migration: closes any gaps in `position` left by deletions before this
-// version (deletion now renumbers remaining rows on its own; this is a one-time catch-up for
-// data that predates that fix). No column/index change, so schema-wise this is a no-op -
-// still requires a version bump for Room's migration system to run it. Same two-phase
-// negative-then-positive renumber the DAO uses, done procedurally (not a SQL window function)
-// to avoid depending on any particular on-device SQLite version's feature set for a migration
-// that only ever runs once, on a small table.
 val MIGRATION_5_6 =
     object : Migration(5, 6) {
         override fun migrate(db: SupportSQLiteDatabase) {

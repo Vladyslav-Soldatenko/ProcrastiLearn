@@ -70,8 +70,6 @@ class VocabularyDaoReorderTest {
 
     private suspend fun positionOf(id: Long): Long = entityById(id).position
 
-    // --- reorderVocabulary ---
-
     @Test
     fun `reorderVocabulary with an empty list is a no-op`() =
         runTest {
@@ -290,8 +288,6 @@ class VocabularyDaoReorderTest {
             val positions = ids.map { positionOf(it) }
             assertThat(positions.distinct()).hasSize(positions.size)
         }
-
-    // --- deleteVocabularyAndRenumber ---
 
     @Test
     fun `deleteVocabularyAndRenumber with an empty list is a no-op`() =

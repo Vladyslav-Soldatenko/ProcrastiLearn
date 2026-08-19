@@ -719,18 +719,11 @@ class WordListScreenTest {
         verify(exactly = 1) { onReorder(words.map { it.id }) }
     }
 
-    // Guessing a fixed pixel distance is unreliable across environments/densities, so this
-    // computes the real on-screen distance from the handle's current position to the target
-    // row's position (captured once, before the drag starts - items between the drag's start
-    // and its not-yet-reached target don't move until the drag actually reaches them).
     private fun centerYPx(node: SemanticsNodeInteraction): Float {
         val bounds = node.fetchSemanticsNode().boundsInRoot
         return (bounds.top + bounds.bottom) / 2f
     }
 
-    // Landing exactly on the target row's original center is one swap short in practice (the
-    // dragged item needs to cross past a row's threshold, not just reach its midpoint), so aim
-    // well beyond it rather than exactly at it.
     private fun stepDeltaYTowardItem(
         handleNode: SemanticsNodeInteraction,
         targetItemWordId: Long,

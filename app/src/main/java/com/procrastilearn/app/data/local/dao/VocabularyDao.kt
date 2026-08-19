@@ -82,11 +82,6 @@ interface VocabularyDao {
         position: Long,
     )
 
-    // Two-phase write: negative placeholders first, then real 1-based positions. No two rows
-    // are ever assigned the same value at the same instant, so this can never trip the UNIQUE
-    // index on position regardless of the rows' current on-disk values. Callers must pass the
-    // complete current id set - a partial list leaves excluded rows' old positions untouched,
-    // which can collide with a newly-assigned value and abort the whole transaction.
     @Transaction
     suspend fun reorderVocabulary(orderedIds: List<Long>) {
         orderedIds.forEachIndexed { index, id -> updatePosition(id, -(index + 1L)) }

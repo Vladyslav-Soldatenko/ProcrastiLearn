@@ -99,13 +99,6 @@ class WordListViewModel
             }
         }
 
-        // The set-equality guard is a correctness guard, not just tidiness: it's what keeps
-        // repository.reorderVocabulary from ever being called with a partial id set, which
-        // would leave excluded rows' stale positions colliding with the newly-assigned ones.
-        // Reordering is a low-stakes convenience action, so unlike every other method here, a
-        // repository failure is swallowed rather than left to propagate - the UI already
-        // reflects the attempted order locally and will resync to the last-persisted order on
-        // the next `words` emission.
         @Suppress("TooGenericExceptionCaught", "SwallowedException")
         fun reorderWords(orderedIds: List<Long>) {
             val currentIds = words.value.map { it.id }
@@ -117,8 +110,7 @@ class WordListViewModel
                     repository.reorderVocabulary(orderedIds)
                 } catch (e: CancellationException) {
                     throw e
-                } catch (e: Exception) {
-                    // Swallowed intentionally - see comment above.
+                } catch (ignored: Exception) {
                 }
             }
         }
