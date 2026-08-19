@@ -181,13 +181,18 @@ class WordListReorderE2eTest {
         // relative to the handle's own real measured position instead, comfortably below it but
         // still within plausible screen bounds, then hold there so the auto-scroll loop has real
         // wall-clock time to actually advance between each held position report.
+        //
+        // Repeating moveTo() at the exact same coordinate produces a zero-delta pointer event,
+        // which the drag-tracking code has no obligation to treat as "still held near the edge" -
+        // alternate a tiny jitter around the target each step so every event is a genuine,
+        // distinct motion, keeping the auto-scroll continuously re-triggered for the whole hold.
         val handle = composeTestRule.onNodeWithTag(dragHandleTag(firstId))
         val edgeTargetY = centerYPx(handle) + AUTO_SCROLL_TARGET_OFFSET_PX
         handle.performTouchInput { down(center) }
-        handle.performTouchInput { moveTo(Offset(center.x, edgeTargetY)) }
-        repeat(AUTO_SCROLL_HOLD_STEPS) {
+        repeat(AUTO_SCROLL_HOLD_STEPS) { step ->
+            val jitter = if (step % 2 == 0) AUTO_SCROLL_JITTER_PX else -AUTO_SCROLL_JITTER_PX
+            handle.performTouchInput { moveTo(Offset(center.x, edgeTargetY + jitter)) }
             Thread.sleep(AUTO_SCROLL_STEP_DELAY_MS)
-            handle.performTouchInput { moveTo(Offset(center.x, edgeTargetY)) }
         }
         handle.performTouchInput { up() }
         composeTestRule.waitForIdle()
@@ -414,6 +419,7 @@ class WordListReorderE2eTest {
         const val DEFAULT_TIMEOUT_MS = 15_000L
         const val WORD_COUNT_EXCEEDING_ONE_SCREEN = 40
         const val AUTO_SCROLL_TARGET_OFFSET_PX = 1800f
+        const val AUTO_SCROLL_JITTER_PX = 5f
         const val AUTO_SCROLL_HOLD_STEPS = 40
         const val AUTO_SCROLL_STEP_DELAY_MS = 400L
         const val AUTO_SCROLL_MIN_EXPECTED_POSITION = 2L
