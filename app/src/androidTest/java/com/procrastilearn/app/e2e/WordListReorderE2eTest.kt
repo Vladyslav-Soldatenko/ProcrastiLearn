@@ -69,7 +69,7 @@ class WordListReorderE2eTest {
 
         dragHandleToItem(alphaId, zetaId)
 
-        composeTestRule.activity.recreate()
+        recreateActivity()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(alphaId)), DEFAULT_TIMEOUT_MS)
         assertEquals(listOf(muId, zetaId, alphaId), displayedWordIdsInOrder())
     }
@@ -84,7 +84,7 @@ class WordListReorderE2eTest {
 
         dragHandleToItem(zetaId, alphaId)
 
-        composeTestRule.activity.recreate()
+        recreateActivity()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(alphaId)), DEFAULT_TIMEOUT_MS)
         assertEquals(listOf(zetaId, alphaId, muId), displayedWordIdsInOrder())
     }
@@ -100,7 +100,7 @@ class WordListReorderE2eTest {
 
         dragHandleToItem(bId, dId)
 
-        composeTestRule.activity.recreate()
+        recreateActivity()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(aId)), DEFAULT_TIMEOUT_MS)
         assertEquals(listOf(aId, cId, dId, bId), displayedWordIdsInOrder())
     }
@@ -160,7 +160,7 @@ class WordListReorderE2eTest {
         // truly dangling across the recreate() call.
         handle.performTouchInput { cancel() }
 
-        composeTestRule.activity.recreate()
+        recreateActivity()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(gammaId)), DEFAULT_TIMEOUT_MS)
         assertEquals(listOf(alphaId, betaId, gammaId), displayedWordIdsInOrder())
     }
@@ -189,7 +189,7 @@ class WordListReorderE2eTest {
         handle.performTouchInput { up() }
         composeTestRule.waitForIdle()
 
-        composeTestRule.activity.recreate()
+        recreateActivity()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(ids.last())), DEFAULT_TIMEOUT_MS)
 
         // Exact final index depends on real auto-scroll speed/timing, so keep the assertion
@@ -245,9 +245,17 @@ class WordListReorderE2eTest {
 
         dragHandleToItem(importedIds[1], existingId)
 
-        composeTestRule.activity.recreate()
+        recreateActivity()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(existingId)), DEFAULT_TIMEOUT_MS)
         assertEquals(listOf(importedIds[1], existingId, importedIds[0]), displayedWordIdsInOrder())
+    }
+
+    // Activity.recreate() must run on the main thread - calling it directly from the
+    // instrumentation thread throws IllegalStateException.
+    private fun recreateActivity() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            composeTestRule.activity.recreate()
+        }
     }
 
     private fun string(resId: Int) = targetContext.getString(resId)
