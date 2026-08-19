@@ -183,12 +183,26 @@ class WordListReorderE2eTest {
         // is guaranteed to land inside the last visible row, i.e. genuinely inside the list and
         // as close to its trailing edge as content allows. Re-measure every step rather than
         // once, since that edge itself moves as the list scrolls.
-        //
-        // Repeating moveTo() at the exact same coordinate also produces a zero-delta pointer
+        val handle = composeTestRule.onNodeWithTag(dragHandleTag(firstId))
+        val startY = centerYPx(handle)
+        val initialEdgeTargetY = lastVisibleItemBottomYPx() - AUTO_SCROLL_EDGE_INSET_PX
+        val approachStepDeltaY = (initialEdgeTargetY - startY) / DRAG_STEP_COUNT
+
+        handle.performTouchInput { down(center) }
+
+        // A single moveTo() straight from the start position to the (far-away) edge target
+        // never registers as a drag at all - as with every other drag gesture in this suite,
+        // the gesture detector needs a series of small, incremental moves to recognize it as a
+        // continuous drag rather than a discontinuous jump.
+        repeat(DRAG_STEP_COUNT) {
+            handle.performTouchInput { moveBy(Offset(0f, approachStepDeltaY)) }
+            composeTestRule.waitForIdle()
+        }
+
+        // Once near the edge, hold there so the auto-scroll loop has real wall-clock time to
+        // advance. Repeating moveTo() at the exact same coordinate produces a zero-delta pointer
         // event, which the drag-tracking code has no obligation to treat as "still held near the
         // edge" - alternate a tiny jitter each step so every event is a genuine, distinct motion.
-        val handle = composeTestRule.onNodeWithTag(dragHandleTag(firstId))
-        handle.performTouchInput { down(center) }
         repeat(AUTO_SCROLL_HOLD_STEPS) { step ->
             val jitter = if (step % 2 == 0) AUTO_SCROLL_JITTER_PX else -AUTO_SCROLL_JITTER_PX
             val edgeTargetY = lastVisibleItemBottomYPx() - AUTO_SCROLL_EDGE_INSET_PX + jitter
