@@ -155,11 +155,6 @@ class WordListReorderE2eTest {
             handle.performTouchInput { moveBy(Offset(0f, stepDeltaY)) }
             composeTestRule.waitForIdle()
         }
-        // A configuration change delivers ACTION_CANCEL to any in-flight touch sequence before
-        // tearing the view hierarchy down - simulate that rather than leaving the gesture
-        // truly dangling across the recreate() call. waitForIdle() gives the cancel a chance to
-        // actually propagate (and be observed as a no-commit) before recreate() tears everything
-        // down.
         handle.performTouchInput { cancel() }
         composeTestRule.waitForIdle()
 
@@ -176,13 +171,6 @@ class WordListReorderE2eTest {
         navigateToWordList()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(firstId)), DEFAULT_TIMEOUT_MS)
 
-        // A fixed absolute offset is a guess at where the library's auto-scroll trigger zone
-        // actually is, and can easily overshoot past the LazyColumn's own bounds entirely (into
-        // system UI below it), which never counts as "still inside the scrollable area." Aim at
-        // the bottom edge of whatever is currently visible instead - inset slightly so the point
-        // is guaranteed to land inside the last visible row, i.e. genuinely inside the list and
-        // as close to its trailing edge as content allows. Re-measure every step rather than
-        // once, since that edge itself moves as the list scrolls.
         val handle = composeTestRule.onNodeWithTag(dragHandleTag(firstId))
         val startY = centerYPx(handle)
         val initialEdgeTargetY = lastVisibleItemBottomYPx() - AUTO_SCROLL_EDGE_INSET_PX
@@ -190,19 +178,11 @@ class WordListReorderE2eTest {
 
         handle.performTouchInput { down(center) }
 
-        // A single moveTo() straight from the start position to the (far-away) edge target
-        // never registers as a drag at all - as with every other drag gesture in this suite,
-        // the gesture detector needs a series of small, incremental moves to recognize it as a
-        // continuous drag rather than a discontinuous jump.
         repeat(DRAG_STEP_COUNT) {
             handle.performTouchInput { moveBy(Offset(0f, approachStepDeltaY)) }
             composeTestRule.waitForIdle()
         }
 
-        // Once near the edge, hold there so the auto-scroll loop has real wall-clock time to
-        // advance. Repeating moveTo() at the exact same coordinate produces a zero-delta pointer
-        // event, which the drag-tracking code has no obligation to treat as "still held near the
-        // edge" - alternate a tiny jitter each step so every event is a genuine, distinct motion.
         repeat(AUTO_SCROLL_HOLD_STEPS) { step ->
             val jitter = if (step % 2 == 0) AUTO_SCROLL_JITTER_PX else -AUTO_SCROLL_JITTER_PX
             val edgeTargetY = lastVisibleItemBottomYPx() - AUTO_SCROLL_EDGE_INSET_PX + jitter
@@ -212,14 +192,6 @@ class WordListReorderE2eTest {
         handle.performTouchInput { up() }
         composeTestRule.waitForIdle()
 
-        // For a 40-item list, only currently-visible rows are composed into the semantics tree,
-        // and where the list happens to be scrolled to isn't something this test controls - so
-        // read the persisted position directly from the DB rather than trying to re-locate a
-        // specific row (possibly off-screen) after the drop. Exact final position depends on
-        // real auto-scroll speed/timing, so keep the assertion loose: it only needs to have
-        // moved well past a simple adjacent swap, which is only reachable if auto-scroll
-        // actually engaged during the held drag (with no auto-scroll the drag could never reach
-        // past whatever was on-screen at the start).
         val finalPosition = positionOf(firstId)
         assertTrue(
             "expected position > $AUTO_SCROLL_MIN_EXPECTED_POSITION but was $finalPosition",
@@ -275,8 +247,6 @@ class WordListReorderE2eTest {
         assertEquals(listOf(importedIds[1], existingId, importedIds[0]), displayedWordIdsInOrder())
     }
 
-    // Activity.recreate() must run on the main thread - calling it directly from the
-    // instrumentation thread throws IllegalStateException.
     private fun recreateActivity() {
         InstrumentationRegistry.getInstrumentation().runOnMainSync {
             composeTestRule.activity.recreate()
@@ -323,11 +293,6 @@ class WordListReorderE2eTest {
         composeTestRule.waitForIdle()
     }
 
-    // A single large moveTo() jump doesn't reliably register as a real drag - the target
-    // position can land outside the list's actual content bounds entirely, which the library
-    // treats as "no valid drop target" rather than clamping to the nearest one. Real on-screen
-    // row positions (not a guessed pixel distance) split into several incremental moveBy()
-    // steps, with idle time between each for layout to catch up, is what actually works.
     private fun centerYPx(node: SemanticsNodeInteraction): Float {
         val bounds = node.fetchSemanticsNode().boundsInRoot
         return (bounds.top + bounds.bottom) / 2f
@@ -342,8 +307,6 @@ class WordListReorderE2eTest {
         return (targetCenterY - handleCenterY) / DRAG_STEP_COUNT
     }
 
-    // Landing exactly on the target row's original center is one swap short in practice, so
-    // aim well beyond it rather than exactly at it.
     private fun dragHandleToItem(
         fromWordId: Long,
         toItemWordId: Long,
