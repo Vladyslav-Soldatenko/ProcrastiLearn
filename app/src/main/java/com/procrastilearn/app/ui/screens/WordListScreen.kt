@@ -4,6 +4,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.DragInteraction
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,6 +54,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -79,6 +82,7 @@ import io.github.oikvpqya.compose.fastscroller.rememberScrollbarAdapter
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.collect
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -154,6 +158,19 @@ internal fun WordListContent(
         if (!isReordering) localOrder = words
     }
     val canReorder = normalizedQuery.isBlank() && !selectionState.isActive && words.size >= 2
+
+    // draggableHandle's onDragStopped fires on BOTH a completed drop and a system-initiated
+    // cancel (e.g. a config change interrupting the gesture) with no way to tell them apart -
+    // committing from there would write a still-in-progress reorder on interruption. Only a
+    // genuine DragInteraction.Stop should commit; Cancel (and everything else) is a no-op, so
+    // an interrupted drag reverts to the last-persisted order instead of writing a partial one.
+    val dragInteractionSource = remember { MutableInteractionSource() }
+    val currentOnReorder = rememberUpdatedState(onReorder)
+    LaunchedEffect(dragInteractionSource) {
+        dragInteractionSource.interactions.collect { interaction ->
+            if (interaction is DragInteraction.Stop) currentOnReorder.value(localOrder.map { it.id })
+        }
+    }
 
     val displayedWords =
         if (normalizedQuery.isBlank()) {
@@ -362,11 +379,9 @@ internal fun WordListContent(
                                             .testTag("word_list_drag_handle_${item.id}")
                                             .draggableHandle(
                                                 enabled = canReorder,
+                                                interactionSource = dragInteractionSource,
                                                 onDragStarted = { isReordering = true },
-                                                onDragStopped = {
-                                                    isReordering = false
-                                                    onReorder(localOrder.map { it.id })
-                                                },
+                                                onDragStopped = { isReordering = false },
                                             ),
                                 )
                             }
