@@ -176,22 +176,23 @@ class WordListReorderE2eTest {
         navigateToWordList()
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(firstId)), DEFAULT_TIMEOUT_MS)
 
-        // A fixed absolute Y risks landing outside the actual device screen entirely (which the
-        // library treats as no valid position at all, not clamped to the nearest edge) - aim
-        // relative to the handle's own real measured position instead, comfortably below it but
-        // still within plausible screen bounds, then hold there so the auto-scroll loop has real
-        // wall-clock time to actually advance between each held position report.
+        // A fixed absolute offset is a guess at where the library's auto-scroll trigger zone
+        // actually is, and can easily overshoot past the LazyColumn's own bounds entirely (into
+        // system UI below it), which never counts as "still inside the scrollable area." Aim at
+        // the bottom edge of whatever is currently visible instead - inset slightly so the point
+        // is guaranteed to land inside the last visible row, i.e. genuinely inside the list and
+        // as close to its trailing edge as content allows. Re-measure every step rather than
+        // once, since that edge itself moves as the list scrolls.
         //
-        // Repeating moveTo() at the exact same coordinate produces a zero-delta pointer event,
-        // which the drag-tracking code has no obligation to treat as "still held near the edge" -
-        // alternate a tiny jitter around the target each step so every event is a genuine,
-        // distinct motion, keeping the auto-scroll continuously re-triggered for the whole hold.
+        // Repeating moveTo() at the exact same coordinate also produces a zero-delta pointer
+        // event, which the drag-tracking code has no obligation to treat as "still held near the
+        // edge" - alternate a tiny jitter each step so every event is a genuine, distinct motion.
         val handle = composeTestRule.onNodeWithTag(dragHandleTag(firstId))
-        val edgeTargetY = centerYPx(handle) + AUTO_SCROLL_TARGET_OFFSET_PX
         handle.performTouchInput { down(center) }
         repeat(AUTO_SCROLL_HOLD_STEPS) { step ->
             val jitter = if (step % 2 == 0) AUTO_SCROLL_JITTER_PX else -AUTO_SCROLL_JITTER_PX
-            handle.performTouchInput { moveTo(Offset(center.x, edgeTargetY + jitter)) }
+            val edgeTargetY = lastVisibleItemBottomYPx() - AUTO_SCROLL_EDGE_INSET_PX + jitter
+            handle.performTouchInput { moveTo(Offset(center.x, edgeTargetY)) }
             Thread.sleep(AUTO_SCROLL_STEP_DELAY_MS)
         }
         handle.performTouchInput { up() }
@@ -205,7 +206,11 @@ class WordListReorderE2eTest {
         // moved well past a simple adjacent swap, which is only reachable if auto-scroll
         // actually engaged during the held drag (with no auto-scroll the drag could never reach
         // past whatever was on-screen at the start).
-        assertTrue(positionOf(firstId) > AUTO_SCROLL_MIN_EXPECTED_POSITION)
+        val finalPosition = positionOf(firstId)
+        assertTrue(
+            "expected position > $AUTO_SCROLL_MIN_EXPECTED_POSITION but was $finalPosition",
+            finalPosition > AUTO_SCROLL_MIN_EXPECTED_POSITION,
+        )
     }
 
     @Test
@@ -352,6 +357,12 @@ class WordListReorderE2eTest {
             .mapNotNull { node -> node.config.getOrNull(SemanticsProperties.TestTag) }
             .map { tag -> tag.removePrefix("word_list_item_").toLong() }
 
+    private fun lastVisibleItemBottomYPx(): Float =
+        composeTestRule
+            .onAllNodes(WORD_LIST_ITEM_MATCHER, useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .maxOf { node -> node.boundsInRoot.bottom }
+
     private fun seedWord(
         word: String,
         translation: String,
@@ -418,7 +429,7 @@ class WordListReorderE2eTest {
     private companion object {
         const val DEFAULT_TIMEOUT_MS = 15_000L
         const val WORD_COUNT_EXCEEDING_ONE_SCREEN = 40
-        const val AUTO_SCROLL_TARGET_OFFSET_PX = 1800f
+        const val AUTO_SCROLL_EDGE_INSET_PX = 30f
         const val AUTO_SCROLL_JITTER_PX = 5f
         const val AUTO_SCROLL_HOLD_STEPS = 40
         const val AUTO_SCROLL_STEP_DELAY_MS = 400L
