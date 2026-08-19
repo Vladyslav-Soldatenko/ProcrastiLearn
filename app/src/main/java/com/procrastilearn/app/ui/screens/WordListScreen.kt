@@ -65,6 +65,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -88,6 +89,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 
 private val DEFAULT_ELEVATION = 2.dp
 private val DRAGGING_ELEVATION = 8.dp
+private const val MAX_TRANSLATION_LINES = 4
 
 @Suppress("DEPRECATION") // replacement androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel is not yet published
 @Composable
@@ -518,6 +520,8 @@ fun WordListItem(
                     text = item.translation,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = MAX_TRANSLATION_LINES,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
 
