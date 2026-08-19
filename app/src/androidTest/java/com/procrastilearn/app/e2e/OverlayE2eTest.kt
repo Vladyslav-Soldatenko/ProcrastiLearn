@@ -252,9 +252,7 @@ class OverlayE2eTest {
             .performClick()
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.waitUntilNodeExists(hasText(string(R.string.settings_rating_delay_title)), DEFAULT_TIMEOUT_MS)
+        openRatingDelayDialog()
 
         val ratingDelayField = composeTestRule.onNode(hasSetTextAction())
         ratingDelayField.performClick()
@@ -267,6 +265,21 @@ class OverlayE2eTest {
             .onNodeWithContentDescription(string(R.string.nav_apps), useUnmergedTree = true)
             .performClick()
         composeTestRule.waitForIdle()
+    }
+
+    private fun openRatingDelayDialog() {
+        repeat(DIALOG_OPEN_RETRY_COUNT) {
+            composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).performClick()
+            composeTestRule.waitForIdle()
+            if (composeTestRule.nodeVisibleWithin(
+                    hasText(string(R.string.settings_rating_delay_title)),
+                    DIALOG_OPEN_POLL_TIMEOUT_MS,
+                )
+            ) {
+                return
+            }
+        }
+        error("Rating delay dialog did not appear after $DIALOG_OPEN_RETRY_COUNT attempts")
     }
 
     private fun waitForRatingUnlock() {
@@ -400,6 +413,8 @@ class OverlayE2eTest {
         const val APPS_LIST_TIMEOUT_MS = 30_000L
         const val LAUNCH_POLL_TIMEOUT_MS = 3_000L
         const val LAUNCH_RETRY_COUNT = 3
+        const val DIALOG_OPEN_POLL_TIMEOUT_MS = 5_000L
+        const val DIALOG_OPEN_RETRY_COUNT = 3
         const val SERVICE_BIND_POLL_MS = 100L
         const val TARGET_PACKAGE = "com.android.settings"
         const val SEEDED_WORD = "overlayflashword"
