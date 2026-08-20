@@ -19,6 +19,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -252,10 +253,12 @@ class OverlayE2eTest {
             .performClick()
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).performClick()
-        composeTestRule.waitForIdle()
+        openRatingDelayDialog()
 
-        composeTestRule.onNode(hasSetTextAction()).performTextReplacement(seconds.toString())
+        val ratingDelayField = composeTestRule.onNode(hasSetTextAction())
+        ratingDelayField.performClick()
+        composeTestRule.waitForIdle()
+        ratingDelayField.performTextReplacement(seconds.toString())
         composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
         composeTestRule.waitForIdle()
 
@@ -263,6 +266,15 @@ class OverlayE2eTest {
             .onNodeWithContentDescription(string(R.string.nav_apps), useUnmergedTree = true)
             .performClick()
         composeTestRule.waitForIdle()
+    }
+
+    private fun openRatingDelayDialog() {
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_rating_delay_headline))
+            .performScrollTo()
+            .performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.waitUntilNodeExists(hasText(string(R.string.settings_rating_delay_title)), DEFAULT_TIMEOUT_MS)
     }
 
     private fun waitForRatingUnlock() {
