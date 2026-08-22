@@ -168,7 +168,7 @@ class WordListBidirectionalToggleE2eTest {
     private fun vocabularyByWord(word: String): VocabularyEntity =
         runBlocking {
             withContext(Dispatchers.IO) {
-                entryPoint().appDatabase().vocabularyDao().getVocabularyByWord(word)
+                entryPoint().appDatabase().vocabularyDao().getVocabularyByWord(VocabularyEntity.normalizeWord(word))
             }
         }!!
 

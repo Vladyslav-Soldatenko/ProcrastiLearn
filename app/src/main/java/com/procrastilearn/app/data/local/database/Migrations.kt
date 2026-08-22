@@ -111,3 +111,67 @@ val MIGRATION_5_6 =
             }
         }
     }
+
+// SQLite's own LOWER()/UPPER() are ASCII-only in Android's bundled build (same blind spot as
+// COLLATE NOCASE), so the case fold below must happen in Kotlin, not in SQL.
+val MIGRATION_6_7 =
+    object : Migration(6, 7) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `vocabulary` ADD COLUMN `normalizedWord` TEXT NOT NULL DEFAULT ''")
+
+            data class Candidate(
+                val id: Long,
+                val activity: Int,
+            )
+
+            val bestByNormalizedWord = mutableMapOf<String, Candidate>()
+            val idsToDelete = mutableListOf<Long>()
+
+            db
+                .query(
+                    "SELECT `id`, `word`, `correctCount`, `incorrectCount`, " +
+                        "`backwardCorrectCount`, `backwardIncorrectCount` FROM `vocabulary`",
+                ).use { cursor ->
+                    while (cursor.moveToNext()) {
+                        val id = cursor.getLong(0)
+                        val word = cursor.getString(1)
+                        val activity = cursor.getInt(2) + cursor.getInt(3) + cursor.getInt(4) + cursor.getInt(5)
+                        val normalizedWord = word.trim().lowercase()
+
+                        db.execSQL(
+                            "UPDATE `vocabulary` SET `normalizedWord` = ? WHERE `id` = ?",
+                            arrayOf<Any>(normalizedWord, id),
+                        )
+
+                        val current = bestByNormalizedWord[normalizedWord]
+                        val newIsBetter =
+                            current != null &&
+                                (activity > current.activity || activity == current.activity && id < current.id)
+                        when {
+                            current == null -> {
+                                bestByNormalizedWord[normalizedWord] = Candidate(id, activity)
+                            }
+                            newIsBetter -> {
+                                idsToDelete.add(current.id)
+                                bestByNormalizedWord[normalizedWord] = Candidate(id, activity)
+                            }
+                            else -> {
+                                idsToDelete.add(id)
+                            }
+                        }
+                    }
+                }
+
+            // Merge any rows this exact bug already produced (same word, non-ASCII case
+            // difference) before the unique index below can be created - keep whichever row
+            // has more review progress rather than discarding it arbitrarily.
+            idsToDelete.forEach { id ->
+                db.execSQL("DELETE FROM `vocabulary` WHERE `id` = ?", arrayOf(id))
+            }
+
+            db.execSQL("DROP INDEX IF EXISTS `index_vocabulary_word`")
+            db.execSQL(
+                "CREATE UNIQUE INDEX IF NOT EXISTS `index_vocabulary_normalizedWord` ON `vocabulary` (`normalizedWord`)",
+            )
+        }
+    }

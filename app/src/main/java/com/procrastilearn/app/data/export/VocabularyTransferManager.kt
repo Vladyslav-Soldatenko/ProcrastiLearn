@@ -144,12 +144,12 @@ class VocabularyTransferManager
         private suspend fun importItems(items: List<VocabularyItem>) {
             if (items.isEmpty()) return
             val deduped = dedupeByWord(items) { it.word }
-            val existingByWord = lookupExistingByWord(deduped.values.map { it.word })
+            val existingByWord = lookupExistingByWord(deduped.keys)
 
             val toInsert = mutableListOf<VocabularyEntity>()
             val toUpdate = mutableListOf<VocabularyEntity>()
-            for (item in deduped.values) {
-                val existing = existingByWord[item.word.lowercase()]
+            for ((normalizedWord, item) in deduped) {
+                val existing = existingByWord[normalizedWord]
                 if (existing != null) {
                     toUpdate += existing.copy(translation = item.translation)
                 } else {
@@ -163,12 +163,12 @@ class VocabularyTransferManager
         private suspend fun importExportItems(items: List<VocabularyExportItem>) {
             if (items.isEmpty()) return
             val deduped = dedupeByWord(items) { it.word }
-            val existingByWord = lookupExistingByWord(deduped.values.map { it.word })
+            val existingByWord = lookupExistingByWord(deduped.keys)
 
             val toInsert = mutableListOf<VocabularyEntity>()
             val toUpdate = mutableListOf<VocabularyEntity>()
-            for (item in deduped.values) {
-                val existing = existingByWord[item.word.lowercase()]
+            for ((normalizedWord, item) in deduped) {
+                val existing = existingByWord[normalizedWord]
                 if (existing != null) {
                     toUpdate +=
                         existing.copy(
@@ -188,16 +188,16 @@ class VocabularyTransferManager
             wordOf: (T) -> String,
         ): LinkedHashMap<String, T> {
             val map = LinkedHashMap<String, T>()
-            items.forEach { map[wordOf(it).lowercase()] = it }
+            items.forEach { map[VocabularyEntity.normalizeWord(wordOf(it))] = it }
             return map
         }
 
-        private suspend fun lookupExistingByWord(words: Collection<String>): Map<String, VocabularyEntity> =
-            words
+        private suspend fun lookupExistingByWord(normalizedWords: Collection<String>): Map<String, VocabularyEntity> =
+            normalizedWords
                 .toList()
                 .chunked(MAX_SQLITE_BIND_ARGS)
                 .flatMap { vocabularyDao.getVocabularyByWords(it) }
-                .associateBy { it.word.lowercase() }
+                .associateBy { VocabularyEntity.normalizeWord(it.word) }
 
         private fun findParser(optionId: String): VocabularyParser? =
             parsers.firstOrNull { parser ->

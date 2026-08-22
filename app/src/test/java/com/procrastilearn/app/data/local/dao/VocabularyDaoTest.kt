@@ -234,15 +234,113 @@ class VocabularyDaoTest {
         }
 
     @Test
-    fun `getVocabularyByWords matches case-insensitively`() =
+    fun `getVocabularyByWord finds an exact match`() =
+        runTest {
+            insert("Haus")
+
+            val result = dao.getVocabularyByWord(VocabularyEntity.normalizeWord("Haus"))
+
+            assertThat(result?.word).isEqualTo("Haus")
+        }
+
+    @Test
+    fun `getVocabularyByWord finds an ASCII case-different match`() =
+        runTest {
+            insert("Haus")
+
+            val result = dao.getVocabularyByWord(VocabularyEntity.normalizeWord("haus"))
+
+            assertThat(result?.word).isEqualTo("Haus")
+        }
+
+    @Test
+    fun `getVocabularyByWord finds a non-ASCII case-different match`() =
+        runTest {
+            insert("café")
+
+            val result = dao.getVocabularyByWord(VocabularyEntity.normalizeWord("CAFÉ"))
+
+            assertThat(result?.word).isEqualTo("café")
+        }
+
+    @Test
+    fun `getVocabularyByWord finds a Cyrillic case-different match`() =
+        runTest {
+            insert("привет")
+
+            val result = dao.getVocabularyByWord(VocabularyEntity.normalizeWord("ПРИВЕТ"))
+
+            assertThat(result?.word).isEqualTo("привет")
+        }
+
+    @Test
+    fun `getVocabularyByWord returns null for a genuinely different word`() =
+        runTest {
+            insert("café")
+
+            val result = dao.getVocabularyByWord(VocabularyEntity.normalizeWord("cafeteria"))
+
+            assertThat(result).isNull()
+        }
+
+    @Test
+    fun `getVocabularyByWord treats an accent difference as a different word`() =
+        runTest {
+            insert("café")
+
+            val result = dao.getVocabularyByWord(VocabularyEntity.normalizeWord("cafe"))
+
+            assertThat(result).isNull()
+        }
+
+    @Test
+    fun `getVocabularyByWord matches regardless of surrounding whitespace`() =
+        runTest {
+            insert("Haus")
+
+            val result = dao.getVocabularyByWord(VocabularyEntity.normalizeWord("  Haus  "))
+
+            assertThat(result?.word).isEqualTo("Haus")
+        }
+
+    @Test
+    fun `insertVocabulary replaces an existing row for a non-ASCII case variant`() =
+        runTest {
+            insert("café", correctCount = 3)
+
+            dao.insertVocabulary(VocabularyEntity(word = "CAFÉ", translation = "coffee"))
+
+            val all = dao.getAllVocabulary().first()
+            assertThat(all).hasSize(1)
+            assertThat(all.single().word).isEqualTo("CAFÉ")
+        }
+
+    @Test
+    fun `insertVocabulary keeps distinct rows for words differing only by accent`() =
+        runTest {
+            insert("café")
+
+            dao.insertVocabulary(VocabularyEntity(word = "cafe", translation = "coffee"))
+
+            val all = dao.getAllVocabulary().first()
+            assertThat(all.map { it.word }).containsExactly("café", "cafe")
+        }
+
+    @Test
+    fun `normalizeWord folds Turkish dotless I the same as any other locale`() {
+        assertThat(VocabularyEntity.normalizeWord("I")).isEqualTo("i")
+    }
+
+    @Test
+    fun `getVocabularyByWords matches on pre-normalized words, including non-ASCII case`() =
         runTest {
             insert("Haus")
             insert("Baum")
-            insert("Katze")
+            insert("CAFÉ")
 
-            val results = dao.getVocabularyByWords(listOf("haus", "KATZE", "missing"))
+            val results = dao.getVocabularyByWords(listOf("haus", "café", "missing"))
 
-            assertThat(results.map { it.word }).containsExactly("Haus", "Katze")
+            assertThat(results.map { it.word }).containsExactly("Haus", "CAFÉ")
         }
 
     @Test
@@ -291,7 +389,7 @@ class VocabularyDaoTest {
             assertThat(thrown).isNotNull()
 
             // The original row must survive untouched - no silent REPLACE occurred.
-            assertThat(dao.getVocabularyByWord("Haus")?.translation).isEqualTo("old")
+            assertThat(dao.getVocabularyByWord(VocabularyEntity.normalizeWord("Haus"))?.translation).isEqualTo("old")
         }
 
     @Test
@@ -322,7 +420,7 @@ class VocabularyDaoTest {
             )
 
             assertThat(entityById(existing).translation).isEqualTo("new")
-            val inserted = requireNotNull(dao.getVocabularyByWord("Baum"))
+            val inserted = requireNotNull(dao.getVocabularyByWord(VocabularyEntity.normalizeWord("Baum")))
             assertThat(inserted.translation).isEqualTo("tree")
             // The caller-supplied position (999) is ignored - applyImportBatch always assigns
             // MAX(position)+1 itself, atomically with the insert.
@@ -412,8 +510,10 @@ class VocabularyDaoTest {
 
             // Transactional: the "Baum" insert that would have otherwise succeeded must
             // also be rolled back, since it shared the same @Transaction as the failing one.
-            assertThat(dao.getVocabularyByWord("Baum")).isNull()
-            assertThat(dao.getVocabularyByWord("Haus")?.translation).isEqualTo("existing")
+            assertThat(dao.getVocabularyByWord(VocabularyEntity.normalizeWord("Baum"))).isNull()
+            assertThat(
+                dao.getVocabularyByWord(VocabularyEntity.normalizeWord("Haus"))?.translation,
+            ).isEqualTo("existing")
         }
 
     @Test

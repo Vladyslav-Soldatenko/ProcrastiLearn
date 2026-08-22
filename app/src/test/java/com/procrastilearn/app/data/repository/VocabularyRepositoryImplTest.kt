@@ -171,6 +171,42 @@ class VocabularyRepositoryImplTest {
         }
 
     @Test
+    fun `getVocabularyItemByWord finds an item by a non-ASCII case-different query`() =
+        runTest {
+            insertTestVocabulary("café", "coffee")
+
+            val result = repository.getVocabularyItemByWord("CAFÉ")
+
+            assertThat(result?.word).isEqualTo("café")
+        }
+
+    @Test
+    fun `updateVocabularyItem renaming only the case of a word keeps it findable by the new form`() =
+        runTest {
+            val id = insertTestVocabulary("café", "coffee")
+
+            repository.updateVocabularyItem(
+                VocabularyItem(id = id, word = "CAFÉ", translation = "coffee", isNew = false),
+            )
+
+            assertThat(repository.getVocabularyItemByWord("CAFÉ")?.id).isEqualTo(id)
+        }
+
+    @Test
+    fun `updateVocabularyItem renaming a word entirely frees the old normalized slot`() =
+        runTest {
+            val id = insertTestVocabulary("Haus", "House")
+
+            repository.updateVocabularyItem(
+                VocabularyItem(id = id, word = "Heim", translation = "Home", isNew = false),
+            )
+            repository.addVocabularyItem(VocabularyItem(word = "Haus", translation = "House again", isNew = true))
+
+            val all = vocabularyDao.getAllVocabulary().first()
+            assertThat(all.map { it.word }).containsExactly("Heim", "Haus")
+        }
+
+    @Test
     fun `deleteVocabularyItem removes record`() =
         runTest {
             val id = insertTestVocabulary("Baum", "Tree")
