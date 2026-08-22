@@ -297,9 +297,6 @@ class AnkiClozeImportE2eTest {
         private const val DEFAULT_NEW_PER_DAY = 15
         private const val RAW_CLOZE_MARKER = "{{c"
 
-        // Ground truth copied verbatim from AnkiApkgVocabularyParserTest's real-fixture
-        // assertions, so this E2E test proves the exact same cloze masking/reveal output
-        // survives the real device SQLite + zstd + ContentResolver + Room round trip.
         private val expectedFirstItem =
             VocabularyItem(
                 word =
