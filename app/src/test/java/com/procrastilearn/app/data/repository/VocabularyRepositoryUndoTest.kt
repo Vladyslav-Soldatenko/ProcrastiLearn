@@ -269,6 +269,64 @@ class VocabularyRepositoryUndoTest {
         }
 
     @Test
+    fun `undoing across a day boundary in a mixed stack only restores counters for the entry from today`() =
+        runTest {
+            val yesterdayId = insertVocab("gestern")
+            val todayId = insertVocab("heute")
+
+            // Simulate a rating made yesterday that is still on the stack because the app
+            // wasn't reopened when the day rolled over, sitting below a rating made today.
+            undoSnapshotDao.insert(
+                UndoSnapshotEntity(
+                    vocabId = yesterdayId,
+                    createdAt = System.currentTimeMillis() - 86_400_000L,
+                    snapshotDay = todayStamp() - 1,
+                    ratingName = Rating.EASY.name,
+                    direction = StudyDirection.FORWARD.name,
+                    fsrsCardJson = "",
+                    fsrsDueAt = 0L,
+                    lastShownAt = null,
+                    correctCount = 0,
+                    incorrectCount = 0,
+                    backwardFsrsCardJson = "",
+                    backwardFsrsDueAt = 0L,
+                    backwardCorrectCount = 0,
+                    backwardIncorrectCount = 0,
+                    newShown = 0,
+                    reviewShown = 0,
+                    reviewsSinceLastNew = 0,
+                ),
+            )
+            vocabularyReviewDao.applyFsrsReview(
+                id = yesterdayId,
+                cardJson = Card.builder().build().toJson(),
+                dueAt = System.currentTimeMillis() + 1_000L,
+                reviewedAt = System.currentTimeMillis(),
+                wasCorrect = false,
+            )
+
+            repository.reviewVocabularyItem(todayId, Rating.GOOD, StudyDirection.FORWARD)
+            assertThat(dayCountersStore.read().first().newShown).isEqualTo(1)
+
+            // First undo reverts today's rating (LIFO) -> today's counters go back to zero.
+            val firstUndo = repository.undoLastRating()
+            assertThat(firstUndo?.item?.id).isEqualTo(todayId)
+            assertThat(dayCountersStore.read().first().newShown).isEqualTo(0)
+
+            // Second undo reverts yesterday's rating: its FSRS state must still be restored,
+            // but its stale snapshotDay must not perturb today's (already-zero) counters.
+            val secondUndo = repository.undoLastRating()
+            assertThat(secondUndo?.item?.id).isEqualTo(yesterdayId)
+            val restoredYesterday = vocabularyDao.getVocabularyById(yesterdayId)!!
+            assertThat(restoredYesterday.fsrsCardJson).isEmpty()
+            assertThat(restoredYesterday.incorrectCount).isEqualTo(0)
+
+            val finalCounters = dayCountersStore.read().first()
+            assertThat(finalCounters.newShown).isEqualTo(0)
+            assertThat(finalCounters.reviewShown).isEqualTo(0)
+        }
+
+    @Test
     fun `undoLastRating never touches extraNewToday`() =
         runTest {
             val id = insertVocab("kaufen")
