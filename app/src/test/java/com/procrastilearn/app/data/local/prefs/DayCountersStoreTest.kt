@@ -8,6 +8,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -56,6 +57,7 @@ class DayCountersStoreTest {
             assertThat(policy.mixMode).isEqualTo(MixMode.MIX)
             assertThat(policy.studyDirectionMode).isEqualTo(StudyDirectionMode.BIDIRECTIONAL)
             assertThat(policy.ratingDelaySeconds).isEqualTo(0)
+            assertThat(policy.newCardOrder).isEqualTo(NewCardOrder.SEQUENTIAL)
         }
 
     @Test
@@ -305,5 +307,44 @@ class DayCountersStoreTest {
             assertThat(policy.overlayInterval).isEqualTo(7)
             assertThat(policy.mixMode).isEqualTo(MixMode.NEW_FIRST)
             assertThat(policy.ratingDelaySeconds).isEqualTo(10)
+        }
+
+    @Test
+    fun setNewCardOrderRoundTrips() =
+        runTest {
+            store.setNewCardOrder(NewCardOrder.RANDOM)
+
+            assertThat(store.readPolicy().first().newCardOrder).isEqualTo(NewCardOrder.RANDOM)
+
+            store.setNewCardOrder(NewCardOrder.SEQUENTIAL)
+
+            assertThat(store.readPolicy().first().newCardOrder).isEqualTo(NewCardOrder.SEQUENTIAL)
+        }
+
+    @Test
+    fun readPolicyFallsBackToSequentialForACorruptedNewCardOrderString() =
+        runTest {
+            val key = stringPreferencesKey("new_card_order")
+            studyPreferences.ds.edit { it[key] = "NOT_A_REAL_ORDER" }
+
+            val policy = store.readPolicy().first()
+
+            assertThat(policy.newCardOrder).isEqualTo(NewCardOrder.SEQUENTIAL)
+        }
+
+    @Test
+    fun setNewCardOrderLeavesOtherPolicyFieldsUntouched() =
+        runTest {
+            store.setNewPerDay(50)
+            store.setReviewPerDay(60)
+            store.setMixMode(MixMode.NEW_FIRST)
+
+            store.setNewCardOrder(NewCardOrder.RANDOM)
+
+            val policy = store.readPolicy().first()
+            assertThat(policy.newPerDay).isEqualTo(50)
+            assertThat(policy.reviewPerDay).isEqualTo(60)
+            assertThat(policy.mixMode).isEqualTo(MixMode.NEW_FIRST)
+            assertThat(policy.newCardOrder).isEqualTo(NewCardOrder.RANDOM)
         }
 }

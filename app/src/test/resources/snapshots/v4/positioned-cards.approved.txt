@@ -1,0 +1,35 @@
+backwardAnswerOverride: null
+backwardCorrectCount: 0
+backwardFsrsCardJson: 
+backwardFsrsDueAt: 0
+backwardIncorrectCount: 0
+backwardPromptOverride: null
+bidirectional: false
+correctCount: 0
+createdAt: 1786010756357
+fsrsCardJson: 
+fsrsDueAt: 0
+id: 1
+incorrectCount: 0
+lastShownAt: null
+position: 1
+translation: house
+word: haus
+
+backwardAnswerOverride: null
+backwardCorrectCount: 0
+backwardFsrsCardJson: 
+backwardFsrsDueAt: 0
+backwardIncorrectCount: 0
+backwardPromptOverride: null
+bidirectional: false
+correctCount: 0
+createdAt: 1786010760751
+fsrsCardJson: 
+fsrsDueAt: 0
+id: 2
+incorrectCount: 0
+lastShownAt: null
+position: 2
+translation: tree
+word: baum

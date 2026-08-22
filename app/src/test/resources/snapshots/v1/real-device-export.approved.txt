@@ -12,6 +12,7 @@ fsrsDueAt: 1785011789260
 id: 1
 incorrectCount: 0
 lastShownAt: 1785011459260
+position: 0
 translation: test123
 word: test
 
@@ -29,6 +30,7 @@ fsrsDueAt: 1785012060386
 id: 2
 incorrectCount: 0
 lastShownAt: 1785011460386
+position: 0
 translation: bar
 word: foo
 
@@ -46,6 +48,7 @@ fsrsDueAt: 1785011529180
 id: 3
 incorrectCount: 1
 lastShownAt: 1785011469180
+position: 0
 translation: Транскрипция: /kæt/
 
 Нерегулярные формы: cats (мн.ч.)
@@ -87,6 +90,7 @@ fsrsDueAt: 0
 id: 4
 incorrectCount: 0
 lastShownAt: null
+position: 0
 translation: Английский перевод: cat
 
 Транскрипция: /kæt/
@@ -123,6 +127,7 @@ fsrsDueAt: 1786048261880
 id: 5
 incorrectCount: 0
 lastShownAt: 1785011461880
+position: 0
 translation: Китайский перевод: 狗
 
 Транскрипция: /gǒu/

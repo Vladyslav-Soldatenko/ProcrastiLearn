@@ -20,6 +20,19 @@ private const val NOTE_FIELDS_SEPARATOR = ''
 private val IMG_TAG_REGEX = Regex("""<img\b[^>]*>""", RegexOption.IGNORE_CASE)
 private val SOUND_TAG_REGEX = Regex("""\[sound:[^]]*]""", RegexOption.IGNORE_CASE)
 private val FIELD_REFERENCE_REGEX = Regex("""\{\{([^{}]+)\}\}""")
+private val CLOZE_DELETION_REGEX = Regex("""\{\{c\d+::(.*?)(?:::(.*?))?\}\}""")
+
+private val NOTE_ORDER_QUERY =
+    """
+    SELECT mid, flds FROM (
+        SELECT n.id AS note_id, n.mid AS mid, n.flds AS flds,
+               MIN(CASE WHEN c.type = 0 THEN c.due END) AS min_new_due
+        FROM notes n
+        LEFT JOIN cards c ON c.nid = n.id
+        GROUP BY n.id
+    )
+    ORDER BY (min_new_due IS NULL) ASC, min_new_due ASC, note_id ASC
+    """.trimIndent()
 
 class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
     override val id: String = "apkg"
@@ -151,14 +164,14 @@ class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
     private data class NoteModel(
         val fieldNames: List<String>,
         val wordFieldIndices: List<Int>,
-        val isCloze: Boolean,
+        val clozeFieldIndices: Set<Int>,
     )
 
     private fun readVocabularyItems(databaseFile: File): List<VocabularyItem> {
         val database = SQLiteDatabase.openDatabase(databaseFile.path, null, SQLiteDatabase.OPEN_READONLY)
         return database.use { db ->
             val noteModelsByMid = readNoteModelsByMid(db)
-            db.rawQuery("SELECT mid, flds FROM notes", null).use { cursor ->
+            db.rawQuery(NOTE_ORDER_QUERY, null).use { cursor ->
                 buildList {
                     while (cursor.moveToNext()) {
                         val mid = cursor.getLong(0)
@@ -170,15 +183,23 @@ class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
         }
     }
 
+    private data class FieldReferences(
+        val orderedIndices: List<Int>,
+        val clozeIndices: Set<Int>,
+    )
+
     /**
      * Front/back is a property of a note type's card template, not of a field name — a deck's
      * `qfmt` (question template) tells us exactly which field(s) are shown as the prompt,
      * regardless of what language the deck is in or what its fields happen to be called. Every
      * field referenced in `qfmt` becomes part of `word`; every other field becomes part of
-     * `translation`. This reads `qfmt` from the legacy `col.models` JSON blob (schema 11, used by
-     * "Legacy Support" exports without a `collection.anki21b`). Newer schema versions move this
-     * into normalized `notetypes`/`fields`/`templates` tables with protobuf-encoded template
-     * config, which isn't handled here — those notes fall back to field index 0, same as before.
+     * `translation`. Fields referenced via the `cloze:` filter (e.g. `{{cloze:Text}}`) are masked
+     * in `word` and revealed (with the cloze answer shown) in `translation`, matching how any
+     * Anki Cloze note type — stock or customized — renders its front/back regardless of field
+     * names. This reads `qfmt` from the legacy `col.models` JSON blob (schema 11, used by "Legacy
+     * Support" exports without a `collection.anki21b`). Newer schema versions move this into
+     * normalized `notetypes`/`fields`/`templates` tables with protobuf-encoded template config,
+     * which isn't handled here — those notes fall back to field index 0, same as before.
      */
     private fun readNoteModelsByMid(db: SQLiteDatabase): Map<Long, NoteModel> =
         runCatching {
@@ -200,12 +221,11 @@ class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
                                 ?.optString("qfmt")
                                 .orEmpty()
                         val sortFieldIndex = model.optInt("sortf", 0)
-                        val qfmtFieldIndices = extractFieldReferenceOrder(qfmt, fieldNames)
+                        val references = extractFieldReferences(qfmt, fieldNames)
                         // qfmt referencing nothing recognizable (parsing failure, unusual template)
                         // still needs a word field, so fall back to the note type's sort field.
-                        val wordFieldIndices = qfmtFieldIndices.ifEmpty { listOf(sortFieldIndex) }
-                        val isCloze = model.optInt("type", 0) == 1
-                        put(mid.toLong(), NoteModel(fieldNames, wordFieldIndices, isCloze))
+                        val wordFieldIndices = references.orderedIndices.ifEmpty { listOf(sortFieldIndex) }
+                        put(mid.toLong(), NoteModel(fieldNames, wordFieldIndices, references.clozeIndices))
                     }
                 }
             }
@@ -216,50 +236,65 @@ class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
     /**
      * Finds `{{FieldName}}` references in a card template, in the order they appear, resolved
      * against this model's actual field names. Conditional markers (`{{#Field}}`, `{{/Field}}`)
-     * and filters (`{{type:Field}}`, `{{furigana:Field}}`) are stripped down to the bare field
-     * name; anything left that isn't a real field (`{{Tags}}`, `{{FrontSide}}`, ...) is dropped
-     * automatically since it won't match a known field name.
+     * are stripped down to the bare field name. Filters (`{{type:Field}}`, `{{furigana:Field}}`,
+     * `{{cloze:Field}}`) are stripped the same way to resolve the field name, but the `cloze:`
+     * filter is also recorded separately — it's how Anki templates mark a field as containing
+     * cloze deletions, regardless of what the field is called. Anything left that isn't a real
+     * field (`{{Tags}}`, `{{FrontSide}}`, ...) is dropped automatically since it won't match a
+     * known field name.
      */
-    private fun extractFieldReferenceOrder(
+    private fun extractFieldReferences(
         qfmt: String,
         fieldNames: List<String>,
-    ): List<Int> {
+    ): FieldReferences {
         val indices = LinkedHashSet<Int>()
+        val clozeIndices = mutableSetOf<Int>()
         for (match in FIELD_REFERENCE_REGEX.findAll(qfmt)) {
             var token = match.groupValues[1].trim()
             if (token.isNotEmpty() && token[0] in "#^/") token = token.substring(1)
-            val candidateName = token.trim().substringAfterLast(':').trim()
+            token = token.trim()
+            val candidateName = token.substringAfterLast(':').trim()
+            val filterName = if (':' in token) token.substringBeforeLast(':').trim() else ""
             val index = fieldNames.indexOf(candidateName)
-            if (index >= 0) indices.add(index)
+            if (index >= 0) {
+                indices.add(index)
+                if (filterName == "cloze") clozeIndices.add(index)
+            }
         }
-        return indices.toList()
+        return FieldReferences(indices.toList(), clozeIndices)
     }
 
     private fun parseVocabularyItem(
         rawFields: String,
         noteModel: NoteModel?,
     ): VocabularyItem? {
-        if (noteModel?.isCloze == true) return null
-
-        val normalizedFields = rawFields.split(NOTE_FIELDS_SEPARATOR).map(::normalizeField)
+        val rawFieldValues = rawFields.split(NOTE_FIELDS_SEPARATOR)
         val wordIndices = (noteModel?.wordFieldIndices ?: listOf(0)).toSet()
+        val clozeIndices = noteModel?.clozeFieldIndices ?: emptySet()
+        val fieldNames = noteModel?.fieldNames
 
         val word =
             wordIndices
                 .sorted()
-                .mapNotNull { index -> normalizedFields.getOrNull(index) }
+                .mapNotNull { index -> rawFieldValues.getOrNull(index) }
+                .map { raw -> normalizeField(maskClozeDeletions(raw)) }
                 .filter { it.isNotBlank() }
                 .joinToString("\n")
 
-        val fieldNames = noteModel?.fieldNames
         val translation =
-            normalizedFields
+            rawFieldValues
                 .withIndex()
-                .filter { (index, _) -> index !in wordIndices }
-                .mapNotNull { (index, value) ->
-                    if (value.isBlank()) return@mapNotNull null
-                    val label = fieldNames?.getOrNull(index)
-                    if (label != null) "$label: $value" else value
+                .mapNotNull { (index, raw) ->
+                    val value =
+                        when {
+                            index in clozeIndices -> normalizeField(revealClozeDeletions(raw))
+                            index !in wordIndices -> normalizeField(raw)
+                            else -> null
+                        }
+                    value?.takeIf { it.isNotBlank() }?.let { resolved ->
+                        val label = fieldNames?.getOrNull(index)
+                        if (label != null) "$label: $resolved" else resolved
+                    }
                 }.joinToString("\n")
 
         if (word.isBlank() || translation.isBlank()) {
@@ -272,6 +307,22 @@ class AnkiApkgVocabularyParser @Inject constructor() : VocabularyParser {
             isNew = true,
         )
     }
+
+    /**
+     * Masks a Cloze note's `{{c1::answer}}` deletions for the prompt side, showing the author's
+     * hint (`{{c1::answer::hint}}`) when given, or a generic placeholder otherwise — mirroring how
+     * Anki itself renders the question side of a cloze card. A no-op on fields without cloze
+     * markup.
+     */
+    private fun maskClozeDeletions(value: String): String =
+        CLOZE_DELETION_REGEX.replace(value) { match ->
+            val hint = match.groupValues[2]
+            if (hint.isNotBlank()) "[$hint]" else "[...]"
+        }
+
+    /** Reveals a Cloze note's `{{c1::answer}}` deletions for the answer side. */
+    private fun revealClozeDeletions(value: String): String =
+        CLOZE_DELETION_REGEX.replace(value) { match -> match.groupValues[1] }
 
     private fun normalizeField(value: String): String {
         if (value.isBlank()) return ""

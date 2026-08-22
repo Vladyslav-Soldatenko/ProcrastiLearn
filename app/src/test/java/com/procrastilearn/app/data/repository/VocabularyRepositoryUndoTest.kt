@@ -46,6 +46,7 @@ class VocabularyRepositoryUndoTest {
     private lateinit var undoSnapshotDao: UndoSnapshotDao
     private lateinit var dayCountersStore: DayCountersStore
     private lateinit var repository: VocabularyRepositoryImpl
+    private var nextTestPosition = 1L
 
     @Before
     fun setup() {
@@ -105,6 +106,7 @@ class VocabularyRepositoryUndoTest {
                 correctCount = correctCount,
                 incorrectCount = incorrectCount,
                 lastShownAt = lastShownAt,
+                position = nextTestPosition++,
             ),
         )
 

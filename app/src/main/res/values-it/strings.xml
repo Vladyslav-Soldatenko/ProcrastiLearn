@@ -162,6 +162,13 @@
     <string name="settings_study_mode_reviews_first_desc">Mostra tutti i ripassi prima delle carte nuove</string>
     <string name="settings_study_mode_new_first_desc">Mostra le carte nuove prima dei ripassi</string>
 
+    <!-- New card order -->
+    <string name="settings_new_card_order_title">Ordine nuove carte</string>
+    <string name="settings_new_card_order_sequential">Sequenziale</string>
+    <string name="settings_new_card_order_random">Casuale</string>
+    <string name="settings_new_card_order_sequential_desc">Mostra le nuove carte nell’ordine in cui sono state importate</string>
+    <string name="settings_new_card_order_random_desc">Mostra le nuove carte in ordine casuale</string>
+
     <!-- Review direction -->
     <string name="settings_review_direction_title">Direzione del ripasso</string>
     <string name="settings_review_direction_forward">Diretta</string>
@@ -292,6 +299,7 @@
     <string name="word_list_search_label">Cerca</string>
     <string name="word_list_search_placeholder">Cerca parole</string>
     <string name="word_list_search_no_results">Nessun risultato trovato</string>
+    <string name="word_list_drag_handle_content_description">Riordina <xliff:g id="word_name">%1$s</xliff:g></string>
 
     <!-- ─── Apps list ──────────────────────────────────────────────────────── -->
     <string name="apps_list_enable_procrastilearn_title">Attiva ProcrastiLearn</string>

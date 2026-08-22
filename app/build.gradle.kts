@@ -23,8 +23,8 @@ android {
     minSdk = 30
     //noinspection OldTargetApi
     targetSdk = 36
-    versionCode = 13
-    versionName = "1.3.5"
+    versionCode = 14
+    versionName = "1.4.0"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
@@ -106,6 +106,7 @@ dependencies {
   ksp(libs.hilt.compiler)
   implementation(libs.androidx.hilt.navigation.compose)
   implementation(libs.fastscroller.material3)
+  implementation(libs.reorderable)
 
   implementation(libs.openai.java) {
     exclude(group = "org.apache.httpcomponents.client5", module = "httpclient5")

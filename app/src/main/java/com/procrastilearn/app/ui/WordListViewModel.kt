@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -95,6 +96,22 @@ class WordListViewModel
             viewModelScope.launch {
                 repository.setBidirectional(ids, bidirectional)
                 exitSelectionMode()
+            }
+        }
+
+        @Suppress("TooGenericExceptionCaught", "SwallowedException")
+        fun reorderWords(orderedIds: List<Long>) {
+            val currentIds = words.value.map { it.id }
+            if (orderedIds.size < 2 || currentIds.size < 2) return
+            if (orderedIds.toSet() != currentIds.toSet()) return
+            if (orderedIds == currentIds) return
+            viewModelScope.launch {
+                try {
+                    repository.reorderVocabulary(orderedIds)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (ignored: Exception) {
+                }
             }
         }
 

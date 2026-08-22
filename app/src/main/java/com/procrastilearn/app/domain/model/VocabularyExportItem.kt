@@ -20,4 +20,5 @@ data class VocabularyExportItem(
     val backwardIncorrectCount: Int = 0,
     val backwardPromptOverride: String? = null,
     val backwardAnswerOverride: String? = null,
+    val position: Long = 0L,
 )

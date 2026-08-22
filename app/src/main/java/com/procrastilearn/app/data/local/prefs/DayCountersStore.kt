@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -33,6 +34,7 @@ class DayCountersStore
             val OVERLAY_INTERVAL_TIME = intPreferencesKey("overlay_interval_time")
             val STUDY_DIRECTION_MODE = stringPreferencesKey("study_direction_mode")
             val RATING_DELAY_SECONDS = intPreferencesKey("rating_delay_seconds")
+            val NEW_CARD_ORDER = stringPreferencesKey("new_card_order")
         }
 
         fun read(): Flow<DayCounters> =
@@ -112,11 +114,18 @@ class DayCountersStore
                         runCatching { StudyDirectionMode.valueOf(directionName) }
                             .getOrDefault(StudyDirectionMode.BIDIRECTIONAL),
                     ratingDelaySeconds = p[K.RATING_DELAY_SECONDS] ?: DEFAULT_RATING_DELAY_SECONDS,
+                    newCardOrder =
+                        runCatching { NewCardOrder.valueOf(p[K.NEW_CARD_ORDER] ?: NewCardOrder.SEQUENTIAL.name) }
+                            .getOrDefault(NewCardOrder.SEQUENTIAL),
                 )
             }
 
         suspend fun setMixMode(mode: MixMode) {
             ds.edit { it[K.MIX_MODE] = mode.name }
+        }
+
+        suspend fun setNewCardOrder(order: NewCardOrder) {
+            ds.edit { it[K.NEW_CARD_ORDER] = order.name }
         }
 
         suspend fun setStudyDirectionMode(mode: StudyDirectionMode) {

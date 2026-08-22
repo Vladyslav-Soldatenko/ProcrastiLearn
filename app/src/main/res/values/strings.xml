@@ -163,6 +163,13 @@
     <string name="settings_study_mode_reviews_first_desc">Show all reviews before new cards</string>
     <string name="settings_study_mode_new_first_desc">Show new cards before reviews</string>
 
+    <!-- New card order -->
+    <string name="settings_new_card_order_title">New Card Order</string>
+    <string name="settings_new_card_order_sequential">Sequential</string>
+    <string name="settings_new_card_order_random">Random</string>
+    <string name="settings_new_card_order_sequential_desc">Show new cards in the order they were imported</string>
+    <string name="settings_new_card_order_random_desc">Show new cards in a random order</string>
+
     <!-- Review direction -->
     <string name="settings_review_direction_title">Review Direction</string>
     <string name="settings_review_direction_forward">Forward</string>
@@ -294,6 +301,7 @@
     <string name="word_list_search_label">Search</string>
     <string name="word_list_search_placeholder">Search words</string>
     <string name="word_list_search_no_results">No matches found</string>
+    <string name="word_list_drag_handle_content_description">Reorder <xliff:g id="word_name">%1$s</xliff:g></string>
 
     <!-- ─── Apps list ──────────────────────────────────────────────────────── -->
     <string name="apps_list_enable_procrastilearn_title">Enable procrastilearn</string>

@@ -12,6 +12,7 @@ fsrsDueAt: 1750500000000
 id: 1
 incorrectCount: 1
 lastShownAt: 1749500000000
+position: 0
 translation: apple
 word: Apfel
 
@@ -29,5 +30,6 @@ fsrsDueAt: 0
 id: 2
 incorrectCount: 0
 lastShownAt: null
+position: 0
 translation: to learn
 word: lernen

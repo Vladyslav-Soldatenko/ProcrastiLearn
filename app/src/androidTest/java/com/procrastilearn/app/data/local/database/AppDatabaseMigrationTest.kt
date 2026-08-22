@@ -1,5 +1,6 @@
 package com.procrastilearn.app.data.local.database
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.room.testing.MigrationTestHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -10,6 +11,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+// One independent test per historical schema migration and edge case; splitting would scatter
+// that migration history across files for no benefit.
+@Suppress("LargeClass")
 class AppDatabaseMigrationTest {
     @get:Rule
     val helper: MigrationTestHelper =
@@ -240,13 +244,30 @@ class AppDatabaseMigrationTest {
     }
 
     @Test
-    fun migrate4To5BackfillsNormalizedWordFromExistingRows() {
+    fun migrate4To5AddsPositionColumnBackfilledFromId() {
         helper.createDatabase(TEST_DB, 4).apply {
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
-                VALUES ('CAFÉ', 'coffee', 0, 0, 0, '', 0)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount)
+                VALUES ('first', 'a', 0, 0, 0, '', 0, 0, '', 0, 0, 0)
+                """.trimIndent(),
+            )
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount)
+                VALUES ('second', 'b', 0, 0, 0, '', 0, 0, '', 0, 0, 0)
+                """.trimIndent(),
+            )
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount)
+                VALUES ('third', 'c', 0, 0, 0, '', 0, 0, '', 0, 0, 0)
                 """.trimIndent(),
             )
             close()
@@ -261,6 +282,439 @@ class AppDatabaseMigrationTest {
                 MIGRATION_2_3,
                 MIGRATION_3_4,
                 MIGRATION_4_5,
+            )
+
+        migrated.query("SELECT word, id, position FROM vocabulary ORDER BY id ASC").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals("first", cursor.getString(0))
+            assertEquals(cursor.getLong(1), cursor.getLong(2))
+            assertTrue(cursor.moveToNext())
+            assertEquals("second", cursor.getString(0))
+            assertEquals(cursor.getLong(1), cursor.getLong(2))
+            assertTrue(cursor.moveToNext())
+            assertEquals("third", cursor.getString(0))
+            assertEquals(cursor.getLong(1), cursor.getLong(2))
+            assertTrue(cursor.isLast)
+        }
+    }
+
+    @Test
+    fun migrate4To5DefaultsPositionToZeroWhenInsertedWithoutIt() {
+        helper.createDatabase(TEST_DB, 4).apply { close() }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                5,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+            )
+
+        migrated.execSQL(
+            """
+            INSERT INTO vocabulary
+                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                 bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount)
+            VALUES ('newword', 'x', 0, 0, 0, '', 0, 0, '', 0, 0, 0)
+            """.trimIndent(),
+        )
+        migrated.query("SELECT position FROM vocabulary WHERE word = 'newword'").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(0, cursor.getLong(0))
+        }
+    }
+
+    @Test
+    fun migrate4To5AllowsInsertingExplicitPositionAndQueryingByIt() {
+        helper.createDatabase(TEST_DB, 4).apply { close() }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                5,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+            )
+
+        migrated.execSQL(
+            """
+            INSERT INTO vocabulary
+                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                 bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount, position)
+            VALUES ('later', 'y', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 500)
+            """.trimIndent(),
+        )
+        migrated.execSQL(
+            """
+            INSERT INTO vocabulary
+                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                 bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount, position)
+            VALUES ('sooner', 'z', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 10)
+            """.trimIndent(),
+        )
+
+        migrated
+            .query(
+                """
+                SELECT word FROM vocabulary
+                WHERE fsrsDueAt = 0 AND backwardFsrsDueAt = 0
+                ORDER BY position ASC, id ASC
+                LIMIT 1
+                """.trimIndent(),
+            ).use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals("sooner", cursor.getString(0))
+            }
+    }
+
+    @Test
+    fun migrate4To5EnforcesUniquePosition() {
+        helper.createDatabase(TEST_DB, 4).apply { close() }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                5,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+            )
+
+        migrated.execSQL(
+            """
+            INSERT INTO vocabulary
+                (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                 bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount, position)
+            VALUES ('first', 'a', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 7)
+            """.trimIndent(),
+        )
+
+        var thrown: Throwable? = null
+        try {
+            migrated.execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount, backwardIncorrectCount, position)
+                VALUES ('second', 'b', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 7)
+                """.trimIndent(),
+            )
+        } catch (e: SQLiteConstraintException) {
+            thrown = e
+        }
+        assertTrue(thrown != null)
+    }
+
+    @Test
+    fun migrate5To6RenumbersGappedLegacyPositionsContiguously() {
+        helper.createDatabase(TEST_DB, 5).apply {
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('low', 'a', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 5)
+                """.trimIndent(),
+            )
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('mid', 'b', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 12)
+                """.trimIndent(),
+            )
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('high', 'c', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 30)
+                """.trimIndent(),
+            )
+            close()
+        }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                6,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+                MIGRATION_5_6,
+            )
+
+        migrated.query("SELECT word, position FROM vocabulary ORDER BY position ASC").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals("low", cursor.getString(0))
+            assertEquals(1L, cursor.getLong(1))
+            assertTrue(cursor.moveToNext())
+            assertEquals("mid", cursor.getString(0))
+            assertEquals(2L, cursor.getLong(1))
+            assertTrue(cursor.moveToNext())
+            assertEquals("high", cursor.getString(0))
+            assertEquals(3L, cursor.getLong(1))
+            assertTrue(cursor.isLast)
+        }
+    }
+
+    @Test
+    fun migrate5To6LeavesAlreadyContiguousPositionsUnchanged() {
+        helper.createDatabase(TEST_DB, 5).apply {
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('first', 'a', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 1)
+                """.trimIndent(),
+            )
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('second', 'b', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 2)
+                """.trimIndent(),
+            )
+            close()
+        }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                6,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+                MIGRATION_5_6,
+            )
+
+        migrated.query("SELECT position FROM vocabulary WHERE word = 'first'").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(1L, cursor.getLong(0))
+        }
+        migrated.query("SELECT position FROM vocabulary WHERE word = 'second'").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(2L, cursor.getLong(0))
+        }
+    }
+
+    @Test
+    fun migrate5To6OnAnEmptyVocabularyTableIsANoOp() {
+        helper.createDatabase(TEST_DB, 5).apply { close() }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                6,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+                MIGRATION_5_6,
+            )
+
+        migrated.query("SELECT COUNT(*) FROM vocabulary").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(0, cursor.getInt(0))
+        }
+    }
+
+    @Test
+    fun migrate5To6PreservesRelativeOrderWhenRenumbering() {
+        helper.createDatabase(TEST_DB, 5).apply {
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('zeta', 'z', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 100)
+                """.trimIndent(),
+            )
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('alpha', 'a', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 1)
+                """.trimIndent(),
+            )
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('mu', 'm', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 50)
+                """.trimIndent(),
+            )
+            close()
+        }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                6,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+                MIGRATION_5_6,
+            )
+
+        migrated.query("SELECT word FROM vocabulary ORDER BY position ASC").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals("alpha", cursor.getString(0))
+            assertTrue(cursor.moveToNext())
+            assertEquals("mu", cursor.getString(0))
+            assertTrue(cursor.moveToNext())
+            assertEquals("zeta", cursor.getString(0))
+            assertTrue(cursor.isLast)
+        }
+    }
+
+    @Test
+    fun migrate5To6PreservesAllNonPositionColumns() {
+        helper.createDatabase(TEST_DB, 5).apply {
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('run', 'бігати', 0, 2, 1, 'fwd-json', 1000, 1, 'bwd-json', 2000, 4, 1, 999)
+                """.trimIndent(),
+            )
+            close()
+        }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                6,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+                MIGRATION_5_6,
+            )
+
+        migrated
+            .query(
+                """
+                SELECT translation, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                       bidirectional, backwardFsrsCardJson, backwardFsrsDueAt,
+                       backwardCorrectCount, backwardIncorrectCount, position
+                FROM vocabulary WHERE word = 'run'
+                """.trimIndent(),
+            ).use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals("бігати", cursor.getString(0))
+                assertEquals(2, cursor.getInt(1))
+                assertEquals(1, cursor.getInt(2))
+                assertEquals("fwd-json", cursor.getString(3))
+                assertEquals(1000, cursor.getLong(4))
+                assertEquals(1, cursor.getInt(5))
+                assertEquals("bwd-json", cursor.getString(6))
+                assertEquals(2000, cursor.getLong(7))
+                assertEquals(4, cursor.getInt(8))
+                assertEquals(1, cursor.getInt(9))
+                assertEquals(1L, cursor.getLong(10))
+            }
+    }
+
+    @Test
+    fun migrate5To6StillEnforcesUniquePositionAfterMigration() {
+        helper.createDatabase(TEST_DB, 5).apply {
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('first', 'a', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 5)
+                """.trimIndent(),
+            )
+            close()
+        }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                6,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+                MIGRATION_5_6,
+            )
+
+        var thrown: Throwable? = null
+        try {
+            migrated.execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('second', 'b', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 1)
+                """.trimIndent(),
+            )
+        } catch (e: SQLiteConstraintException) {
+            thrown = e
+        }
+        assertTrue(thrown != null)
+    }
+
+    @Test
+    fun migrate6To7BackfillsNormalizedWordFromExistingRows() {
+        helper.createDatabase(TEST_DB, 6).apply {
+            execSQL(
+                """
+                INSERT INTO vocabulary
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
+                VALUES ('CAFÉ', 'coffee', 0, 0, 0, '', 0, 1)
+                """.trimIndent(),
+            )
+            close()
+        }
+
+        val migrated =
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                7,
+                true,
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+                MIGRATION_5_6,
+                MIGRATION_6_7,
             )
 
         migrated.query("SELECT word, normalizedWord FROM vocabulary").use { cursor ->
@@ -271,20 +725,20 @@ class AppDatabaseMigrationTest {
     }
 
     @Test
-    fun migrate4To5MergesPreexistingNonAsciiCaseDuplicatesKeepingRowWithMoreProgress() {
-        helper.createDatabase(TEST_DB, 4).apply {
+    fun migrate6To7MergesPreexistingNonAsciiCaseDuplicatesKeepingRowWithMoreProgress() {
+        helper.createDatabase(TEST_DB, 6).apply {
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
-                VALUES ('café', 'coffee', 0, 5, 2, '', 0)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
+                VALUES ('café', 'coffee', 0, 5, 2, '', 0, 1)
                 """.trimIndent(),
             )
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
-                VALUES ('CAFÉ', 'coffee (dup)', 0, 0, 0, '', 0)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
+                VALUES ('CAFÉ', 'coffee (dup)', 0, 0, 0, '', 0, 2)
                 """.trimIndent(),
             )
             close()
@@ -293,12 +747,14 @@ class AppDatabaseMigrationTest {
         val migrated =
             helper.runMigrationsAndValidate(
                 TEST_DB,
-                5,
+                7,
                 true,
                 MIGRATION_1_2,
                 MIGRATION_2_3,
                 MIGRATION_3_4,
                 MIGRATION_4_5,
+                MIGRATION_5_6,
+                MIGRATION_6_7,
             )
 
         migrated.query("SELECT COUNT(*) FROM vocabulary").use { cursor ->
@@ -313,20 +769,20 @@ class AppDatabaseMigrationTest {
     }
 
     @Test
-    fun migrate4To5TieBreaksKeptDuplicateByLowestId() {
-        helper.createDatabase(TEST_DB, 4).apply {
+    fun migrate6To7TieBreaksKeptDuplicateByLowestId() {
+        helper.createDatabase(TEST_DB, 6).apply {
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
-                VALUES ('café', 'first', 0, 0, 0, '', 0)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
+                VALUES ('café', 'first', 0, 0, 0, '', 0, 1)
                 """.trimIndent(),
             )
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
-                VALUES ('CAFÉ', 'second', 0, 0, 0, '', 0)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
+                VALUES ('CAFÉ', 'second', 0, 0, 0, '', 0, 2)
                 """.trimIndent(),
             )
             close()
@@ -335,12 +791,14 @@ class AppDatabaseMigrationTest {
         val migrated =
             helper.runMigrationsAndValidate(
                 TEST_DB,
-                5,
+                7,
                 true,
                 MIGRATION_1_2,
                 MIGRATION_2_3,
                 MIGRATION_3_4,
                 MIGRATION_4_5,
+                MIGRATION_5_6,
+                MIGRATION_6_7,
             )
 
         migrated.query("SELECT translation FROM vocabulary").use { cursor ->
@@ -351,13 +809,13 @@ class AppDatabaseMigrationTest {
     }
 
     @Test
-    fun migrate4To5EnforcesUniqueNormalizedWordGoingForward() {
-        helper.createDatabase(TEST_DB, 4).apply {
+    fun migrate6To7EnforcesUniqueNormalizedWordGoingForward() {
+        helper.createDatabase(TEST_DB, 6).apply {
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
-                VALUES ('café', 'coffee', 0, 0, 0, '', 0)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
+                VALUES ('café', 'coffee', 0, 0, 0, '', 0, 1)
                 """.trimIndent(),
             )
             close()
@@ -366,12 +824,14 @@ class AppDatabaseMigrationTest {
         val migrated =
             helper.runMigrationsAndValidate(
                 TEST_DB,
-                5,
+                7,
                 true,
                 MIGRATION_1_2,
                 MIGRATION_2_3,
                 MIGRATION_3_4,
                 MIGRATION_4_5,
+                MIGRATION_5_6,
+                MIGRATION_6_7,
             )
 
         var threw = false
@@ -379,31 +839,31 @@ class AppDatabaseMigrationTest {
             migrated.execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, normalizedWord)
-                VALUES ('CAFÉ', 'coffee (dup)', 0, 0, 0, '', 0, 'café')
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
+                VALUES ('CAFÉ', 'coffee (dup)', 0, 0, 0, '', 0, 2)
                 """.trimIndent(),
             )
-        } catch (expected: android.database.sqlite.SQLiteConstraintException) {
+        } catch (expected: SQLiteConstraintException) {
             threw = true
         }
         assertTrue(threw)
     }
 
     @Test
-    fun migrate4To5PreservesRowsWithDistinctNormalizedWords() {
-        helper.createDatabase(TEST_DB, 4).apply {
+    fun migrate6To7PreservesRowsWithDistinctNormalizedWords() {
+        helper.createDatabase(TEST_DB, 6).apply {
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
-                VALUES ('Katze', 'Cat', 0, 3, 1, 'card-json', 500)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
+                VALUES ('Katze', 'Cat', 0, 3, 1, 'card-json', 500, 1)
                 """.trimIndent(),
             )
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt)
-                VALUES ('Hund', 'Dog', 0, 1, 0, '', 0)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
+                VALUES ('Hund', 'Dog', 0, 1, 0, '', 0, 2)
                 """.trimIndent(),
             )
             close()
@@ -412,12 +872,14 @@ class AppDatabaseMigrationTest {
         val migrated =
             helper.runMigrationsAndValidate(
                 TEST_DB,
-                5,
+                7,
                 true,
                 MIGRATION_1_2,
                 MIGRATION_2_3,
                 MIGRATION_3_4,
                 MIGRATION_4_5,
+                MIGRATION_5_6,
+                MIGRATION_6_7,
             )
 
         migrated.query("SELECT COUNT(*) FROM vocabulary").use { cursor ->

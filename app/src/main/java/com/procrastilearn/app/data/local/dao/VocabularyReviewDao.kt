@@ -115,4 +115,15 @@ interface VocabularyReviewDao {
         offset: Int,
         requireBidirectional: Boolean = false,
     ): Long?
+
+    @Query(
+        """
+        SELECT id FROM vocabulary
+        WHERE fsrsDueAt = 0 AND backwardFsrsDueAt = 0
+          AND (:requireBidirectional = 0 OR bidirectional = 1)
+        ORDER BY position ASC, id ASC
+        LIMIT 1
+    """,
+    )
+    suspend fun pickNewIdByPositionAsc(requireBidirectional: Boolean = false): Long?
 }

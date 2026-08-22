@@ -79,10 +79,43 @@ val MIGRATION_3_4 =
         }
     }
 
-// SQLite's own LOWER()/UPPER() are ASCII-only in Android's bundled build (same blind spot as
-// COLLATE NOCASE), so the case fold below must happen in Kotlin, not in SQL.
 val MIGRATION_4_5 =
     object : Migration(4, 5) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `vocabulary` ADD COLUMN `position` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("UPDATE `vocabulary` SET `position` = `id`")
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_vocabulary_fsrsDueAt_backwardFsrsDueAt_position` " +
+                    "ON `vocabulary` (`fsrsDueAt`, `backwardFsrsDueAt`, `position`)",
+            )
+            db.execSQL(
+                "CREATE UNIQUE INDEX IF NOT EXISTS `index_vocabulary_position` ON `vocabulary` (`position`)",
+            )
+        }
+    }
+
+val MIGRATION_5_6 =
+    object : Migration(5, 6) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            val orderedIds = mutableListOf<Long>()
+            db.query("SELECT id FROM vocabulary ORDER BY position ASC, id ASC").use { cursor ->
+                while (cursor.moveToNext()) {
+                    orderedIds.add(cursor.getLong(0))
+                }
+            }
+            orderedIds.forEachIndexed { index, id ->
+                db.execSQL("UPDATE vocabulary SET position = ? WHERE id = ?", arrayOf(-(index + 1L), id))
+            }
+            orderedIds.forEachIndexed { index, id ->
+                db.execSQL("UPDATE vocabulary SET position = ? WHERE id = ?", arrayOf(index + 1L, id))
+            }
+        }
+    }
+
+// SQLite's own LOWER()/UPPER() are ASCII-only in Android's bundled build (same blind spot as
+// COLLATE NOCASE), so the case fold below must happen in Kotlin, not in SQL.
+val MIGRATION_6_7 =
+    object : Migration(6, 7) {
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL("ALTER TABLE `vocabulary` ADD COLUMN `normalizedWord` TEXT NOT NULL DEFAULT ''")
 
