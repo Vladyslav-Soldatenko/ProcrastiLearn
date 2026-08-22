@@ -89,7 +89,7 @@ Default to no comments. Code must be self-documenting through naming and structu
 - Restating the next line(s) in prose, e.g. `// Check for a duplicate before spending an AI request` above code that does exactly that, or `// Simulate leaving and re-entering the same word` above two `onWordChange` calls.
 - Decorative section-divider comments (e.g. `// --- Setup ---`), including in test files.
 
-A comment is worth writing only when it captures something the code itself can't: a non-obvious constraint, a subtle invariant, the reason for a workaround, or a "why" a reader can't derive by reading the surrounding lines. For example, `@Suppress("LongParameterList") // arity from composing already-decomposed collaborators, not an undecomposed monolith` explains *why* the suppression is justified — that's fine. Rationale for *why* a change was made belongs in the commit message or PR description, not as a source comment.
+99.9% of the time comments should not be added. Only add them in EXTREME EXCEPTIONS when something non-obvious happens.
 
 ## Key Permissions
 
