@@ -246,7 +246,7 @@ fun SettingsScreen(
 private fun SettingsTopBar() {
     CenterAlignedTopAppBar(
         title = { Text(stringResource(R.string.settings_title)) },
-        expandedHeight = 60.dp,
+        expandedHeight = 48.dp,
     )
 }
 
