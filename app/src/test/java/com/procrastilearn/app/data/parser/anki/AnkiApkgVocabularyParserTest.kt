@@ -189,6 +189,89 @@ class AnkiApkgVocabularyParserTest {
     }
 
     @Test
+    fun `imports every note in a real cloze-only deck instead of discarding them all`() {
+        val deckFile = loadResource("import/anki/anki-cloze-deck.apkg")
+
+        val result = parser.parse(deckFile)
+
+        assertThat(result).hasSize(800)
+    }
+
+    @Test
+    fun `masks cloze deletions on the front and reveals them labeled on the back for a real cloze note`() {
+        val deckFile = loadResource("import/anki/anki-cloze-deck.apkg")
+
+        val result = parser.parse(deckFile)
+
+        assertThat(result.first())
+            .isEqualTo(
+                VocabularyItem(
+                    word =
+                        listOf(
+                            "一",
+                            "一个[...]",
+                            "一本书[...]",
+                            "一次[...]",
+                            "第一[...]",
+                            "一二三。",
+                        ).joinToString("\n"),
+                    translation =
+                        listOf(
+                            "Color: 一",
+                            "Reading: yī",
+                            "Meaning: one",
+                            "Example 1: 一个 － yīgè － one of",
+                            "Example 2: 一本书 － yīběnshū － a book",
+                            "Example 3: 一次 － yīcì － once",
+                            "Example 4: 第一 － dìyī － first",
+                            "Sentence Translation: One two three.",
+                            "Sentence Pinyin: yī èr sān 。",
+                        ).joinToString("\n"),
+                    isNew = true,
+                ),
+            )
+    }
+
+    @Test
+    fun `omits blank example fields from both the front and the back of a real cloze note`() {
+        val deckFile = loadResource("import/anki/anki-cloze-deck.apkg")
+
+        val result = parser.parse(deckFile)
+
+        assertThat(result.last())
+            .isEqualTo(
+                VocabularyItem(
+                    word =
+                        listOf(
+                            "扬",
+                            "表扬[...]",
+                            "发扬[...]",
+                            "这位医生受到所有人的高度赞扬。",
+                        ).joinToString("\n"),
+                    translation =
+                        listOf(
+                            "Color: 扬",
+                            "Reading: yáng",
+                            "Meaning: to raise; to hoist; scattering (in the wind); to flutter; to propagate",
+                            "Example 1: 表扬 － biǎoyáng － to praise",
+                            "Example 2: 发扬 － fāyáng － to develop; carry forward",
+                            "Sentence Translation: This doctor received high praise from everyone.",
+                        ).joinToString("\n"),
+                    isNew = true,
+                ),
+            )
+    }
+
+    @Test
+    fun `never leaks raw cloze deletion syntax into any imported item from a real cloze deck`() {
+        val deckFile = loadResource("import/anki/anki-cloze-deck.apkg")
+
+        val result = parser.parse(deckFile)
+
+        assertThat(result.none { it.word.contains("{{c") || it.translation.contains("{{c") }).isTrue()
+    }
+
+    @Test
     fun `provides metadata for ui`() {
         assertThat(parser.id).isEqualTo("apkg")
         assertThat(parser.supportedExtensions).containsExactly("apkg")
