@@ -697,8 +697,10 @@ class AppDatabaseMigrationTest {
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
-                VALUES ('CAFÉ', 'coffee', 0, 0, 0, '', 0, 1)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('CAFÉ', 'coffee', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 1)
                 """.trimIndent(),
             )
             close()
@@ -730,15 +732,19 @@ class AppDatabaseMigrationTest {
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
-                VALUES ('café', 'coffee', 0, 5, 2, '', 0, 1)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('café', 'coffee', 0, 5, 2, '', 0, 0, '', 0, 0, 0, 1)
                 """.trimIndent(),
             )
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
-                VALUES ('CAFÉ', 'coffee (dup)', 0, 0, 0, '', 0, 2)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('CAFÉ', 'coffee (dup)', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 2)
                 """.trimIndent(),
             )
             close()
@@ -774,15 +780,19 @@ class AppDatabaseMigrationTest {
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
-                VALUES ('café', 'first', 0, 0, 0, '', 0, 1)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('café', 'first', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 1)
                 """.trimIndent(),
             )
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
-                VALUES ('CAFÉ', 'second', 0, 0, 0, '', 0, 2)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('CAFÉ', 'second', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 2)
                 """.trimIndent(),
             )
             close()
@@ -814,8 +824,10 @@ class AppDatabaseMigrationTest {
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
-                VALUES ('café', 'coffee', 0, 0, 0, '', 0, 1)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('café', 'coffee', 0, 0, 0, '', 0, 0, '', 0, 0, 0, 1)
                 """.trimIndent(),
             )
             close()
@@ -855,15 +867,19 @@ class AppDatabaseMigrationTest {
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
-                VALUES ('Katze', 'Cat', 0, 3, 1, 'card-json', 500, 1)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('Katze', 'Cat', 0, 3, 1, 'card-json', 500, 0, '', 0, 0, 0, 1)
                 """.trimIndent(),
             )
             execSQL(
                 """
                 INSERT INTO vocabulary
-                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt, position)
-                VALUES ('Hund', 'Dog', 0, 1, 0, '', 0, 2)
+                    (word, translation, createdAt, correctCount, incorrectCount, fsrsCardJson, fsrsDueAt,
+                     bidirectional, backwardFsrsCardJson, backwardFsrsDueAt, backwardCorrectCount,
+                     backwardIncorrectCount, position)
+                VALUES ('Hund', 'Dog', 0, 1, 0, '', 0, 0, '', 0, 0, 0, 2)
                 """.trimIndent(),
             )
             close()
