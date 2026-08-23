@@ -134,6 +134,17 @@
     <string name="language_name_italian">Tiếng Ý</string>
     <string name="language_name_portuguese">Tiếng Bồ Đào Nha</string>
     <string name="language_name_chinese">Tiếng Trung (Quan thoại)</string>
+    <string name="language_name_japanese">Tiếng Nhật</string>
+    <string name="language_name_korean">Tiếng Hàn</string>
+    <string name="language_name_ukrainian">Tiếng Ukraina</string>
+    <string name="language_name_polish">Tiếng Ba Lan</string>
+    <string name="language_name_hindi">Tiếng Hindi</string>
+    <string name="language_name_turkish">Tiếng Thổ Nhĩ Kỳ</string>
+    <string name="language_name_dutch">Tiếng Hà Lan</string>
+    <string name="language_name_vietnamese">Tiếng Việt</string>
+    <string name="language_name_indonesian">Tiếng Indonesia</string>
+    <string name="language_name_thai">Tiếng Thái</string>
+    <string name="language_name_swedish">Tiếng Thụy Điển</string>
 
     <string name="language_selection_dialog_title">Chọn ngôn ngữ của bạn</string>
     <string name="language_selection_subtitle">Chọn ngôn ngữ bạn nói và ngôn ngữ bạn muốn học. Bạn có thể thay đổi điều này sau trong Cài đặt.</string>

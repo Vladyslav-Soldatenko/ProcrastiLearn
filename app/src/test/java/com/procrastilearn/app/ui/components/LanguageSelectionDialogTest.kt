@@ -1,15 +1,18 @@
 package com.procrastilearn.app.ui.components
 
 import android.content.Context
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.R
@@ -23,6 +26,8 @@ import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.text.Collator
+import java.util.Locale
 
 @RunWith(RobolectricTestRunner::class)
 class LanguageSelectionDialogTest {
@@ -134,6 +139,33 @@ class LanguageSelectionDialogTest {
     }
 
     @Test
+    fun `native dropdown lists languages alphabetically for English`() {
+        setContent()
+
+        composeTestRule.onNodeWithTag("language_selection_native_field").performClick()
+
+        val expectedOrder =
+            Language.entries
+                .map { string(it.displayNameRes) }
+                .sortedWith(Collator.getInstance(Locale.ENGLISH))
+
+        val displayNames = Language.entries.map { string(it.displayNameRes) }.toSet()
+        val actualOrder =
+            composeTestRule
+                .onAllNodes(hasClickAction())
+                .fetchSemanticsNodes()
+                .mapNotNull { node ->
+                    if (node.config.contains(SemanticsProperties.Text)) {
+                        node.config[SemanticsProperties.Text].joinToString()
+                    } else {
+                        null
+                    }
+                }.filter { it in displayNames }
+
+        assertThat(actualOrder).isEqualTo(expectedOrder)
+    }
+
+    @Test
     fun `initial values pre-fill both fields and enable confirm immediately`() {
         setContent(
             initialNativeLanguage = Language.ENGLISH,
@@ -179,7 +211,7 @@ class LanguageSelectionDialogTest {
         displayName: String,
     ) {
         composeTestRule.onNodeWithTag(fieldTag).performClick()
-        composeTestRule.onNodeWithText(displayName).performClick()
+        composeTestRule.onNodeWithText(displayName).performScrollTo().performClick()
     }
 
     // The parens around `{ dismissCount++ }` are load-bearing: they force it to parse as a

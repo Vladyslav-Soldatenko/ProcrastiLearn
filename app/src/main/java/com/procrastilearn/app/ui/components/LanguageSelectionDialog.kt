@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -115,6 +116,14 @@ private fun LanguageDropdownField(
     testTag: String,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val locale = LocalConfiguration.current.locales[0]
+    val displayNames = Language.entries.associateWith { stringResource(it.displayNameRes) }
+    val sortedLanguages =
+        Language.sortedByDisplayName(
+            locale = locale,
+            displayName = { displayNames.getValue(it) },
+            excluding = excluding,
+        )
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -122,7 +131,7 @@ private fun LanguageDropdownField(
         modifier = Modifier.fillMaxWidth(),
     ) {
         OutlinedTextField(
-            value = selected?.let { stringResource(it.displayNameRes) }.orEmpty(),
+            value = selected?.let { displayNames.getValue(it) }.orEmpty(),
             onValueChange = {},
             readOnly = true,
             label = { Text(label) },
@@ -137,17 +146,15 @@ private fun LanguageDropdownField(
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
-            Language.entries
-                .filter { it != excluding }
-                .forEach { language ->
-                    DropdownMenuItem(
-                        text = { Text(stringResource(language.displayNameRes)) },
-                        onClick = {
-                            onSelect(language)
-                            expanded = false
-                        },
-                    )
-                }
+            sortedLanguages.forEach { language ->
+                DropdownMenuItem(
+                    text = { Text(displayNames.getValue(language)) },
+                    onClick = {
+                        onSelect(language)
+                        expanded = false
+                    },
+                )
+            }
         }
     }
 }

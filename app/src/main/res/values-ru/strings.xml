@@ -132,6 +132,17 @@
         <string name="language_name_italian">Итальянский</string>
         <string name="language_name_portuguese">Португальский</string>
         <string name="language_name_chinese">Китайский (мандарин)</string>
+        <string name="language_name_japanese">Японский</string>
+        <string name="language_name_korean">Корейский</string>
+        <string name="language_name_ukrainian">Украинский</string>
+        <string name="language_name_polish">Польский</string>
+        <string name="language_name_hindi">Хинди</string>
+        <string name="language_name_turkish">Турецкий</string>
+        <string name="language_name_dutch">Нидерландский</string>
+        <string name="language_name_vietnamese">Вьетнамский</string>
+        <string name="language_name_indonesian">Индонезийский</string>
+        <string name="language_name_thai">Тайский</string>
+        <string name="language_name_swedish">Шведский</string>
 
         <string name="language_selection_dialog_title">Выберите ваши языки</string>
         <string name="language_selection_subtitle">Выберите язык, на котором вы говорите, и язык, который хотите изучать. Это можно изменить позже в настройках.</string>

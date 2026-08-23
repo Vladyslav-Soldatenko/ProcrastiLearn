@@ -134,6 +134,17 @@
     <string name="language_name_italian">İtalyanca</string>
     <string name="language_name_portuguese">Portekizce</string>
     <string name="language_name_chinese">Çince (Mandarin)</string>
+    <string name="language_name_japanese">Japonca</string>
+    <string name="language_name_korean">Korece</string>
+    <string name="language_name_ukrainian">Ukraynaca</string>
+    <string name="language_name_polish">Lehçe</string>
+    <string name="language_name_hindi">Hintçe</string>
+    <string name="language_name_turkish">Türkçe</string>
+    <string name="language_name_dutch">Felemenkçe</string>
+    <string name="language_name_vietnamese">Vietnamca</string>
+    <string name="language_name_indonesian">Endonezce</string>
+    <string name="language_name_thai">Tayca</string>
+    <string name="language_name_swedish">İsveççe</string>
 
     <string name="language_selection_dialog_title">Dillerini seç</string>
     <string name="language_selection_subtitle">Konuştuğun dili ve öğrenmek istediğin dili seç. Bunu daha sonra Ayarlar’dan değiştirebilirsin.</string>

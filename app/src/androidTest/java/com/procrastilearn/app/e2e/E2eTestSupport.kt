@@ -119,12 +119,16 @@ fun ComposeTestRule.dismissOnboardingIfPresent(context: Context) {
 
     onNodeWithTag("language_selection_native_field", useUnmergedTree = true).performClick()
     waitForIdle()
-    onNodeWithText(context.getString(R.string.language_name_english), useUnmergedTree = true).performClick()
+    onNodeWithText(context.getString(R.string.language_name_english), useUnmergedTree = true)
+        .performScrollTo()
+        .performClick()
     waitForIdle()
 
     onNodeWithTag("language_selection_target_field", useUnmergedTree = true).performClick()
     waitForIdle()
-    onNodeWithText(context.getString(R.string.language_name_russian), useUnmergedTree = true).performClick()
+    onNodeWithText(context.getString(R.string.language_name_russian), useUnmergedTree = true)
+        .performScrollTo()
+        .performClick()
     waitForIdle()
 
     onNodeWithText(context.getString(R.string.action_continue), useUnmergedTree = true).performClick()
