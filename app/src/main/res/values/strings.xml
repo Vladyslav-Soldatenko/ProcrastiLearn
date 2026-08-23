@@ -135,15 +135,15 @@
     <string name="language_name_italian">Italian</string>
     <string name="language_name_portuguese">Portuguese</string>
     <string name="language_name_chinese">Chinese (Mandarin)</string>
-    <string name="language_name_japanese" tools:ignore="MissingTranslation">Japanese</string>
-    <string name="language_name_korean" tools:ignore="MissingTranslation">Korean</string>
-    <string name="language_name_ukrainian" tools:ignore="MissingTranslation">Ukrainian</string>
-    <string name="language_name_polish" tools:ignore="MissingTranslation">Polish</string>
-    <string name="language_name_hindi" tools:ignore="MissingTranslation">Hindi</string>
-    <string name="language_name_turkish" tools:ignore="MissingTranslation">Turkish</string>
+    <string name="language_name_japanese">Japanese</string>
+    <string name="language_name_korean">Korean</string>
+    <string name="language_name_ukrainian">Ukrainian</string>
+    <string name="language_name_polish">Polish</string>
+    <string name="language_name_hindi">Hindi</string>
+    <string name="language_name_turkish">Turkish</string>
     <string name="language_name_dutch" tools:ignore="MissingTranslation">Dutch</string>
-    <string name="language_name_vietnamese" tools:ignore="MissingTranslation">Vietnamese</string>
-    <string name="language_name_indonesian" tools:ignore="MissingTranslation">Indonesian</string>
+    <string name="language_name_vietnamese">Vietnamese</string>
+    <string name="language_name_indonesian">Indonesian</string>
     <string name="language_name_thai" tools:ignore="MissingTranslation">Thai</string>
     <string name="language_name_swedish" tools:ignore="MissingTranslation">Swedish</string>
 

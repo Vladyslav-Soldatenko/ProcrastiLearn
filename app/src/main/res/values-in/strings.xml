@@ -134,6 +134,17 @@
     <string name="language_name_italian">Italia</string>
     <string name="language_name_portuguese">Portugis</string>
     <string name="language_name_chinese">Mandarin</string>
+    <string name="language_name_japanese">Jepang</string>
+    <string name="language_name_korean">Korea</string>
+    <string name="language_name_ukrainian">Ukraina</string>
+    <string name="language_name_polish">Polandia</string>
+    <string name="language_name_hindi">Hindi</string>
+    <string name="language_name_turkish">Turki</string>
+    <string name="language_name_dutch">Belanda</string>
+    <string name="language_name_vietnamese">Vietnam</string>
+    <string name="language_name_indonesian">Indonesia</string>
+    <string name="language_name_thai">Thai</string>
+    <string name="language_name_swedish">Swedia</string>
 
     <string name="language_selection_dialog_title">Pilih bahasamu</string>
     <string name="language_selection_subtitle">Pilih bahasa yang kamu kuasai dan bahasa yang ingin kamu pelajari. Kamu bisa mengubahnya lagi nanti di Pengaturan.</string>

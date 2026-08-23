@@ -134,6 +134,17 @@
     <string name="language_name_italian">イタリア語</string>
     <string name="language_name_portuguese">ポルトガル語</string>
     <string name="language_name_chinese">中国語（標準語）</string>
+    <string name="language_name_japanese">日本語</string>
+    <string name="language_name_korean">韓国語</string>
+    <string name="language_name_ukrainian">ウクライナ語</string>
+    <string name="language_name_polish">ポーランド語</string>
+    <string name="language_name_hindi">ヒンディー語</string>
+    <string name="language_name_turkish">トルコ語</string>
+    <string name="language_name_dutch">オランダ語</string>
+    <string name="language_name_vietnamese">ベトナム語</string>
+    <string name="language_name_indonesian">インドネシア語</string>
+    <string name="language_name_thai">タイ語</string>
+    <string name="language_name_swedish">スウェーデン語</string>
 
     <string name="language_selection_dialog_title">使用する言語を選択</string>
     <string name="language_selection_subtitle">話す言語と学びたい言語を選んでください。後で設定から変更できます。</string>

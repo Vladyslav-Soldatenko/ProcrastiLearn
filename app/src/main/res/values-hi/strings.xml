@@ -134,6 +134,17 @@
     <string name="language_name_italian">इतालवी</string>
     <string name="language_name_portuguese">पुर्तगाली</string>
     <string name="language_name_chinese">चीनी (मंदारिन)</string>
+    <string name="language_name_japanese">जापानी</string>
+    <string name="language_name_korean">कोरियाई</string>
+    <string name="language_name_ukrainian">यूक्रेनी</string>
+    <string name="language_name_polish">पोलिश</string>
+    <string name="language_name_hindi">हिन्दी</string>
+    <string name="language_name_turkish">तुर्की</string>
+    <string name="language_name_dutch">डच</string>
+    <string name="language_name_vietnamese">वियतनामी</string>
+    <string name="language_name_indonesian">इंडोनेशियाई</string>
+    <string name="language_name_thai">थाई</string>
+    <string name="language_name_swedish">स्वीडिश</string>
 
     <string name="language_selection_dialog_title">अपनी भाषाएं चुनें</string>
     <string name="language_selection_subtitle">वह भाषा चुनें जो आप बोलते हैं और वह जो आप सीखना चाहते हैं। इसे आप बाद में सेटिंग्स में बदल सकते हैं।</string>
