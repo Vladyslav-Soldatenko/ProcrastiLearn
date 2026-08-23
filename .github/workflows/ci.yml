@@ -37,17 +37,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: ktlint
-        run: ./gradlew ktlintCheck --no-daemon
-
-      - name: detekt
-        run: ./gradlew detekt --no-daemon
-
-      - name: Android Lint
-        run: ./gradlew lint --no-daemon
-
-      - name: Unit tests
-        run: ./gradlew testDebugUnitTest --no-daemon
+      - name: Verify (ktlint, detekt, lint, unit tests)
+        run: ./gradlew ktlintCheck detekt lint testDebugUnitTest
 
       - name: Upload test reports
         if: failure()
@@ -137,7 +128,7 @@ jobs:
           script: |
             adb logcat -c
             adb logcat -v threadtime > /tmp/logcat.txt &
-            ./gradlew connectedDebugAndroidTest --no-daemon
+            ./gradlew connectedDebugAndroidTest
 
       - name: Upload instrumented test reports
         if: failure()
