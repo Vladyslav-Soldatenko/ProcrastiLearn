@@ -31,10 +31,10 @@ ProcrastiLearn is an Android app (Kotlin + Jetpack Compose) that blocks access t
 
 ## Running Instrumented Tests (Emulator)
 
-The Android SDK is at `/home/apocalypse/Android/Sdk` but its tools aren't on `PATH` by default. Set up the environment before using `emulator`/`adb`:
+The Android SDK is at `$HOME/Android/Sdk` but its tools aren't on `PATH` by default. Set up the environment before using `emulator`/`adb`:
 
 ```bash
-export ANDROID_HOME=/home/apocalypse/Android/Sdk
+export ANDROID_HOME=$HOME/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools
 ```
 

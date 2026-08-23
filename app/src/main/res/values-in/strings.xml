@@ -1,0 +1,332 @@
+<resources xmlns:tools="http://schemas.android.com/tools"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- ─── AppFunctions ────────────────────────────────────────────────────── -->
+    <string name="app_function_description">Tambahkan kosakata dengan terjemahan hasil AI untuk belajar dengan sistem repetisi berjarak</string>
+
+    <!-- ─── App / Brand ─────────────────────────────────────────────────────── -->
+
+    <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
+    <string name="action_open_settings">Buka Pengaturan</string>
+    <string name="action_not_now">Nanti saja</string>
+    <string name="action_continue">Lanjutkan</string>
+    <string name="action_view_list">Lihat Daftar</string>
+    <string name="action_add">Tambah</string>
+    <string name="action_save">Simpan</string>
+    <string name="action_delete">Hapus</string>
+    <string name="action_edit">Ubah</string>
+    <string name="action_reset">Reset</string>
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Batal</string>
+    <string name="action_proceed">Teruskan</string>
+    <string name="action_select_all">Pilih semua</string>
+    <string name="action_deselect_all">Batalkan semua pilihan</string>
+
+    <!-- ─── Text selection context menu ─────────────────────────────────────── -->
+    <string name="process_text_action">ProcrastiLearn-kan ini</string>
+
+    <!-- ─── Navigation ──────────────────────────────────────────────────────── -->
+    <string name="nav_apps">Aplikasi</string>
+    <string name="nav_add_word">Tambah Kata</string>
+    <string name="nav_dojo">Dojo</string>
+    <string name="nav_settings">Pengaturan</string>
+
+    <!-- ─── Learning flow ───────────────────────────────────────────────────── -->
+    <string name="learning_no_word">Tidak ada kata yang dimuat</string>
+    <string name="learning_no_translation">Tidak ada terjemahan yang dimuat</string>
+    <string name="learning_show_translation">Tampilkan terjemahan</string>
+    <string name="learning_question">Seberapa hafal kamu dengan kata ini?</string>
+
+    <!-- Ratings -->
+    <string name="rating_again">Ulangi</string>
+    <string name="rating_hard">Sulit</string>
+    <string name="rating_good">Baik</string>
+    <string name="rating_easy">Mudah</string>
+
+    <!-- ─── Dojo (practice screen) ──────────────────────────────────────────── -->
+    <string name="dojo_stats_new_remaining">baru</string>
+    <string name="dojo_stats_reviews_due">jatuh tempo</string>
+    <string name="dojo_stats_skipped">dilewati</string>
+    <string name="dojo_empty_title">Semua selesai untuk sekarang!</string>
+    <string name="dojo_empty_message">Kamu sudah menyelesaikan semua kata yang tersedia untuk hari ini. Kembali lagi nanti atau sesuaikan batas harianmu di Pengaturan.</string>
+    <string name="dojo_undo_content_description">Urungkan penilaian terakhir</string>
+    <string name="dojo_undo_confirmation">%1$s untuk “%2$s” dibatalkan</string>
+
+    <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
+    <string name="overlay_permission_title">Izinkan tampilan overlay</string>
+    <string name="overlay_permission_message">
+        Aplikasi ini memerlukan izin untuk menampilkan overlay di atas aplikasi lain.
+    </string>
+
+    <!-- ─── Accessibility disclosure (A11y) ─────────────────────────────────── -->
+    <string name="a11y_disclosure_title">Kenapa kami memerlukan Aksesibilitas</string>
+    <string name="a11y_disclosure_description">
+        Aplikasi ini menggunakan izin Layanan Aksesibilitas Android untuk mendeteksi saat kamu membuka aplikasi yang dipilih
+        (misalnya TikTok, Reddit, atau aplikasi lain pilihanmu) sehingga bisa menampilkan latihan belajar singkat sebelum kamu melanjutkan.
+    </string>
+
+    <string name="a11y_disclosure_section_access">Apa yang kami akses</string>
+
+    <string name="a11y_disclosure_access_details">
+        • Aplikasi mana yang sedang tampil di layarmu.\n
+        • Kami TIDAK membaca kata sandi, pesan, atau teks apa pun di layarmu.\n
+        • Datamu tidak pernah meninggalkan perangkat dan tidak pernah dijual atau dibagikan.
+    </string>
+
+    <string name="a11y_disclosure_section_usage">Bagaimana data ini digunakan</string>
+
+    <!-- Original paragraph -->
+    <string name="a11y_disclosure_usage_details">
+        Hanya untuk memicu overlay belajar pada aplikasi yang kamu pilih.
+        Kamu bisa mematikan fitur ini kapan saja di Pengaturan. Kami tidak menjual atau membagikan data ini,
+        dan data tersebut tidak pernah meninggalkan perangkatmu.
+    </string>
+
+    <string name="a11y_disclosure_checkbox">
+        Saya mengerti dan setuju agar aplikasi ini menggunakan izin Layanan Aksesibilitas untuk tujuan ini.
+    </string>
+    <string name="a11y_disclosure_accept">Terima &amp; Lanjutkan</string>
+    <string name="a11y_disclosure_decline">@string/action_not_now</string>
+    <string name="a11y_disclosure_privacy">Kebijakan privasi &amp; detail</string>
+
+    <!-- ─── Add Word ────────────────────────────────────────────────────────── -->
+    <string name="add_word_title">Tambah Kata Baru</string>
+    <string name="add_word_subtitle">Perluas kosakatamu</string>
+    <string name="add_word_label_word">Kata</string>
+    <string name="add_word_placeholder_word">Masukkan kata</string>
+    <string name="add_word_label_translation">Terjemahan</string>
+    <string name="add_word_placeholder_translation">Masukkan terjemahan (bisa lebih dari satu baris)</string>
+
+    <string name="edit_word_title">Ubah Kata</string>
+
+    <!-- Prefer using a proper icon. Keep these for compatibility. -->
+    <string name="add_word_success_default">Berhasil!</string>
+
+    <!-- Helpful validation/toast messages -->
+    <string name="add_word_error_word_required">Masukkan sebuah kata terlebih dahulu.</string>
+    <string name="add_word_error_translation_required">Masukkan terjemahan terlebih dahulu.</string>
+
+    <!-- Add Word: success and error fallback messages -->
+    <string name="add_word_success_added">Kata berhasil ditambahkan!</string>
+    <string name="add_word_success_updated">Kata diperbarui dan progres direset!</string>
+    <string name="add_word_success_pending">Tersimpan. Terjemahan akan dibuat begitu kamu kembali online.</string>
+    <string name="add_word_error_preview_failed">Gagal membuat pratinjau</string>
+    <string name="add_word_error_translation_failed">Gagal membuat terjemahan</string>
+    <string name="add_word_error_update_failed">Gagal memperbarui kata</string>
+    <string name="add_word_error_add_failed">Gagal menambahkan kata</string>
+    <string name="add_word_error_lookup_failed">Gagal memeriksa kata yang sudah ada</string>
+
+    <!-- Bidirectional review -->
+    <string name="add_word_bidirectional_toggle">Uji kedua arah</string>
+    <string name="add_word_customize_backward_show">Sesuaikan kartu terbalik</string>
+    <string name="add_word_customize_backward_hide">Sembunyikan penyesuaian</string>
+    <string name="add_word_backward_prompt_label">Pertanyaan terbalik</string>
+    <string name="add_word_backward_prompt_placeholder">Biarkan kosong untuk menggunakan terjemahan</string>
+    <string name="add_word_backward_answer_label">Jawaban terbalik</string>
+    <string name="add_word_backward_answer_placeholder">Biarkan kosong untuk menggunakan kata aslinya</string>
+
+    <!-- ─── Language selection ──────────────────────────────────────────────── -->
+    <string name="language_name_english">Inggris</string>
+    <string name="language_name_russian">Rusia</string>
+    <string name="language_name_spanish">Spanyol</string>
+    <string name="language_name_french">Prancis</string>
+    <string name="language_name_german">Jerman</string>
+    <string name="language_name_italian">Italia</string>
+    <string name="language_name_portuguese">Portugis</string>
+    <string name="language_name_chinese">Mandarin</string>
+
+    <string name="language_selection_dialog_title">Pilih bahasamu</string>
+    <string name="language_selection_subtitle">Pilih bahasa yang kamu kuasai dan bahasa yang ingin kamu pelajari. Kamu bisa mengubahnya lagi nanti di Pengaturan.</string>
+    <string name="language_selection_native_label">Saya menguasai</string>
+    <string name="language_selection_target_label">Saya ingin belajar</string>
+
+    <!-- ─── Settings ────────────────────────────────────────────────────────── -->
+    <string name="settings_title">@string/nav_settings</string>
+
+    <!-- Section headers -->
+    <string name="settings_section_study_reviews">Belajar &amp; Ulasan</string>
+    <string name="settings_section_ai_features">Fitur AI (perlu kunci API)</string>
+    <string name="settings_section_permissions">Izin</string>
+    <string name="settings_section_data_about">Data &amp; Tentang</string>
+
+    <!-- Language pair -->
+    <string name="settings_language_pair_title">Pasangan bahasa</string>
+    <string name="settings_language_pair_desc">%1$s → %2$s</string>
+
+    <!-- Study mode -->
+    <string name="settings_study_mode_title">Mode Belajar</string>
+    <string name="settings_study_mode_mixed">Campuran</string>
+    <string name="settings_study_mode_reviews_first">Ulasan Dulu</string>
+    <string name="settings_study_mode_new_first">Kata Baru Dulu</string>
+    <string name="settings_study_mode_mixed_desc">Campur kartu baru dan kartu ulasan</string>
+    <string name="settings_study_mode_reviews_first_desc">Tampilkan semua ulasan sebelum kartu baru</string>
+    <string name="settings_study_mode_new_first_desc">Tampilkan kartu baru sebelum ulasan</string>
+
+    <!-- New card order -->
+    <string name="settings_new_card_order_title">Urutan Kartu Baru</string>
+    <string name="settings_new_card_order_sequential">Berurutan</string>
+    <string name="settings_new_card_order_random">Acak</string>
+    <string name="settings_new_card_order_sequential_desc">Tampilkan kartu baru sesuai urutan saat diimpor</string>
+    <string name="settings_new_card_order_random_desc">Tampilkan kartu baru dalam urutan acak</string>
+
+    <!-- Review direction -->
+    <string name="settings_review_direction_title">Arah Ulasan</string>
+    <string name="settings_review_direction_forward">Maju</string>
+    <string name="settings_review_direction_backward">Mundur</string>
+    <string name="settings_review_direction_bidirectional">Dua Arah</string>
+    <string name="settings_review_direction_forward_desc">Tampilkan kata, minta terjemahannya</string>
+    <string name="settings_review_direction_backward_desc">Tampilkan terjemahan, minta katanya</string>
+    <string name="settings_review_direction_bidirectional_desc">Campur kedua arah untuk kartu yang ditandai “Uji kedua arah”</string>
+
+    <!-- Daily limits -->
+    <string name="settings_add_cards_for_today_title">Tambah Kartu untuk Hari Ini</string>
+    <string name="settings_add_cards_for_today_dialog_title">Tambah Kartu untuk Hari Ini (Kata Baru Tersedia: %1$d)</string>
+    <string name="settings_new_cards_per_day_title">Kartu Baru per Hari</string>
+    <string name="settings_new_cards_per_day_dialog_title">Kartu Baru per Hari (Kata Baru Tersedia: %1$d)</string>
+    <string name="settings_reviews_per_day_title">Ulasan per Hari</string>
+
+    <!-- Overlay interval -->
+    <string name="settings_overlay_interval_title">Tampilkan overlay setiap X menit</string>
+    <string name="settings_overlay_interval_headline">Tampilkan overlay setiap X menit selama aplikasi yang diblokir terbuka</string>
+
+    <!-- Rating delay -->
+    <string name="settings_rating_delay_title">Jeda penilaian</string>
+    <string name="settings_rating_delay_headline">Tunggu sebelum bisa menilai kartu</string>
+    <string name="settings_rating_delay_off">Nonaktif</string>
+
+    <string name="settings_overlay_headline">Izin overlay</string>
+    <string name="settings_overlay_support">
+        Diperlukan untuk menampilkan kartu belajar di atas aplikasi yang dipilih.
+    </string>
+
+    <string name="settings_a11y_headline">Gerbang belajar (Aksesibilitas)</string>
+    <string name="settings_a11y_support">
+        Mendeteksi aplikasi terpilih di latar depan untuk memicu kartu belajar.
+    </string>
+
+    <!-- About Us -->
+    <string name="settings_about_us_row">Tentang kami</string>
+    <string name="settings_about_us_row_desc">Pelajari lebih lanjut tentang aplikasi ini</string>
+    <string name="settings_about_us_title">@string/settings_about_us_row</string>
+    <string name="settings_about_us_intro">
+        ProcrastiLearn mengubah momen-momen menunda jadi kesempatan belajar. Saat kamu mencoba membuka aplikasi yang dipilih, kami menampilkan tantangan kosakata singkat terlebih dahulu. Dengan begitu, kamu menambah pengetahuan sambil tetap mengendalikan gangguan.
+    </string>
+    <string name="settings_about_us_mission_title">Misi Kami</string>
+    <string name="settings_about_us_mission_body">
+        Kami ingin membantu orang mendapatkan kembali waktu dan perhatiannya dengan mengubah kebiasaan sehari-hari menjadi kesempatan untuk belajar hal baru.
+    </string>
+    <string name="settings_about_us_who_title">Siapa Kami</string>
+    <string name="settings_about_us_who_body">
+        ProcrastiLearn dibuat dan dikelola oleh developer independen yang menyukai produktivitas dan pembelajaran bahasa.
+    </string>
+    <string name="settings_about_us_values_title">Nilai-Nilai Kami</string>
+    <string name="settings_about_us_values_simplicity">Kesederhanaan: desain minim gangguan dan ringkas.</string>
+    <string name="settings_about_us_values_growth">Pertumbuhan: langkah kecil setiap hari berujung pada kemajuan yang bertahan lama.</string>
+    <string name="settings_about_us_contact_title">Kontak</string>
+    <string name="settings_about_us_contact_body">Punya pertanyaan atau masukan? Hubungi kami di: Apocalypse_232@proton.me</string>
+    <string name="settings_about_us_privacy">Kebijakan Privasi</string>
+
+    <!-- Import -->
+    <string name="settings_import_row">Impor</string>
+    <string name="settings_import_row_desc">Tambahkan kosakata dari aplikasi lain</string>
+    <string name="settings_import_option_anki_apkg">Deck Anki (.apkg)</string>
+    <string name="settings_import_option_anki_apkg_desc">Baca kartu yang diekspor dari Anki</string>
+    <string name="settings_import_option_json">Ekspor JSON (.json)</string>
+    <string name="settings_import_option_json_desc">Impor ekspor lengkap ProcrastiLearn</string>
+    <string name="settings_import_failure_generic">Impor gagal</string>
+    <string name="settings_import_failure_format">Format ini belum didukung</string>
+    <string name="settings_import_failure_schema_version">File ini dibuat oleh versi ProcrastiLearn yang lebih baru. Silakan perbarui aplikasi.</string>
+
+    <!-- Export -->
+    <string name="settings_export_row">Ekspor</string>
+    <string name="settings_export_row_desc">Ekspor semua kosakata ke file JSON</string>
+    <string name="settings_export_success">Ekspor selesai</string>
+    <string name="settings_export_failure">Ekspor gagal</string>
+
+    <!-- OpenAI API Key -->
+    <string name="settings_openai_api_key_title">Kunci API OpenAI</string>
+    <string name="settings_openai_api_key_dialog_title">Masukkan Kunci API OpenAI</string>
+    <string name="settings_openai_api_key_not_set">Belum diatur</string>
+    <string name="settings_openai_api_key_set">Tersimpan</string>
+    <string name="settings_openai_prompt_title">Prompt AI %1$s-&gt;%2$s</string>
+    <string name="settings_openai_prompt_dialog_title">Ubah prompt AI %1$s-&gt;%2$s</string>
+    <string name="settings_openai_prompt_default">Menggunakan prompt %1$s-&gt;%2$s bawaan</string>
+    <string name="settings_openai_prompt_custom">Prompt %1$s-&gt;%2$s kustom tersimpan</string>
+    <string name="settings_openai_reverse_prompt_title">@string/settings_openai_prompt_title</string>
+    <string name="settings_openai_reverse_prompt_dialog_title">@string/settings_openai_prompt_dialog_title</string>
+    <string name="settings_openai_reverse_prompt_default">@string/settings_openai_prompt_default</string>
+    <string name="settings_openai_reverse_prompt_custom">@string/settings_openai_prompt_custom</string>
+    <string name="settings_openai_prompt_placeholder_hint">Gunakan {{NATIVE_LANGUAGE}} dan {{TARGET_LANGUAGE}} sebagai placeholder — keduanya otomatis diganti dengan bahasa pilihanmu saat terjemahan dibuat.</string>
+
+    <!-- Add Word: AI translation toggle -->
+    <string name="add_word_use_ai_toggle">gunakan AI untuk membuat terjemahan</string>
+    <string name="add_word_toggle_direction">Ganti arah terjemahan</string>
+    <string name="add_word_button_preview">Pratinjau</string>
+    <string name="add_word_preview_title">Pratinjau AI</string>
+    <string name="add_word_preview_stored_title">Terjemahan tersimpan — sudah ada di daftarmu</string>
+    <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
+    <string name="add_word_preview_regenerate">Buat Ulang</string>
+    <string name="add_word_existing_title">Kata sudah ada</string>
+    <string name="add_word_existing_message">
+        Kamu sudah menambahkan kata ini sebelumnya. Jika kamu lanjutkan, progres kata ini akan direset dan terjemahan baru akan disimpan. Kalau kamu hanya ingin mengeditnya, kamu bisa melakukannya dari daftar kata.
+    </string>
+    <string name="add_word_existing_cancel">@string/action_cancel</string>
+    <string name="add_word_existing_proceed">@string/action_proceed</string>
+
+    <!-- Add Word: offline AI queueing -->
+    <string name="add_word_button_add_later">Tambah nanti</string>
+    <string name="add_word_pending_title">Terjemahan tertunda</string>
+    <string name="add_word_pending_delete">Hapus kata tertunda</string>
+
+    <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
+    <string name="word_list_title">Kosakata Saya</string>
+    <string name="word_list_navigate_back">Kembali ke tambah kata</string>
+    <string name="word_list_empty">Belum ada kata yang ditambahkan</string>
+    <string name="word_list_delete_confirm_title">Hapus kata</string>
+    <string name="word_list_delete_confirm_message">
+        Hapus <xliff:g id="word_name">%1$s</xliff:g> dari daftarmu?
+    </string>
+    <string name="word_list_reset_confirm_title">Reset progres</string>
+    <string name="word_list_reset_confirm_message">
+        Reset progres belajar untuk <xliff:g id="word_name">%1$s</xliff:g>?
+    </string>
+    <string name="word_list_more_actions">Aksi lainnya</string>
+    <string name="word_list_more_actions_selection">Aksi untuk yang dipilih</string>
+    <string name="word_list_bulk_delete_confirm_title">Hapus kata yang dipilih</string>
+    <string name="word_list_bulk_bidirectional_enable">@string/add_word_bidirectional_toggle</string>
+    <string name="word_list_bulk_bidirectional_disable">Uji satu arah saja</string>
+    <string name="word_list_bulk_forward_only_confirm_title">@string/word_list_bulk_bidirectional_disable</string>
+    <string name="word_list_search_label">Cari</string>
+    <string name="word_list_search_placeholder">Cari kata</string>
+    <string name="word_list_search_no_results">Tidak ada hasil yang cocok</string>
+    <string name="word_list_drag_handle_content_description">Atur ulang urutan <xliff:g id="word_name">%1$s</xliff:g></string>
+
+    <!-- ─── Apps list ──────────────────────────────────────────────────────── -->
+    <string name="apps_list_enable_procrastilearn_title">Aktifkan ProcrastiLearn</string>
+    <string name="apps_list_error_message">Error: <xliff:g id="error_message">%1$s</xliff:g></string>
+
+    <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
+
+    <!-- Plurals -->
+    <plurals name="settings_import_success">
+        <item quantity="other">%1$d kartu berhasil diimpor</item>
+    </plurals>
+    <plurals name="cards_count">
+        <item quantity="other">%d kartu</item>
+    </plurals>
+    <plurals name="overlay_minutes_interval">
+        <item quantity="other">Setiap %d menit</item>
+    </plurals>
+    <plurals name="rating_delay_seconds">
+        <item quantity="other">%d detik</item>
+    </plurals>
+    <plurals name="word_list_selection_count">
+        <item quantity="other">%1$d dipilih</item>
+    </plurals>
+    <plurals name="word_list_bulk_delete_confirm_message">
+        <item quantity="other">Hapus %1$d kata dari daftarmu?</item>
+    </plurals>
+    <plurals name="word_list_bulk_forward_only_confirm_message">
+        <item quantity="other">Berhenti menguji %1$d kata secara terbalik? Progres arah terbalik tetap disimpan dan akan dipulihkan jika kamu mengaktifkannya lagi.</item>
+    </plurals>
+</resources>

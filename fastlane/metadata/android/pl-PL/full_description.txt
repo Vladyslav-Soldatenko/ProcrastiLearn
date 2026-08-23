@@ -1,0 +1,43 @@
+Masz na telefonie Anki, masz Duolingo i naprawdę zamierzasz się za nie zabrać. Potem bierzesz telefon do ręki, a dwadzieścia minut później jesteś gdzieś w TikToku, nie do końca wiedząc, jak się tam znalazłeś.
+
+ProcrastiLearn wkracza dokładnie w tym momencie. Łapie Cię tuż przed tym, jak znikniesz w kolejnej czasochłonnej aplikacji, i najpierw prosi Cię o jedno słówko.
+
+W ten sposób bezmyślne otwieranie aplikacji zamienia się w naukę słownictwa. Wybierz aplikacje, które otwierasz z przyzwyczajenia — media społecznościowe, przeglądarki, gry — a gdy uruchomisz którąś z nich, pojawi się pełnoekranowa nakładka z fiszką. Odsłoń tłumaczenie, oceń, jak dobrze je pamiętałeś, a wybrana aplikacja otworzy się od razu. Bez subskrypcji, bez reklam, bez zakładania konta.
+
+
+JAK TO DZIAŁA
+
+Wybierz aplikacje, które chcesz zablokować, w zakładce Aplikacje. Od tego momentu otwarcie którejkolwiek z nich najpierw pokaże fiszkę. Oceniasz swoją odpowiedź (Jeszcze raz / Trudne / Dobrze / Łatwe), a algorytm powtórek rozłożonych w czasie FSRS automatycznie planuje kolejną powtórkę. Dzienne limity chronią Cię przed przeciążeniem.
+
+Jeśli zdarza Ci się tracić poczucie czasu po wejściu do zablokowanej aplikacji, pomoże opcjonalne, cykliczne przypomnienie: ustaw interwał (np. co 3 minuty), a nakładka będzie się pojawiać, dopóki zostajesz w tej aplikacji, zamieniając każdą dłuższą sesję w dodatkowe powtórki.
+
+
+SŁOWNICTWO
+
+Dodawaj słówka ręcznie albo skorzystaj z opcjonalnej funkcji tłumaczenia AI: wklej słowo, dotknij Generuj, a aplikacja przygotuje tłumaczenie za pomocą OpenAI. Prompt AI można w pełni edytować, dzięki czemu masz kontrolę nad tonem, kontekstem czy językiem docelowym.
+
+Możesz też zaimportować istniejące talie z Anki (pliki .apkg), by od razu zacząć ze zbiorem słówek, do którego już masz zaufanie. Wtedy masz pewność, że w końcu się go nauczysz — choćby oglądając TikToka czy ulubionego YouTubera.
+
+Trafiłeś na słówko gdzieś indziej — w artykule, na czacie, w innej aplikacji? Zaznacz je i dotknij „Dodaj do ProcrastiLearn” w menu, by od razu je dodać, bez konieczności przełączania się między aplikacjami.
+
+
+WSPARCIE JĘZYKOWE
+
+Prompt AI automatycznie dostosowuje się do wybranego przez Ciebie w Ustawieniach języka ojczystego i docelowego: wyjaśnienia pojawiają się w Twoim języku ojczystym, a przykłady w języku, którego się uczysz. Każda para językowa działa od razu, bez ręcznej edycji promptu. Kolejne usprawnienia językowe będą się pojawiać na bieżąco, zwłaszcza na podstawie próśb użytkowników zgłaszanych w zgłoszeniach na GitHubie lub mailowo.
+
+
+PRYWATNOŚĆ
+
+Wszystkie dane — słownictwo, lista zablokowanych aplikacji, historia powtórek i ustawienia — są przechowywane wyłącznie na Twoim urządzeniu. Nie ma żadnej analityki, żadnych narzędzi do zgłaszania awarii ani żadnych pakietów reklamowych. Jedyny ruch sieciowy wychodzący to opcjonalne zapytanie do API OpenAI, które sam inicjujesz, dotykając Generuj, z użyciem własnego klucza API wpisanego w Ustawieniach.
+
+
+UPRAWNIENIA
+
+Usługa ułatwień dostępu: używana wyłącznie do wykrywania, która aplikacja jest aktualnie na pierwszym planie, aby ProcrastiLearn wiedział, kiedy pokazać nakładkę. Usługa nie odczytuje treści ekranu, znaków wpisywanych z klawiatury ani żadnych innych danych wejściowych.
+
+Wyświetlanie nad innymi aplikacjami: wymagane do wyrysowania nakładki z fiszką na wierzchu zablokowanej aplikacji.
+
+
+OTWARTE ŹRÓDŁO
+
+ProcrastiLearn to darmowe oprogramowanie open source (licencja Apache 2.0). Kod źródłowy i system zgłoszeń znajdziesz na GitHubie.

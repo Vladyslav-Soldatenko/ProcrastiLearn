@@ -1,0 +1,1 @@
+Dodano kolejkę offline dla tłumaczeń generowanych przez AI

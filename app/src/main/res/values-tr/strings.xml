@@ -1,0 +1,339 @@
+<resources xmlns:tools="http://schemas.android.com/tools"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- ─── AppFunctions ────────────────────────────────────────────────────── -->
+    <string name="app_function_description">Aralıklı tekrarla öğrenmek için yapay zeka destekli çevirilerle kelime ekleyin</string>
+
+    <!-- ─── App / Brand ─────────────────────────────────────────────────────── -->
+
+    <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
+    <string name="action_open_settings">Ayarları Aç</string>
+    <string name="action_not_now">Şimdi değil</string>
+    <string name="action_continue">Devam Et</string>
+    <string name="action_view_list">Listeyi Görüntüle</string>
+    <string name="action_add">Ekle</string>
+    <string name="action_save">Kaydet</string>
+    <string name="action_delete">Sil</string>
+    <string name="action_edit">Düzenle</string>
+    <string name="action_reset">Sıfırla</string>
+    <string name="action_ok">Tamam</string>
+    <string name="action_cancel">İptal</string>
+    <string name="action_proceed">Onayla</string>
+    <string name="action_select_all">Tümünü seç</string>
+    <string name="action_deselect_all">Seçimi kaldır</string>
+
+    <!-- ─── Text selection context menu ─────────────────────────────────────── -->
+    <string name="process_text_action">ProcrastiLearn’e ekle</string>
+
+    <!-- ─── Navigation ──────────────────────────────────────────────────────── -->
+    <string name="nav_apps">Uygulamalar</string>
+    <string name="nav_add_word">Kelime Ekle</string>
+    <string name="nav_dojo">Dojo</string>
+    <string name="nav_settings">Ayarlar</string>
+
+    <!-- ─── Learning flow ───────────────────────────────────────────────────── -->
+    <string name="learning_no_word">Yüklenmiş kelime yok</string>
+    <string name="learning_no_translation">Yüklenmiş çeviri yok</string>
+    <string name="learning_show_translation">Çeviriyi göster</string>
+    <string name="learning_question">Bu kelimeyi ne kadar iyi biliyordun?</string>
+
+    <!-- Ratings -->
+    <string name="rating_again">Tekrar</string>
+    <string name="rating_hard">Zor</string>
+    <string name="rating_good">İyi</string>
+    <string name="rating_easy">Kolay</string>
+
+    <!-- ─── Dojo (practice screen) ──────────────────────────────────────────── -->
+    <string name="dojo_stats_new_remaining">yeni</string>
+    <string name="dojo_stats_reviews_due">tekrar zamanı</string>
+    <string name="dojo_stats_skipped">atlanan</string>
+    <string name="dojo_empty_title">Bugünlük bu kadar!</string>
+    <string name="dojo_empty_message">Bugün için mevcut tüm kelimeleri tamamladın. Daha sonra tekrar gel veya günlük limitlerini Ayarlar’dan değiştir.</string>
+    <string name="dojo_undo_content_description">Son değerlendirmeyi geri al</string>
+    <string name="dojo_undo_confirmation">“%2$s” için “%1$s” değerlendirmesi geri alındı</string>
+
+    <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
+    <string name="overlay_permission_title">Kaplama gösterimine izin ver</string>
+    <string name="overlay_permission_message">
+        Bu uygulamanın diğer uygulamaların üzerinde bir kaplama göstermek için izne ihtiyacı var.
+    </string>
+
+    <!-- ─── Accessibility disclosure (A11y) ─────────────────────────────────── -->
+    <string name="a11y_disclosure_title">Erişilebilirliğe neden ihtiyacımız var</string>
+    <string name="a11y_disclosure_description">
+        Bu uygulama, seçtiğin uygulamaları (ör. TikTok, Reddit veya seçtiğin başka bir uygulama) ne zaman açtığını
+        algılamak için Android Erişilebilirlik Hizmeti iznini kullanır; böylece devam etmeden önce kısa bir öğrenme sorusu gösterebilir.
+    </string>
+
+    <string name="a11y_disclosure_section_access">Neye erişiyoruz</string>
+
+    <string name="a11y_disclosure_access_details">
+        • O anda ekranında hangi uygulamanın açık olduğu.\n
+        • Şifrelerini, mesajlarını veya ekrandaki metinleri ASLA okumayız.\n
+        • Verilerin cihazından asla çıkmaz; satılmaz veya paylaşılmaz.
+    </string>
+
+    <string name="a11y_disclosure_section_usage">Nasıl kullanılıyor</string>
+
+    <!-- Original paragraph -->
+    <string name="a11y_disclosure_usage_details">
+        Yalnızca seçtiğin uygulamalar için öğrenme kaplamasını tetiklemek amacıyla kullanılır.
+        Bunu istediğin zaman Ayarlar’dan kapatabilirsin. Bu verileri satmıyor veya paylaşmıyoruz,
+        cihazından asla çıkmaz.
+    </string>
+
+    <string name="a11y_disclosure_checkbox">
+        Bu uygulamanın Erişilebilirlik Hizmeti iznini bu amaçla kullanmasına izin verdiğimi anlıyor ve kabul ediyorum.
+    </string>
+    <string name="a11y_disclosure_accept">Kabul Et &amp; Devam Et</string>
+    <string name="a11y_disclosure_decline">@string/action_not_now</string>
+    <string name="a11y_disclosure_privacy">Gizlilik politikası &amp; ayrıntılar</string>
+
+    <!-- ─── Add Word ────────────────────────────────────────────────────────── -->
+    <string name="add_word_title">Yeni Kelime Ekle</string>
+    <string name="add_word_subtitle">Kelime dağarcığını genişlet</string>
+    <string name="add_word_label_word">Kelime</string>
+    <string name="add_word_placeholder_word">Kelimeyi gir</string>
+    <string name="add_word_label_translation">Çeviri</string>
+    <string name="add_word_placeholder_translation">Çeviriyi gir (çok satırlı)</string>
+
+    <string name="edit_word_title">Kelimeyi Düzenle</string>
+
+    <!-- Prefer using a proper icon. Keep these for compatibility. -->
+    <string name="add_word_success_default">Başarılı!</string>
+
+    <!-- Helpful validation/toast messages -->
+    <string name="add_word_error_word_required">Lütfen bir kelime gir.</string>
+    <string name="add_word_error_translation_required">Lütfen bir çeviri gir.</string>
+
+    <!-- Add Word: success and error fallback messages -->
+    <string name="add_word_success_added">Kelime başarıyla eklendi!</string>
+    <string name="add_word_success_updated">Kelime güncellendi ve ilerleme sıfırlandı!</string>
+    <string name="add_word_success_pending">Kaydedildi. Tekrar çevrimiçi olduğunda çeviri oluşturulacak.</string>
+    <string name="add_word_error_preview_failed">Önizleme oluşturulamadı</string>
+    <string name="add_word_error_translation_failed">Çeviri oluşturulamadı</string>
+    <string name="add_word_error_update_failed">Kelime güncellenemedi</string>
+    <string name="add_word_error_add_failed">Kelime eklenemedi</string>
+    <string name="add_word_error_lookup_failed">Mevcut kelimeler kontrol edilemedi</string>
+
+    <!-- Bidirectional review -->
+    <string name="add_word_bidirectional_toggle">Her iki yönde test et</string>
+    <string name="add_word_customize_backward_show">Ters kartı özelleştir</string>
+    <string name="add_word_customize_backward_hide">Özelleştirmeyi gizle</string>
+    <string name="add_word_backward_prompt_label">Ters soru</string>
+    <string name="add_word_backward_prompt_placeholder">Çeviriyi kullanmak için boş bırak</string>
+    <string name="add_word_backward_answer_label">Ters cevap</string>
+    <string name="add_word_backward_answer_placeholder">Kelimeyi kullanmak için boş bırak</string>
+
+    <!-- ─── Language selection ──────────────────────────────────────────────── -->
+    <string name="language_name_english">İngilizce</string>
+    <string name="language_name_russian">Rusça</string>
+    <string name="language_name_spanish">İspanyolca</string>
+    <string name="language_name_french">Fransızca</string>
+    <string name="language_name_german">Almanca</string>
+    <string name="language_name_italian">İtalyanca</string>
+    <string name="language_name_portuguese">Portekizce</string>
+    <string name="language_name_chinese">Çince (Mandarin)</string>
+
+    <string name="language_selection_dialog_title">Dillerini seç</string>
+    <string name="language_selection_subtitle">Konuştuğun dili ve öğrenmek istediğin dili seç. Bunu daha sonra Ayarlar’dan değiştirebilirsin.</string>
+    <string name="language_selection_native_label">Konuştuğum dil</string>
+    <string name="language_selection_target_label">Öğrenmek istediğim dil</string>
+
+    <!-- ─── Settings ────────────────────────────────────────────────────────── -->
+    <string name="settings_title">@string/nav_settings</string>
+
+    <!-- Section headers -->
+    <string name="settings_section_study_reviews">Çalışma &amp; Tekrarlar</string>
+    <string name="settings_section_ai_features">Yapay Zeka Özellikleri (API anahtarı gerekli)</string>
+    <string name="settings_section_permissions">İzinler</string>
+    <string name="settings_section_data_about">Veri &amp; Hakkında</string>
+
+    <!-- Language pair -->
+    <string name="settings_language_pair_title">Dil çifti</string>
+    <string name="settings_language_pair_desc">%1$s → %2$s</string>
+
+    <!-- Study mode -->
+    <string name="settings_study_mode_title">Çalışma Modu</string>
+    <string name="settings_study_mode_mixed">Karma</string>
+    <string name="settings_study_mode_reviews_first">Önce Tekrarlar</string>
+    <string name="settings_study_mode_new_first">Önce Yeniler</string>
+    <string name="settings_study_mode_mixed_desc">Yeni kartları ve tekrarları karıştır</string>
+    <string name="settings_study_mode_reviews_first_desc">Yeni kartlardan önce tüm tekrarları göster</string>
+    <string name="settings_study_mode_new_first_desc">Tekrarlardan önce yeni kartları göster</string>
+
+    <!-- New card order -->
+    <string name="settings_new_card_order_title">Yeni Kart Sırası</string>
+    <string name="settings_new_card_order_sequential">Sıralı</string>
+    <string name="settings_new_card_order_random">Rastgele</string>
+    <string name="settings_new_card_order_sequential_desc">Yeni kartları içe aktarılma sırasına göre göster</string>
+    <string name="settings_new_card_order_random_desc">Yeni kartları rastgele sırayla göster</string>
+
+    <!-- Review direction -->
+    <string name="settings_review_direction_title">Tekrar Yönü</string>
+    <string name="settings_review_direction_forward">İleri</string>
+    <string name="settings_review_direction_backward">Geri</string>
+    <string name="settings_review_direction_bidirectional">Çift yönlü</string>
+    <string name="settings_review_direction_forward_desc">Kelimeyi göster, çeviriyi sor</string>
+    <string name="settings_review_direction_backward_desc">Çeviriyi göster, kelimeyi sor</string>
+    <string name="settings_review_direction_bidirectional_desc">“Her iki yönde test et” olarak işaretlenen kartlar için iki yönü karıştır</string>
+
+    <!-- Daily limits -->
+    <string name="settings_add_cards_for_today_title">Bugün İçin Kart Ekle</string>
+    <string name="settings_add_cards_for_today_dialog_title">Bugün İçin Kart Ekle (Kullanılabilir yeni: %1$d)</string>
+    <string name="settings_new_cards_per_day_title">Günlük Yeni Kart Sayısı</string>
+    <string name="settings_new_cards_per_day_dialog_title">Günlük Yeni Kart Sayısı (Kullanılabilir yeni: %1$d)</string>
+    <string name="settings_reviews_per_day_title">Günlük Tekrar Sayısı</string>
+
+    <!-- Overlay interval -->
+    <string name="settings_overlay_interval_title">Kaplamayı her X dakikada bir göster</string>
+    <string name="settings_overlay_interval_headline">Engellenen uygulama açıkken kaplamayı her X dakikada bir göster</string>
+
+    <!-- Rating delay -->
+    <string name="settings_rating_delay_title">Değerlendirme gecikmesi</string>
+    <string name="settings_rating_delay_headline">Bir kartı değerlendirebilmeden önce bekle</string>
+    <string name="settings_rating_delay_off">Kapalı</string>
+
+    <string name="settings_overlay_headline">Kaplama izni</string>
+    <string name="settings_overlay_support">
+        Seçilen uygulamaların üzerinde öğrenme kartını göstermek için gereklidir.
+    </string>
+
+    <string name="settings_a11y_headline">Öğrenme kilidi (Erişilebilirlik)</string>
+    <string name="settings_a11y_support">
+        Öğrenme kartını tetiklemek için seçilen uygulamaların ön planda olduğunu algılar.
+    </string>
+
+    <!-- About Us -->
+    <string name="settings_about_us_row">Hakkımızda</string>
+    <string name="settings_about_us_row_desc">Uygulama hakkında daha fazla bilgi al</string>
+    <string name="settings_about_us_title">@string/settings_about_us_row</string>
+    <string name="settings_about_us_intro">
+        ProcrastiLearn, dikkat dağıtan anları öğrenme fırsatlarına dönüştürür. Seçtiğin bir uygulamayı açmaya çalıştığında, önce sana kısa bir kelime sorusu gösteririz. Böylece dikkatini dağıtan şeyleri kontrol altında tutarken bilgini de geliştirmiş olursun.
+    </string>
+    <string name="settings_about_us_mission_title">Misyonumuz</string>
+    <string name="settings_about_us_mission_body">
+        Günlük alışkanlıkları yeni bir şeyler öğrenme fırsatlarına dönüştürerek insanların zamanlarını ve dikkatlerini yeniden kazanmalarına yardımcı olmak istiyoruz.
+    </string>
+    <string name="settings_about_us_who_title">Biz Kimiz</string>
+    <string name="settings_about_us_who_body">
+        ProcrastiLearn, üretkenlik ve dil öğrenimine tutkuyla bağlı bağımsız bir geliştirici tarafından geliştirilmekte ve sürdürülmektedir.
+    </string>
+    <string name="settings_about_us_values_title">Değerlerimiz</string>
+    <string name="settings_about_us_values_simplicity">Sadelik: dikkat dağıtmayan, minimal tasarım.</string>
+    <string name="settings_about_us_values_growth">Gelişim: her gün atılan küçük adımlar kalıcı ilerlemeye dönüşür.</string>
+    <string name="settings_about_us_contact_title">İletişim</string>
+    <string name="settings_about_us_contact_body">Sorularınız veya geri bildiriminiz için bize ulaşın: Apocalypse_232@proton.me</string>
+    <string name="settings_about_us_privacy">Gizlilik Politikası</string>
+
+    <!-- Import -->
+    <string name="settings_import_row">İçe Aktar</string>
+    <string name="settings_import_row_desc">Başka bir uygulamadan kelime ekle</string>
+    <string name="settings_import_option_anki_apkg">Anki destesi (.apkg)</string>
+    <string name="settings_import_option_anki_apkg_desc">Anki’den dışa aktarılan kartları ayrıştır</string>
+    <string name="settings_import_option_json">JSON dışa aktarımı (.json)</string>
+    <string name="settings_import_option_json_desc">Tam bir ProcrastiLearn dışa aktarımını içe aktar</string>
+    <string name="settings_import_failure_generic">İçe aktarma başarısız oldu</string>
+    <string name="settings_import_failure_format">Bu format henüz desteklenmiyor</string>
+    <string name="settings_import_failure_schema_version">Bu dosya ProcrastiLearn’ün daha yeni bir sürümüyle oluşturuldu. Lütfen uygulamayı güncelle.</string>
+
+    <!-- Export -->
+    <string name="settings_export_row">Dışa Aktar</string>
+    <string name="settings_export_row_desc">Tüm kelimeleri bir JSON dosyasına dışa aktar</string>
+    <string name="settings_export_success">Dışa aktarma tamamlandı</string>
+    <string name="settings_export_failure">Dışa aktarma başarısız oldu</string>
+
+    <!-- OpenAI API Key -->
+    <string name="settings_openai_api_key_title">OpenAI API Anahtarı</string>
+    <string name="settings_openai_api_key_dialog_title">OpenAI API Anahtarını Gir</string>
+    <string name="settings_openai_api_key_not_set">Ayarlanmadı</string>
+    <string name="settings_openai_api_key_set">Kaydedildi</string>
+    <string name="settings_openai_prompt_title">Yapay zeka %1$s-&gt;%2$s istemi</string>
+    <string name="settings_openai_prompt_dialog_title">Yapay zeka %1$s-&gt;%2$s istemini düzenle</string>
+    <string name="settings_openai_prompt_default">Varsayılan %1$s-&gt;%2$s istemi kullanılıyor</string>
+    <string name="settings_openai_prompt_custom">Özel %1$s-&gt;%2$s istemi kaydedildi</string>
+    <string name="settings_openai_reverse_prompt_title">@string/settings_openai_prompt_title</string>
+    <string name="settings_openai_reverse_prompt_dialog_title">@string/settings_openai_prompt_dialog_title</string>
+    <string name="settings_openai_reverse_prompt_default">@string/settings_openai_prompt_default</string>
+    <string name="settings_openai_reverse_prompt_custom">@string/settings_openai_prompt_custom</string>
+    <string name="settings_openai_prompt_placeholder_hint">Yer tutucu olarak {{NATIVE_LANGUAGE}} ve {{TARGET_LANGUAGE}} kullan — bir çeviri oluşturulduğunda bunlar otomatik olarak seçtiğin dillerle değiştirilir.</string>
+
+    <!-- Add Word: AI translation toggle -->
+    <string name="add_word_use_ai_toggle">çeviriyi oluşturmak için yapay zeka kullan</string>
+    <string name="add_word_toggle_direction">Çeviri yönünü değiştir</string>
+    <string name="add_word_button_preview">Önizleme</string>
+    <string name="add_word_preview_title">Yapay zeka önizlemesi</string>
+    <string name="add_word_preview_stored_title">Kaydedilmiş çeviri — zaten listenizde</string>
+    <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
+    <string name="add_word_preview_regenerate">Yeniden Oluştur</string>
+    <string name="add_word_existing_title">Kelime zaten mevcut</string>
+    <string name="add_word_existing_message">
+        Bu kelimeyi zaten eklemişsin. Devam edersen kelimenin ilerlemesi sıfırlanır ve yeni çeviri kaydedilir. Sadece düzenlemek istiyorsan bunu kelime listesinden yapabilirsin.
+    </string>
+    <string name="add_word_existing_cancel">@string/action_cancel</string>
+    <string name="add_word_existing_proceed">@string/action_proceed</string>
+
+    <!-- Add Word: offline AI queueing -->
+    <string name="add_word_button_add_later">Sonra ekle</string>
+    <string name="add_word_pending_title">Bekleyen çeviriler</string>
+    <string name="add_word_pending_delete">Bekleyen kelimeyi kaldır</string>
+
+    <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
+    <string name="word_list_title">Kelime Listem</string>
+    <string name="word_list_navigate_back">Kelime eklemeye dön</string>
+    <string name="word_list_empty">Henüz kelime eklenmedi</string>
+    <string name="word_list_delete_confirm_title">Kelimeyi sil</string>
+    <string name="word_list_delete_confirm_message">
+        <xliff:g id="word_name">%1$s</xliff:g> listenden silinsin mi?
+    </string>
+    <string name="word_list_reset_confirm_title">İlerlemeyi sıfırla</string>
+    <string name="word_list_reset_confirm_message">
+        <xliff:g id="word_name">%1$s</xliff:g> için öğrenme ilerlemesi sıfırlansın mı?
+    </string>
+    <string name="word_list_more_actions">Diğer işlemler</string>
+    <string name="word_list_more_actions_selection">Seçim işlemleri</string>
+    <string name="word_list_bulk_delete_confirm_title">Seçili kelimeleri sil</string>
+    <string name="word_list_bulk_bidirectional_enable">@string/add_word_bidirectional_toggle</string>
+    <string name="word_list_bulk_bidirectional_disable">Yalnızca ileri yönde test et</string>
+    <string name="word_list_bulk_forward_only_confirm_title">@string/word_list_bulk_bidirectional_disable</string>
+    <string name="word_list_search_label">Ara</string>
+    <string name="word_list_search_placeholder">Kelime ara</string>
+    <string name="word_list_search_no_results">Sonuç bulunamadı</string>
+    <string name="word_list_drag_handle_content_description"><xliff:g id="word_name">%1$s</xliff:g> kelimesini yeniden sırala</string>
+
+    <!-- ─── Apps list ──────────────────────────────────────────────────────── -->
+    <string name="apps_list_enable_procrastilearn_title">ProcrastiLearn’ü etkinleştir</string>
+    <string name="apps_list_error_message">Hata: <xliff:g id="error_message">%1$s</xliff:g></string>
+
+    <!-- ─── Accessibility content descriptions (for icons) ──────────────────── -->
+
+    <!-- Plurals -->
+    <plurals name="settings_import_success">
+        <item quantity="one">%1$d kart içe aktarıldı</item>
+        <item quantity="other">%1$d kart içe aktarıldı</item>
+    </plurals>
+    <plurals name="cards_count">
+        <item quantity="one">%d kart</item>
+        <item quantity="other">%d kart</item>
+    </plurals>
+    <plurals name="overlay_minutes_interval">
+        <item quantity="one">Her %d dakikada bir</item>
+        <item quantity="other">Her %d dakikada bir</item>
+    </plurals>
+    <plurals name="rating_delay_seconds">
+        <item quantity="one">%d saniye</item>
+        <item quantity="other">%d saniye</item>
+    </plurals>
+    <plurals name="word_list_selection_count">
+        <item quantity="one">%1$d seçildi</item>
+        <item quantity="other">%1$d seçildi</item>
+    </plurals>
+    <plurals name="word_list_bulk_delete_confirm_message">
+        <item quantity="one">%1$d kelime listenden silinsin mi?</item>
+        <item quantity="other">%1$d kelime listenden silinsin mi?</item>
+    </plurals>
+    <plurals name="word_list_bulk_forward_only_confirm_message">
+        <item quantity="one">%1$d kelimenin ters yönde test edilmesi durdurulsun mu? Ters ilerleme korunur ve tekrar açtığında geri yüklenir.</item>
+        <item quantity="other">%1$d kelimenin ters yönde test edilmesi durdurulsun mu? Ters ilerleme korunur ve tekrar açtığında geri yüklenir.</item>
+    </plurals>
+</resources>

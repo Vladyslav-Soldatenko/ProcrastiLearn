@@ -1,0 +1,4 @@
+Dodano obsługę dwukierunkowości (przód-tył i tył-przód) przy edycji słówka.
+Nowe instalacje domyślnie uczą się dwukierunkowo.
+Dodano tryb wielokrotnego zaznaczania w widoku Moje słownictwo do masowego usuwania i zmiany kierunku.
+Naprawiono zbyt niski kontrast koloru pola wyboru.

@@ -1,0 +1,43 @@
+Telefonunda Anki var, Duolingo var, ve bir ara onlara bakacağını düşünüyorsun. Sonra telefonu eline alıyorsun ve yirmi dakika sonra kendini TikTok'ta buluyorsun, oraya nasıl geldiğini bile bilmeden.
+
+ProcrastiLearn tam o anda devreye giriyor. Başka bir zaman kuyusuna dalmak üzereyken seni yakalıyor ve önce senden bir kelime istiyor.
+
+Uygulamaları düşünmeden açma alışkanlığı böylece kelime pratiğine dönüşüyor. Alışkanlıkla açtığın uygulamaları seç — sosyal medya, tarayıcılar, oyunlar — ve bunlardan birini her başlattığında tam ekran bir kelime kartı karşına çıkar. Çeviriyi ortaya çıkar, ne kadar iyi hatırladığını değerlendir, ve istediğin uygulama hemen açılır. Abonelik yok, reklam yok, hesap oluşturma yok.
+
+
+NASIL ÇALIŞIR
+
+Kilitlemek istediğin uygulamaları Uygulamalar sekmesinden seç. Bundan sonra bu uygulamalardan birini açtığında önce bir kelime kartı gösterilir. Cevabını değerlendirirsin (Tekrar / Zor / İyi / Kolay) ve FSRS aralıklı tekrar algoritması bir sonraki tekrarı otomatik olarak planlar. Günlük limitler seni bunaltmaz.
+
+Kilitli bir uygulamanın içindeyken zamanın nasıl geçtiğini kaçırma eğilimindeysen, isteğe bağlı yinelenen hatırlatıcı tam sana göre: bir aralık belirle (örneğin her 3 dakikada bir) ve o uygulamada kaldığın sürece kart tekrar tekrar karşına çıkar, her uzun oturumu ekstra tekrara dönüştürür.
+
+
+KELİME DAĞARCIĞI
+
+Kelimeleri manuel olarak ekleyebilir veya isteğe bağlı yapay zeka çeviri özelliğini kullanabilirsin: bir kelime yapıştır, Oluştur'a dokun, ve uygulama OpenAI kullanarak bir çeviri taslağı hazırlar. Yapay zeka istemi tamamen düzenlenebilir; böylece tonu, bağlamı veya hedef dili sen kontrol edersin.
+
+Ayrıca zaten güvendiğin bir kelime setiyle hemen başlamak için mevcut Anki destelerini (.apkg dosyaları) içe aktarabilirsin. Bundan sonra, tiktok izlerken ya da en sevdiğin YouTuber'ı seyrederken bile er ya da geç öğreneceğinden emin olabilirsin.
+
+Başka bir yerde bir kelimeyle karşılaştın mı — bir makale, bir sohbet, başka bir uygulama? Onu seç ve menüden "ProcrastiLearn'e ekle"ye dokun, hemen eklensin; önce uygulama değiştirmene gerek kalmadan.
+
+
+DİL DESTEĞİ
+
+Yapay zeka istemi, Ayarlar'da seçtiğin ana dil ve hedef dile göre otomatik olarak uyarlanır: açıklamalar ana dilinde, örnekler ise öğrendiğin dilde görünür. Herhangi bir dil çifti ek ayar gerektirmeden çalışır. GitHub'daki sorunlar veya e-posta yoluyla gelen kullanıcı isteklerine dayanarak dille ilgili iyileştirmeler gelmeye devam edecek.
+
+
+GİZLİLİK
+
+Tüm veriler — kelime dağarcığı, engellenen uygulama listesi, tekrar geçmişi ve ayarlar — tamamen cihazında saklanır. Analiz aracı, çökme raporlayıcı veya reklam SDK'sı yoktur. Tek giden ağ trafiği, Oluştur'a dokunarak başlattığın ve Ayarlar'a girdiğin kendi API anahtarını kullanan isteğe bağlı OpenAI API çağrısıdır.
+
+
+İZİNLER
+
+Erişilebilirlik Hizmeti: yalnızca hangi uygulamanın ön planda olduğunu algılamak için kullanılır, böylece ProcrastiLearn kaplamayı ne zaman göstereceğini bilir. Hizmet ekran içeriğini, tuş vuruşlarını veya başka bir girdiyi okumaz.
+
+Diğer Uygulamaların Üzerinde Görüntüleme: kelime kartı kaplamasını kilitli uygulamanın üzerine çizmek için gereklidir.
+
+
+AÇIK KAYNAK
+
+ProcrastiLearn ücretsiz ve açık kaynaklı bir yazılımdır (Apache 2.0 lisansı). Kaynak kod ve sorun takibi GitHub'da bulunur.

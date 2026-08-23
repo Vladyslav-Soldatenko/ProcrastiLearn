@@ -1,0 +1,2 @@
+Dodano ustawienie opóźnienia oceny, które blokuje przyciski oceny na nakładce, by uniemożliwić szybkie klikanie tylko po to, by ją zamknąć.
+Nieco zmniejszono nagłówek dojo, by zostawić więcej miejsca na karty.

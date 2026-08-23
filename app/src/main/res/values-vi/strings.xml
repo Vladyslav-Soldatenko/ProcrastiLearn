@@ -1,0 +1,330 @@
+<resources xmlns:tools="http://schemas.android.com/tools"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- ─── AppFunctions ────────────────────────────────────────────────────── -->
+    <string name="app_function_description">Thêm từ vựng kèm bản dịch do AI tạo ra để học theo phương pháp lặp lại ngắt quãng</string>
+
+    <!-- ─── App / Brand ─────────────────────────────────────────────────────── -->
+
+    <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
+    <string name="action_open_settings">Mở Cài đặt</string>
+    <string name="action_not_now">Để sau</string>
+    <string name="action_continue">Tiếp tục</string>
+    <string name="action_view_list">Xem danh sách</string>
+    <string name="action_add">Thêm</string>
+    <string name="action_save">Lưu</string>
+    <string name="action_delete">Xóa</string>
+    <string name="action_edit">Chỉnh sửa</string>
+    <string name="action_reset">Đặt lại</string>
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Hủy</string>
+    <string name="action_proceed">Xác nhận</string>
+    <string name="action_select_all">Chọn tất cả</string>
+    <string name="action_deselect_all">Bỏ chọn tất cả</string>
+
+    <!-- ─── Text selection context menu ─────────────────────────────────────── -->
+    <string name="process_text_action">Thêm vào ProcrastiLearn</string>
+
+    <!-- ─── Navigation ──────────────────────────────────────────────────────── -->
+    <string name="nav_apps">Ứng dụng</string>
+    <string name="nav_add_word">Thêm từ</string>
+    <string name="nav_dojo">Dojo</string>
+    <string name="nav_settings">Cài đặt</string>
+
+    <!-- ─── Learning flow ───────────────────────────────────────────────────── -->
+    <string name="learning_no_word">Chưa có từ nào được tải</string>
+    <string name="learning_no_translation">Chưa có bản dịch nào được tải</string>
+    <string name="learning_show_translation">Hiện bản dịch</string>
+    <string name="learning_question">Bạn nhớ từ này rõ đến mức nào?</string>
+
+    <!-- Ratings -->
+    <string name="rating_again">Chưa nhớ</string>
+    <string name="rating_hard">Khó</string>
+    <string name="rating_good">Tốt</string>
+    <string name="rating_easy">Dễ</string>
+
+    <!-- ─── Dojo (practice screen) ──────────────────────────────────────────── -->
+    <string name="dojo_stats_new_remaining">mới</string>
+    <string name="dojo_stats_reviews_due">cần ôn</string>
+    <string name="dojo_stats_skipped">đã bỏ qua</string>
+    <string name="dojo_empty_title">Xong hết rồi!</string>
+    <string name="dojo_empty_message">Bạn đã hoàn thành tất cả từ vựng có sẵn cho hôm nay. Hãy quay lại sau hoặc điều chỉnh giới hạn hằng ngày trong Cài đặt.</string>
+    <string name="dojo_undo_content_description">Hoàn tác đánh giá gần nhất</string>
+    <string name="dojo_undo_confirmation">Đã hoàn tác “%1$s” cho “%2$s”</string>
+
+    <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
+    <string name="overlay_permission_title">Cho phép hiển thị lớp phủ</string>
+    <string name="overlay_permission_message">
+        Ứng dụng này cần quyền hiển thị lớp phủ trên các ứng dụng khác.
+    </string>
+
+    <!-- ─── Accessibility disclosure (A11y) ─────────────────────────────────── -->
+    <string name="a11y_disclosure_title">Vì sao chúng tôi cần quyền Trợ năng</string>
+    <string name="a11y_disclosure_description">
+        Ứng dụng này sử dụng quyền Dịch vụ trợ năng của Android để phát hiện khi bạn mở các ứng dụng đã chọn
+        (ví dụ: TikTok, Reddit hoặc bất kỳ ứng dụng nào khác bạn chọn) để hiển thị một bài học ngắn trước khi bạn tiếp tục.
+    </string>
+
+    <string name="a11y_disclosure_section_access">Những gì chúng tôi truy cập</string>
+
+    <string name="a11y_disclosure_access_details">
+        • Ứng dụng nào đang hiển thị trên màn hình của bạn.\n
+        • Chúng tôi KHÔNG đọc mật khẩu, tin nhắn hay bất kỳ văn bản nào trên màn hình.\n
+        • Dữ liệu của bạn không bao giờ rời khỏi thiết bị và không bao giờ bị bán hay chia sẻ.
+    </string>
+
+    <string name="a11y_disclosure_section_usage">Dữ liệu được dùng như thế nào</string>
+
+    <!-- Original paragraph -->
+    <string name="a11y_disclosure_usage_details">
+        Chỉ để kích hoạt lớp phủ học tập cho các ứng dụng bạn đã chọn.
+        Bạn có thể tắt tính năng này bất cứ lúc nào trong Cài đặt. Chúng tôi không bán hay chia sẻ dữ liệu này,
+        nó không bao giờ rời khỏi thiết bị của bạn.
+    </string>
+
+    <string name="a11y_disclosure_checkbox">
+        Tôi hiểu và đồng ý cho phép ứng dụng này sử dụng quyền Dịch vụ trợ năng cho mục đích này.
+    </string>
+    <string name="a11y_disclosure_accept">Đồng ý &amp; Tiếp tục</string>
+    <string name="a11y_disclosure_decline">@string/action_not_now</string>
+    <string name="a11y_disclosure_privacy">Chính sách bảo mật &amp; chi tiết</string>
+
+    <!-- ─── Add Word ────────────────────────────────────────────────────────── -->
+    <string name="add_word_title">Thêm từ mới</string>
+    <string name="add_word_subtitle">Mở rộng vốn từ vựng của bạn</string>
+    <string name="add_word_label_word">Từ</string>
+    <string name="add_word_placeholder_word">Nhập từ</string>
+    <string name="add_word_label_translation">Bản dịch</string>
+    <string name="add_word_placeholder_translation">Nhập bản dịch (nhiều dòng)</string>
+
+    <string name="edit_word_title">Chỉnh sửa từ</string>
+
+    <!-- Prefer using a proper icon. Keep these for compatibility. -->
+    <string name="add_word_success_default">Thành công!</string>
+
+    <!-- Helpful validation/toast messages -->
+    <string name="add_word_error_word_required">Vui lòng nhập một từ.</string>
+    <string name="add_word_error_translation_required">Vui lòng nhập bản dịch.</string>
+
+    <!-- Add Word: success and error fallback messages -->
+    <string name="add_word_success_added">Đã thêm từ thành công!</string>
+    <string name="add_word_success_updated">Đã cập nhật từ và đặt lại tiến độ!</string>
+    <string name="add_word_success_pending">Đã lưu. Bản dịch sẽ được tạo ngay khi bạn có kết nối mạng trở lại.</string>
+    <string name="add_word_error_preview_failed">Không thể tạo bản xem trước</string>
+    <string name="add_word_error_translation_failed">Không thể tạo bản dịch</string>
+    <string name="add_word_error_update_failed">Không thể cập nhật từ</string>
+    <string name="add_word_error_add_failed">Không thể thêm từ</string>
+    <string name="add_word_error_lookup_failed">Không thể kiểm tra các từ đã có</string>
+
+    <!-- Bidirectional review -->
+    <string name="add_word_bidirectional_toggle">Kiểm tra cả hai chiều</string>
+    <string name="add_word_customize_backward_show">Tùy chỉnh thẻ chiều ngược</string>
+    <string name="add_word_customize_backward_hide">Ẩn tùy chỉnh</string>
+    <string name="add_word_backward_prompt_label">Câu hỏi chiều ngược</string>
+    <string name="add_word_backward_prompt_placeholder">Để trống để dùng bản dịch</string>
+    <string name="add_word_backward_answer_label">Câu trả lời chiều ngược</string>
+    <string name="add_word_backward_answer_placeholder">Để trống để dùng từ gốc</string>
+
+    <!-- ─── Language selection ──────────────────────────────────────────────── -->
+    <string name="language_name_english">Tiếng Anh</string>
+    <string name="language_name_russian">Tiếng Nga</string>
+    <string name="language_name_spanish">Tiếng Tây Ban Nha</string>
+    <string name="language_name_french">Tiếng Pháp</string>
+    <string name="language_name_german">Tiếng Đức</string>
+    <string name="language_name_italian">Tiếng Ý</string>
+    <string name="language_name_portuguese">Tiếng Bồ Đào Nha</string>
+    <string name="language_name_chinese">Tiếng Trung (Quan thoại)</string>
+
+    <string name="language_selection_dialog_title">Chọn ngôn ngữ của bạn</string>
+    <string name="language_selection_subtitle">Chọn ngôn ngữ bạn nói và ngôn ngữ bạn muốn học. Bạn có thể thay đổi điều này sau trong Cài đặt.</string>
+    <string name="language_selection_native_label">Tôi nói</string>
+    <string name="language_selection_target_label">Tôi muốn học</string>
+
+    <!-- ─── Settings ────────────────────────────────────────────────────────── -->
+    <string name="settings_title">@string/nav_settings</string>
+
+    <!-- Section headers -->
+    <string name="settings_section_study_reviews">Học &amp; Ôn tập</string>
+    <string name="settings_section_ai_features">Tính năng AI (cần khóa API)</string>
+    <string name="settings_section_permissions">Quyền truy cập</string>
+    <string name="settings_section_data_about">Dữ liệu &amp; Giới thiệu</string>
+
+    <!-- Language pair -->
+    <string name="settings_language_pair_title">Cặp ngôn ngữ</string>
+    <string name="settings_language_pair_desc">%1$s → %2$s</string>
+
+    <!-- Study mode -->
+    <string name="settings_study_mode_title">Chế độ học</string>
+    <string name="settings_study_mode_mixed">Kết hợp</string>
+    <string name="settings_study_mode_reviews_first">Ôn tập trước</string>
+    <string name="settings_study_mode_new_first">Từ mới trước</string>
+    <string name="settings_study_mode_mixed_desc">Kết hợp thẻ mới và thẻ ôn tập</string>
+    <string name="settings_study_mode_reviews_first_desc">Hiện tất cả thẻ ôn tập trước thẻ mới</string>
+    <string name="settings_study_mode_new_first_desc">Hiện thẻ mới trước thẻ ôn tập</string>
+
+    <!-- New card order -->
+    <string name="settings_new_card_order_title">Thứ tự thẻ mới</string>
+    <string name="settings_new_card_order_sequential">Tuần tự</string>
+    <string name="settings_new_card_order_random">Ngẫu nhiên</string>
+    <string name="settings_new_card_order_sequential_desc">Hiện thẻ mới theo đúng thứ tự đã nhập</string>
+    <string name="settings_new_card_order_random_desc">Hiện thẻ mới theo thứ tự ngẫu nhiên</string>
+
+    <!-- Review direction -->
+    <string name="settings_review_direction_title">Chiều ôn tập</string>
+    <string name="settings_review_direction_forward">Xuôi</string>
+    <string name="settings_review_direction_backward">Ngược</string>
+    <string name="settings_review_direction_bidirectional">Hai chiều</string>
+    <string name="settings_review_direction_forward_desc">Hiện từ, hỏi bản dịch</string>
+    <string name="settings_review_direction_backward_desc">Hiện bản dịch, hỏi từ gốc</string>
+    <string name="settings_review_direction_bidirectional_desc">Kết hợp cả hai chiều cho các thẻ được đánh dấu “Kiểm tra cả hai chiều”</string>
+
+    <!-- Daily limits -->
+    <string name="settings_add_cards_for_today_title">Thêm thẻ cho hôm nay</string>
+    <string name="settings_add_cards_for_today_dialog_title">Thêm thẻ cho hôm nay (Từ mới khả dụng: %1$d)</string>
+    <string name="settings_new_cards_per_day_title">Số từ mới mỗi ngày</string>
+    <string name="settings_new_cards_per_day_dialog_title">Số từ mới mỗi ngày (Từ mới khả dụng: %1$d)</string>
+    <string name="settings_reviews_per_day_title">Số lượt ôn tập mỗi ngày</string>
+
+    <!-- Overlay interval -->
+    <string name="settings_overlay_interval_title">Hiện lớp phủ mỗi X phút</string>
+    <string name="settings_overlay_interval_headline">Hiện lớp phủ sau mỗi X phút khi ứng dụng bị chặn đang mở</string>
+
+    <!-- Rating delay -->
+    <string name="settings_rating_delay_title">Độ trễ đánh giá</string>
+    <string name="settings_rating_delay_headline">Chờ trước khi có thể đánh giá một thẻ</string>
+    <string name="settings_rating_delay_off">Tắt</string>
+
+    <string name="settings_overlay_headline">Quyền lớp phủ</string>
+    <string name="settings_overlay_support">
+        Cần thiết để hiển thị thẻ học tập trên các ứng dụng đã chọn.
+    </string>
+
+    <string name="settings_a11y_headline">Cổng chặn học tập (Trợ năng)</string>
+    <string name="settings_a11y_support">
+        Phát hiện các ứng dụng đã chọn đang chạy ở nền trước để kích hoạt thẻ học tập.
+    </string>
+
+    <!-- About Us -->
+    <string name="settings_about_us_row">Về chúng tôi</string>
+    <string name="settings_about_us_row_desc">Tìm hiểu thêm về ứng dụng</string>
+    <string name="settings_about_us_title">@string/settings_about_us_row</string>
+    <string name="settings_about_us_intro">
+        ProcrastiLearn biến những khoảnh khắc mất tập trung thành cơ hội học tập. Khi bạn cố mở một ứng dụng đã chọn, chúng tôi sẽ cho bạn thử sức với một câu hỏi từ vựng nhanh trước. Nhờ vậy, bạn vừa trau dồi kiến thức vừa kiểm soát được sự xao nhãng.
+    </string>
+    <string name="settings_about_us_mission_title">Sứ mệnh của chúng tôi</string>
+    <string name="settings_about_us_mission_body">
+        Chúng tôi muốn giúp mọi người giành lại thời gian và sự tập trung bằng cách biến những thói quen hằng ngày thành cơ hội học điều gì đó mới.
+    </string>
+    <string name="settings_about_us_who_title">Chúng tôi là ai</string>
+    <string name="settings_about_us_who_body">
+        ProcrastiLearn được xây dựng và duy trì bởi một nhà phát triển độc lập đam mê năng suất làm việc và học ngoại ngữ.
+    </string>
+    <string name="settings_about_us_values_title">Giá trị cốt lõi</string>
+    <string name="settings_about_us_values_simplicity">Đơn giản: thiết kế tối giản, không xao nhãng.</string>
+    <string name="settings_about_us_values_growth">Phát triển: mỗi ngày một bước nhỏ sẽ tích lũy thành tiến bộ lâu dài.</string>
+    <string name="settings_about_us_contact_title">Liên hệ</string>
+    <string name="settings_about_us_contact_body">Nếu bạn có câu hỏi hoặc góp ý, hãy liên hệ chúng tôi tại: Apocalypse_232@proton.me</string>
+    <string name="settings_about_us_privacy">Chính sách bảo mật</string>
+
+    <!-- Import -->
+    <string name="settings_import_row">Nhập</string>
+    <string name="settings_import_row_desc">Thêm từ vựng từ ứng dụng khác</string>
+    <string name="settings_import_option_anki_apkg">Bộ thẻ Anki (.apkg)</string>
+    <string name="settings_import_option_anki_apkg_desc">Phân tích các thẻ được xuất từ Anki</string>
+    <string name="settings_import_option_json">Tệp xuất JSON (.json)</string>
+    <string name="settings_import_option_json_desc">Nhập một bản xuất đầy đủ của ProcrastiLearn</string>
+    <string name="settings_import_failure_generic">Nhập thất bại</string>
+    <string name="settings_import_failure_format">Định dạng này chưa được hỗ trợ</string>
+    <string name="settings_import_failure_schema_version">Tệp này được tạo bởi phiên bản ProcrastiLearn mới hơn. Vui lòng cập nhật ứng dụng.</string>
+
+    <!-- Export -->
+    <string name="settings_export_row">Xuất</string>
+    <string name="settings_export_row_desc">Xuất toàn bộ từ vựng ra tệp JSON</string>
+    <string name="settings_export_success">Xuất hoàn tất</string>
+    <string name="settings_export_failure">Xuất thất bại</string>
+
+    <!-- OpenAI API Key -->
+    <string name="settings_openai_api_key_title">Khóa API OpenAI</string>
+    <string name="settings_openai_api_key_dialog_title">Nhập khóa API OpenAI</string>
+    <string name="settings_openai_api_key_not_set">Chưa thiết lập</string>
+    <string name="settings_openai_api_key_set">Đã lưu</string>
+    <string name="settings_openai_prompt_title">Prompt AI %1$s-&gt;%2$s</string>
+    <string name="settings_openai_prompt_dialog_title">Chỉnh sửa prompt AI %1$s-&gt;%2$s</string>
+    <string name="settings_openai_prompt_default">Đang dùng prompt %1$s-&gt;%2$s mặc định</string>
+    <string name="settings_openai_prompt_custom">Đã lưu prompt %1$s-&gt;%2$s tùy chỉnh</string>
+    <string name="settings_openai_reverse_prompt_title">@string/settings_openai_prompt_title</string>
+    <string name="settings_openai_reverse_prompt_dialog_title">@string/settings_openai_prompt_dialog_title</string>
+    <string name="settings_openai_reverse_prompt_default">@string/settings_openai_prompt_default</string>
+    <string name="settings_openai_reverse_prompt_custom">@string/settings_openai_prompt_custom</string>
+    <string name="settings_openai_prompt_placeholder_hint">Dùng {{NATIVE_LANGUAGE}} và {{TARGET_LANGUAGE}} làm chỗ giữ chỗ — chúng sẽ tự động được thay bằng ngôn ngữ bạn đã chọn khi tạo bản dịch.</string>
+
+    <!-- Add Word: AI translation toggle -->
+    <string name="add_word_use_ai_toggle">dùng AI để tạo bản dịch</string>
+    <string name="add_word_toggle_direction">Đổi chiều dịch</string>
+    <string name="add_word_button_preview">Xem trước</string>
+    <string name="add_word_preview_title">Xem trước AI</string>
+    <string name="add_word_preview_stored_title">Bản dịch đã lưu — đã có trong danh sách của bạn</string>
+    <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
+    <string name="add_word_preview_regenerate">Tạo lại</string>
+    <string name="add_word_existing_title">Từ này đã tồn tại</string>
+    <string name="add_word_existing_message">
+        Bạn đã thêm từ này rồi. Nếu tiếp tục, tiến độ của từ sẽ được đặt lại và bản dịch mới sẽ được lưu. Nếu bạn chỉ muốn chỉnh sửa, hãy thực hiện từ danh sách từ vựng
+    </string>
+    <string name="add_word_existing_cancel">@string/action_cancel</string>
+    <string name="add_word_existing_proceed">@string/action_proceed</string>
+
+    <!-- Add Word: offline AI queueing -->
+    <string name="add_word_button_add_later">Thêm sau</string>
+    <string name="add_word_pending_title">Bản dịch đang chờ</string>
+    <string name="add_word_pending_delete">Xóa từ đang chờ</string>
+
+    <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
+    <string name="word_list_title">Từ vựng của tôi</string>
+    <string name="word_list_navigate_back">Quay lại thêm từ</string>
+    <string name="word_list_empty">Chưa có từ nào được thêm</string>
+    <string name="word_list_delete_confirm_title">Xóa từ</string>
+    <string name="word_list_delete_confirm_message">
+        Xóa <xliff:g id="word_name">%1$s</xliff:g> khỏi danh sách của bạn?
+    </string>
+    <string name="word_list_reset_confirm_title">Đặt lại tiến độ</string>
+    <string name="word_list_reset_confirm_message">
+        Đặt lại tiến độ học của <xliff:g id="word_name">%1$s</xliff:g>?
+    </string>
+    <string name="word_list_more_actions">Thêm thao tác</string>
+    <string name="word_list_more_actions_selection">Thao tác với mục đã chọn</string>
+    <string name="word_list_bulk_delete_confirm_title">Xóa các từ đã chọn</string>
+    <string name="word_list_bulk_bidirectional_enable">@string/add_word_bidirectional_toggle</string>
+    <string name="word_list_bulk_bidirectional_disable">Chỉ kiểm tra chiều xuôi</string>
+    <string name="word_list_bulk_forward_only_confirm_title">@string/word_list_bulk_bidirectional_disable</string>
+    <string name="word_list_search_label">Tìm kiếm</string>
+    <string name="word_list_search_placeholder">Tìm từ</string>
+    <string name="word_list_search_no_results">Không tìm thấy kết quả nào</string>
+    <string name="word_list_drag_handle_content_description">Sắp xếp lại <xliff:g id="word_name">%1$s</xliff:g></string>
+
+    <!-- ─── Apps list ──────────────────────────────────────────────────────── -->
+    <string name="apps_list_enable_procrastilearn_title">Bật ProcrastiLearn</string>
+    <string name="apps_list_error_message">Lỗi: <xliff:g id="error_message">%1$s</xliff:g></string>
+
+    <!-- Plurals -->
+    <plurals name="settings_import_success">
+        <item quantity="other">Đã nhập %1$d thẻ</item>
+    </plurals>
+    <plurals name="cards_count">
+        <item quantity="other">%d thẻ</item>
+    </plurals>
+    <plurals name="overlay_minutes_interval">
+        <item quantity="other">Mỗi %d phút</item>
+    </plurals>
+    <plurals name="rating_delay_seconds">
+        <item quantity="other">%d giây</item>
+    </plurals>
+    <plurals name="word_list_selection_count">
+        <item quantity="other">Đã chọn %1$d</item>
+    </plurals>
+    <plurals name="word_list_bulk_delete_confirm_message">
+        <item quantity="other">Xóa %1$d từ khỏi danh sách của bạn?</item>
+    </plurals>
+    <plurals name="word_list_bulk_forward_only_confirm_message">
+        <item quantity="other">Dừng kiểm tra %1$d từ theo chiều ngược? Tiến độ chiều ngược sẽ được giữ lại và khôi phục nếu bạn bật lại.</item>
+    </plurals>
+</resources>

@@ -1,0 +1,1 @@
+İlk sürüm. Seçilen uygulamalar için kelime kartı kilidi, FSRS aralıklı tekrar, Anki .apkg içe aktarma, isteğe bağlı yapay zeka destekli çeviriler, uygulama içi pratik modu ve JSON kelime dağarcığı içe/dışa aktarma.

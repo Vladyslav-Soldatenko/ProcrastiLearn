@@ -1,0 +1,1 @@
+Erstveröffentlichung. Lernkarten-Overlay zur Sperrung ausgewählter Apps, FSRS-Spaced-Repetition, Anki-.apkg-Import, optionale KI-generierte Übersetzungen mit OpenAI, App-interner Übungsmodus sowie JSON-Import/-Export für Vokabeln.

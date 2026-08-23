@@ -1,0 +1,1 @@
+Rilis pertama. Overlay flashcard untuk memblokir aplikasi pilihan, repetisi berjarak FSRS, impor deck Anki (.apkg), terjemahan AI opsional dari OpenAI, mode latihan dalam aplikasi, dan impor/ekspor kosakata JSON.

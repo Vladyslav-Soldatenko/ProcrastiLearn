@@ -1,0 +1,2 @@
+Memperbaiki bug saat statistik dojo menampilkan angka yang salah
+Beberapa penyempurnaan dan perbaikan kecil

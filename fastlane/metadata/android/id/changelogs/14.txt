@@ -1,0 +1,2 @@
+Menambahkan pengaturan ulang urutan dengan seret-dan-lepas di Kosakata Saya.
+Mempertahankan urutan kartu asli saat mengimpor dari Anki.

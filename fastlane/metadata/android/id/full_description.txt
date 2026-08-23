@@ -1,0 +1,43 @@
+Ada Anki di HP-mu, ada Duolingo, dan kamu memang berniat untuk mulai memakainya. Lalu kamu ambil HP-mu, dan dua puluh menit kemudian kamu sudah entah di mana di TikTok, tanpa benar-benar sadar bagaimana bisa sampai di situ.
+
+ProcrastiLearn hadir tepat di momen itu. Aplikasi ini menangkapmu tepat sebelum kamu tenggelam ke pemakan waktu lainnya, dan memintamu untuk menjawab satu kata dulu.
+
+Begitulah cara membuka aplikasi tanpa sadar berubah jadi latihan kosakata. Pilih aplikasi yang biasa kamu buka karena kebiasaan — media sosial, browser, game — dan setiap kali kamu membukanya, sebuah overlay flashcard layar penuh akan muncul. Buka terjemahannya, nilai seberapa baik kamu mengingatnya, dan aplikasi yang ingin kamu buka pun langsung terbuka. Tanpa langganan, tanpa iklan, tanpa akun.
+
+
+CARA KERJANYA
+
+Pilih aplikasi yang ingin kamu blokir di tab Aplikasi. Sejak saat itu, membuka salah satu aplikasi tersebut akan menampilkan flashcard terlebih dahulu. Kamu menilai jawabanmu (Ulangi / Sulit / Baik / Mudah), dan algoritma repetisi berjarak FSRS otomatis menjadwalkan ulasan berikutnya. Batas harian mencegah kamu kewalahan.
+
+Kalau kamu cenderung lupa waktu begitu sudah masuk ke aplikasi yang diblokir, ada pengingat berulang opsional yang siap membantu: atur sebuah interval (misalnya setiap 3 menit) dan overlay akan muncul lagi selama kamu masih berada di aplikasi itu, mengubah setiap sesi berlama-lama jadi latihan ulasan tambahan.
+
+
+KOSAKATA
+
+Tambahkan kata secara manual atau gunakan fitur terjemahan AI opsional: tempel sebuah kata, ketuk Buat, dan aplikasi akan membuat draf terjemahan menggunakan OpenAI. Prompt AI-nya bisa diedit sepenuhnya, jadi kamu bisa mengatur nada bicara, konteks, atau bahasa target.
+
+Kamu juga bisa mengimpor deck Anki yang sudah ada (file .apkg) untuk langsung mulai dengan set kosakata yang sudah kamu percaya. Setelah itu kamu bisa yakin akan mempelajarinya cepat atau lambat, sambil nonton TikTok atau YouTuber favoritmu.
+
+Menemukan kata di tempat lain — artikel, chat, aplikasi lain? Pilih kata itu dan ketuk "ProcrastiLearn-kan ini" dari menu untuk langsung menambahkannya, tanpa perlu pindah aplikasi dulu.
+
+
+DUKUNGAN BAHASA
+
+Prompt AI otomatis menyesuaikan dengan bahasa asal dan bahasa target yang kamu pilih di Pengaturan: penjelasan muncul dalam bahasa yang kamu kuasai, dan contoh dalam bahasa yang sedang kamu pelajari. Semua pasangan bahasa langsung berfungsi tanpa perlu diatur — tak perlu mengedit prompt secara manual. Peningkatan terkait bahasa akan terus ditambahkan, terutama berdasarkan permintaan pengguna lewat GitHub issues atau email.
+
+
+PRIVASI
+
+Semua data — kosakata, daftar aplikasi yang diblokir, riwayat ulasan, dan pengaturan — disimpan sepenuhnya di perangkatmu. Tidak ada analitik, tidak ada pelapor crash, dan tidak ada SDK iklan. Satu-satunya lalu lintas jaringan keluar adalah panggilan API OpenAI opsional yang kamu picu sendiri dengan mengetuk Buat, menggunakan kunci API milikmu sendiri yang dimasukkan di Pengaturan.
+
+
+IZIN
+
+Layanan Aksesibilitas: hanya digunakan untuk mendeteksi aplikasi mana yang sedang aktif di latar depan, sehingga ProcrastiLearn tahu kapan harus menampilkan overlay. Layanan ini tidak membaca isi layar, ketukan tombol, atau input lainnya.
+
+Tampil di Atas Aplikasi Lain: diperlukan untuk menggambar overlay flashcard di atas aplikasi yang diblokir.
+
+
+OPEN SOURCE
+
+ProcrastiLearn adalah perangkat lunak gratis dan open-source (lisensi Apache 2.0). Kode sumber dan pelacak masalah tersedia di GitHub.

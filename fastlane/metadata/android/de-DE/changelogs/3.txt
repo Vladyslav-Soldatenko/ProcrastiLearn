@@ -1,0 +1,2 @@
+Prompts für die KI-Übersetzungsgenerierung überarbeitet und verbessert (sowohl EN-RU als auch RU-EN)
+Vorbereitung der Integration von App-Funktionen mit Sprachassistenten

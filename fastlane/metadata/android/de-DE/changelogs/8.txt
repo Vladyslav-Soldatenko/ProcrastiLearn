@@ -1,0 +1,6 @@
+Aktion „Zu ProcrastiLearn hinzufügen“ bei der Textauswahl hinzugefügt, um Wörter aus jeder beliebigen App schnell zu übernehmen.
+Rückgängig-Funktion für die letzte Dojo-/Overlay-Bewertung hinzugefügt.
+Zurück-Navigation von „Mein Wortschatz“ zur Seite „Wort hinzufügen“ hinzugefügt.
+Einstellungen in beschriftete Abschnitte gruppiert.
+Fehler behoben, bei dem „Karten für heute hinzufügen“ ungesehene Karten zu hoch gezählt hat.
+Anki-Unterstützung verbessert.

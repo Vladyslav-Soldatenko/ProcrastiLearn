@@ -1,0 +1,2 @@
+Dodano zmianę kolejności metodą przeciągnij i upuść w widoku Moje słownictwo.
+Zachowano oryginalną kolejność kart przy imporcie z Anki.

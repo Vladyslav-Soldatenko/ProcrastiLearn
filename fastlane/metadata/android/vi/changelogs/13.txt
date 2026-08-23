@@ -1,0 +1,2 @@
+Thêm cài đặt độ trễ đánh giá để khóa tạm các nút đánh giá trên lớp phủ, tránh việc bấm nhanh chỉ để đóng lớp phủ.
+Thu nhỏ phần tiêu đề dojo một chút để dành thêm không gian cho các thẻ.

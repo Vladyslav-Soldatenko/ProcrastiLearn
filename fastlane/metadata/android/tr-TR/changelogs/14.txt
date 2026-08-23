@@ -1,0 +1,2 @@
+Kelime Listem'e sürükle-bırak ile yeniden sıralama eklendi.
+Anki'den içe aktarırken orijinal kart sırası korunuyor.

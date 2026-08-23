@@ -1,0 +1,6 @@
+Herhangi bir uygulamadan hızlıca kelime eklemek için metin seçme menüsüne "ProcrastiLearn'e ekle" eylemi eklendi.
+Son dojo/kaplama değerlendirmesi için geri alma eklendi.
+Kelime Listem sayfasından Kelime Ekle sayfasına geri gitme eklendi.
+Ayarlar etiketli bölümler halinde gruplandırıldı.
+"Bugün İçin Kart Ekle" özelliğinin görülmemiş kartları fazla sayması düzeltildi.
+ANKI desteği iyileştirildi.
