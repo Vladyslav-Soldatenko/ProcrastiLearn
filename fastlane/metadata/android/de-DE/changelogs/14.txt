@@ -1,0 +1,2 @@
+Drag-and-drop-Umsortierung in „Mein Wortschatz“ hinzugefügt.
+Ursprüngliche Kartenreihenfolge beim Import aus Anki wird jetzt beibehalten.

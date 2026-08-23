@@ -1,0 +1,2 @@
+Menambahkan pengaturan jeda penilaian untuk mengunci tombol penilaian overlay agar tidak diklik asal-asalan hanya untuk menutup overlay.
+Mengecilkan sedikit header dojo agar ada lebih banyak ruang untuk kartu.

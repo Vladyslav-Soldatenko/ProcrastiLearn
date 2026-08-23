@@ -1,0 +1,2 @@
+Memperbarui dan menyempurnakan prompt untuk pembuatan terjemahan AI (EN-RU dan RU-EN)
+Mempersiapkan integrasi App functions dengan asisten ponsel

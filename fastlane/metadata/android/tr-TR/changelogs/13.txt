@@ -1,0 +1,2 @@
+Kaplamayı sadece kapatmak için hızlıca tıklamayı önlemek üzere değerlendirme düğmelerini kilitleyen bir değerlendirme gecikmesi ayarı eklendi.
+Kartlara daha fazla yer açmak için dojo başlığı biraz küçültüldü.

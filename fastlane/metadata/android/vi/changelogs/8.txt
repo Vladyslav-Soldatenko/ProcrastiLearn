@@ -1,0 +1,6 @@
+Thêm thao tác "Thêm vào ProcrastiLearn" khi chọn văn bản, giúp thêm từ nhanh từ bất kỳ ứng dụng nào.
+Thêm tính năng hoàn tác cho lượt đánh giá gần nhất trong dojo/lớp phủ.
+Thêm điều hướng quay lại từ Từ vựng của tôi sang trang Thêm từ.
+Nhóm các cài đặt theo từng mục có nhãn rõ ràng.
+Sửa lỗi Thêm thẻ cho hôm nay đếm thừa số thẻ chưa xem.
+Cải thiện hỗ trợ ANKI.

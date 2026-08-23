@@ -1,0 +1,43 @@
+Anki ist auf deinem Handy installiert, Duolingo auch, und eigentlich wolltest du dich längst wieder darum kümmern. Dann greifst du zum Handy, und zwanzig Minuten später bist du irgendwo in TikTok gelandet, ohne genau zu wissen, wie das passiert ist.
+
+Genau in diesem Moment setzt ProcrastiLearn an. Es erwischt dich, kurz bevor du wieder in einem Zeitfresser verschwindest, und verlangt erst mal ein Wort von dir.
+
+So wird aus gedankenlosem App-Öffnen Vokabeltraining. Wähle die Apps aus, die du aus reiner Gewohnheit öffnest — soziale Netzwerke, Browser, Spiele — und sobald du eine davon startest, erscheint eine Lernkarte im Vollbild. Deck die Übersetzung auf, bewerte, wie gut du sie wusstest, und die gewünschte App öffnet sich sofort danach. Kein Abo, keine Werbung, kein Konto nötig.
+
+
+SO FUNKTIONIERT'S
+
+Wähle im Tab „Apps“ die Apps aus, die gesperrt werden sollen. Ab dann zeigt jede dieser Apps beim Öffnen zuerst eine Lernkarte. Du bewertest deine Antwort (Nochmal / Schwer / Gut / Leicht), und der FSRS-Algorithmus für Spaced Repetition plant die nächste Wiederholung automatisch. Tageslimits sorgen dafür, dass es nicht zu viel wird.
+
+Wer beim Blick in eine gesperrte App gern das Zeitgefühl verliert, für den gibt es die optionale wiederkehrende Erinnerung: Lege ein Intervall fest (z. B. alle 3 Minuten), und das Overlay erscheint erneut, solange du in der App bleibst — so wird aus jeder längeren Sitzung zusätzliches Training.
+
+
+VOKABELN
+
+Füge Wörter manuell hinzu oder nutze die optionale KI-Übersetzung: Wort einfügen, auf „Generieren“ tippen, und die App entwirft eine Übersetzung mit OpenAI. Der KI-Prompt lässt sich vollständig anpassen, sodass du Ton, Kontext oder Zielsprache selbst steuern kannst.
+
+Du kannst auch bestehende Anki-Decks (.apkg-Dateien) importieren und sofort mit einem Wortschatz starten, dem du bereits vertraust. Danach kannst du sicher sein, dass du ihn irgendwann lernst — auch während du TikTok oder deinen liebsten YouTuber schaust.
+
+Stößt du anderswo auf ein Wort — in einem Artikel, einem Chat, einer anderen App? Markiere es und tippe im Menü auf „Zu ProcrastiLearn hinzufügen“, um es sofort zu speichern, ohne die App wechseln zu müssen.
+
+
+SPRACHUNTERSTÜTZUNG
+
+Der KI-Prompt passt sich automatisch an die Mutter- und Zielsprache an, die du in den Einstellungen wählst: Erklärungen erscheinen in deiner Muttersprache, Beispiele in der Sprache, die du lernst. Jede Sprachkombination funktioniert sofort — ganz ohne manuelle Prompt-Anpassung. Weitere sprachbezogene Verbesserungen kommen laufend hinzu, besonders basierend auf Nutzerwünschen aus GitHub-Issues oder per E-Mail.
+
+
+DATENSCHUTZ
+
+Alle Daten — Vokabeln, Liste der gesperrten Apps, Lernverlauf und Einstellungen — werden ausschließlich auf deinem Gerät gespeichert. Es gibt keine Analyse-Tools, keine Absturzberichte und keine Werbe-SDKs. Der einzige ausgehende Netzwerkverkehr ist der optionale OpenAI-API-Aufruf, den du selbst durch Tippen auf „Generieren“ auslöst, mit deinem eigenen, in den Einstellungen hinterlegten API-Schlüssel.
+
+
+BERECHTIGUNGEN
+
+Bedienungshilfendienst: Wird ausschließlich genutzt, um zu erkennen, welche App gerade im Vordergrund ist, damit ProcrastiLearn weiß, wann das Overlay angezeigt werden soll. Der Dienst liest keine Bildschirminhalte, Tastatureingaben oder sonstige Eingaben.
+
+Über anderen Apps anzeigen: Erforderlich, um die Lernkarte über der gesperrten App einzublenden.
+
+
+OPEN SOURCE
+
+ProcrastiLearn ist freie Open-Source-Software (Apache-2.0-Lizenz). Quellcode und Issue-Tracker findest du auf GitHub.

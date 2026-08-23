@@ -1,0 +1,1 @@
+Phát hành lần đầu. Lớp phủ thẻ từ vựng chặn các ứng dụng đã chọn, học theo lặp lại ngắt quãng FSRS, nhập bộ thẻ Anki (.apkg), dịch AI bằng OpenAI (tùy chọn), chế độ luyện tập trong ứng dụng, và nhập/xuất từ vựng dạng JSON.

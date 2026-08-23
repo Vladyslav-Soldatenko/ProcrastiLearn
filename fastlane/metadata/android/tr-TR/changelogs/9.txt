@@ -1,0 +1,2 @@
+Dojo istatistiklerinin yanlış sayı göstermesine neden olan hata düzeltildi
+Küçük iyileştirmeler ve düzeltmeler

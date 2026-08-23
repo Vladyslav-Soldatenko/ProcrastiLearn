@@ -1,0 +1,4 @@
+Menambahkan dukungan dua arah (depan-ke-belakang dan belakang-ke-depan) saat mengedit kata.
+Instalasi baru kini belajar dua arah secara default.
+Menambahkan mode pilih-banyak di Kosakata Saya untuk hapus massal dan ubah arah secara massal.
+Memperbaiki warna checkbox yang kontrasnya rendah.

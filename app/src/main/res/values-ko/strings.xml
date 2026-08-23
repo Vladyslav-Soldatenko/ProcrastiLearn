@@ -1,0 +1,330 @@
+<resources xmlns:tools="http://schemas.android.com/tools"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- ─── AppFunctions ────────────────────────────────────────────────────── -->
+    <string name="app_function_description">간격 반복 학습을 위해 AI가 생성한 번역과 함께 단어를 추가합니다</string>
+
+    <!-- ─── App / Brand ─────────────────────────────────────────────────────── -->
+
+    <!-- ─── Common actions (reuse everywhere) ───────────────────────────────── -->
+    <string name="action_open_settings">설정 열기</string>
+    <string name="action_not_now">나중에</string>
+    <string name="action_continue">계속</string>
+    <string name="action_view_list">목록 보기</string>
+    <string name="action_add">추가</string>
+    <string name="action_save">저장</string>
+    <string name="action_delete">삭제</string>
+    <string name="action_edit">수정</string>
+    <string name="action_reset">초기화</string>
+    <string name="action_ok">확인</string>
+    <string name="action_cancel">취소</string>
+    <string name="action_proceed">계속 진행</string>
+    <string name="action_select_all">전체 선택</string>
+    <string name="action_deselect_all">전체 선택 해제</string>
+
+    <!-- ─── Text selection context menu ─────────────────────────────────────── -->
+    <string name="process_text_action">ProcrastiLearn에 추가</string>
+
+    <!-- ─── Navigation ──────────────────────────────────────────────────────── -->
+    <string name="nav_apps">앱</string>
+    <string name="nav_add_word">단어 추가</string>
+    <string name="nav_dojo">도장</string>
+    <string name="nav_settings">설정</string>
+
+    <!-- ─── Learning flow ───────────────────────────────────────────────────── -->
+    <string name="learning_no_word">불러온 단어가 없습니다</string>
+    <string name="learning_no_translation">불러온 번역이 없습니다</string>
+    <string name="learning_show_translation">번역 보기</string>
+    <string name="learning_question">이 단어를 얼마나 잘 알고 있었나요?</string>
+
+    <!-- Ratings -->
+    <string name="rating_again">다시</string>
+    <string name="rating_hard">어려움</string>
+    <string name="rating_good">좋음</string>
+    <string name="rating_easy">쉬움</string>
+
+    <!-- ─── Dojo (practice screen) ──────────────────────────────────────────── -->
+    <string name="dojo_stats_new_remaining">새 단어</string>
+    <string name="dojo_stats_reviews_due">복습</string>
+    <string name="dojo_stats_skipped">건너뜀</string>
+    <string name="dojo_empty_title">오늘 학습을 모두 마쳤어요!</string>
+    <string name="dojo_empty_message">오늘 학습 가능한 단어를 모두 완료했습니다. 나중에 다시 확인하거나 설정에서 일일 한도를 조정해 보세요.</string>
+    <string name="dojo_undo_content_description">마지막 평가 실행 취소</string>
+    <string name="dojo_undo_confirmation">“%2$s”에 대한 %1$s 평가를 취소했습니다</string>
+
+    <!-- ─── Overlay permission ──────────────────────────────────────────────── -->
+    <string name="overlay_permission_title">오버레이 표시 허용</string>
+    <string name="overlay_permission_message">
+        이 앱이 다른 앱 위에 오버레이를 표시하려면 권한이 필요합니다.
+    </string>
+
+    <!-- ─── Accessibility disclosure (A11y) ─────────────────────────────────── -->
+    <string name="a11y_disclosure_title">접근성 권한이 필요한 이유</string>
+    <string name="a11y_disclosure_description">
+        이 앱은 선택한 앱(예: 틱톡, 레딧 등 원하는 모든 앱)을 실행했을 때 이를 감지해
+        계속하기 전에 짧은 학습 문제를 보여주기 위해 안드로이드 접근성 서비스 권한을 사용합니다.
+    </string>
+
+    <string name="a11y_disclosure_section_access">수집하는 정보</string>
+
+    <string name="a11y_disclosure_access_details">
+        • 현재 화면에 표시된 앱이 무엇인지.\n
+        • 비밀번호, 메시지, 화면에 표시된 텍스트는 절대 읽지 않습니다.\n
+        • 사용자의 데이터는 기기 밖으로 전송되지 않으며, 판매되거나 공유되지 않습니다.
+    </string>
+
+    <string name="a11y_disclosure_section_usage">사용 방식</string>
+
+    <!-- Original paragraph -->
+    <string name="a11y_disclosure_usage_details">
+        선택한 앱에서 학습 오버레이를 실행하는 용도로만 사용됩니다.
+        설정에서 언제든지 끌 수 있습니다. 이 데이터는 판매되거나 공유되지 않으며,
+        기기 밖으로 전송되지 않습니다.
+    </string>
+
+    <string name="a11y_disclosure_checkbox">
+        이 앱이 위 목적으로 접근성 서비스 권한을 사용하는 것을 이해하며 동의합니다.
+    </string>
+    <string name="a11y_disclosure_accept">동의하고 계속하기</string>
+    <string name="a11y_disclosure_decline">@string/action_not_now</string>
+    <string name="a11y_disclosure_privacy">개인정보 처리방침 및 자세히 보기</string>
+
+    <!-- ─── Add Word ────────────────────────────────────────────────────────── -->
+    <string name="add_word_title">새 단어 추가</string>
+    <string name="add_word_subtitle">어휘를 늘려보세요</string>
+    <string name="add_word_label_word">단어</string>
+    <string name="add_word_placeholder_word">단어를 입력하세요</string>
+    <string name="add_word_label_translation">번역</string>
+    <string name="add_word_placeholder_translation">번역을 입력하세요 (여러 줄 가능)</string>
+
+    <string name="edit_word_title">단어 수정</string>
+
+    <!-- Prefer using a proper icon. Keep these for compatibility. -->
+    <string name="add_word_success_default">성공!</string>
+
+    <!-- Helpful validation/toast messages -->
+    <string name="add_word_error_word_required">단어를 입력해 주세요.</string>
+    <string name="add_word_error_translation_required">번역을 입력해 주세요.</string>
+
+    <!-- Add Word: success and error fallback messages -->
+    <string name="add_word_success_added">단어가 추가되었습니다!</string>
+    <string name="add_word_success_updated">단어가 수정되고 학습 진행 상태가 초기화되었습니다!</string>
+    <string name="add_word_success_pending">저장되었습니다. 다시 온라인 상태가 되면 번역이 생성됩니다.</string>
+    <string name="add_word_error_preview_failed">미리보기 생성에 실패했습니다</string>
+    <string name="add_word_error_translation_failed">번역 생성에 실패했습니다</string>
+    <string name="add_word_error_update_failed">단어 수정에 실패했습니다</string>
+    <string name="add_word_error_add_failed">단어 추가에 실패했습니다</string>
+    <string name="add_word_error_lookup_failed">기존 단어 확인에 실패했습니다</string>
+
+    <!-- Bidirectional review -->
+    <string name="add_word_bidirectional_toggle">양방향으로 테스트</string>
+    <string name="add_word_customize_backward_show">역방향 카드 커스터마이즈</string>
+    <string name="add_word_customize_backward_hide">커스터마이즈 숨기기</string>
+    <string name="add_word_backward_prompt_label">역방향 질문</string>
+    <string name="add_word_backward_prompt_placeholder">비워두면 번역이 사용됩니다</string>
+    <string name="add_word_backward_answer_label">역방향 답변</string>
+    <string name="add_word_backward_answer_placeholder">비워두면 단어가 사용됩니다</string>
+
+    <!-- ─── Language selection ──────────────────────────────────────────────── -->
+    <string name="language_name_english">영어</string>
+    <string name="language_name_russian">러시아어</string>
+    <string name="language_name_spanish">스페인어</string>
+    <string name="language_name_french">프랑스어</string>
+    <string name="language_name_german">독일어</string>
+    <string name="language_name_italian">이탈리아어</string>
+    <string name="language_name_portuguese">포르투갈어</string>
+    <string name="language_name_chinese">중국어(표준어)</string>
+
+    <string name="language_selection_dialog_title">사용 언어 선택</string>
+    <string name="language_selection_subtitle">사용하는 언어와 배우고 싶은 언어를 선택하세요. 설정에서 나중에 변경할 수 있습니다.</string>
+    <string name="language_selection_native_label">사용 언어</string>
+    <string name="language_selection_target_label">학습할 언어</string>
+
+    <!-- ─── Settings ────────────────────────────────────────────────────────── -->
+    <string name="settings_title">@string/nav_settings</string>
+
+    <!-- Section headers -->
+    <string name="settings_section_study_reviews">학습 및 복습</string>
+    <string name="settings_section_ai_features">AI 기능(API 키 필요)</string>
+    <string name="settings_section_permissions">권한</string>
+    <string name="settings_section_data_about">데이터 및 앱 정보</string>
+
+    <!-- Language pair -->
+    <string name="settings_language_pair_title">언어 쌍</string>
+    <string name="settings_language_pair_desc">%1$s → %2$s</string>
+
+    <!-- Study mode -->
+    <string name="settings_study_mode_title">학습 모드</string>
+    <string name="settings_study_mode_mixed">혼합</string>
+    <string name="settings_study_mode_reviews_first">복습 먼저</string>
+    <string name="settings_study_mode_new_first">새 단어 먼저</string>
+    <string name="settings_study_mode_mixed_desc">새 단어와 복습 카드를 섞어서 진행</string>
+    <string name="settings_study_mode_reviews_first_desc">새 단어보다 복습 카드를 먼저 표시</string>
+    <string name="settings_study_mode_new_first_desc">복습 카드보다 새 단어를 먼저 표시</string>
+
+    <!-- New card order -->
+    <string name="settings_new_card_order_title">새 카드 순서</string>
+    <string name="settings_new_card_order_sequential">순차</string>
+    <string name="settings_new_card_order_random">무작위</string>
+    <string name="settings_new_card_order_sequential_desc">가져온 순서대로 새 카드를 표시</string>
+    <string name="settings_new_card_order_random_desc">새 카드를 무작위 순서로 표시</string>
+
+    <!-- Review direction -->
+    <string name="settings_review_direction_title">복습 방향</string>
+    <string name="settings_review_direction_forward">정방향</string>
+    <string name="settings_review_direction_backward">역방향</string>
+    <string name="settings_review_direction_bidirectional">양방향</string>
+    <string name="settings_review_direction_forward_desc">단어를 보여주고 번역을 물어봅니다</string>
+    <string name="settings_review_direction_backward_desc">번역을 보여주고 단어를 물어봅니다</string>
+    <string name="settings_review_direction_bidirectional_desc">“양방향으로 테스트”로 표시된 카드는 두 방향을 섞어서 출제합니다</string>
+
+    <!-- Daily limits -->
+    <string name="settings_add_cards_for_today_title">오늘 학습할 카드 추가</string>
+    <string name="settings_add_cards_for_today_dialog_title">오늘 학습할 카드 추가(사용 가능한 새 단어: %1$d개)</string>
+    <string name="settings_new_cards_per_day_title">하루 새 카드 수</string>
+    <string name="settings_new_cards_per_day_dialog_title">하루 새 카드 수(사용 가능한 새 단어: %1$d개)</string>
+    <string name="settings_reviews_per_day_title">하루 복습 수</string>
+
+    <!-- Overlay interval -->
+    <string name="settings_overlay_interval_title">X분마다 오버레이 표시</string>
+    <string name="settings_overlay_interval_headline">차단된 앱이 열려 있는 동안 X분마다 오버레이 표시</string>
+
+    <!-- Rating delay -->
+    <string name="settings_rating_delay_title">평가 지연 시간</string>
+    <string name="settings_rating_delay_headline">카드를 평가하기 전 대기 시간</string>
+    <string name="settings_rating_delay_off">끄기</string>
+
+    <string name="settings_overlay_headline">오버레이 권한</string>
+    <string name="settings_overlay_support">
+        선택한 앱 위에 학습 카드를 표시하려면 필요합니다.
+    </string>
+
+    <string name="settings_a11y_headline">학습 게이트(접근성)</string>
+    <string name="settings_a11y_support">
+        선택한 앱이 화면 앞에 나타나는 것을 감지해 학습 카드를 실행합니다.
+    </string>
+
+    <!-- About Us -->
+    <string name="settings_about_us_row">앱 정보</string>
+    <string name="settings_about_us_row_desc">앱에 대해 더 알아보기</string>
+    <string name="settings_about_us_title">@string/settings_about_us_row</string>
+    <string name="settings_about_us_intro">
+        ProcrastiLearn은 방심하는 순간을 학습의 기회로 바꿔줍니다. 선택한 앱을 열려고 하면 먼저 간단한 단어 문제를 보여줍니다. 이렇게 하면 딴짓을 줄이면서도 지식을 쌓을 수 있습니다.
+    </string>
+    <string name="settings_about_us_mission_title">우리의 미션</string>
+    <string name="settings_about_us_mission_body">
+        일상의 습관을 새로운 것을 배우는 기회로 바꾸어, 사람들이 시간과 집중력을 되찾을 수 있도록 돕고자 합니다.
+    </string>
+    <string name="settings_about_us_who_title">우리는 누구인가요</string>
+    <string name="settings_about_us_who_body">
+        ProcrastiLearn은 생산성과 언어 학습에 열정을 가진 1인 개발자가 만들고 관리하고 있습니다.
+    </string>
+    <string name="settings_about_us_values_title">우리의 가치</string>
+    <string name="settings_about_us_values_simplicity">단순함: 방해 요소 없는 미니멀한 디자인.</string>
+    <string name="settings_about_us_values_growth">성장: 매일의 작은 발걸음이 모여 꾸준한 발전을 만듭니다.</string>
+    <string name="settings_about_us_contact_title">문의</string>
+    <string name="settings_about_us_contact_body">질문이나 의견이 있으시면 다음 주소로 연락해 주세요: Apocalypse_232@proton.me</string>
+    <string name="settings_about_us_privacy">개인정보 처리방침</string>
+
+    <!-- Import -->
+    <string name="settings_import_row">가져오기</string>
+    <string name="settings_import_row_desc">다른 앱에서 단어 가져오기</string>
+    <string name="settings_import_option_anki_apkg">Anki 덱(.apkg)</string>
+    <string name="settings_import_option_anki_apkg_desc">Anki에서 내보낸 카드를 분석합니다</string>
+    <string name="settings_import_option_json">JSON 내보내기(.json)</string>
+    <string name="settings_import_option_json_desc">ProcrastiLearn 전체 내보내기 파일을 가져옵니다</string>
+    <string name="settings_import_failure_generic">가져오기에 실패했습니다</string>
+    <string name="settings_import_failure_format">아직 지원되지 않는 형식입니다</string>
+    <string name="settings_import_failure_schema_version">이 파일은 더 최신 버전의 ProcrastiLearn에서 만들어졌습니다. 앱을 업데이트해 주세요.</string>
+
+    <!-- Export -->
+    <string name="settings_export_row">내보내기</string>
+    <string name="settings_export_row_desc">모든 단어를 JSON 파일로 내보냅니다</string>
+    <string name="settings_export_success">내보내기가 완료되었습니다</string>
+    <string name="settings_export_failure">내보내기에 실패했습니다</string>
+
+    <!-- OpenAI API Key -->
+    <string name="settings_openai_api_key_title">OpenAI API 키</string>
+    <string name="settings_openai_api_key_dialog_title">OpenAI API 키 입력</string>
+    <string name="settings_openai_api_key_not_set">설정되지 않음</string>
+    <string name="settings_openai_api_key_set">저장됨</string>
+    <string name="settings_openai_prompt_title">AI %1$s→%2$s 프롬프트</string>
+    <string name="settings_openai_prompt_dialog_title">AI %1$s→%2$s 프롬프트 수정</string>
+    <string name="settings_openai_prompt_default">기본 %1$s→%2$s 프롬프트 사용 중</string>
+    <string name="settings_openai_prompt_custom">사용자 지정 %1$s→%2$s 프롬프트가 저장되었습니다</string>
+    <string name="settings_openai_reverse_prompt_title">@string/settings_openai_prompt_title</string>
+    <string name="settings_openai_reverse_prompt_dialog_title">@string/settings_openai_prompt_dialog_title</string>
+    <string name="settings_openai_reverse_prompt_default">@string/settings_openai_prompt_default</string>
+    <string name="settings_openai_reverse_prompt_custom">@string/settings_openai_prompt_custom</string>
+    <string name="settings_openai_prompt_placeholder_hint">{{NATIVE_LANGUAGE}}와 {{TARGET_LANGUAGE}}를 자리표시자로 사용하세요. 번역을 생성할 때 선택한 언어로 자동 대체됩니다.</string>
+
+    <!-- Add Word: AI translation toggle -->
+    <string name="add_word_use_ai_toggle">AI로 번역 생성하기</string>
+    <string name="add_word_toggle_direction">번역 방향 전환</string>
+    <string name="add_word_button_preview">미리보기</string>
+    <string name="add_word_preview_title">AI 미리보기</string>
+    <string name="add_word_preview_stored_title">저장된 번역 — 이미 목록에 있습니다</string>
+    <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
+    <string name="add_word_preview_regenerate">다시 생성</string>
+    <string name="add_word_existing_title">이미 존재하는 단어입니다</string>
+    <string name="add_word_existing_message">
+        이 단어는 이미 추가되어 있습니다. 계속 진행하면 학습 진행 상태가 초기화되고 새 번역이 저장됩니다. 단순히 수정만 하고 싶다면 단어 목록에서 수정할 수 있습니다.
+    </string>
+    <string name="add_word_existing_cancel">@string/action_cancel</string>
+    <string name="add_word_existing_proceed">@string/action_proceed</string>
+
+    <!-- Add Word: offline AI queueing -->
+    <string name="add_word_button_add_later">나중에 추가</string>
+    <string name="add_word_pending_title">대기 중인 번역</string>
+    <string name="add_word_pending_delete">대기 중인 단어 삭제</string>
+
+    <!-- ─── Vocabulary list ─────────────────────────────────────────────────── -->
+    <string name="word_list_title">내 단어장</string>
+    <string name="word_list_navigate_back">단어 추가 화면으로 돌아가기</string>
+    <string name="word_list_empty">아직 추가된 단어가 없습니다</string>
+    <string name="word_list_delete_confirm_title">단어 삭제</string>
+    <string name="word_list_delete_confirm_message">
+        <xliff:g id="word_name">%1$s</xliff:g>을(를) 목록에서 삭제할까요?
+    </string>
+    <string name="word_list_reset_confirm_title">학습 진행 상태 초기화</string>
+    <string name="word_list_reset_confirm_message">
+        <xliff:g id="word_name">%1$s</xliff:g>의 학습 진행 상태를 초기화할까요?
+    </string>
+    <string name="word_list_more_actions">더 보기</string>
+    <string name="word_list_more_actions_selection">선택 항목 작업</string>
+    <string name="word_list_bulk_delete_confirm_title">선택한 단어 삭제</string>
+    <string name="word_list_bulk_bidirectional_enable">@string/add_word_bidirectional_toggle</string>
+    <string name="word_list_bulk_bidirectional_disable">정방향으로만 테스트</string>
+    <string name="word_list_bulk_forward_only_confirm_title">@string/word_list_bulk_bidirectional_disable</string>
+    <string name="word_list_search_label">검색</string>
+    <string name="word_list_search_placeholder">단어 검색</string>
+    <string name="word_list_search_no_results">일치하는 결과가 없습니다</string>
+    <string name="word_list_drag_handle_content_description"><xliff:g id="word_name">%1$s</xliff:g> 순서 변경</string>
+
+    <!-- ─── Apps list ──────────────────────────────────────────────────────── -->
+    <string name="apps_list_enable_procrastilearn_title">ProcrastiLearn 활성화</string>
+    <string name="apps_list_error_message">오류: <xliff:g id="error_message">%1$s</xliff:g></string>
+
+    <!-- Plurals -->
+    <plurals name="settings_import_success">
+        <item quantity="other">카드 %1$d개를 가져왔습니다</item>
+    </plurals>
+    <plurals name="cards_count">
+        <item quantity="other">카드 %d개</item>
+    </plurals>
+    <plurals name="overlay_minutes_interval">
+        <item quantity="other">%d분마다</item>
+    </plurals>
+    <plurals name="rating_delay_seconds">
+        <item quantity="other">%d초</item>
+    </plurals>
+    <plurals name="word_list_selection_count">
+        <item quantity="other">%1$d개 선택됨</item>
+    </plurals>
+    <plurals name="word_list_bulk_delete_confirm_message">
+        <item quantity="other">단어 %1$d개를 목록에서 삭제할까요?</item>
+    </plurals>
+    <plurals name="word_list_bulk_forward_only_confirm_message">
+        <item quantity="other">단어 %1$d개의 역방향 테스트를 중지할까요? 역방향 학습 진행 상태는 유지되며, 다시 켜면 복원됩니다.</item>
+    </plurals>
+</resources>

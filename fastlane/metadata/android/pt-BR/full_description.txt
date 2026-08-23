@@ -1,0 +1,43 @@
+Você tem o Anki no celular, tem o Duolingo, e sempre pretende usá-los. Aí você pega o celular, e vinte minutos depois já está perdido no TikTok, sem nem saber muito bem como chegou lá.
+
+O ProcrastiLearn entra em ação exatamente nesse momento. Ele te pega bem quando você está prestes a sumir em mais um ralo de tempo e pede uma palavra antes de tudo.
+
+É assim que abrir apps no automático vira prática de vocabulário. Escolha quais apps você costuma abrir por hábito — redes sociais, navegadores, jogos — e, sempre que abrir um deles, aparece um flashcard em tela cheia. Revele a tradução, avalie o quanto você lembrava dela, e o app que você queria abrir aparece na hora. Sem assinatura, sem anúncios, sem cadastro.
+
+
+COMO FUNCIONA
+
+Escolha os apps que você quer bloquear na aba Apps. A partir daí, abrir qualquer um deles mostra um flashcard antes de tudo. Você avalia sua resposta (De novo / Difícil / Bom / Fácil) e o algoritmo de repetição espaçada FSRS agenda automaticamente a próxima revisão. Limites diários evitam que você fique sobrecarregado.
+
+Se você costuma perder a noção do tempo depois que entra em um app bloqueado, o lembrete recorrente opcional resolve isso: defina um intervalo (por exemplo, a cada 3 minutos) e a sobreposição volta a aparecer enquanto você continuar naquele app, transformando cada sessão mais longa em revisões extras.
+
+
+VOCABULÁRIO
+
+Adicione palavras manualmente ou use o recurso opcional de tradução por IA: cole uma palavra, toque em Gerar, e o app monta uma tradução usando a OpenAI. O prompt da IA é totalmente editável, então você controla o tom, o contexto ou o idioma de destino.
+
+Você também pode importar baralhos do Anki (arquivos .apkg) para começar direto com um conjunto de vocabulário em que já confia. Depois disso, é só uma questão de tempo até você aprender tudo, mesmo enquanto assiste TikTok ou seu youtuber favorito.
+
+Encontrou uma palavra em outro lugar — um artigo, uma conversa, outro app? Selecione o texto e toque em "Adicionar ao ProcrastiLearn" no menu para adicioná-la na hora, sem precisar trocar de app antes.
+
+
+SUPORTE A IDIOMAS
+
+O prompt da IA se adapta automaticamente aos idiomas nativo e de destino que você escolher nas Configurações: as explicações aparecem no seu idioma nativo, e os exemplos no idioma que você está aprendendo. Qualquer combinação de idiomas funciona sem configuração extra — não é preciso editar o prompt manualmente. Mais melhorias relacionadas a idiomas continuarão chegando, principalmente com base nos pedidos dos usuários nas issues do GitHub ou por e-mail.
+
+
+PRIVACIDADE
+
+Todos os dados — vocabulário, lista de apps bloqueados, histórico de revisões e configurações — ficam armazenados inteiramente no seu dispositivo. Não há análises, relatórios de falhas nem SDKs de publicidade. O único tráfego de rede que sai do app é a chamada opcional à API da OpenAI, feita quando você toca em Gerar, usando sua própria chave de API cadastrada nas Configurações.
+
+
+PERMISSÕES
+
+Serviço de Acessibilidade: usado exclusivamente para detectar qual app está em primeiro plano, para que o ProcrastiLearn saiba quando mostrar a sobreposição. O serviço não lê o conteúdo da tela, toques no teclado nem qualquer outra entrada.
+
+Exibir sobre outros apps: necessário para desenhar o flashcard por cima do app bloqueado.
+
+
+CÓDIGO ABERTO
+
+O ProcrastiLearn é um software livre e de código aberto (licença Apache 2.0). O código-fonte e o rastreador de issues estão no GitHub.

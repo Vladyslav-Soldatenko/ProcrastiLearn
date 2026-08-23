@@ -1,0 +1,2 @@
+Einstellung für eine Bewertungsverzögerung hinzugefügt, die die Bewertungs-Buttons im Overlay sperrt, damit man sie nicht nur schnell antippt, um das Overlay zu schließen.
+Dojo-Kopfbereich etwas verkleinert, um mehr Platz für Karten zu schaffen.

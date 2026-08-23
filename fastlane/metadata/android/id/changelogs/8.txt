@@ -1,0 +1,6 @@
+Menambahkan aksi pemilihan teks "ProcrastiLearn-kan ini" untuk cepat menambah kata dari aplikasi mana pun.
+Menambahkan opsi urungkan untuk penilaian dojo/overlay terakhir.
+Menambahkan navigasi kembali dari Kosakata Saya ke halaman Tambah Kata.
+Mengelompokkan pengaturan ke dalam bagian-bagian berlabel.
+Memperbaiki Tambah Kartu untuk Hari Ini yang menghitung kartu belum dilihat secara berlebihan.
+Meningkatkan dukungan ANKI.

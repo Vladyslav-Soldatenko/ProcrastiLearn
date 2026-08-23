@@ -1,0 +1,1 @@
+Lançamento inicial. Bloqueio por flashcard para os apps escolhidos, repetição espaçada com FSRS, importação de baralhos .apkg do Anki, tradução opcional por IA (OpenAI), modo de prática dentro do app e importação/exportação de vocabulário em JSON.

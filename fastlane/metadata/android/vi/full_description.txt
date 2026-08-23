@@ -1,0 +1,43 @@
+Trên điện thoại bạn có Anki, có Duolingo, và bạn luôn định bụng sẽ học chúng. Nhưng rồi bạn cầm điện thoại lên, hai mươi phút sau bạn đã lạc trong TikTok lúc nào không hay.
+
+ProcrastiLearn xuất hiện đúng vào khoảnh khắc đó. Nó chặn bạn lại ngay trước khi bạn chìm vào một "hố đen" thời gian khác, và yêu cầu bạn ôn một từ trước đã.
+
+Đó là cách thói quen mở ứng dụng vô thức biến thành buổi luyện từ vựng. Hãy chọn những ứng dụng bạn hay mở theo quán tính — mạng xã hội, trình duyệt, trò chơi — và mỗi khi bạn mở một trong số đó, một thẻ từ vựng toàn màn hình sẽ hiện ra. Bạn lật xem bản dịch, đánh giá mức độ nhớ, rồi ứng dụng bạn muốn mở sẽ mở ra ngay lập tức. Không cần trả phí, không quảng cáo, không cần tài khoản.
+
+
+CÁCH HOẠT ĐỘNG
+
+Chọn những ứng dụng bạn muốn chặn trong tab Ứng dụng. Từ đó trở đi, mỗi khi mở một trong các ứng dụng này, một thẻ từ vựng sẽ hiện ra trước. Bạn đánh giá câu trả lời của mình (Chưa nhớ / Khó / Tốt / Dễ), và thuật toán lặp lại ngắt quãng FSRS sẽ tự động lên lịch cho lần ôn tiếp theo. Giới hạn hằng ngày giúp bạn không bị quá tải.
+
+Nếu bạn thường quên mất thời gian khi đã ở trong một ứng dụng bị chặn, tính năng nhắc lại định kỳ (tùy chọn) sẽ giúp bạn: đặt một khoảng thời gian (ví dụ mỗi 3 phút), và lớp phủ sẽ hiện lại chừng nào bạn còn ở trong ứng dụng đó, biến mỗi lần "lỡ ở lại lâu" thành thêm những lượt ôn tập.
+
+
+TỪ VỰNG
+
+Thêm từ theo cách thủ công, hoặc dùng tính năng dịch AI tùy chọn: dán một từ vào, nhấn Tạo, và ứng dụng sẽ soạn sẵn bản dịch bằng OpenAI. Câu lệnh (prompt) AI có thể chỉnh sửa hoàn toàn, giúp bạn kiểm soát giọng văn, ngữ cảnh hoặc ngôn ngữ đích.
+
+Bạn cũng có thể nhập các bộ thẻ Anki có sẵn (tệp .apkg) để bắt đầu ngay với một bộ từ vựng bạn đã tin tưởng từ trước. Sau đó, bạn có thể yên tâm rằng mình sẽ học được chúng dần dần, ngay cả khi đang xem TikTok hay YouTuber yêu thích.
+
+Bắt gặp một từ ở đâu đó khác — trong một bài viết, một đoạn chat, một ứng dụng khác? Chỉ cần chọn từ đó và nhấn "Thêm vào ProcrastiLearn" trong menu để thêm ngay lập tức, không cần chuyển sang ứng dụng khác trước.
+
+
+HỖ TRỢ NGÔN NGỮ
+
+Câu lệnh AI sẽ tự động thích ứng với ngôn ngữ mẹ đẻ và ngôn ngữ đích mà bạn chọn trong Cài đặt: phần giải thích hiện bằng ngôn ngữ mẹ đẻ của bạn, còn ví dụ hiện bằng ngôn ngữ bạn đang học. Mọi cặp ngôn ngữ đều hoạt động ngay mà không cần chỉnh sửa prompt thủ công. Các cải tiến liên quan đến ngôn ngữ sẽ tiếp tục được bổ sung, đặc biệt dựa trên yêu cầu của người dùng qua GitHub issues hoặc email.
+
+
+QUYỀN RIÊNG TƯ
+
+Toàn bộ dữ liệu — từ vựng, danh sách ứng dụng bị chặn, lịch sử ôn tập và cài đặt — đều được lưu hoàn toàn trên thiết bị của bạn. Không có công cụ phân tích, không có trình báo lỗi (crash reporter), không có SDK quảng cáo. Lưu lượng mạng đi ra duy nhất là lệnh gọi API OpenAI tùy chọn mà bạn tự khởi tạo khi nhấn Tạo, sử dụng khóa API của chính bạn được nhập trong Cài đặt.
+
+
+QUYỀN TRUY CẬP
+
+Dịch vụ trợ năng (Accessibility Service): chỉ được dùng để phát hiện ứng dụng nào đang hiển thị ở nền trước, giúp ProcrastiLearn biết khi nào cần hiện lớp phủ. Dịch vụ này không đọc nội dung màn hình, không ghi lại thao tác gõ phím hay bất kỳ dữ liệu nhập nào khác.
+
+Hiển thị trên các ứng dụng khác (Display Over Other Apps): cần thiết để vẽ lớp phủ thẻ từ vựng lên trên ứng dụng bị chặn.
+
+
+MÃ NGUỒN MỞ
+
+ProcrastiLearn là phần mềm miễn phí và mã nguồn mở (giấy phép Apache 2.0). Mã nguồn và hệ thống theo dõi lỗi (issue tracker) đều có trên GitHub.

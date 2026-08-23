@@ -1,0 +1,2 @@
+Aktualizacja i ulepszenie promptów do generowania tłumaczeń AI (zarówno EN-RU, jak i RU-EN)
+Przygotowania do integracji funkcji aplikacji z asystentami głosowymi
