@@ -134,6 +134,17 @@
     <string name="language_name_italian">Italiano</string>
     <string name="language_name_portuguese">Portoghese</string>
     <string name="language_name_chinese">Cinese (mandarino)</string>
+    <string name="language_name_japanese">Giapponese</string>
+    <string name="language_name_korean">Coreano</string>
+    <string name="language_name_ukrainian">Ucraino</string>
+    <string name="language_name_polish">Polacco</string>
+    <string name="language_name_hindi">Hindi</string>
+    <string name="language_name_turkish">Turco</string>
+    <string name="language_name_dutch">Olandese</string>
+    <string name="language_name_vietnamese">Vietnamita</string>
+    <string name="language_name_indonesian">Indonesiano</string>
+    <string name="language_name_thai">Tailandese</string>
+    <string name="language_name_swedish">Svedese</string>
 
     <string name="language_selection_dialog_title">Scegli le tue lingue</string>
     <string name="language_selection_subtitle">Scegli la lingua che parli e quella che vuoi imparare. Potrai cambiarle in seguito dalle Impostazioni.</string>

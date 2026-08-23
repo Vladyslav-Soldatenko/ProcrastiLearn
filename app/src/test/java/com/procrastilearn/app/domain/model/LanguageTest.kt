@@ -14,6 +14,17 @@ class LanguageTest {
         assertThat(Language.fromCode("it")).isEqualTo(Language.ITALIAN)
         assertThat(Language.fromCode("pt")).isEqualTo(Language.PORTUGUESE)
         assertThat(Language.fromCode("zh")).isEqualTo(Language.CHINESE)
+        assertThat(Language.fromCode("ja")).isEqualTo(Language.JAPANESE)
+        assertThat(Language.fromCode("ko")).isEqualTo(Language.KOREAN)
+        assertThat(Language.fromCode("uk")).isEqualTo(Language.UKRAINIAN)
+        assertThat(Language.fromCode("pl")).isEqualTo(Language.POLISH)
+        assertThat(Language.fromCode("hi")).isEqualTo(Language.HINDI)
+        assertThat(Language.fromCode("tr")).isEqualTo(Language.TURKISH)
+        assertThat(Language.fromCode("nl")).isEqualTo(Language.DUTCH)
+        assertThat(Language.fromCode("vi")).isEqualTo(Language.VIETNAMESE)
+        assertThat(Language.fromCode("id")).isEqualTo(Language.INDONESIAN)
+        assertThat(Language.fromCode("th")).isEqualTo(Language.THAI)
+        assertThat(Language.fromCode("sv")).isEqualTo(Language.SWEDISH)
     }
 
     @Test
@@ -41,8 +52,8 @@ class LanguageTest {
     }
 
     @Test
-    fun thereAreExactlyEightSupportedLanguages() {
-        assertThat(Language.entries).hasSize(8)
+    fun thereAreExactlyNineteenSupportedLanguages() {
+        assertThat(Language.entries).hasSize(19)
     }
 
     @Test
