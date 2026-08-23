@@ -1,0 +1,4 @@
+Adicionado suporte bidirecional (frente-verso e verso-frente) ao editar uma palavra.
+Novas instalações agora estudam nos dois sentidos por padrão.
+Adicionado modo de seleção múltipla em Meu Vocabulário para exclusão em massa e alteração de direção em massa.
+Corrigida cor de baixo contraste na caixa de seleção.

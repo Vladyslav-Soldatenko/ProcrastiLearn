@@ -1,0 +1,2 @@
+Naprawiono błąd powodujący nieprawidłowe statystyki w dojo
+Drobne poprawki i usprawnienia

@@ -1,0 +1,1 @@
+Pierwsze wydanie. Blokada aplikacji z nakładką fiszek, powtórki rozłożone w czasie (FSRS), import talii Anki (.apkg), opcjonalne tłumaczenia generowane przez AI (OpenAI), tryb ćwiczeń w aplikacji oraz import/eksport słownictwa w formacie JSON.

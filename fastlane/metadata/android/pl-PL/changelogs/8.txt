@@ -1,0 +1,6 @@
+Dodano akcję „Dodaj do ProcrastiLearn” w menu zaznaczania tekstu, by szybko dodawać słówka z dowolnej aplikacji.
+Dodano cofanie ostatniej oceny w dojo/na nakładce.
+Dodano nawigację wstecz z widoku Moje słownictwo do strony dodawania słówka.
+Ustawienia pogrupowano w oznaczone sekcje.
+Naprawiono zawyżanie liczby nieprzerobionych kart w opcji Dodaj karty na dziś.
+Ulepszono obsługę importu z Anki.

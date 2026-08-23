@@ -1,0 +1,6 @@
+Adicionada a ação "Adicionar ao ProcrastiLearn" ao selecionar texto, para incluir palavras rapidamente de qualquer app.
+Adicionado desfazer para a última avaliação no dojo/sobreposição.
+Adicionada navegação de volta de Meu Vocabulário para a tela de Adicionar Palavra.
+Configurações agrupadas em seções com nome.
+Corrigida contagem incorreta de cartas não vistas em Adicionar Cartas Para Hoje.
+Suporte ao Anki aprimorado.

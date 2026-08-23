@@ -1,0 +1,4 @@
+Thêm hỗ trợ hai chiều (xuôi và ngược) khi chỉnh sửa một từ.
+Các lượt cài đặt mới giờ đây học theo hai chiều mặc định.
+Thêm chế độ chọn nhiều mục trong Từ vựng của tôi để xóa hàng loạt và đổi chiều hàng loạt.
+Sửa lỗi màu ô chọn (checkbox) có độ tương phản thấp.

@@ -1,0 +1,2 @@
+Sửa lỗi số liệu thống kê dojo hiển thị sai
+Một số cải tiến và điều chỉnh nhỏ

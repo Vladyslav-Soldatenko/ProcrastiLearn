@@ -1,0 +1,4 @@
+Bir kelimeyi düzenlerken çift yönlü destek eklendi (önden arkaya ve arkadan öne).
+Yeni kurulumlar artık varsayılan olarak çift yönlü çalışıyor.
+Toplu silme ve toplu yön değiştirme için Kelime Listem'e çoklu seçim modu eklendi.
+Düşük kontrastlı onay kutusu rengi düzeltildi.

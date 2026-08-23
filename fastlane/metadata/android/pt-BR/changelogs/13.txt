@@ -1,0 +1,2 @@
+Adicionada configuração de atraso na avaliação para travar os botões de avaliação da sobreposição e evitar cliques rápidos só para fechá-la.
+Cabeçalho do dojo reduzido para deixar mais espaço para as cartas.

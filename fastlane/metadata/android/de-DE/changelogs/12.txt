@@ -1,0 +1,4 @@
+Bidirektionale Unterstützung (vorwärts und rückwärts) beim Bearbeiten eines Wortes hinzugefügt.
+Neuinstallationen lernen jetzt standardmäßig bidirektional.
+Mehrfachauswahl-Modus in „Mein Wortschatz“ für Massenlöschung und Massenänderung der Richtung hinzugefügt.
+Kontrastarme Checkbox-Farbe behoben.

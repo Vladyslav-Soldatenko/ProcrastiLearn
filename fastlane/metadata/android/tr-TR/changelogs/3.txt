@@ -1,0 +1,2 @@
+Yapay zeka çeviri istemleri güncellendi ve iyileştirildi (hem EN-RU hem RU-EN)
+Telefon asistanlarıyla Uygulama İşlevleri entegrasyonu için hazırlık yapıldı

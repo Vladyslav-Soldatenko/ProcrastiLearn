@@ -1,0 +1,2 @@
+Cập nhật và cải thiện prompt tạo bản dịch AI (cả hai chiều Anh-Nga và Nga-Anh)
+Chuẩn bị tích hợp App Functions với các trợ lý ảo trên điện thoại
