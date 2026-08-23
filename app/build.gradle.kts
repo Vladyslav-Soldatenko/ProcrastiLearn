@@ -37,8 +37,9 @@ android {
   sourceSets {
     getByName("androidTest").assets.directories.apply {
       clear()
-      addAll(listOf("$projectDir/schemas", "src/androidTest/assets"))
+      addAll(listOf("$projectDir/schemas", "src/androidTest/assets", "src/testShared/resources"))
     }
+    getByName("test").resources.srcDirs("src/testShared/resources")
   }
 
   buildTypes {
