@@ -538,10 +538,9 @@ private fun SettingsDialogs(
             )
         }
         DialogState.AboutUs -> {
-            val url = "https://gist.github.com/Vladyslav-Soldatenko/adb5953ce000b9e8515d3dcd87773aef"
             AboutUsDialog(
                 onDismiss = dismiss,
-                privacyPolicyUrl = url,
+                privacyPolicyUrl = stringResource(R.string.settings_privacy_policy_url),
             )
         }
 
