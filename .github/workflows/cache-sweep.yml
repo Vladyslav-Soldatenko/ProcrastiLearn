@@ -1,0 +1,58 @@
+name: Cache retention sweep
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prune superseded Gradle caches
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          KEEP: "2"
+        run: |
+          set -euo pipefail
+          # gh cache list caps at --limit 100; if any single prefix ever exceeds
+          # that count this under-deletes silently — fine at current scale (94 total).
+          prefixes=(
+            'gradle-home-v1|Linux-X64|verify'
+            'gradle-home-v1|Linux-X64|instrumented-tests'
+            'gradle-dependencies-v1-'
+            'gradle-transforms-v1-'
+            'gradle-generated-gradle-jars-v1-'
+            'gradle-wrapper-zips-v1-'
+            'gradle-kotlin-dsl-v1-'
+            'gradle-groovy-dsl-v1-'
+            'gradle-instrumented-jars-v1-'
+          )
+          failed=0
+          for p in "${prefixes[@]}"; do
+            echo "::group::$p"
+            # Defensive: gh < 2.61.0 printed "No caches found" instead of []
+            # for --json on an empty match, which would abort here under set -e.
+            # Runners are expected to be well past that (fixed Nov 2024), but the
+            # fallback is free and doesn't mask real deletion failures below.
+            ids=$(gh cache list -R "$REPO" --key "$p" --limit 100 \
+                    --sort created_at --order desc \
+                    --json id --jq ".[${KEEP}:] | .[].id" 2>/dev/null) || ids=""
+            for id in $ids; do
+              if gh cache delete "$id" -R "$REPO"; then
+                echo "deleted $id"
+              else
+                echo "::warning::failed to delete cache id=$id"
+                failed=$((failed + 1))
+              fi
+            done
+            echo "::endgroup::"
+          done
+          if [ "$failed" -gt 0 ]; then
+            echo "::error::$failed cache deletions failed — check token permissions"
+            exit 1
+          fi

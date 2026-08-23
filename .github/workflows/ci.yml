@@ -93,8 +93,8 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: AVD cache
-        uses: actions/cache@v4
+      - name: Restore AVD cache
+        uses: actions/cache/restore@v4
         id: avd-cache
         with:
           path: |
@@ -114,6 +114,15 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
           script: echo "Generated AVD snapshot for caching."
+
+      - name: Save AVD cache
+        if: steps.avd-cache.outputs.cache-hit != 'true' && github.ref == 'refs/heads/master'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ runner.os }}-30-pixel_6-x86_64-v1
 
       - name: Run instrumented tests
         uses: reactivecircus/android-emulator-runner@v2
