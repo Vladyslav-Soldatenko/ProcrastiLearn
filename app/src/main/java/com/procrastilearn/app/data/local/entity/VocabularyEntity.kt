@@ -19,7 +19,8 @@ import androidx.room.PrimaryKey
 )
 data class VocabularyEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    // Avoid duplicate “Cat” vs “cat”
+    // Collation is vestigial here - duplicate detection is normalizedWord's job (see below).
+    // Kept only so this column's schema stays unchanged from its pre-normalizedWord history.
     @ColumnInfo(collate = ColumnInfo.NOCASE) val word: String,
     // Unicode-aware case fold of `word`, used for duplicate detection instead of SQLite's
     // COLLATE NOCASE (ASCII-only; doesn't fold e.g. é/É or Cyrillic case pairs). Kept in sync
