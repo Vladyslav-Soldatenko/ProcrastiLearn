@@ -659,7 +659,7 @@ data class PermissionStates(
 
 @Preview(showBackground = true)
 @Composable
-private fun SettingsScreenAllGrantedPreview() {
+internal fun SettingsScreenAllGrantedPreview() {
     MyApplicationTheme {
         SettingsContent(
             overlayGranted = true,

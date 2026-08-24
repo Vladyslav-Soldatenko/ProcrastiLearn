@@ -40,6 +40,10 @@ android {
       addAll(listOf("$projectDir/schemas", "src/androidTest/assets", "src/testShared/resources"))
     }
     getByName("test").resources.srcDirs("src/testShared/resources")
+    // Robolectric-based unit tests read assets from the merged "debug" variant assets (there is
+    // no separate merged-assets step for unit tests), so the schemas MigrationTestHelper needs
+    // must be added here rather than to the "test" source set.
+    getByName("debug").assets.srcDirs("$projectDir/schemas")
   }
 
   buildTypes {

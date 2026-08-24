@@ -45,6 +45,33 @@ internal val Context.dataStore by preferencesDataStore("app_prefs")
 private val KEY_ACCESSIBILITY_SKIPPED = booleanPreferencesKey("accessibility_skipped")
 private val KEY_OVERLAY_SKIPPED = booleanPreferencesKey("overlay_skipped")
 
+internal enum class OnboardingStep {
+    LOADING,
+    ACCESSIBILITY,
+    OVERLAY,
+    LANGUAGE,
+    MAIN,
+}
+
+// Each parameter is an independent gate in the onboarding flow; grouping them into a holder
+// class would just move the same six flags one level down for no real benefit.
+@Suppress("LongParameterList")
+internal fun resolveOnboardingStep(
+    preferencesLoaded: Boolean,
+    isAccessibilityEnabled: Boolean,
+    hasSkippedAccessibility: Boolean,
+    hasOverlayPermission: Boolean,
+    hasSkippedOverlay: Boolean,
+    hasLanguagePair: Boolean,
+): OnboardingStep =
+    when {
+        !preferencesLoaded -> OnboardingStep.LOADING
+        !isAccessibilityEnabled && !hasSkippedAccessibility -> OnboardingStep.ACCESSIBILITY
+        !hasOverlayPermission && !hasSkippedOverlay -> OnboardingStep.OVERLAY
+        !hasLanguagePair -> OnboardingStep.LANGUAGE
+        else -> OnboardingStep.MAIN
+    }
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
@@ -117,74 +144,83 @@ class MainActivity : ComponentActivity() {
                     onDispose { lifecycle.removeObserver(observer) }
                 }
 
-                if (!preferencesLoaded) {
-                    // Show loading indicator while preferences are being loaded
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator()
+                when (
+                    resolveOnboardingStep(
+                        preferencesLoaded = preferencesLoaded,
+                        isAccessibilityEnabled = isAccessibilityEnabled,
+                        hasSkippedAccessibility = hasSkippedAccessibility,
+                        hasOverlayPermission = hasOverlayPermission,
+                        hasSkippedOverlay = hasSkippedOverlay,
+                        hasLanguagePair = languagePair != null,
+                    )
+                ) {
+                    OnboardingStep.LOADING -> {
+                        // Show loading indicator while preferences are being loaded
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
-                } else {
-                    when {
-                        !isAccessibilityEnabled && !hasSkippedAccessibility -> {
-                            ProminentA11yDisclosureScreen(
-                                onAccept = {
-                                    // Take user to Accessibility Settings
-                                    openAccessibilitySettings()
-                                },
-                                onDecline = {
-                                    // Save skip preference and proceed with limited mode
-                                    lifecycleScope.launch {
-                                        ctx.dataStore.edit { it[KEY_ACCESSIBILITY_SKIPPED] = true }
-                                    }
-                                    hasSkippedAccessibility = true
-                                },
-                                onPrivacyPolicy = {
-                                    val url = ctx.getString(R.string.settings_privacy_policy_url)
-                                    if (url.isNotBlank()) {
-                                        startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
-                                    }
-                                },
-                            )
-                        }
 
-                        !hasOverlayPermission && !hasSkippedOverlay -> {
-                            OverlayPermissionDialog(
-                                onOpenSettings = {
-                                    startActivity(
-                                        Intent(
-                                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                            "package:$packageName".toUri(),
-                                        ),
-                                    )
-                                },
-                                onSkip = {
-                                    // Save skip preference and let users continue
-                                    lifecycleScope.launch {
-                                        ctx.dataStore.edit { it[KEY_OVERLAY_SKIPPED] = true }
-                                    }
-                                    hasSkippedOverlay = true
-                                },
-                            )
-                        }
+                    OnboardingStep.ACCESSIBILITY -> {
+                        ProminentA11yDisclosureScreen(
+                            onAccept = {
+                                // Take user to Accessibility Settings
+                                openAccessibilitySettings()
+                            },
+                            onDecline = {
+                                // Save skip preference and proceed with limited mode
+                                lifecycleScope.launch {
+                                    ctx.dataStore.edit { it[KEY_ACCESSIBILITY_SKIPPED] = true }
+                                }
+                                hasSkippedAccessibility = true
+                            },
+                            onPrivacyPolicy = {
+                                val url = ctx.getString(R.string.settings_privacy_policy_url)
+                                if (url.isNotBlank()) {
+                                    startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+                                }
+                            },
+                        )
+                    }
 
-                        languagePair == null -> {
-                            LanguageSelectionDialog(
-                                onConfirm = { native, target ->
-                                    lifecycleScope.launch {
-                                        languagePreferencesStore.setLanguagePair(native, target)
-                                    }
-                                    languagePair = LanguagePair(native, target)
-                                },
-                                onDismiss = null,
-                            )
-                        }
+                    OnboardingStep.OVERLAY -> {
+                        OverlayPermissionDialog(
+                            onOpenSettings = {
+                                startActivity(
+                                    Intent(
+                                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                        "package:$packageName".toUri(),
+                                    ),
+                                )
+                            },
+                            onSkip = {
+                                // Save skip preference and let users continue
+                                lifecycleScope.launch {
+                                    ctx.dataStore.edit { it[KEY_OVERLAY_SKIPPED] = true }
+                                }
+                                hasSkippedOverlay = true
+                            },
+                        )
+                    }
 
-                        else -> {
-                            // Your normal app content
-                            MainScreen()
-                        }
+                    OnboardingStep.LANGUAGE -> {
+                        LanguageSelectionDialog(
+                            onConfirm = { native, target ->
+                                lifecycleScope.launch {
+                                    languagePreferencesStore.setLanguagePair(native, target)
+                                }
+                                languagePair = LanguagePair(native, target)
+                            },
+                            onDismiss = null,
+                        )
+                    }
+
+                    OnboardingStep.MAIN -> {
+                        // Your normal app content
+                        MainScreen()
                     }
                 }
             }
