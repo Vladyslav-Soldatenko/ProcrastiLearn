@@ -23,19 +23,19 @@ interface VocabularyDao {
     @Query(
         """
         SELECT * FROM vocabulary
-        WHERE word = :word COLLATE NOCASE
+        WHERE normalizedWord = :normalizedWord
         LIMIT 1
         """,
     )
-    suspend fun getVocabularyByWord(word: String): VocabularyEntity?
+    suspend fun getVocabularyByWord(normalizedWord: String): VocabularyEntity?
 
     @Query(
         """
         SELECT * FROM vocabulary
-        WHERE word COLLATE NOCASE IN (:words)
+        WHERE normalizedWord IN (:normalizedWords)
         """,
     )
-    suspend fun getVocabularyByWords(words: List<String>): List<VocabularyEntity>
+    suspend fun getVocabularyByWords(normalizedWords: List<String>): List<VocabularyEntity>
 
     @Query("SELECT COALESCE(MAX(position), 0) FROM vocabulary")
     suspend fun getMaxPosition(): Long

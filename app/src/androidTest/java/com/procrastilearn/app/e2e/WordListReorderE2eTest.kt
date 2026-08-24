@@ -369,7 +369,9 @@ class WordListReorderE2eTest {
                         },
                     toUpdate = emptyList(),
                 )
-                words.map { (word, _) -> requireNotNull(dao.getVocabularyByWord(word)).id }
+                words.map { (word, _) ->
+                    requireNotNull(dao.getVocabularyByWord(VocabularyEntity.normalizeWord(word))).id
+                }
             }
         }
 

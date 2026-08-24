@@ -71,7 +71,7 @@ class VocabularyRepositoryImpl
 
         override suspend fun getVocabularyItemByWord(word: String): VocabularyItem? =
             withContext(io) {
-                vocabularyDao.getVocabularyByWord(word.trim())?.toDomain()
+                vocabularyDao.getVocabularyByWord(VocabularyEntity.normalizeWord(word))?.toDomain()
             }
 
         override suspend fun addVocabularyItem(item: VocabularyItem): Unit =
@@ -103,6 +103,7 @@ class VocabularyRepositoryImpl
                     val updatedEntity =
                         existingEntity.copy(
                             word = item.word,
+                            normalizedWord = VocabularyEntity.normalizeWord(item.word),
                             translation = item.translation,
                             bidirectional = item.bidirectional,
                             backwardPromptOverride = item.backwardPromptOverride,
