@@ -53,8 +53,3 @@ For now you have several options to choose:
 1) Download the source code and build the app yourself
 2) Download already built APK from github releases
 3) Download from [F-Droid](https://f-droid.org/packages/com.procrastilearn.app/)
-4) Take part in Google Play's closed testing:
-    - Join the tester group: https://groups.google.com/g/procrastilearntest (click "Join group")
-    - Then opt in and install: https://play.google.com/apps/testing/com.procrastilearn.app (tap "Become a tester", then "Download it on Google Play". Keep in mind that download button might not work for few hours after becoming a tester)
-
-   Google requires >=12 people to install the app this way and "test" it. I don't have so many volunteers, so it's hard for me to pass Google's closed testing phase on my own. If you've got a spare Android device, joining takes under a minute. Google now also checks that testers actually *use* the app during the 14 days (not just install it), so if you can open it a couple of times over the next two weeks — even just to look around — that genuinely helps. Once 12+ people have tested it for 14 days, I can apply to publish ProcrastiLearn to Google play and even more people will be able to use it.
