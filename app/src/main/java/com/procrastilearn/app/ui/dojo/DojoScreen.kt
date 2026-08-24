@@ -200,7 +200,7 @@ private val sampleWord =
         isNew = true,
     )
 
-private class DojoUiStateProvider : PreviewParameterProvider<DojoUiState> {
+internal class DojoUiStateProvider : PreviewParameterProvider<DojoUiState> {
     override val values: Sequence<DojoUiState> =
         sequenceOf(
             // Loading state

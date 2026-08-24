@@ -46,7 +46,7 @@ internal fun AppsListScreenContent(
 
 @Preview(showBackground = true)
 @Composable
-private fun AppsListScreenLoadingPreview() {
+internal fun AppsListScreenLoadingPreview() {
     MyApplicationTheme {
         AppsListScreenContent(
             state = AppsViewModel.UiState(isLoading = true),
@@ -58,13 +58,14 @@ private fun AppsListScreenLoadingPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun AppsListScreenErrorPreview() {
+internal fun AppsListScreenErrorPreview() {
     MyApplicationTheme {
         AppsListScreenContent(
             state =
                 AppsViewModel.UiState(
                     error = "Unable to load apps",
                     isEnabled = true,
+                    isLoading = false,
                 ),
             onToggle = {},
             onEnabledChange = {},
@@ -83,7 +84,7 @@ private val previewSelectedKeys = setOf("com.example.focus", "com.example.games"
 
 @Preview(showBackground = true)
 @Composable
-private fun AppsListScreenContentPreview() {
+internal fun AppsListScreenContentPreview() {
     MyApplicationTheme {
         AppsListScreenContent(
             state =
@@ -101,7 +102,7 @@ private fun AppsListScreenContentPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun AppsListScreenContentDisabledPreview() {
+internal fun AppsListScreenContentDisabledPreview() {
     MyApplicationTheme {
         AppsListScreenContent(
             state =

@@ -456,6 +456,108 @@ class SettingsContentTest {
         composeTestRule.onNodeWithText(string(R.string.settings_about_us_row)).assertIsDisplayed()
     }
 
+    @Test
+    fun `no dialog is shown initially`() {
+        setContent()
+
+        composeTestRule.onNodeWithText(string(R.string.action_cancel)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `import row is hidden when there are no import options`() {
+        setContent(importOptions = emptyList())
+
+        composeTestRule.onNodeWithText(string(R.string.settings_import_row)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `confirming reviews per day value invokes callback`() {
+        var reviewPerDay: Int? = null
+        setContent(onReviewPerDayChange = { reviewPerDay = it })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_reviews_per_day_title)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+
+        assertThat(reviewPerDay).isEqualTo(50)
+        composeTestRule.onNodeWithText(string(R.string.settings_reviews_per_day_title)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `confirming overlay interval value invokes callback`() {
+        var overlayInterval: Int? = null
+        setContent(onOverlayIntervalChange = { overlayInterval = it })
+
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_overlay_interval_headline))
+            .performScrollTo()
+            .performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+
+        assertThat(overlayInterval).isEqualTo(5)
+    }
+
+    @Test
+    fun `accessibility permission click delegates to callback`() {
+        var a11yClicks = 0
+        setContent(onA11yClick = { a11yClicks++ })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_a11y_headline)).performScrollTo().performClick()
+
+        assertThat(a11yClicks).isEqualTo(1)
+    }
+
+    @Test
+    fun `export click delegates to callback`() {
+        var exportClicks = 0
+        setContent(onExportClick = { exportClicks++ })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_export_row)).performScrollTo().performClick()
+
+        assertThat(exportClicks).isEqualTo(1)
+    }
+
+    @Test
+    fun `confirming the openai api key invokes callback`() {
+        var apiKey: String? = null
+        setContent(onOpenAiApiKeyChange = { apiKey = it })
+
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_openai_api_key_title))
+            .performScrollTo()
+            .performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+
+        assertThat(apiKey).isEqualTo("")
+    }
+
+    @Test
+    fun `confirming the openai prompt invokes callback`() {
+        var prompt: String? = null
+        setContent(onOpenAiPromptChange = { prompt = it })
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_openai_prompt_title, "RU", "EN"))
+            .performScrollTo()
+            .performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+
+        assertThat(prompt).isEqualTo("Prompt")
+    }
+
+    @Test
+    fun `confirming the openai reverse prompt invokes callback`() {
+        var reversePrompt: String? = null
+        setContent(onOpenAiReversePromptChange = { reversePrompt = it })
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_openai_reverse_prompt_title, "EN", "RU"))
+            .performScrollTo()
+            .performClick()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+
+        assertThat(reversePrompt).isEqualTo("Reverse prompt")
+    }
+
     private fun setContent(
         mixMode: MixMode = MixMode.MIX,
         studyDirectionMode: StudyDirectionMode = StudyDirectionMode.FORWARD,

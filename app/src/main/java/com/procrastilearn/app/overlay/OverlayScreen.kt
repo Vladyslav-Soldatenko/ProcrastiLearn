@@ -86,7 +86,7 @@ private val sampleWord =
         isNew = false,
     )
 
-private class OverlayUiStateProvider : PreviewParameterProvider<OverlayUiState> {
+internal class OverlayUiStateProvider : PreviewParameterProvider<OverlayUiState> {
     override val values: Sequence<OverlayUiState> =
         sequenceOf(
             OverlayUiState(
