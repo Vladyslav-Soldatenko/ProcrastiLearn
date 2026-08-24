@@ -53,8 +53,6 @@ internal enum class OnboardingStep {
     MAIN,
 }
 
-// Each parameter is an independent gate in the onboarding flow; grouping them into a holder
-// class would just move the same six flags one level down for no real benefit.
 @Suppress("LongParameterList")
 internal fun resolveOnboardingStep(
     preferencesLoaded: Boolean,
