@@ -5,11 +5,8 @@
 # openai-java SDK relies on Jackson reflection over its request/response POJOs
 # (e.g. JsonMissing sentinel serialization) which R8 breaks without these keeps
 -keep class com.openai.** { *; }
--keepnames class com.openai.** { *; }
--keepclassmembers,allowobfuscation class com.openai.** { *; }
 
 -keep class com.fasterxml.jackson.** { *; }
--keepnames class com.fasterxml.jackson.** { *; }
 -dontwarn com.fasterxml.jackson.databind.**
 
 -keepattributes Signature, InnerClasses, EnclosingMethod
@@ -19,8 +16,6 @@
 # consumer proguard rules of its own, so R8 strips the getters/builder methods
 # Jackson needs, breaking review saves silently in release
 -keep class io.github.openspacedrepetition.** { *; }
--keepnames class io.github.openspacedrepetition.** { *; }
--keepclassmembers,allowobfuscation class io.github.openspacedrepetition.** { *; }
 
 # Unused optional openai-java code paths (multipart file uploads, JSON-schema
 # generation) referencing classes we don't have on the classpath
