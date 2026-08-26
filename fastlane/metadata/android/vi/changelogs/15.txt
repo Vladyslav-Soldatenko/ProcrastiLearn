@@ -1,0 +1,5 @@
+Thêm hỗ trợ nhập bộ thẻ cloze từ Anki.
+Thêm 9 ngôn ngữ mới, gồm tiếng Nhật, tiếng Hàn, tiếng Bồ Đào Nha (Brazil) và tiếng Hindi.
+Mở rộng bản dịch do AI tạo lên 19 cặp ngôn ngữ.
+Sửa lỗi phát hiện từ trùng lặp bỏ sót các từ chỉ khác nhau ở chữ hoa/thường của ký tự có dấu.
+Cập nhật liên kết chính sách quyền riêng tư.

@@ -1,0 +1,5 @@
+Menambahkan dukungan untuk mengimpor dek cloze Anki.
+Menambahkan 9 bahasa baru, termasuk Jepang, Korea, Portugis (Brasil), dan Hindi.
+Memperluas terjemahan hasil AI menjadi 19 pasangan bahasa.
+Memperbaiki deteksi kata duplikat yang melewatkan kecocokan yang hanya berbeda pada kapitalisasi huruf beraksen.
+Memperbarui tautan kebijakan privasi.

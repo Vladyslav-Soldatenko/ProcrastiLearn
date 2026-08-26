@@ -1,0 +1,5 @@
+Dodano obsługę importu talii typu cloze z Anki.
+Dodano 9 nowych języków, w tym japoński, koreański, portugalski (Brazylia) i hindi.
+Rozszerzono tłumaczenia generowane przez AI do 19 par językowych.
+Naprawiono wykrywanie duplikatów słów, które pomijało dopasowania różniące się tylko wielkością liter akcentowanych.
+Zaktualizowano link do polityki prywatności.

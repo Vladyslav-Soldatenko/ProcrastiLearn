@@ -1,0 +1,5 @@
+Ajout de la prise en charge de l'import des paquets cloze d'Anki.
+Ajout de 9 nouvelles langues, dont le japonais, le coréen, le portugais (Brésil) et l'hindi.
+Extension des traductions générées par IA à 19 paires de langues.
+Correction de la détection des doublons qui manquait des correspondances ne différant que par la casse des lettres accentuées.
+Mise à jour du lien vers la politique de confidentialité.

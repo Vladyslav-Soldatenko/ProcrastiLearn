@@ -1,0 +1,5 @@
+Aggiunto il supporto per l'importazione dei mazzi cloze di Anki.
+Aggiunte 9 nuove lingue, tra cui giapponese, coreano, portoghese (Brasile) e hindi.
+Estese le traduzioni generate dall'IA a 19 coppie di lingue.
+Corretto il rilevamento dei duplicati, che non trovava corrispondenze che differivano solo per il maiuscolo/minuscolo delle lettere accentate.
+Aggiornato il link all'informativa sulla privacy.
