@@ -1,0 +1,5 @@
+Anki cloze destelerini içe aktarma desteği eklendi.
+Japonca, Korece, Portekizce (Brezilya) ve Hintçe dahil 9 yeni dil eklendi.
+Yapay zeka çevirileri 19 dil çiftine genişletildi.
+Yalnızca aksanlı harflerin büyük/küçük harf durumu farklı olan kelimelerin yinelenen olarak algılanmaması sorunu giderildi.
+Gizlilik politikası bağlantısı güncellendi.

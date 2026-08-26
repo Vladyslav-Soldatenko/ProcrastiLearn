@@ -1,0 +1,5 @@
+Add support for importing Anki cloze decks.
+Add 9 new languages, including Japanese, Korean, Portuguese (Brazil), and Hindi.
+Expand AI-generated translations to 19 language pairs.
+Fix duplicate word detection missing matches that only differed by accented letter case.
+Update the privacy policy link.

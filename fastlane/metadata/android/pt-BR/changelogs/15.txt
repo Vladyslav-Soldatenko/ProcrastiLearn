@@ -1,0 +1,5 @@
+Adicionado suporte para importar decks cloze do Anki.
+Adicionados 9 novos idiomas, incluindo japonês, coreano, português (Brasil) e hindi.
+Ampliadas as traduções geradas por IA para 19 pares de idiomas.
+Corrigida a detecção de duplicatas que não encontrava correspondências que diferiam apenas na caixa de letras acentuadas.
+Atualizado o link da política de privacidade.

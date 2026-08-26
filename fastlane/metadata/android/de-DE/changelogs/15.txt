@@ -1,0 +1,5 @@
+Unterstützung für den Import von Anki-Cloze-Decks hinzugefügt.
+9 neue Sprachen hinzugefügt, darunter Japanisch, Koreanisch, brasilianisches Portugiesisch und Hindi.
+KI-generierte Übersetzungen auf 19 Sprachpaare erweitert.
+Fehler behoben: Doppelte Wörter wurden nicht erkannt, wenn sie sich nur durch die Groß-/Kleinschreibung von Akzentbuchstaben unterschieden.
+Link zur Datenschutzerklärung aktualisiert.
