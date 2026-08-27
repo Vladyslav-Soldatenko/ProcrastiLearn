@@ -1,21 +1,16 @@
 # Lombok annotations referenced by FSRS library; not needed at runtime
 -dontwarn lombok.**
--keepattributes *Annotation*
 
-# openai-java SDK relies on Jackson reflection over its request/response POJOs
-# (e.g. JsonMissing sentinel serialization) which R8 breaks without these keeps
--keep class com.openai.** { *; }
+-keep class com.openai.core.** { *; }
+-keep class com.openai.errors.** { *; }
+-keep class com.openai.models.ChatModel { *; }
+-keep class com.openai.models.ReasoningEffort { *; }
+-keep class com.openai.models.chat.** { *; }
 
--keep class com.fasterxml.jackson.** { *; }
 -dontwarn com.fasterxml.jackson.databind.**
 
--keepattributes Signature, InnerClasses, EnclosingMethod
-
-# FSRS scheduling library (io.github.open-spaced-repetition:fsrs) serializes
-# Card via Jackson builder reflection (Card.toJson/fromJson) and ships no
-# consumer proguard rules of its own, so R8 strips the getters/builder methods
-# Jackson needs, breaking review saves silently in release
--keep class io.github.openspacedrepetition.** { *; }
+-keep class io.github.openspacedrepetition.Card { *; }
+-keep class io.github.openspacedrepetition.Card$Builder { *; }
 
 # Unused optional openai-java code paths (multipart file uploads, JSON-schema
 # generation) referencing classes we don't have on the classpath
