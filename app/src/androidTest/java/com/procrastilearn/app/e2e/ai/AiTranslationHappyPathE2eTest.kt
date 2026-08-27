@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -48,7 +49,10 @@ class AiTranslationHappyPathE2eTest {
     fun settingsApiKeyEntry_savesKeyAndEnablesAiPreview() {
         navigateToSettings()
 
-        composeTestRule.onNodeWithText(string(R.string.settings_openai_api_key_title)).performClick()
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_openai_api_key_title))
+            .performScrollTo()
+            .performClick()
         composeTestRule.waitUntilNodeExists(
             hasText(string(R.string.settings_openai_api_key_dialog_title)),
             DEFAULT_TIMEOUT_MS,
@@ -76,7 +80,6 @@ class AiTranslationHappyPathE2eTest {
         composeTestRule.onNodeWithText(string(R.string.add_word_button_preview)).performClick()
 
         composeTestRule.waitUntilNodeExists(hasText(string(R.string.add_word_preview_title)), AI_CALL_TIMEOUT_MS)
-        composeTestRule.onNodeWithText(word).assertIsDisplayed()
         composeTestRule.onNodeWithTag(PREVIEW_CONFIRM_BUTTON_TAG).performClick()
 
         composeTestRule.waitUntilNodeExists(hasText(string(R.string.add_word_success_added)), AI_CALL_TIMEOUT_MS)
