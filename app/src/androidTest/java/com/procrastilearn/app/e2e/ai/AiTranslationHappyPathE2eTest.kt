@@ -2,7 +2,6 @@ package com.procrastilearn.app.e2e.ai
 
 import android.content.Context
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -19,6 +18,7 @@ import com.procrastilearn.app.R
 import com.procrastilearn.app.e2e.dismissOnboardingIfPresent
 import com.procrastilearn.app.e2e.waitUntilNodeExists
 import org.junit.After
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -83,9 +83,7 @@ class AiTranslationHappyPathE2eTest {
         composeTestRule.onNodeWithTag(PREVIEW_CONFIRM_BUTTON_TAG).performClick()
 
         composeTestRule.waitUntilNodeExists(hasText(string(R.string.add_word_success_added)), AI_CALL_TIMEOUT_MS)
-
-        navigateToWordList()
-        composeTestRule.waitUntilNodeExists(hasText(word, substring = true), DEFAULT_TIMEOUT_MS)
+        assertTrue(vocabularyExists(targetContext, word))
     }
 
     @Test
@@ -124,14 +122,6 @@ class AiTranslationHappyPathE2eTest {
     private fun navigateToSettings() = navigateTo(R.string.nav_settings)
 
     private fun navigateToAddWord() = navigateTo(R.string.nav_add_word)
-
-    private fun navigateToWordList() {
-        navigateToAddWord()
-        val viewListLabel = string(R.string.action_view_list)
-        composeTestRule.waitUntilNodeExists(hasContentDescription(viewListLabel), DEFAULT_TIMEOUT_MS)
-        composeTestRule.onNodeWithContentDescription(viewListLabel).performClick()
-        composeTestRule.waitForIdle()
-    }
 
     private companion object {
         const val DEFAULT_TIMEOUT_MS = 15_000L

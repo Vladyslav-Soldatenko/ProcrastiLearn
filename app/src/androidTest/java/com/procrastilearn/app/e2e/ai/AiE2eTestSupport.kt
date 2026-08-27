@@ -90,6 +90,17 @@ fun resetAiVocabulary(context: Context) {
     }
 }
 
+fun vocabularyExists(
+    context: Context,
+    word: String,
+): Boolean =
+    runBlocking {
+        withContext(Dispatchers.IO) {
+            val dao = databaseEntryPoint(context).appDatabase().vocabularyDao()
+            dao.getVocabularyByWord(VocabularyEntity.normalizeWord(word)) != null
+        }
+    }
+
 // The "use AI" Checkbox has no testTag/contentDescription and, whenever the bidirectional
 // checkbox is also visible (AI mode not active yet), isToggleable() alone isn't unique.
 fun ComposeTestRule.clickUseAiToggle(useAiToggleLabel: String) {
