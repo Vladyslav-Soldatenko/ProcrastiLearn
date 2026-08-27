@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
@@ -14,6 +16,17 @@ jacoco {
   toolVersion = "0.8.12"
 }
 
+val localProperties =
+  Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) {
+      file.inputStream().use { load(it) }
+    }
+  }
+
+val openAiApiKeyForTests: String =
+  System.getenv("OPENAI_API_KEY") ?: localProperties.getProperty("OPENAI_API_KEY") ?: ""
+
 android {
   namespace = "com.procrastilearn.app"
   compileSdk = 37
@@ -26,6 +39,7 @@ android {
     versionCode = 15
     versionName = "1.4.1"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    testInstrumentationRunnerArguments["OPENAI_API_KEY"] = openAiApiKeyForTests
   }
 
   ksp {
