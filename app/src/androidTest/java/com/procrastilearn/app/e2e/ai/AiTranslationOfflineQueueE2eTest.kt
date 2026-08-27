@@ -24,11 +24,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * No OpenAI API key/network is needed here - the point is that going offline with AI mode active
- * routes Add through [com.procrastilearn.app.ui.AddWordViewModel.queuePendingWord] instead of
- * attempting a translation call at all.
- */
 @RunWith(AndroidJUnit4::class)
 class AiTranslationOfflineQueueE2eTest {
     @get:Rule
@@ -55,8 +50,6 @@ class AiTranslationOfflineQueueE2eTest {
 
     @Test
     fun addingAWordWhileOfflineQueuesItInsteadOfCallingAi() {
-        // A placeholder key is enough: AI mode only needs a non-blank key to activate, and the
-        // offline branch is taken before any translation call would be attempted.
         seedAiTranslationPrefs(targetContext, "sk-not-used-while-offline")
         navigateToAddWord()
 

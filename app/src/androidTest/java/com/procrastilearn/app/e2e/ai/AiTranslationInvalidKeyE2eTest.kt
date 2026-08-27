@@ -23,13 +23,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * A real 401 from OpenAI, not a mocked one - no OPENAI_API_KEY secret is needed for this test
- * since the key it seeds is deliberately invalid. The error text itself is whatever the OpenAI
- * SDK's exception message says (not asserted on, since it isn't under this app's control); what
- * matters is that the app surfaces [com.procrastilearn.app.ui.screens.ErrorMessageCard] instead
- * of hanging or crashing.
- */
 @RunWith(AndroidJUnit4::class)
 class AiTranslationInvalidKeyE2eTest {
     @get:Rule

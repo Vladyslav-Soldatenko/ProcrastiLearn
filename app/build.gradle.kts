@@ -24,8 +24,6 @@ val localProperties =
     }
   }
 
-// Never a build-time secret (would end up baked into the compiled app/APK): passed only as an
-// instrumentation runner argument, read at test run time via InstrumentationRegistry.getArguments().
 val openAiApiKeyForTests: String =
   System.getenv("OPENAI_API_KEY") ?: localProperties.getProperty("OPENAI_API_KEY") ?: ""
 

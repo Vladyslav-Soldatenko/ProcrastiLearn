@@ -20,12 +20,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * The "word already exists, override?" conflict path (distinct from the Preview-triggered
- * stored-translation/Regenerate path): tapping Add directly on a word that's already saved, with
- * AI mode active, surfaces [com.procrastilearn.app.ui.screens.ExistingWordDialog] and proceeding
- * makes a real AI call via [com.procrastilearn.app.ui.ExistingWordOverrideCoordinator].
- */
 @RunWith(AndroidJUnit4::class)
 class AiTranslationExistingWordE2eTest {
     @get:Rule

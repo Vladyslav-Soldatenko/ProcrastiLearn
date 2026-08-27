@@ -21,10 +21,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Confirms an AI preview succeeds in both translation directions - a real, separate prompt path
- * for each - via [com.procrastilearn.app.ui.AddWordViewModel.onTranslationDirectionToggle].
- */
 @RunWith(AndroidJUnit4::class)
 class AiTranslationDirectionE2eTest {
     @get:Rule
@@ -66,8 +62,6 @@ class AiTranslationDirectionE2eTest {
             .performClick()
         composeTestRule.waitForIdle()
 
-        // onPreviewCancel clears the word field, so this is a fresh entry in the now-reversed
-        // direction (target -> native).
         typeWord("утро")
         composeTestRule.onNodeWithText(string(R.string.add_word_button_preview)).performClick()
         composeTestRule.waitUntilNodeExists(hasText(string(R.string.add_word_preview_title)), AI_CALL_TIMEOUT_MS)

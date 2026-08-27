@@ -19,11 +19,6 @@ import kotlinx.coroutines.withContext
 
 private const val OPENAI_API_KEY_ARG = "OPENAI_API_KEY"
 
-/**
- * A real OpenAI key is required: these tests hit the live API, and their whole point is that
- * they fail clearly without a key and pass once one is provided (locally via local.properties,
- * in CI via the OPENAI_API_KEY repository secret).
- */
 fun requireOpenAiApiKey(): String {
     val key = InstrumentationRegistry.getArguments().getString(OPENAI_API_KEY_ARG)
     check(!key.isNullOrBlank()) {
@@ -100,20 +95,6 @@ fun resetAiVocabulary(context: Context) {
 fun ComposeTestRule.clickUseAiToggle(useAiToggleLabel: String) {
     onNode(
         isToggleable().and(hasAnySibling(hasText(useAiToggleLabel))),
-        useUnmergedTree = true,
-    ).performClick()
-}
-
-// AddWordPreviewDialog/ExistingWordDialog render on top of AddWordContent, which stays composed
-// underneath - a dialog button whose label (e.g. "Add") also appears on the screen behind it
-// isn't unique by text alone, so scope the match to the dialog's own button row via its
-// always-present Cancel sibling.
-fun ComposeTestRule.clickDialogConfirmButton(
-    confirmLabel: String,
-    cancelLabel: String,
-) {
-    onNode(
-        hasText(confirmLabel).and(hasAnySibling(hasText(cancelLabel))),
         useUnmergedTree = true,
     ).performClick()
 }

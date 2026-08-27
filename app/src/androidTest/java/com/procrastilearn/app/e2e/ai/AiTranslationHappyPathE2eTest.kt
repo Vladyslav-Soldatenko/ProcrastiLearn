@@ -7,6 +7,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -22,12 +23,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Real, end-to-end AI translation coverage: real Hilt DI, real Room database and a real call to
- * the OpenAI API through the running app. Requires a valid OPENAI_API_KEY (see
- * [requireOpenAiApiKey]) - JVM unit tests already cover the mocked/error-branch behavior of
- * [com.procrastilearn.app.domain.usecase.GenerateAiTranslationUseCase].
- */
 @RunWith(AndroidJUnit4::class)
 class AiTranslationHappyPathE2eTest {
     @get:Rule
@@ -82,7 +77,7 @@ class AiTranslationHappyPathE2eTest {
 
         composeTestRule.waitUntilNodeExists(hasText(string(R.string.add_word_preview_title)), AI_CALL_TIMEOUT_MS)
         composeTestRule.onNodeWithText(word).assertIsDisplayed()
-        composeTestRule.clickDialogConfirmButton(string(R.string.action_add), string(R.string.add_word_preview_cancel))
+        composeTestRule.onNodeWithTag(PREVIEW_CONFIRM_BUTTON_TAG).performClick()
 
         composeTestRule.waitUntilNodeExists(hasText(string(R.string.add_word_success_added)), AI_CALL_TIMEOUT_MS)
 
@@ -100,13 +95,11 @@ class AiTranslationHappyPathE2eTest {
         typeWord(word)
         composeTestRule.onNodeWithText(string(R.string.add_word_button_preview)).performClick()
 
-        // The word already has a stored translation, so Preview shows it immediately without an
-        // AI call, offering "Regenerate" instead of "Add" to force a fresh one.
         composeTestRule.waitUntilNodeExists(hasText(string(R.string.add_word_preview_stored_title)), DEFAULT_TIMEOUT_MS)
-        composeTestRule.onNodeWithText(string(R.string.add_word_preview_regenerate)).performClick()
+        composeTestRule.onNodeWithTag(PREVIEW_CONFIRM_BUTTON_TAG).performClick()
 
         composeTestRule.waitUntilNodeExists(hasText(string(R.string.add_word_preview_title)), AI_CALL_TIMEOUT_MS)
-        composeTestRule.clickDialogConfirmButton(string(R.string.action_add), string(R.string.add_word_preview_cancel))
+        composeTestRule.onNodeWithTag(PREVIEW_CONFIRM_BUTTON_TAG).performClick()
 
         composeTestRule.waitUntilNodeExists(hasText(string(R.string.add_word_success_updated)), AI_CALL_TIMEOUT_MS)
     }
@@ -139,8 +132,7 @@ class AiTranslationHappyPathE2eTest {
 
     private companion object {
         const val DEFAULT_TIMEOUT_MS = 15_000L
-
-        // Real network call to OpenAI - generous timeout to avoid flaking on slow responses.
         const val AI_CALL_TIMEOUT_MS = 30_000L
+        const val PREVIEW_CONFIRM_BUTTON_TAG = "add_word_preview_confirm_button"
     }
 }
