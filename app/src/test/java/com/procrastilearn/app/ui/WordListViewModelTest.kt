@@ -2,6 +2,8 @@ package com.procrastilearn.app.ui
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
+import com.procrastilearn.app.data.local.prefs.WordListSearchPreferencesStore
+import com.procrastilearn.app.domain.model.SearchScope
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
 import com.procrastilearn.app.utils.MainDispatcherRule
@@ -26,6 +28,8 @@ class WordListViewModelTest {
 
     private lateinit var repository: VocabularyCatalogRepository
     private lateinit var vocabularyFlow: MutableSharedFlow<List<VocabularyItem>>
+    private lateinit var searchPreferencesStore: WordListSearchPreferencesStore
+    private lateinit var searchScopeFlow: MutableSharedFlow<SearchScope>
 
     @Before
     fun setUp() {
@@ -33,6 +37,11 @@ class WordListViewModelTest {
         vocabularyFlow = MutableSharedFlow(replay = 1)
         vocabularyFlow.tryEmit(emptyList())
         every { repository.getAllVocabulary() } returns vocabularyFlow
+
+        searchPreferencesStore = mockk(relaxed = true)
+        searchScopeFlow = MutableSharedFlow(replay = 1)
+        searchScopeFlow.tryEmit(SearchScope())
+        every { searchPreferencesStore.readScope() } returns searchScopeFlow
     }
 
     @After
@@ -40,7 +49,7 @@ class WordListViewModelTest {
         clearAllMocks()
     }
 
-    private fun buildViewModel() = WordListViewModel(repository)
+    private fun buildViewModel() = WordListViewModel(repository, searchPreferencesStore)
 
     @Test
     fun `words emits latest repository items`() =
@@ -594,5 +603,78 @@ class WordListViewModelTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) { repository.reorderVocabulary(listOf(second.id, first.id)) }
+        }
+
+    @Test
+    fun `searchScope emits the store's current value`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+
+            assertThat(viewModel.searchScope.value).isEqualTo(SearchScope(matchWord = true, matchTranslation = true))
+        }
+
+    @Test
+    fun `searchScope reflects the store re-emitting an updated scope`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+
+            viewModel.searchScope.test {
+                assertThat(awaitItem()).isEqualTo(SearchScope(matchWord = true, matchTranslation = true))
+
+                searchScopeFlow.tryEmit(SearchScope(matchWord = true, matchTranslation = false))
+                assertThat(awaitItem()).isEqualTo(SearchScope(matchWord = true, matchTranslation = false))
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `setSearchScope with word-only delegates to the store's setScope`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+
+            viewModel.setSearchScope(SearchScope(matchWord = true, matchTranslation = false))
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                searchPreferencesStore.setScope(SearchScope(matchWord = true, matchTranslation = false))
+            }
+        }
+
+    @Test
+    fun `setSearchScope with translation-only delegates to the store's setScope`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+
+            viewModel.setSearchScope(SearchScope(matchWord = false, matchTranslation = true))
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                searchPreferencesStore.setScope(SearchScope(matchWord = false, matchTranslation = true))
+            }
+        }
+
+    @Test
+    fun `setSearchScope with both flags false does not call the store`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+
+            viewModel.setSearchScope(SearchScope(matchWord = false, matchTranslation = false))
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { searchPreferencesStore.setScope(any()) }
+        }
+
+    @Test
+    fun `setSearchScope with both flags true delegates to the store's setScope`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+
+            viewModel.setSearchScope(SearchScope(matchWord = true, matchTranslation = true))
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                searchPreferencesStore.setScope(SearchScope(matchWord = true, matchTranslation = true))
+            }
         }
 }

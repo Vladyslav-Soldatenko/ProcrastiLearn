@@ -17,6 +17,7 @@
     <string name="action_edit">수정</string>
     <string name="action_reset">초기화</string>
     <string name="action_ok">확인</string>
+    <string name="action_apply">적용</string>
     <string name="action_cancel">취소</string>
     <string name="action_proceed">계속 진행</string>
     <string name="action_select_all">전체 선택</string>
@@ -310,6 +311,11 @@
     <string name="word_list_search_label">검색</string>
     <string name="word_list_search_placeholder">단어 검색</string>
     <string name="word_list_search_no_results">일치하는 결과가 없습니다</string>
+    <string name="word_list_search_scope_content_description">검색 옵션</string>
+    <string name="word_list_search_scope_title">검색 대상</string>
+    <string name="word_list_search_scope_option_word">@string/add_word_label_word</string>
+    <string name="word_list_search_scope_option_translation">@string/add_word_label_translation</string>
+    <string name="word_list_search_scope_error">하나 이상 선택하세요</string>
     <string name="word_list_drag_handle_content_description"><xliff:g id="word_name">%1$s</xliff:g> 순서 변경</string>
 
     <!-- ─── Apps list ──────────────────────────────────────────────────────── -->

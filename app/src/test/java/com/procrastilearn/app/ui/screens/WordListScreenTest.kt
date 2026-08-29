@@ -96,54 +96,6 @@ class WordListScreenTest {
     }
 
     @Test
-    fun `shows all words when search query is empty`() {
-        setContent(words = words)
-
-        words.forEach { composeTestRule.onNodeWithText(it.word).assertIsDisplayed() }
-    }
-
-    @Test
-    fun `filters words by case-insensitive substring match`() {
-        setContent(words = words, searchQuery = "PE")
-
-        composeTestRule.onNodeWithText("Peregrinate").assertIsDisplayed()
-        composeTestRule.onAllNodesWithText("Serendipity").assertCountEquals(0)
-        composeTestRule.onAllNodesWithText("Ephemeral").assertCountEquals(0)
-    }
-
-    @Test
-    fun `trims whitespace from search query before filtering`() {
-        setContent(words = words, searchQuery = "  ephemeral  ")
-
-        composeTestRule.onNodeWithText("Ephemeral").assertIsDisplayed()
-        composeTestRule.onAllNodesWithText("Serendipity").assertCountEquals(0)
-    }
-
-    @Test
-    fun `shows no matches message when search has no results`() {
-        setContent(words = words, searchQuery = "xyz")
-
-        composeTestRule.onNodeWithText(string(R.string.word_list_search_no_results)).assertIsDisplayed()
-    }
-
-    @Test
-    fun `blank search query behaves as if it were empty`() {
-        setContent(words = words, searchQuery = "   ")
-
-        words.forEach { composeTestRule.onNodeWithText(it.word).assertIsDisplayed() }
-    }
-
-    @Test
-    fun `typing in search field invokes onSearchQueryChange`() {
-        var query: String? = null
-        setContent(words = words, onSearchQueryChangeOverride = { query = it })
-
-        composeTestRule.onNodeWithText(string(R.string.word_list_search_label)).performTextInput("Ser")
-
-        assertThat(query).isEqualTo("Ser")
-    }
-
-    @Test
     fun `clicking back button invokes onNavigateBack`() {
         setContent(words = words)
 

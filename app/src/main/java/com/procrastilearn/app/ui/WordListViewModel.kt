@@ -2,6 +2,8 @@ package com.procrastilearn.app.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.procrastilearn.app.data.local.prefs.WordListSearchPreferencesStore
+import com.procrastilearn.app.domain.model.SearchScope
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +22,7 @@ class WordListViewModel
     @Inject
     constructor(
         private val repository: VocabularyCatalogRepository,
+        private val searchPreferencesStore: WordListSearchPreferencesStore,
     ) : ViewModel() {
         data class SelectionState(
             val isActive: Boolean = false,
@@ -35,8 +38,24 @@ class WordListViewModel
                     initialValue = emptyList(),
                 )
 
+        val searchScope: StateFlow<SearchScope> =
+            searchPreferencesStore
+                .readScope()
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = SearchScope(),
+                )
+
         private val _selectionState = MutableStateFlow(SelectionState())
         val selectionState: StateFlow<SelectionState> = _selectionState.asStateFlow()
+
+        fun setSearchScope(scope: SearchScope) {
+            if (!scope.isValid) return
+            viewModelScope.launch {
+                searchPreferencesStore.setScope(scope)
+            }
+        }
 
         fun deleteWord(item: VocabularyItem) {
             viewModelScope.launch {

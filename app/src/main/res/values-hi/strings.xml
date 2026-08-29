@@ -17,6 +17,7 @@
     <string name="action_edit">एडिट करें</string>
     <string name="action_reset">रीसेट करें</string>
     <string name="action_ok">ठीक है</string>
+    <string name="action_apply">लागू करें</string>
     <string name="action_cancel">कैंसिल करें</string>
     <string name="action_proceed">आगे बढ़ें</string>
     <string name="action_select_all">सभी चुनें</string>
@@ -310,6 +311,11 @@
     <string name="word_list_search_label">सर्च करें</string>
     <string name="word_list_search_placeholder">शब्द सर्च करें</string>
     <string name="word_list_search_no_results">कोई मैच नहीं मिला</string>
+    <string name="word_list_search_scope_content_description">खोज विकल्प</string>
+    <string name="word_list_search_scope_title">खोजें इसमें</string>
+    <string name="word_list_search_scope_option_word">@string/add_word_label_word</string>
+    <string name="word_list_search_scope_option_translation">@string/add_word_label_translation</string>
+    <string name="word_list_search_scope_error">कम से कम एक विकल्प चुनें</string>
     <string name="word_list_drag_handle_content_description"><xliff:g id="word_name">%1$s</xliff:g> को फिर से क्रमबद्ध करें</string>
 
     <!-- ─── Apps list ──────────────────────────────────────────────────────── -->

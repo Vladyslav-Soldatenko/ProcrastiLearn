@@ -2,6 +2,7 @@ package com.procrastilearn.app.di
 
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.TranslationPreferences
+import com.procrastilearn.app.data.local.prefs.WordListSearchPreferencesStore
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
@@ -12,4 +13,6 @@ interface PreferencesEntryPoint {
     fun dayCountersStore(): DayCountersStore
 
     fun translationPreferences(): TranslationPreferences
+
+    fun wordListSearchPreferencesStore(): WordListSearchPreferencesStore
 }
