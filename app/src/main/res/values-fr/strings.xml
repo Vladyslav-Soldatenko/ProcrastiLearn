@@ -17,6 +17,7 @@
     <string name="action_edit">Modifier</string>
     <string name="action_reset">Réinitialiser</string>
     <string name="action_ok">OK</string>
+    <string name="action_apply">Appliquer</string>
     <string name="action_cancel">Annuler</string>
     <string name="action_proceed">Poursuivre</string>
     <string name="action_select_all">Tout sélectionner</string>
@@ -310,6 +311,11 @@
     <string name="word_list_search_label">Rechercher</string>
     <string name="word_list_search_placeholder">Rechercher des mots</string>
     <string name="word_list_search_no_results">Aucun résultat trouvé</string>
+    <string name="word_list_search_scope_content_description">Options de recherche</string>
+    <string name="word_list_search_scope_title">Rechercher dans</string>
+    <string name="word_list_search_scope_option_word">@string/add_word_label_word</string>
+    <string name="word_list_search_scope_option_translation">@string/add_word_label_translation</string>
+    <string name="word_list_search_scope_error">Sélectionnez au moins une option</string>
     <string name="word_list_drag_handle_content_description">Réorganiser <xliff:g id="word_name">%1$s</xliff:g></string>
 
     <!-- ─── Apps list ──────────────────────────────────────────────────────── -->

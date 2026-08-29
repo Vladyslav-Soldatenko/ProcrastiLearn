@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -70,6 +71,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.procrastilearn.app.R
+import com.procrastilearn.app.domain.model.SearchScope
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.ui.BidirectionalFields
 import com.procrastilearn.app.ui.WordListViewModel
@@ -99,6 +101,7 @@ fun WordListScreen(
 ) {
     val words by viewModel.words.collectAsState()
     val selectionState by viewModel.selectionState.collectAsState()
+    val searchScope by viewModel.searchScope.collectAsState()
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
     WordListContent(
@@ -106,6 +109,8 @@ fun WordListScreen(
         selectionState = selectionState,
         searchQuery = searchQuery,
         onSearchQueryChange = { searchQuery = it },
+        searchScope = searchScope,
+        onSearchScopeChange = viewModel::setSearchScope,
         onDelete = viewModel::deleteWord,
         onEdit = viewModel::updateWord,
         onReset = viewModel::resetWordProgress,
@@ -134,6 +139,8 @@ internal fun WordListContent(
     onEdit: (VocabularyItem) -> Unit,
     onReset: (VocabularyItem) -> Unit,
     modifier: Modifier = Modifier,
+    searchScope: SearchScope = SearchScope(),
+    onSearchScopeChange: (SearchScope) -> Unit = {},
     selectionState: SelectionState = SelectionState(),
     onEnterSelectionMode: (Long) -> Unit = {},
     onToggleSelection: (Long) -> Unit = {},
@@ -178,12 +185,18 @@ internal fun WordListContent(
         if (normalizedQuery.isBlank()) {
             localOrder
         } else {
-            words.filter { it.word.contains(normalizedQuery, ignoreCase = true) }
+            words.filter { item ->
+                searchScope.matchWord &&
+                    item.word.contains(normalizedQuery, ignoreCase = true) ||
+                    searchScope.matchTranslation &&
+                    item.translation.contains(normalizedQuery, ignoreCase = true)
+            }
         }
 
     var showSelectionMenu by remember { mutableStateOf(false) }
     var showBulkDeleteDialog by remember { mutableStateOf(false) }
     var showForwardOnlyDialog by remember { mutableStateOf(false) }
+    var showSearchScopeDialog by remember { mutableStateOf(false) }
     val allDisplayedSelected =
         displayedWords.isNotEmpty() && displayedWords.all { it.id in selectionState.selectedIds }
     val selectedWords = words.filter { it.id in selectionState.selectedIds }
@@ -291,6 +304,14 @@ internal fun WordListContent(
                     imageVector = Icons.Default.Search,
                     contentDescription = null,
                 )
+            },
+            trailingIcon = {
+                IconButton(onClick = { showSearchScopeDialog = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Tune,
+                        contentDescription = stringResource(R.string.word_list_search_scope_content_description),
+                    )
+                }
             },
             singleLine = true,
             shape = RoundedCornerShape(16.dp),
@@ -426,6 +447,17 @@ internal fun WordListContent(
                 onSetSelectedBidirectional(false)
                 showForwardOnlyDialog = false
             },
+        )
+    }
+
+    if (showSearchScopeDialog) {
+        WordListSearchScopeDialog(
+            currentScope = searchScope,
+            onApply = { newScope ->
+                onSearchScopeChange(newScope)
+                showSearchScopeDialog = false
+            },
+            onDismiss = { showSearchScopeDialog = false },
         )
     }
 }
