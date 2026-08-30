@@ -9,6 +9,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -49,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import com.procrastilearn.app.R
 import com.procrastilearn.app.overlay.OverlayUiState
 import com.procrastilearn.app.overlay.theme.OverlayThemeTokens
+import com.procrastilearn.app.utils.isLandscapeOrientation
 import io.github.openspacedrepetition.Rating
 
 @Suppress("LongMethod")
@@ -248,88 +250,122 @@ private fun LearningCardFooter(
     }
 }
 
+private data class DifficultySpec(
+    val text: String,
+    val containerColor: Color,
+    val contentColor: Color,
+    val rating: Rating,
+)
+
 @Composable
 private fun DifficultyButtons(
     onDifficultySelect: (Rating) -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = modifier,
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            DifficultyButton(
+    val isLandscape = isLandscapeOrientation()
+    val specs =
+        listOf(
+            DifficultySpec(
                 stringResource(R.string.rating_again),
-                containerColor = OverlayThemeTokens.colors.difficultyAgainContainer,
-                contentColor = OverlayThemeTokens.colors.difficultyAgainContent,
-                enabled,
-                onClick = { onDifficultySelect(Rating.AGAIN) },
-                modifier = Modifier.weight(1f),
-            )
-            DifficultyButton(
+                OverlayThemeTokens.colors.difficultyAgainContainer,
+                OverlayThemeTokens.colors.difficultyAgainContent,
+                Rating.AGAIN,
+            ),
+            DifficultySpec(
                 stringResource(R.string.rating_hard),
-                containerColor = OverlayThemeTokens.colors.difficultyHardContainer,
-                contentColor = OverlayThemeTokens.colors.difficultyHardContent,
-                enabled,
-                onClick = { onDifficultySelect(Rating.HARD) },
-                modifier = Modifier.weight(1f),
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            DifficultyButton(
+                OverlayThemeTokens.colors.difficultyHardContainer,
+                OverlayThemeTokens.colors.difficultyHardContent,
+                Rating.HARD,
+            ),
+            DifficultySpec(
                 stringResource(R.string.rating_good),
-                containerColor = OverlayThemeTokens.colors.difficultyGoodContainer,
-                contentColor = OverlayThemeTokens.colors.difficultyGoodContent,
-                enabled,
-                onClick = { onDifficultySelect(Rating.GOOD) },
-                modifier = Modifier.weight(1f),
-            )
-            DifficultyButton(
+                OverlayThemeTokens.colors.difficultyGoodContainer,
+                OverlayThemeTokens.colors.difficultyGoodContent,
+                Rating.GOOD,
+            ),
+            DifficultySpec(
                 stringResource(R.string.rating_easy),
-                containerColor = OverlayThemeTokens.colors.difficultyEasyContainer,
-                contentColor = OverlayThemeTokens.colors.difficultyEasyContent,
-                enabled,
-                onClick = { onDifficultySelect(Rating.EASY) },
-                modifier = Modifier.weight(1f),
-            )
+                OverlayThemeTokens.colors.difficultyEasyContainer,
+                OverlayThemeTokens.colors.difficultyEasyContent,
+                Rating.EASY,
+            ),
+        )
+
+    if (isLandscape) {
+        Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            specs.forEach { spec ->
+                DifficultyButton(
+                    spec,
+                    enabled,
+                    onClick = { onDifficultySelect(spec.rating) },
+                    modifier = Modifier.weight(1f),
+                    height = 36.dp,
+                    fontSize = 12.sp,
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                )
+            }
+        }
+    } else {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = modifier,
+        ) {
+            specs.chunked(2).forEach { rowSpecs ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    rowSpecs.forEach { spec ->
+                        DifficultyButton(
+                            spec,
+                            enabled,
+                            onClick = { onDifficultySelect(spec.rating) },
+                            modifier = Modifier.weight(1f),
+                            height = 48.dp,
+                            fontSize = 15.sp,
+                            contentPadding = ButtonDefaults.ContentPadding,
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
 private fun DifficultyButton(
-    text: String,
-    containerColor: Color,
-    contentColor: Color,
+    spec: DifficultySpec,
     enabled: Boolean,
     onClick: () -> Unit,
+    height: androidx.compose.ui.unit.Dp,
+    fontSize: androidx.compose.ui.unit.TextUnit,
+    contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.height(48.dp),
+        modifier = modifier.height(height),
         shape = RoundedCornerShape(12.dp),
+        contentPadding = contentPadding,
         colors =
             ButtonDefaults.buttonColors(
-                containerColor = containerColor,
-                contentColor = contentColor,
+                containerColor = spec.containerColor,
+                contentColor = spec.contentColor,
                 disabledContainerColor = OverlayThemeTokens.colors.disabledContainer,
                 disabledContentColor = OverlayThemeTokens.colors.disabledContent,
             ),
     ) {
         Text(
-            text = text,
-            fontSize = 15.sp,
+            text = spec.text,
+            fontSize = fontSize,
             fontWeight = FontWeight.Medium,
-            color = if (enabled) contentColor else OverlayThemeTokens.colors.disabledContent,
+            color = if (enabled) spec.contentColor else OverlayThemeTokens.colors.disabledContent,
+            maxLines = 1,
         )
     }
 }

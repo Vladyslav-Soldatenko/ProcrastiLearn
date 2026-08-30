@@ -4,6 +4,8 @@ import android.content.res.Configuration
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -40,6 +42,7 @@ import com.procrastilearn.app.overlay.components.LearningCard
 import com.procrastilearn.app.overlay.theme.OverlayTheme
 import com.procrastilearn.app.ui.dojo.components.DojoStatsHeader
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
+import com.procrastilearn.app.utils.isLandscapeOrientation
 import io.github.openspacedrepetition.Rating
 
 @Suppress("DEPRECATION") // replacement androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel is not yet published
@@ -95,59 +98,84 @@ internal fun DojoScreen(
                 modifier = Modifier.fillMaxSize().padding(scaffoldPadding),
                 color = MaterialTheme.colorScheme.background,
             ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    // Stats header always visible
-                    DojoStatsHeader(
-                        newQuotaRemaining = uiState.newQuotaRemaining,
-                        pendingReviewCount = uiState.pendingReviewCount,
-                        canUndo = uiState.canUndo,
-                        onUndo = onUndo,
-                        skippedCardCount = uiState.skippedCardCount,
-                    )
-
-                    // Content area
-                    when {
-                        uiState.isLoading -> {
-                            Box(
-                                modifier = Modifier.fillMaxWidth().weight(1f),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                CircularProgressIndicator()
-                            }
-                        }
-                        uiState.hasNoWords -> {
-                            EmptyState(modifier = Modifier.fillMaxWidth().weight(1f))
-                        }
-                        else -> {
-                            // Show LearningCard by converting DojoUiState to OverlayUiState
-                            val overlayState =
-                                OverlayUiState(
-                                    vocabularyItem = uiState.vocabularyItem,
-                                    showAnswer = uiState.showAnswer,
-                                    unlocked = false,
-                                    isLoading = false,
-                                )
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .weight(1f, fill = true)
-                                        .padding(horizontal = 12.dp, vertical = 0.dp),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                OverlayTheme {
-                                    LearningCard(
-                                        state = overlayState,
-                                        onToggleShowAnswer = onToggleShowAnswer,
-                                        onDifficultySelect = onDifficultySelect,
-                                        ratingLockSecondsRemaining = 0,
-                                        showTranslationButtonHeight = 56.dp,
-                                        addNavigationBarsPadding = false,
-                                    )
-                                }
-                            }
-                        }
+                val isLandscape = isLandscapeOrientation()
+                if (isLandscape) {
+                    Row(modifier = Modifier.fillMaxSize()) {
+                        DojoContent(
+                            uiState = uiState,
+                            onToggleShowAnswer = onToggleShowAnswer,
+                            onDifficultySelect = onDifficultySelect,
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                        )
+                        DojoStatsHeader(
+                            newQuotaRemaining = uiState.newQuotaRemaining,
+                            pendingReviewCount = uiState.pendingReviewCount,
+                            canUndo = uiState.canUndo,
+                            onUndo = onUndo,
+                            skippedCardCount = uiState.skippedCardCount,
+                            vertical = true,
+                            modifier = Modifier.fillMaxHeight(),
+                        )
                     }
+                } else {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        DojoStatsHeader(
+                            newQuotaRemaining = uiState.newQuotaRemaining,
+                            pendingReviewCount = uiState.pendingReviewCount,
+                            canUndo = uiState.canUndo,
+                            onUndo = onUndo,
+                            skippedCardCount = uiState.skippedCardCount,
+                        )
+                        DojoContent(
+                            uiState = uiState,
+                            onToggleShowAnswer = onToggleShowAnswer,
+                            onDifficultySelect = onDifficultySelect,
+                            modifier = Modifier.weight(1f).fillMaxWidth(),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DojoContent(
+    uiState: DojoUiState,
+    onToggleShowAnswer: () -> Unit,
+    onDifficultySelect: (Rating) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    when {
+        uiState.isLoading -> {
+            Box(modifier = modifier, contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+        uiState.hasNoWords -> {
+            EmptyState(modifier = modifier)
+        }
+        else -> {
+            val overlayState =
+                OverlayUiState(
+                    vocabularyItem = uiState.vocabularyItem,
+                    showAnswer = uiState.showAnswer,
+                    unlocked = false,
+                    isLoading = false,
+                )
+            Box(
+                modifier = modifier.padding(horizontal = 12.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                OverlayTheme {
+                    LearningCard(
+                        state = overlayState,
+                        onToggleShowAnswer = onToggleShowAnswer,
+                        onDifficultySelect = onDifficultySelect,
+                        ratingLockSecondsRemaining = 0,
+                        showTranslationButtonHeight = 56.dp,
+                        addNavigationBarsPadding = false,
+                    )
                 }
             }
         }
