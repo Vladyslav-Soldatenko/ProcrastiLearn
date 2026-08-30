@@ -1,0 +1,3 @@
+Aggiunta un'opzione per cercare nel Mio Vocabolario solo per parola, solo per traduzione, o per entrambi.
+Migliorato il layout in modalità orizzontale.
+Alleggerita l'app grazie a una riduzione del codice più intelligente, per una dimensione di installazione minore e un uso della memoria più leggero.

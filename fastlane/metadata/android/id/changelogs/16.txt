@@ -1,0 +1,3 @@
+Menambahkan opsi untuk mencari di Kosakata Saya hanya berdasarkan kata, hanya terjemahan, atau keduanya.
+Meningkatkan tata letak pada mode lanskap.
+Membuat aplikasi lebih ringan dengan pengecilan kode yang lebih cerdas, untuk ukuran instalasi lebih kecil dan penggunaan memori lebih ringan.

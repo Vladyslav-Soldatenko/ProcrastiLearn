@@ -1,0 +1,3 @@
+Dodano opcję wyszukiwania w Moim słowniku tylko po słowie, tylko po tłumaczeniu lub po obu naraz.
+Usprawniono układ w trybie poziomym.
+Odchudzono aplikację dzięki mądrzejszemu zmniejszaniu kodu — mniejszy rozmiar instalacji i niższe zużycie pamięci.

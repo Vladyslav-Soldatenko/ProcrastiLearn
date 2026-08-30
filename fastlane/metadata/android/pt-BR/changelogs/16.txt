@@ -1,0 +1,3 @@
+Adicionada uma opção para pesquisar no Meu Vocabulário apenas por palavra, apenas por tradução, ou por ambos.
+Melhorado o layout no modo paisagem.
+App mais leve graças a uma redução de código mais inteligente, com tamanho de instalação menor e uso de memória mais leve.

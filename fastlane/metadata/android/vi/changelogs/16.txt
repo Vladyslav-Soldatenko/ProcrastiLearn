@@ -1,0 +1,3 @@
+Thêm tùy chọn tìm kiếm trong Từ vựng của tôi chỉ theo từ, chỉ theo bản dịch, hoặc cả hai.
+Cải thiện bố cục ở chế độ ngang.
+Giúp ứng dụng nhẹ hơn nhờ rút gọn mã thông minh hơn, giảm dung lượng cài đặt và giảm mức sử dụng bộ nhớ.
