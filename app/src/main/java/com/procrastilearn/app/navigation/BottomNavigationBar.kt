@@ -1,6 +1,7 @@
 package com.procrastilearn.app.navigation
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
@@ -9,6 +10,8 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,6 +53,26 @@ private val bottomNavItems =
         ),
     )
 
+private fun navigateToItem(
+    navController: NavController,
+    item: BottomNavItem,
+    currentRoute: String?,
+) {
+    val poppedToDestination =
+        item.screen == Screen.AddWord &&
+            currentRoute == Screen.WordList.route &&
+            navController.popBackStack(Screen.AddWord.route, inclusive = false)
+    if (!poppedToDestination) {
+        navController.navigate(item.screen.route) {
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+}
+
 @Composable
 fun BottomNavigationBar(
     navController: NavController,
@@ -62,21 +85,7 @@ fun BottomNavigationBar(
         bottomNavItems.forEach { item ->
             NavigationBarItem(
                 selected = currentRoute == item.screen.route,
-                onClick = {
-                    val poppedToDestination =
-                        item.screen == Screen.AddWord &&
-                            currentRoute == Screen.WordList.route &&
-                            navController.popBackStack(Screen.AddWord.route, inclusive = false)
-                    if (!poppedToDestination) {
-                        navController.navigate(item.screen.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                },
+                onClick = { navigateToItem(navController, item, currentRoute) },
                 icon = {
                     Icon(
                         imageVector = item.icon,
@@ -87,6 +96,35 @@ fun BottomNavigationBar(
                     Text(text = stringResource(id = item.labelResId))
                 },
             )
+        }
+    }
+}
+
+@Composable
+fun NavigationRailBar(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    NavigationRail(modifier = modifier) {
+        Spacer(modifier = Modifier.weight(1f))
+        bottomNavItems.forEach { item ->
+            NavigationRailItem(
+                selected = currentRoute == item.screen.route,
+                onClick = { navigateToItem(navController, item, currentRoute) },
+                icon = {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = stringResource(id = item.labelResId),
+                    )
+                },
+                label = {
+                    Text(text = stringResource(id = item.labelResId))
+                },
+            )
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
 }
