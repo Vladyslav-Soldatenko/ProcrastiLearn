@@ -1,0 +1,3 @@
+Add an option to search My Vocabulary by word only, translation only, or both.
+Improve the layout in landscape mode.
+Slim down the app with smarter code shrinking, for a smaller install size and lighter memory use.

@@ -1,0 +1,3 @@
+Ajout d'une option pour rechercher dans Mon Vocabulaire par mot uniquement, par traduction uniquement, ou par les deux.
+Amélioration de la mise en page en mode paysage.
+Allègement de l'application grâce à une réduction de code plus intelligente, pour une taille d'installation réduite et une utilisation de la mémoire plus légère.

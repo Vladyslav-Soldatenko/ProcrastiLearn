@@ -1,0 +1,3 @@
+Neue Option zum Durchsuchen von „Mein Wortschatz“ nur nach Wort, nur nach Übersetzung oder nach beidem.
+Layout im Querformat verbessert.
+App durch intelligenteres Code-Shrinking verschlankt – kleinere Installationsgröße und geringerer Arbeitsspeicherverbrauch.

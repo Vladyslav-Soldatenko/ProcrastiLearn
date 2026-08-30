@@ -1,0 +1,3 @@
+Kelime Listem içinde yalnızca kelimeye, yalnızca çeviriye veya her ikisine göre arama yapma seçeneği eklendi.
+Yatay moddaki düzen iyileştirildi.
+Daha akıllı kod küçültme sayesinde uygulama hafifledi; kurulum boyutu küçüldü ve bellek kullanımı azaldı.
