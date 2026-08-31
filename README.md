@@ -53,3 +53,4 @@ For now you have several options to choose:
 1) Download the source code and build the app yourself
 2) Download already built APK from github releases
 3) Download from [F-Droid](https://f-droid.org/packages/com.procrastilearn.app/)
+4) Get it via [Obtainium](https://github.com/ImranR98/Obtainium) — [tap to add](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/Vladyslav-Soldatenko/ProcrastiLearn)
