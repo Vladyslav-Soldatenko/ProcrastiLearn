@@ -17,7 +17,7 @@ class OpenAiTranslationProvider @Inject constructor(
             ChatCompletionCreateParams
                 .builder()
                 .model(ChatModel.GPT_5_6_LUNA)
-                .reasoningEffort(ReasoningEffort.MINIMAL)
+                .reasoningEffort(ReasoningEffort.LOW)
                 .addSystemMessage(request.systemPrompt)
                 .addUserMessage(request.userPrompt)
                 .maxCompletionTokens(1500)
