@@ -16,7 +16,7 @@ class OpenAiTranslationProvider @Inject constructor(
         val params =
             ChatCompletionCreateParams
                 .builder()
-                .model(ChatModel.GPT_5_MINI)
+                .model(ChatModel.GPT_5_6_LUNA)
                 .reasoningEffort(ReasoningEffort.MINIMAL)
                 .addSystemMessage(request.systemPrompt)
                 .addUserMessage(request.userPrompt)
