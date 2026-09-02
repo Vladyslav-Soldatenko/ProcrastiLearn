@@ -14,7 +14,7 @@ ProcrastiLearn is an Android (Kotlin + Jetpack Compose) app that turns distracti
 ## Features
 - 📱 Overlay gate on chosen apps using Accessibility + overlay permissions.
 - 🧠 Spaced repetition via FSRS with daily caps.
-- ➕ Add words manually or let AI draft translations (prompt is editable). Currently GPT-5.6-luna is used.
+- ➕ Add words manually or let AI draft translations (prompt is editable). Currently GPT-5.6-luna is used, which means that you can add hundreds of words for a few cents.
 - 📂 Import Anki `.apkg` decks.
 - 📋 Word list with search, edit, delete, and “reset progress”.
 -    Select a word in any other app and click "Procrastilearn this" to immediately add this word to the app and be sure that you'll learn it later
