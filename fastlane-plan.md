@@ -460,6 +460,8 @@ Reference: [Fastlane `upload_to_play_store`](https://docs.fastlane.tools/actions
 - [ ] Submit the listing changes manually only after inspection.
 - [ ] Remember that store-listing changes are shared across tracks; they are not isolated to internal testing.
 
+The guarded metadata upload was exercised against production draft 18. Google rejected the edit commit with `Changes are sent for review automatically. The query parameter changesNotSentForReview must not be set.` The temporary edit was not committed. Under this app's current review mode, Fastlane cannot both commit listing metadata and leave it unsubmitted. Keep the lane fail-safe as written; use Play Console for manual staging, or explicitly change the requirement to allow API submission for review.
+
 ## Phase 10: Create the first production draft
 
 - [x] Choose the next semantic-version bump type.
@@ -538,6 +540,7 @@ No application runtime API, database schema, package name, or user-facing featur
 - [ ] Missing or malformed images fail locally before Fastlane contacts Play.
 - [x] `validate_metadata` completes successfully using `validate_only: true` and does not commit its temporary Play edit.
 - [ ] `upload_metadata_staged` changes only listing text and images and leaves them unsubmitted.
+- [x] `upload_metadata_staged` fails without committing when Google refuses `changesNotSentForReview`; automatic review submission is not used as a fallback.
 - [x] A fresh `bundleRelease` output is signed with the expected upload-certificate fingerprint.
 - [x] A dirty working tree blocks both mutating lanes.
 - [ ] A missing or empty localized changelog blocks the production-draft lane.
