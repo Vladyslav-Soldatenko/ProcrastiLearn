@@ -19,3 +19,9 @@ app/src/test/resources/schema/*.fingerprint.actual.txt
 .kotlin/
 release/
 vendor/bundle/
+fastlane.env
+*.jks
+*.keystore
+*service-account*.json
+.env
+.env.*

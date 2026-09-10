@@ -1,0 +1,6 @@
+require "dotenv"
+
+Dotenv.load(File.expand_path("../fastlane.env", __dir__))
+
+package_name("com.procrastilearn.app")
+json_key_file(ENV.fetch("PLAY_JSON_KEY_PATH"))
