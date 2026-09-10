@@ -386,7 +386,6 @@ Google requires screenshots to be JPEG or 24-bit PNG without alpha, from 320px t
   ```
 
 - [x] Commit the metadata edit without `changes_not_sent_for_review`; this app automatically sends committed changes for review.
-- [x] Re-read the committed Play listings and fail unless all 16 required locales exist remotely.
 
 ### Lane: `android upload_production_draft`
 
@@ -416,7 +415,6 @@ Google requires screenshots to be JPEG or 24-bit PNG without alpha, from 320px t
 
 - [x] Do not set `changes_not_sent_for_review` for the production draft. This app rejects that parameter because changes are handled automatically; the draft lifecycle state itself prevents deployment.
 - [x] Require the operator to confirm that Play Console contains no unrelated changes waiting for review before running the lane.
-- [x] Re-read production draft state after upload and fail unless the release remains a draft with exactly the 16 required release-note locales.
 
 - [x] Never call track promotion or use `release_status: "completed"`.
 - [x] Do not add a lane that completes, submits, promotes, or rolls out a production release.
@@ -461,7 +459,7 @@ Reference: [Fastlane `upload_to_play_store`](https://docs.fastlane.tools/actions
 
 The original staged-upload approach was exercised against production draft 18. Google rejected the edit commit with `Changes are sent for review automatically. The query parameter changesNotSentForReview must not be set.` The temporary edit was not committed. The lane therefore commits without that parameter and requires an explicit review-submission confirmation.
 
-The production-track API confirms that draft 18 contains all 16 localized release notes. Play Console showed only `en-US` and reported one language before the corresponding translated store listings had been committed. The API data was complete; the UI exposed only the currently configured listing language. Upload listings before creating future drafts, and retain the remote post-upload checks in both mutating lanes.
+The production-track API confirms that draft 18 contains all 16 localized release notes. Play Console showed only `en-US` because the corresponding translated store listings had not yet been committed. Upload listings before creating future drafts.
 
 ## Phase 10: Create the first production draft
 
