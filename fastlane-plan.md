@@ -439,7 +439,7 @@ Reference: [Fastlane `upload_to_play_store`](https://docs.fastlane.tools/actions
   ```
 
 - [ ] Confirm that validation did not create a visible Play Console change.
-- [ ] Upload the listing and submit the metadata changes for review:
+- [x] Upload the listing and submit the metadata changes for review:
 
   ```bash
   export CONFIRM_METADATA_REVIEW_SUBMISSION=YES
@@ -454,12 +454,12 @@ Reference: [Fastlane `upload_to_play_store`](https://docs.fastlane.tools/actions
   - Icon
   - Feature graphic
   - Five ordered screenshots
-- [ ] Confirm that the metadata changes were submitted for review.
-- [ ] Remember that store-listing changes are shared across tracks; they are not isolated to internal testing.
+- [x] Confirm that the metadata changes were submitted for review.
+- [x] Remember that store-listing changes are shared across tracks; they are not isolated to internal testing.
 
 The original staged-upload approach was exercised against production draft 18. Google rejected the edit commit with `Changes are sent for review automatically. The query parameter changesNotSentForReview must not be set.` The temporary edit was not committed. The lane therefore commits without that parameter and requires an explicit review-submission confirmation.
 
-The production-track API confirms that draft 18 contains all 16 localized release notes. Play Console showed only `en-US` because the corresponding translated store listings had not yet been committed. Upload listings before creating future drafts.
+The production-track API confirmed that draft 18 already contained all 16 localized release notes even though Play Console initially showed only `en-US` and reported one language. After the 16 translated store listings were committed, Play Console showed all 16 release-note languages. Release-note localization visibility therefore depends on the corresponding store-listing languages existing in Play Console. Upload listings before creating future drafts.
 
 ## Phase 10: Create the first production draft
 
@@ -538,21 +538,21 @@ No application runtime API, database schema, package name, or user-facing featur
 - [ ] Temporarily exceeding any 30, 80, 4000, or 500-character limit causes local validation to fail.
 - [ ] Missing or malformed images fail locally before Fastlane contacts Play.
 - [x] `validate_metadata` completes successfully using `validate_only: true` and does not commit its temporary Play edit.
-- [ ] `upload_metadata_for_review` changes only listing text and images and submits them for Google Play review.
+- [x] `upload_metadata_for_review` changes only listing text and images and submits them for Google Play review.
 - [x] A fresh `bundleRelease` output is signed with the expected upload-certificate fingerprint.
 - [x] A dirty working tree blocks both mutating lanes.
 - [ ] A missing or empty localized changelog blocks the production-draft lane.
 - [x] A missing confirmation guard blocks each mutating lane.
 - [x] `upload_production_draft` created production draft 18 with its 16 localized release notes.
-- [ ] No Fastlane lane can submit the production release for review, promote a track, complete a rollout, or publish to users.
-- [ ] `git status` shows no credentials, keystores, generated bundles, or local environment files.
+- [x] No Fastlane lane can submit the production release for review, promote a track, complete a rollout, or publish to users.
+- [x] `git status` shows no credentials, keystores, generated bundles, or local environment files.
 
 ## Definition of done
 
 - [x] All 16 localized listings pass local and Google Play validation.
 - [ ] All 16 listings contain the same title, equivalent description structure, and a complete shared image set.
-- [ ] Listing changes can be uploaded and explicitly submitted for Google Play review.
+- [x] Listing changes can be uploaded and explicitly submitted for Google Play review.
 - [x] A new signed AAB can be built from the Fedora laptop using external secrets.
 - [x] The AAB can be uploaded into a production draft with localized release notes.
-- [ ] No production release submission or public rollout happens automatically.
+- [x] No production release submission or public rollout happens automatically.
 - [ ] The entire routine is documented by committed, reproducible project configuration while all private keys and passwords remain outside the repository.
