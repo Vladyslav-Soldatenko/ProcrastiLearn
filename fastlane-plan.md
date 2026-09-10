@@ -462,27 +462,27 @@ Reference: [Fastlane `upload_to_play_store`](https://docs.fastlane.tools/actions
 
 ## Phase 10: Create the first production draft
 
-- [ ] Choose the next semantic-version bump type.
-- [ ] Run the existing explicit bump task, for example:
+- [x] Choose the next semantic-version bump type.
+- [x] Run the existing explicit bump task, for example:
 
   ```bash
   ./gradlew bumpVersion -PbumpType=patch
   ```
 
-- [ ] Confirm that version code and version name changed correctly.
-- [ ] Confirm that the new version code is greater than the highest version code already known to Play.
-- [ ] Fill the newly created changelog file in every locale.
-- [ ] Reject empty or untranslated placeholder changelogs.
-- [ ] Keep each localized changelog at or below 500 Unicode characters.
-- [ ] Run normal project checks separately if required. The selected draft lane intentionally performs only the bundle build and release preflights.
-- [ ] Commit the version and changelog changes.
-- [ ] Confirm a clean working tree:
+- [x] Confirm that version code and version name changed correctly.
+- [x] Confirm that the new version code is greater than the highest version code already known to Play.
+- [x] Fill the newly created changelog file in every locale.
+- [x] Reject empty or untranslated placeholder changelogs.
+- [x] Keep each localized changelog at or below 500 Unicode characters.
+- [x] Run normal project checks separately if required. The selected draft lane intentionally performs only the bundle build and release preflights.
+- [x] Commit the version and changelog changes.
+- [x] Confirm a clean working tree:
 
   ```bash
   git status --short
   ```
 
-- [ ] Load secrets and set the explicit draft guard:
+- [x] Load secrets and set the explicit draft guard:
 
   ```bash
   set -a
@@ -491,7 +491,7 @@ Reference: [Fastlane `upload_to_play_store`](https://docs.fastlane.tools/actions
   export CONFIRM_PRODUCTION_DRAFT=NO_PENDING_REVIEW_CHANGES
   ```
 
-- [ ] Create the production draft:
+- [x] Create the production draft:
 
   ```bash
   bundle exec fastlane android upload_production_draft
@@ -538,11 +538,11 @@ No application runtime API, database schema, package name, or user-facing featur
 - [ ] Missing or malformed images fail locally before Fastlane contacts Play.
 - [x] `validate_metadata` completes successfully using `validate_only: true` and does not commit its temporary Play edit.
 - [ ] `upload_metadata_staged` changes only listing text and images and leaves them unsubmitted.
-- [x] The existing `bundleRelease` output is signed with the expected upload-certificate fingerprint; a fresh build remains pending.
+- [x] A fresh `bundleRelease` output is signed with the expected upload-certificate fingerprint.
 - [x] A dirty working tree blocks both mutating lanes.
 - [ ] A missing or empty localized changelog blocks the production-draft lane.
 - [x] A missing confirmation guard blocks each mutating lane.
-- [ ] `upload_production_draft` changes only the production draft and its localized release notes.
+- [x] `upload_production_draft` created production draft 18 with its 16 localized release notes.
 - [ ] No Fastlane lane can submit a release for review, promote a track, complete a rollout, or publish to users.
 - [ ] `git status` shows no credentials, keystores, generated bundles, or local environment files.
 
@@ -551,7 +551,7 @@ No application runtime API, database schema, package name, or user-facing featur
 - [x] All 16 localized listings pass local and Google Play validation.
 - [ ] All 16 listings contain the same title, equivalent description structure, and a complete shared image set.
 - [ ] Listing changes can be uploaded and left for manual review.
-- [ ] A new signed AAB can be built from the Fedora laptop using external secrets.
-- [ ] The AAB can be uploaded into a production draft with localized release notes.
+- [x] A new signed AAB can be built from the Fedora laptop using external secrets.
+- [x] The AAB can be uploaded into a production draft with localized release notes.
 - [ ] No public release or review submission happens automatically.
 - [ ] The entire routine is documented by committed, reproducible project configuration while all private keys and passwords remain outside the repository.
