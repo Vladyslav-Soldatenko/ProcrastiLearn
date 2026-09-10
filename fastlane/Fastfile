@@ -1,0 +1,293 @@
+default_platform(:android)
+
+require "digest"
+require "open3"
+
+SUPPORTED_LOCALES = %w[
+  de-DE
+  en-US
+  es-ES
+  fr-FR
+  hi-IN
+  id
+  it-IT
+  ja-JP
+  ko-KR
+  pl-PL
+  pt-BR
+  ru-RU
+  tr-TR
+  uk
+  vi
+  zh-CN
+].freeze
+
+METADATA_ROOT = File.expand_path("metadata/android", __dir__)
+VERSION_FILE = File.expand_path("../app/build.gradle.kts", __dir__)
+
+class ProcrastiLearnMetadataValidator
+  TITLE = "ProcrastiLearn"
+  SCREENSHOT_COUNT = 5
+  FULL_DESCRIPTION_PARAGRAPH_COUNT = 19
+  CHANGELOG_LIMIT = 500
+  CANONICAL_ASSET_LOCALE = "en-US"
+  TEXT_LIMITS = {
+    "title.txt" => 30,
+    "short_description.txt" => 80,
+    "full_description.txt" => 4_000
+  }.freeze
+  REQUIRED_TEXT_FILES = TEXT_LIMITS.keys.freeze
+  REQUIRED_IMAGES = {
+    "images/icon.png" => { width: 512, height: 512, alpha: true, max_bytes: 1_024 * 1_024 },
+    "images/featureGraphic.png" => { width: 1_024, height: 500, alpha: false },
+    "images/phoneScreenshots/1.png" => { min_dimension: 320, max_dimension: 3_840, max_aspect_ratio: 2.0, alpha: false },
+    "images/phoneScreenshots/2.png" => { min_dimension: 320, max_dimension: 3_840, max_aspect_ratio: 2.0, alpha: false },
+    "images/phoneScreenshots/3.png" => { min_dimension: 320, max_dimension: 3_840, max_aspect_ratio: 2.0, alpha: false },
+    "images/phoneScreenshots/4.png" => { min_dimension: 320, max_dimension: 3_840, max_aspect_ratio: 2.0, alpha: false },
+    "images/phoneScreenshots/5.png" => { min_dimension: 320, max_dimension: 3_840, max_aspect_ratio: 2.0, alpha: false }
+  }.freeze
+  SHARED_IMAGES = %w[
+    images/icon.png
+    images/featureGraphic.png
+    images/phoneScreenshots/1.png
+    images/phoneScreenshots/2.png
+    images/phoneScreenshots/3.png
+    images/phoneScreenshots/4.png
+    images/phoneScreenshots/5.png
+  ].freeze
+
+  def initialize(metadata_root:, locales:, version_file:)
+    @metadata_root = metadata_root
+    @locales = locales
+    @version_file = version_file
+  end
+
+  def validate!
+    errors = []
+    validate_locale_set(errors)
+    version_code = read_version_code(errors)
+    image_inspection_available = validate_imagemagick(errors)
+
+    @locales.each do |locale|
+      locale_dir = File.join(@metadata_root, locale)
+      next unless File.directory?(locale_dir)
+
+      validate_text_files(errors, locale, locale_dir, version_code)
+      validate_images(errors, locale, locale_dir, image_inspection_available)
+    end
+
+    validate_shared_assets(errors)
+
+    return true if errors.empty?
+
+    raise "Metadata validation failed:\n#{errors.map { |error| "- #{error}" }.join("\n")}"
+  end
+
+  private
+
+  def validate_locale_set(errors)
+    unless File.directory?(@metadata_root)
+      errors << "metadata directory is missing: #{@metadata_root}"
+      return
+    end
+
+    entries = Dir.children(@metadata_root).sort
+    actual_locales = entries.select { |entry| File.directory?(File.join(@metadata_root, entry)) }
+    missing = @locales - actual_locales
+    unexpected = actual_locales - @locales
+
+    errors << "missing locales: #{missing.join(", ")}" unless missing.empty?
+    errors << "unexpected locales: #{unexpected.join(", ")}" unless unexpected.empty?
+  end
+
+  def read_version_code(errors)
+    content = File.read(@version_file, encoding: "UTF-8")
+    match = content.match(/^\s*versionCode\s*=\s*(\d+)\s*$/)
+    return Integer(match[1], 10) if match
+
+    errors << "could not find versionCode in #{@version_file}"
+    nil
+  rescue SystemCallError => e
+    errors << "could not read #{@version_file}: #{e.message}"
+    nil
+  end
+
+  def validate_text_files(errors, locale, locale_dir, version_code)
+    values = {}
+
+    REQUIRED_TEXT_FILES.each do |filename|
+      path = File.join(locale_dir, filename)
+      unless File.file?(path)
+        errors << "#{locale}/#{filename} is missing"
+        next
+      end
+
+      value = read_text(path, errors)
+      next if value.nil?
+
+      values[filename] = value
+      errors << "#{locale}/#{filename} is empty" if value.empty?
+
+      limit = TEXT_LIMITS.fetch(filename)
+      if value.length > limit
+        errors << "#{locale}/#{filename} has #{value.length} characters; maximum is #{limit}"
+      end
+    end
+
+    if values["title.txt"] && values["title.txt"] != TITLE
+      errors << "#{locale}/title.txt must be exactly #{TITLE.inspect}"
+    end
+
+    if values["full_description.txt"]
+      paragraphs = values["full_description.txt"].split(/\R\s*\R+/).reject(&:empty?)
+      if paragraphs.length != FULL_DESCRIPTION_PARAGRAPH_COUNT
+        errors << "#{locale}/full_description.txt has #{paragraphs.length} non-empty paragraphs; expected #{FULL_DESCRIPTION_PARAGRAPH_COUNT}"
+      end
+    end
+
+    return if version_code.nil?
+
+    changelog = File.join(locale_dir, "changelogs", "#{version_code}.txt")
+    unless File.file?(changelog)
+      errors << "#{locale}/changelogs/#{version_code}.txt is missing"
+      return
+    end
+
+    value = read_text(changelog, errors)
+    return if value.nil?
+
+    errors << "#{locale}/changelogs/#{version_code}.txt is empty" if value.empty?
+    if value.length > CHANGELOG_LIMIT
+      errors << "#{locale}/changelogs/#{version_code}.txt has #{value.length} characters; maximum is #{CHANGELOG_LIMIT}"
+    end
+  end
+
+  def read_text(path, errors)
+    value = File.binread(path).force_encoding(Encoding::UTF_8)
+    unless value.valid_encoding?
+      errors << "#{path} is not valid UTF-8"
+      return nil
+    end
+
+    value.strip
+  rescue SystemCallError => e
+    errors << "could not read #{path}: #{e.message}"
+    nil
+  end
+
+  def validate_images(errors, locale, locale_dir, image_inspection_available)
+    screenshot_dir = File.join(locale_dir, "images", "phoneScreenshots")
+    expected_screenshots = (1..SCREENSHOT_COUNT).map { |number| "#{number}.png" }
+    if File.directory?(screenshot_dir)
+      actual_screenshots = Dir.children(screenshot_dir).sort
+      unless actual_screenshots == expected_screenshots
+        errors << "#{locale}/images/phoneScreenshots must contain exactly #{expected_screenshots.join(", ")}; found #{actual_screenshots.join(", ")}"
+      end
+    else
+      errors << "#{locale}/images/phoneScreenshots is missing"
+    end
+
+    REQUIRED_IMAGES.each do |relative_path, requirements|
+      path = File.join(locale_dir, relative_path)
+      unless File.file?(path)
+        errors << "#{locale}/#{relative_path} is missing"
+        next
+      end
+
+      validate_image(errors, locale, relative_path, path, requirements) if image_inspection_available
+    end
+  end
+
+  def validate_imagemagick(errors)
+    _, stderr, status = Open3.capture3("identify", "-version")
+    return true if status.success?
+
+    detail = stderr.strip
+    errors << "ImageMagick `identify` is unavailable#{detail.empty? ? "" : ": #{detail}"}"
+    false
+  rescue Errno::ENOENT
+    errors << "ImageMagick `identify` is not installed or not in PATH"
+    false
+  rescue SystemCallError => e
+    errors << "could not run ImageMagick `identify`: #{e.message}"
+    false
+  end
+
+  def validate_image(errors, locale, relative_path, path, requirements)
+    stdout, stderr, status = Open3.capture3(
+      "identify",
+      "-format",
+      "%m|%w|%h|%[channels]",
+      path
+    )
+    unless status.success?
+      errors << "#{locale}/#{relative_path} could not be inspected: #{stderr.strip}"
+      return
+    end
+
+    format, width, height, channels = stdout.strip.split("|", 4)
+    channels = channels.to_s.split.first
+    unless format == "PNG"
+      errors << "#{locale}/#{relative_path} must be PNG; found #{format.inspect}"
+    end
+
+    width_value = width.to_i
+    height_value = height.to_i
+
+    if requirements[:width] && width_value != requirements[:width]
+      errors << "#{locale}/#{relative_path} width is #{width}; expected #{requirements[:width]}"
+    end
+    if requirements[:height] && height_value != requirements[:height]
+      errors << "#{locale}/#{relative_path} height is #{height}; expected #{requirements[:height]}"
+    end
+
+    if requirements[:min_dimension] && [width_value, height_value].min < requirements[:min_dimension]
+      errors << "#{locale}/#{relative_path} dimensions are #{width}x#{height}; both dimensions must be at least #{requirements[:min_dimension]}"
+    end
+    if requirements[:max_dimension] && [width_value, height_value].max > requirements[:max_dimension]
+      errors << "#{locale}/#{relative_path} dimensions are #{width}x#{height}; both dimensions must be at most #{requirements[:max_dimension]}"
+    end
+    if requirements[:max_aspect_ratio] && width_value.positive? && height_value.positive?
+      aspect_ratio = [width_value, height_value].max.to_f / [width_value, height_value].min
+      if aspect_ratio > requirements[:max_aspect_ratio]
+        errors << "#{locale}/#{relative_path} aspect ratio is #{aspect_ratio.round(3)}; maximum is #{requirements[:max_aspect_ratio]}"
+      end
+    end
+
+    has_alpha = channels.to_s.downcase.include?("a")
+    if has_alpha != requirements[:alpha]
+      expected = requirements[:alpha] ? "alpha" : "no alpha"
+      errors << "#{locale}/#{relative_path} must have #{expected}; found channels #{channels.inspect}"
+    end
+
+    channels_without_alpha = channels.to_s.downcase.delete("a")
+    unless %w[rgb srgb].include?(channels_without_alpha)
+      errors << "#{locale}/#{relative_path} must be an RGB image; found channels #{channels.inspect}"
+    end
+
+    max_bytes = requirements[:max_bytes]
+    if max_bytes && File.size(path) >= max_bytes
+      errors << "#{locale}/#{relative_path} is #{File.size(path)} bytes; must be below #{max_bytes} bytes"
+    end
+  rescue SystemCallError => e
+    errors << "could not inspect #{locale}/#{relative_path}: #{e.message}"
+  end
+
+  def validate_shared_assets(errors)
+    canonical_dir = File.join(@metadata_root, CANONICAL_ASSET_LOCALE)
+
+    SHARED_IMAGES.each do |relative_path|
+      canonical_path = File.join(canonical_dir, relative_path)
+      next unless File.file?(canonical_path)
+
+      canonical_hash = Digest::SHA256.file(canonical_path).hexdigest
+      @locales.reject { |locale| locale == CANONICAL_ASSET_LOCALE }.each do |locale|
+        path = File.join(@metadata_root, locale, relative_path)
+        next unless File.file?(path)
+        next if Digest::SHA256.file(path).hexdigest == canonical_hash
+
+        errors << "#{locale}/#{relative_path} differs from #{CANONICAL_ASSET_LOCALE}/#{relative_path}"
+      end
+    end
+  end
+end
