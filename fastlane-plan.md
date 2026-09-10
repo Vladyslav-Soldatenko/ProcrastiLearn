@@ -395,7 +395,7 @@ Google requires screenshots to be JPEG or 24-bit PNG without alpha, from 320px t
 - [x] Require an explicit guard:
 
   ```bash
-  CONFIRM_PRODUCTION_DRAFT=YES
+  CONFIRM_PRODUCTION_DRAFT=NO_PENDING_REVIEW_CHANGES
   ```
 
 - [x] Require a clean Git working tree.
@@ -488,7 +488,7 @@ Reference: [Fastlane `upload_to_play_store`](https://docs.fastlane.tools/actions
   set -a
   source ~/.config/procrastilearn/google-play/fastlane.env
   set +a
-  export CONFIRM_PRODUCTION_DRAFT=YES
+  export CONFIRM_PRODUCTION_DRAFT=NO_PENDING_REVIEW_CHANGES
   ```
 
 - [ ] Create the production draft:

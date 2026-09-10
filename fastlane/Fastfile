@@ -440,7 +440,7 @@ platform :android do
   lane :upload_production_draft do
     json_key = required_file!("PLAY_JSON_KEY_PATH")
     RELEASE_SIGNING_ENVIRONMENT.each { |name| required_environment_value!(name) }
-    validate_confirmation!("CONFIRM_PRODUCTION_DRAFT", "YES", "create a production draft")
+    validate_confirmation!("CONFIRM_PRODUCTION_DRAFT", "NO_PENDING_REVIEW_CHANGES", "create a production draft")
     ensure_clean_git_tree!("Production-draft upload")
 
     version_code, version_name = release_version!
