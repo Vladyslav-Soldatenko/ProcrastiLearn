@@ -465,8 +465,6 @@ platform :android do
       skip_upload_images: true,
       skip_upload_screenshots: true,
       skip_upload_changelogs: false,
-      changes_not_sent_for_review: true,
-      rescue_changes_not_sent_for_review: false,
       track_promote_to: nil,
       rollout: nil
     )

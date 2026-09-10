@@ -5,7 +5,7 @@
 This plan takes the project from its current state to a first working local Fastlane flow that can:
 
 1. Validate and upload the Google Play store listing for all 16 supported locales while leaving the changes unsubmitted for manual review.
-2. Build a signed Android App Bundle and place it in a production release with `release_status: "draft"`.
+2. Build a signed Android App Bundle and place it in a production release with `release_status: "draft"`. The lane must run only when Google Play Console has no unrelated changes waiting to be sent for review, because committing an API edit can submit those unrelated pending changes.
 3. Leave the final review submission and production rollout as manual actions in Google Play Console.
 
 This initial integration does **not** add CI/CD, automatic public releases, track promotion, localized screenshot capture, tablet assets, preview video, staged rollout, or automatic version bumps.
@@ -414,6 +414,9 @@ Google requires screenshots to be JPEG or 24-bit PNG without alpha, from 320px t
   skip_upload_screenshots: true
   skip_upload_changelogs: false
   ```
+
+- [x] Do not set `changes_not_sent_for_review` for the production draft. This app rejects that parameter because changes are handled automatically; the draft lifecycle state itself prevents deployment.
+- [x] Require the operator to confirm that Play Console contains no unrelated changes waiting for review before running the lane.
 
 - [x] Never call track promotion or use `release_status: "completed"`.
 - [x] Do not add a lane that completes, submits, promotes, or rolls out a production release.
