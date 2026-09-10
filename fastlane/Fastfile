@@ -2,6 +2,8 @@ opt_out_usage
 default_platform(:android)
 
 require "digest"
+require "google/apis/androidpublisher_v3"
+require "googleauth"
 require "open3"
 
 SUPPORTED_LOCALES = %w[
@@ -36,6 +38,7 @@ RELEASE_SIGNING_ENVIRONMENT = %w[
   PROCRASTILEARN_UPLOAD_KEY_PASSWORD
 ].freeze
 PLAY_TRACKS = %w[production beta alpha internal].freeze
+PACKAGE_NAME = "com.procrastilearn.app"
 
 class ProcrastiLearnMetadataValidator
   TITLE = "ProcrastiLearn"
@@ -376,6 +379,48 @@ def metadata_release_context!(json_key)
   UI.user_error!("No release exists on a standard Play track to provide Supply's metadata context.")
 end
 
+def with_play_edit(json_key)
+  authorization = Google::Auth::ServiceAccountCredentials.make_creds(
+    json_key_io: File.open(json_key),
+    scope: "https://www.googleapis.com/auth/androidpublisher"
+  )
+  service = Google::Apis::AndroidpublisherV3::AndroidPublisherService.new
+  service.authorization = authorization
+  edit = service.insert_edit(PACKAGE_NAME)
+
+  begin
+    yield(service, edit.id)
+  ensure
+    service.delete_edit(PACKAGE_NAME, edit.id)
+  end
+end
+
+def verify_remote_listing_locales!(json_key)
+  actual_locales = with_play_edit(json_key) do |service, edit_id|
+    service.list_edit_listings(PACKAGE_NAME, edit_id).listings.map(&:language).sort
+  end
+  missing_locales = SUPPORTED_LOCALES - actual_locales
+  UI.user_error!("Google Play is missing store listings for: #{missing_locales.join(", ")}") unless missing_locales.empty?
+  UI.success("Verified all #{SUPPORTED_LOCALES.length} store-listing locales in Google Play")
+end
+
+def verify_production_draft_release_notes!(json_key, version_code)
+  release = with_play_edit(json_key) do |service, edit_id|
+    track = service.get_edit_track(PACKAGE_NAME, edit_id, "production")
+    track.releases.find { |candidate| candidate.version_codes.map(&:to_i).include?(version_code) }
+  end
+  UI.user_error!("Production release #{version_code} was not found after upload") unless release
+  UI.user_error!("Production release #{version_code} is #{release.status}, expected draft") unless release.status == "draft"
+
+  actual_locales = (release.release_notes || []).map(&:language).sort
+  unless actual_locales == SUPPORTED_LOCALES.sort
+    missing = SUPPORTED_LOCALES - actual_locales
+    unexpected = actual_locales - SUPPORTED_LOCALES
+    UI.user_error!("Production release #{version_code} release-note locales do not match: missing=#{missing.join(",")} unexpected=#{unexpected.join(",")}")
+  end
+  UI.success("Verified draft #{version_code} and all #{SUPPORTED_LOCALES.length} release-note locales in Google Play")
+end
+
 platform :android do
   desc "Validate the Google Play service-account credentials without changing Play data"
   lane :validate_credentials do
@@ -409,9 +454,9 @@ platform :android do
     )
   end
 
-  desc "Upload listing metadata and assets as unsubmitted Play changes"
-  lane :upload_metadata_staged do
-    validate_confirmation!("CONFIRM_METADATA_UPLOAD", "YES", "upload store-listing changes")
+  desc "Upload listing metadata and assets and submit them for Google Play review"
+  lane :upload_metadata_for_review do
+    validate_confirmation!("CONFIRM_METADATA_REVIEW_SUBMISSION", "YES", "upload store-listing changes and submit them for review")
     ensure_clean_git_tree!("Store-listing upload")
     validate_local_metadata!
     json_key = required_file!("PLAY_JSON_KEY_PATH")
@@ -428,12 +473,11 @@ platform :android do
       skip_upload_images: false,
       skip_upload_screenshots: false,
       sync_image_upload: true,
-      changes_not_sent_for_review: true,
-      rescue_changes_not_sent_for_review: false,
       track: track,
       track_promote_to: nil,
       rollout: nil
     )
+    verify_remote_listing_locales!(json_key)
   end
 
   desc "Build and upload a signed AAB as a production draft without submitting it for review"
@@ -468,5 +512,6 @@ platform :android do
       track_promote_to: nil,
       rollout: nil
     )
+    verify_production_draft_release_notes!(json_key, version_code)
   end
 end

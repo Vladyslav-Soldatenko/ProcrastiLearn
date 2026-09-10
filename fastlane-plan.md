@@ -4,16 +4,16 @@
 
 This plan takes the project from its current state to a first working local Fastlane flow that can:
 
-1. Validate and upload the Google Play store listing for all 16 supported locales while leaving the changes unsubmitted for manual review.
+1. Validate and upload the Google Play store listing for all 16 supported locales, explicitly submitting the metadata changes for Google Play review.
 2. Build a signed Android App Bundle and place it in a production release with `release_status: "draft"`. The lane must run only when Google Play Console has no unrelated changes waiting to be sent for review, because committing an API edit can submit those unrelated pending changes.
-3. Leave the final review submission and production rollout as manual actions in Google Play Console.
+3. Leave production release submission and rollout as manual actions in Google Play Console. Metadata review submission is a separate, explicit Fastlane operation.
 
 This initial integration does **not** add CI/CD, automatic public releases, track promotion, localized screenshot capture, tablet assets, preview video, staged rollout, or automatic version bumps.
 
 ## Current-state audit
 
 - [x] Android package name is `com.procrastilearn.app`.
-- [x] Current source version is code `18`, name `1.4.4`; these changes are not committed yet.
+- [x] Current source version is code `18`, name `1.4.4`.
 - [x] The application targets Android API 36.
 - [x] Store descriptions and changelogs already exist under `fastlane/metadata/android`.
 - [x] Metadata exists for 16 locales.
@@ -370,12 +370,12 @@ Google requires screenshots to be JPEG or 24-bit PNG without alpha, from 320px t
 - [x] Skip APK, AAB, and changelog upload.
 - [x] Include listing text, images, and screenshots in server-side validation.
 
-### Lane: `android upload_metadata_staged`
+### Lane: `android upload_metadata_for_review`
 
 - [x] Run the local metadata validator.
 - [x] Resolve the same dynamic release context, preferring the production draft once it exists; store-listing changes remain global rather than track-specific.
 - [x] Upload listing titles, descriptions, images, and screenshots for all 16 locales.
-- [x] Require a clean Git tree and `CONFIRM_METADATA_UPLOAD=YES` before changing Play data.
+- [x] Require a clean Git tree and `CONFIRM_METADATA_REVIEW_SUBMISSION=YES` before changing Play data.
 - [x] Set:
 
   ```ruby
@@ -383,11 +383,10 @@ Google requires screenshots to be JPEG or 24-bit PNG without alpha, from 320px t
   skip_upload_aab: true
   skip_upload_changelogs: true
   sync_image_upload: true
-  changes_not_sent_for_review: true
-  rescue_changes_not_sent_for_review: false
   ```
 
-- [x] If Play refuses to keep changes unsubmitted, fail. Do not retry using a setting that might send them for review.
+- [x] Commit the metadata edit without `changes_not_sent_for_review`; this app automatically sends committed changes for review.
+- [x] Re-read the committed Play listings and fail unless all 16 required locales exist remotely.
 
 ### Lane: `android upload_production_draft`
 
@@ -417,6 +416,7 @@ Google requires screenshots to be JPEG or 24-bit PNG without alpha, from 320px t
 
 - [x] Do not set `changes_not_sent_for_review` for the production draft. This app rejects that parameter because changes are handled automatically; the draft lifecycle state itself prevents deployment.
 - [x] Require the operator to confirm that Play Console contains no unrelated changes waiting for review before running the lane.
+- [x] Re-read production draft state after upload and fail unless the release remains a draft with exactly the 16 required release-note locales.
 
 - [x] Never call track promotion or use `release_status: "completed"`.
 - [x] Do not add a lane that completes, submits, promotes, or rolls out a production release.
@@ -441,11 +441,11 @@ Reference: [Fastlane `upload_to_play_store`](https://docs.fastlane.tools/actions
   ```
 
 - [ ] Confirm that validation did not create a visible Play Console change.
-- [ ] Upload the listing as unsubmitted changes:
+- [ ] Upload the listing and submit the metadata changes for review:
 
   ```bash
-  export CONFIRM_METADATA_UPLOAD=YES
-  bundle exec fastlane android upload_metadata_staged
+  export CONFIRM_METADATA_REVIEW_SUBMISSION=YES
+  bundle exec fastlane android upload_metadata_for_review
   ```
 
 - [ ] In Play Console, inspect all 16 language selectors.
@@ -456,11 +456,12 @@ Reference: [Fastlane `upload_to_play_store`](https://docs.fastlane.tools/actions
   - Icon
   - Feature graphic
   - Five ordered screenshots
-- [ ] Confirm that the changes are marked as not sent for review.
-- [ ] Submit the listing changes manually only after inspection.
+- [ ] Confirm that the metadata changes were submitted for review.
 - [ ] Remember that store-listing changes are shared across tracks; they are not isolated to internal testing.
 
-The guarded metadata upload was exercised against production draft 18. Google rejected the edit commit with `Changes are sent for review automatically. The query parameter changesNotSentForReview must not be set.` The temporary edit was not committed. Under this app's current review mode, Fastlane cannot both commit listing metadata and leave it unsubmitted. Keep the lane fail-safe as written; use Play Console for manual staging, or explicitly change the requirement to allow API submission for review.
+The original staged-upload approach was exercised against production draft 18. Google rejected the edit commit with `Changes are sent for review automatically. The query parameter changesNotSentForReview must not be set.` The temporary edit was not committed. The lane therefore commits without that parameter and requires an explicit review-submission confirmation.
+
+The production-track API confirms that draft 18 contains all 16 localized release notes. Play Console showed only `en-US` and reported one language before the corresponding translated store listings had been committed. The API data was complete; the UI exposed only the currently configured listing language. Upload listings before creating future drafts, and retain the remote post-upload checks in both mutating lanes.
 
 ## Phase 10: Create the first production draft
 
@@ -521,7 +522,7 @@ Google permits up to 500 Unicode characters per locale for release notes: [Googl
 - [x] `fastlane/Fastfile` exposes:
   - `android validate_credentials`
   - `android validate_metadata`
-  - `android upload_metadata_staged`
+  - `android upload_metadata_for_review`
   - `android upload_production_draft`
 - [x] Every locale gains `title.txt` and a complete technically compliant shared image set. Native 9:16 screenshots remain a final promotional-quality improvement.
 - [x] `app/build.gradle.kts` gains environment-backed upload-key signing.
@@ -539,22 +540,21 @@ No application runtime API, database schema, package name, or user-facing featur
 - [ ] Temporarily exceeding any 30, 80, 4000, or 500-character limit causes local validation to fail.
 - [ ] Missing or malformed images fail locally before Fastlane contacts Play.
 - [x] `validate_metadata` completes successfully using `validate_only: true` and does not commit its temporary Play edit.
-- [ ] `upload_metadata_staged` changes only listing text and images and leaves them unsubmitted.
-- [x] `upload_metadata_staged` fails without committing when Google refuses `changesNotSentForReview`; automatic review submission is not used as a fallback.
+- [ ] `upload_metadata_for_review` changes only listing text and images and submits them for Google Play review.
 - [x] A fresh `bundleRelease` output is signed with the expected upload-certificate fingerprint.
 - [x] A dirty working tree blocks both mutating lanes.
 - [ ] A missing or empty localized changelog blocks the production-draft lane.
 - [x] A missing confirmation guard blocks each mutating lane.
 - [x] `upload_production_draft` created production draft 18 with its 16 localized release notes.
-- [ ] No Fastlane lane can submit a release for review, promote a track, complete a rollout, or publish to users.
+- [ ] No Fastlane lane can submit the production release for review, promote a track, complete a rollout, or publish to users.
 - [ ] `git status` shows no credentials, keystores, generated bundles, or local environment files.
 
 ## Definition of done
 
 - [x] All 16 localized listings pass local and Google Play validation.
 - [ ] All 16 listings contain the same title, equivalent description structure, and a complete shared image set.
-- [ ] Listing changes can be uploaded and left for manual review.
+- [ ] Listing changes can be uploaded and explicitly submitted for Google Play review.
 - [x] A new signed AAB can be built from the Fedora laptop using external secrets.
 - [x] The AAB can be uploaded into a production draft with localized release notes.
-- [ ] No public release or review submission happens automatically.
+- [ ] No production release submission or public rollout happens automatically.
 - [ ] The entire routine is documented by committed, reproducible project configuration while all private keys and passwords remain outside the repository.
