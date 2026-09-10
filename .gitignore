@@ -18,3 +18,4 @@ app/src/test/resources/snapshots/**/*.actual.txt
 app/src/test/resources/schema/*.fingerprint.actual.txt
 .kotlin/
 release/
+vendor/bundle/
