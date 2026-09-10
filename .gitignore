@@ -20,6 +20,8 @@ app/src/test/resources/schema/*.fingerprint.actual.txt
 release/
 vendor/bundle/
 fastlane.env
+fastlane/README.md
+fastlane/report.xml
 *.jks
 *.keystore
 *service-account*.json

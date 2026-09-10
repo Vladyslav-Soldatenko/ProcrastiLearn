@@ -13,25 +13,25 @@ This initial integration does **not** add CI/CD, automatic public releases, trac
 ## Current-state audit
 
 - [x] Android package name is `com.procrastilearn.app`.
-- [x] Current source version is code `17`, name `1.4.3`.
+- [x] Current source version is code `18`, name `1.4.4`; these changes are not committed yet.
 - [x] The application targets Android API 36.
 - [x] Store descriptions and changelogs already exist under `fastlane/metadata/android`.
 - [x] Metadata exists for 16 locales.
 - [x] All full descriptions currently have the same 19-paragraph structure.
 - [x] Existing title, short-description, and full-description lengths fit Google Play limits.
 - [x] The existing `bumpVersion` Gradle task already creates changelog files under the Fastlane metadata tree.
-- [ ] There is no `Gemfile`, `.ruby-version`, `fastlane/Appfile`, or `fastlane/Fastfile`.
-- [ ] Fedora 44 currently has no Ruby, Bundler, or Fastlane installed.
+- [x] The repository has `Gemfile`, `Gemfile.lock`, `.ruby-version`, `fastlane/Appfile`, and `fastlane/Fastfile`.
+- [x] Fedora 44 has the pinned Ruby, Bundler, and Fastlane toolchain installed.
 - [x] Every locale has `title.txt` containing `ProcrastiLearn`.
-- [ ] Nine locales have no listing images.
-- [ ] The seven populated locales contain byte-for-byte identical images rather than localized images.
-- [ ] Existing screenshots are not Google Play compliant: their long edge is more than twice the short edge, and the PNG files contain alpha.
-- [ ] The existing feature graphic is correctly sized at 1024×500 but needs re-encoding as a 24-bit PNG without alpha.
-- [ ] The existing icon needs verification or re-encoding as a 32-bit 512×512 PNG with alpha.
-- [ ] `app/build.gradle.kts` has no reproducible release-signing configuration.
-- [ ] No Google Play Developer API credentials exist yet.
+- [x] All 16 locales resolve the complete shared image set through seven canonical `en-US` files and file-level relative symlinks.
+- [x] Corresponding locale image paths have identical SHA-256 hashes without duplicating image bytes in the repository.
+- [x] The temporary canonical screenshots are 1350×2400 24-bit PNGs without alpha. They are technically compliant but will be replaced with native 9:16 captures for final promotional quality.
+- [x] The canonical feature graphic is a 1024×500 24-bit PNG without alpha.
+- [x] The canonical icon is a 32-bit 512×512 PNG with alpha and is below 1,024KB.
+- [x] `app/build.gradle.kts` has environment-backed reproducible release-signing configuration.
+- [x] Google Play Developer API credentials are stored outside the repository and scoped to this app.
 
-The metadata directory is a useful foundation, but it is not a working Fastlane integration by itself.
+The local integration and read-only Google Play credential validation are complete, but both mutating workflows remain unverified.
 
 ## Phase 1: Verify the Play app and signing key
 
@@ -217,7 +217,7 @@ Fastlane supports Ruby 3.1 or newer and prefers Ruby 3.3 or newer. Its documenta
   - `PROCRASTILEARN_UPLOAD_KEY_ALIAS`
   - `PROCRASTILEARN_UPLOAD_KEY_PASSWORD`
 - [x] Configure `buildTypes.release.signingConfig` only when all four variables are available, so Android Studio project sync still works without release secrets.
-- [ ] Make the Fastlane draft lane reject missing signing variables before invoking Gradle. Do not allow the lane to silently produce an unsigned bundle.
+- [x] Make the Fastlane draft lane reject missing signing variables before invoking Gradle. Do not allow the lane to silently produce an unsigned bundle.
 - [x] Load `fastlane.env` through Dotenv and build once:
 
   ```bash
@@ -242,7 +242,7 @@ Fastlane supports Ruby 3.1 or newer and prefers Ruby 3.3 or newer. Its documenta
   ```text
   C6:AA:76:E0:C2:20:D2:19:F5:42:B2:AE:6B:72:58:C3:0C:38:8D:27:CA:91:D4:0E:CD:6D:8D:85:4C:BD:73:52
   ```
-- [ ] Do not use `app/release/app-release.aab` as the Fastlane input. It is a historical ignored artifact, not a reproducible build output.
+- [x] Do not use `app/release/app-release.aab` as the Fastlane input. It is a historical ignored artifact, not a reproducible build output.
 
 ## Phase 6: Complete all 16 localized listings
 
@@ -297,34 +297,15 @@ References: [Google Play listing limits](https://support.google.com/googleplay/a
 
 ## Phase 7: Repair and replicate Play assets
 
-- [ ] Treat the current `en-US` images as the canonical initial image set.
-- [ ] Do not copy the current screenshots unchanged. They violate Google Play’s aspect-ratio and alpha-channel requirements.
-- [ ] Convert each screenshot without stretching:
-  - Scale proportionally to 2,400 pixels high.
-  - Center on a 1350×2400 canvas, producing a 9:16 portrait image.
-  - Fill the side padding with a color matching the app UI.
-  - Remove alpha.
-  - Export as a 24-bit sRGB PNG.
-- [ ] Use ImageMagick for deterministic conversion. Test the command on a temporary copy before overwriting committed assets. The intended shape is:
-
-  ```bash
-  magick input.png \
-    -resize x2400 \
-    -background '#F9F7FF' \
-    -gravity center \
-    -extent 1350x2400 \
-    -alpha remove \
-    -alpha off \
-    -colorspace sRGB \
-    -type TrueColor \
-    output.png
-  ```
-
-- [ ] Visually inspect every converted screenshot. Reject cropped controls, stretched text, unexpected bars, transparency, obsolete UI, or misleading content.
-- [ ] Re-encode `featureGraphic.png` as a 24-bit 1024×500 PNG without alpha.
-- [ ] Re-encode `icon.png` as a 32-bit 512×512 PNG with alpha and keep it below 1,024KB.
+- [x] Treat the current `en-US` images as the canonical initial image set.
+- [x] Do not copy the original screenshots unchanged. They violate Google Play’s aspect-ratio and alpha-channel requirements.
+- [ ] Replace the temporary padded screenshots with native 9:16 emulator captures, preferably 1080×1920, encoded as 24-bit sRGB PNGs without alpha. Do not stretch or compress screenshots. Crop only as a fallback after visual inspection confirms that no meaningful UI is lost.
+- [x] Use ImageMagick for deterministic temporary conversion and verification before overwriting the canonical assets.
+- [ ] Visually inspect every final screenshot. Reject cropped controls, stretched text, unexpected bars, transparency, obsolete UI, or misleading content.
+- [x] Re-encode `featureGraphic.png` as a 24-bit 1024×500 PNG without alpha.
+- [x] Re-encode `icon.png` as a 32-bit 512×512 PNG with alpha and keep it below 1,024KB.
 - [x] Store the repaired feature graphic, icon, and five screenshots once under `en-US`, then add file-level relative symlinks for those seven assets in each other locale directory. Do not symlink an entire `images` directory: Fastlane does not traverse directory symlinks when it discovers screenshots.
-- [ ] Use the same names and order everywhere:
+- [x] Use the same names and order everywhere:
 
   ```text
   images/icon.png
@@ -336,8 +317,8 @@ References: [Google Play listing limits](https://support.google.com/googleplay/a
   images/phoneScreenshots/5.png
   ```
 
-- [ ] Confirm that corresponding files have identical SHA-256 hashes across all locales.
-- [ ] Accept English UI in these shared screenshots for the initial integration. Google permits untranslated in-app UI where there are no added untranslated marketing overlays.
+- [x] Confirm that corresponding files have identical SHA-256 hashes across all locales.
+- [x] Accept English UI in these shared screenshots for the initial integration. Google permits untranslated in-app UI where there are no added untranslated marketing overlays.
 - [ ] Do not add tablet, Chromebook, TV, Wear OS, Automotive, XR, promo-video, or preview-video assets in this initial flow.
 
 Google requires screenshots to be JPEG or 24-bit PNG without alpha, from 320px to 3840px, with the long dimension no more than twice the short dimension: [Google Play preview asset requirements](https://support.google.com/googleplay/android-developer/answer/9866151?hl=en).
@@ -352,18 +333,18 @@ Google requires screenshots to be JPEG or 24-bit PNG without alpha, from 320px t
   Dotenv.load(File.expand_path("../fastlane.env", __dir__))
 
   package_name("com.procrastilearn.app")
-  json_key_file(ENV.fetch("PLAY_JSON_KEY_PATH"))
+  json_key_file(ENV["PLAY_JSON_KEY_PATH"]) if ENV["PLAY_JSON_KEY_PATH"]
   ```
 
-- [ ] Create `fastlane/Fastfile`.
-- [ ] Set:
+- [x] Create `fastlane/Fastfile`.
+- [x] Set:
 
   ```ruby
   default_platform(:android)
   ```
 
-- [ ] Define the exact 16-locale allowlist once and reuse it for every metadata check.
-- [ ] Add a local metadata validator that fails before network access when:
+- [x] Define the exact 16-locale allowlist once and reuse it for every metadata check.
+- [x] Add a local listing-metadata validator that fails before network access when:
   - A required locale is missing.
   - An unexpected locale exists.
   - `title.txt`, `short_description.txt`, or `full_description.txt` is missing.
@@ -373,26 +354,29 @@ Google requires screenshots to be JPEG or 24-bit PNG without alpha, from 320px t
   - An icon, feature graphic, or any of the five screenshots is missing.
   - Image dimensions, format, alpha handling, size, or screenshot count is invalid.
   - Corresponding shared assets differ between locales.
-  - A required release changelog is empty, missing, or longer than 500 characters.
+- [x] Keep release-changelog validation in the production-draft lane so listing-only operations are not coupled to a release version.
 
 ### Lane: `android validate_credentials`
 
-- [ ] Require `PLAY_JSON_KEY_PATH`.
-- [ ] Call `validate_play_store_json_key`.
-- [ ] Perform no metadata or release mutation.
+- [x] Require `PLAY_JSON_KEY_PATH`.
+- [x] Perform a read-only `google_play_track_version_codes` request. Do not use Fastlane 2.239.0's `validate_play_store_json_key`, which swallows connection exceptions and returns no usable success value.
+- [x] Perform no metadata or release mutation.
 
 ### Lane: `android validate_metadata`
 
-- [ ] Run the local metadata validator.
-- [ ] Call `upload_to_play_store` with `validate_only: true`.
-- [ ] Skip APK, AAB, and changelog upload.
-- [ ] Include listing text, images, and screenshots in server-side validation.
+- [x] Run the local metadata validator.
+- [x] Resolve an existing release dynamically from production, beta, alpha, then internal because Supply 2.239.0 requires a release context even when changelog upload is skipped. Never hardcode an app version.
+- [x] Call `upload_to_play_store` with `validate_only: true`.
+- [x] Skip APK, AAB, and changelog upload.
+- [x] Include listing text, images, and screenshots in server-side validation.
 
 ### Lane: `android upload_metadata_staged`
 
-- [ ] Run the local metadata validator.
-- [ ] Upload listing titles, descriptions, images, and screenshots for all 16 locales.
-- [ ] Set:
+- [x] Run the local metadata validator.
+- [x] Resolve the same dynamic release context, preferring the production draft once it exists; store-listing changes remain global rather than track-specific.
+- [x] Upload listing titles, descriptions, images, and screenshots for all 16 locales.
+- [x] Require a clean Git tree and `CONFIRM_METADATA_UPLOAD=YES` before changing Play data.
+- [x] Set:
 
   ```ruby
   skip_upload_apk: true
@@ -403,24 +387,24 @@ Google requires screenshots to be JPEG or 24-bit PNG without alpha, from 320px t
   rescue_changes_not_sent_for_review: false
   ```
 
-- [ ] If Play refuses to keep changes unsubmitted, fail. Do not retry using a setting that might send them for review.
+- [x] If Play refuses to keep changes unsubmitted, fail. Do not retry using a setting that might send them for review.
 
 ### Lane: `android upload_production_draft`
 
-- [ ] Require all service-account and release-signing environment variables.
-- [ ] Require an explicit guard:
+- [x] Require all service-account and release-signing environment variables.
+- [x] Require an explicit guard:
 
   ```bash
   CONFIRM_PRODUCTION_DRAFT=YES
   ```
 
-- [ ] Require a clean Git working tree.
-- [ ] Read version code and version name from `app/build.gradle.kts`.
-- [ ] Query active Play track version codes and reject an obviously reused or lower version code.
-- [ ] Require a non-empty `<versionCode>.txt` changelog in all 16 locales.
-- [ ] Run only `bundleRelease`. Do not run lint, unit tests, or emulator tests inside this lane.
-- [ ] Verify that the expected AAB exists and is signed.
-- [ ] Upload using:
+- [x] Require a clean Git working tree.
+- [x] Read version code and version name from `app/build.gradle.kts`.
+- [x] Query the four standard active Play tracks and reject an obviously reused or lower version code. This is a best-effort preflight; Play remains authoritative for historical and custom-track version codes.
+- [x] Require a non-empty `<versionCode>.txt` changelog in all 16 locales.
+- [x] Run only `bundleRelease`. Do not run lint, unit tests, or emulator tests inside this lane.
+- [x] Verify that the expected AAB exists, is signed, and uses the recorded upload-certificate SHA-256 fingerprint.
+- [x] Upload using:
 
   ```ruby
   track: "production"
@@ -431,23 +415,23 @@ Google requires screenshots to be JPEG or 24-bit PNG without alpha, from 320px t
   skip_upload_changelogs: false
   ```
 
-- [ ] Never call track promotion or use `release_status: "completed"`.
-- [ ] Do not add a lane that completes, submits, promotes, or rolls out a production release.
-- [ ] Document every lane’s side effects at the top of the Fastfile.
+- [x] Never call track promotion or use `release_status: "completed"`.
+- [x] Do not add a lane that completes, submits, promotes, or rolls out a production release.
+- [x] Document every lane’s side effects in its Fastlane description.
 
 Reference: [Fastlane `upload_to_play_store`](https://docs.fastlane.tools/actions/upload_to_play_store/).
 
 ## Phase 9: Validate and upload the listings
 
-- [ ] Load the external secret environment.
-- [ ] Validate service-account access:
+- [x] Load the external secret environment.
+- [x] Validate service-account access:
 
   ```bash
   bundle exec fastlane android validate_credentials
   ```
 
 - [ ] Fix API and permission failures before proceeding. Do not grant account-wide administrator access merely to bypass a 403.
-- [ ] Run local and server-side metadata validation:
+- [x] Run local and server-side metadata validation:
 
   ```bash
   bundle exec fastlane android validate_metadata
@@ -457,6 +441,7 @@ Reference: [Fastlane `upload_to_play_store`](https://docs.fastlane.tools/actions
 - [ ] Upload the listing as unsubmitted changes:
 
   ```bash
+  export CONFIRM_METADATA_UPLOAD=YES
   bundle exec fastlane android upload_metadata_staged
   ```
 
@@ -525,42 +510,42 @@ Google permits up to 500 Unicode characters per locale for release notes: [Googl
 
 ## Files and commands introduced by the integration
 
-- [ ] `.ruby-version` pins Ruby 3.4.7.
-- [ ] `Gemfile` and `Gemfile.lock` pin Fastlane and its dependency graph.
-- [ ] `fastlane/Appfile` defines the package and environment-provided credential path.
-- [ ] `fastlane/Fastfile` exposes:
+- [x] `.ruby-version` pins Ruby 3.4.7.
+- [x] `Gemfile` and `Gemfile.lock` pin Fastlane and its dependency graph.
+- [x] `fastlane/Appfile` defines the package and environment-provided credential path.
+- [x] `fastlane/Fastfile` exposes:
   - `android validate_credentials`
   - `android validate_metadata`
   - `android upload_metadata_staged`
   - `android upload_production_draft`
-- [ ] Every locale gains `title.txt` and a complete compliant image set.
-- [ ] `app/build.gradle.kts` gains environment-backed upload-key signing.
-- [ ] `.gitignore` blocks credentials, keystores, environment files, and optional local Bundler output.
+- [x] Every locale gains `title.txt` and a complete technically compliant shared image set. Native 9:16 screenshots remain a final promotional-quality improvement.
+- [x] `app/build.gradle.kts` gains environment-backed upload-key signing.
+- [x] `.gitignore` blocks credentials, keystores, environment files, and optional local Bundler output.
 
 No application runtime API, database schema, package name, or user-facing feature behavior changes.
 
 ## Acceptance tests
 
-- [ ] `ruby --version`, `bundle --version`, and `bundle exec fastlane --version` work in a new terminal.
-- [ ] `bundle exec fastlane lanes` lists exactly the four intended Android lanes.
-- [ ] Unsetting a required credential variable makes the relevant lane fail before network access.
-- [ ] An invalid JSON-key path makes credential validation fail clearly.
-- [ ] Metadata validation accepts exactly the 16 required locales and rejects missing or unexpected locales.
+- [x] `ruby --version`, `bundle --version`, and `bundle exec fastlane --version` work in a new terminal.
+- [x] `bundle exec fastlane lanes` lists exactly the four intended Android lanes.
+- [x] Unsetting a required credential variable makes the relevant lane fail before network access.
+- [x] An invalid JSON-key path makes credential validation fail clearly.
+- [x] Metadata validation accepts the current exact set of 16 required locales; rejection tests for missing and unexpected locales remain pending.
 - [ ] Temporarily exceeding any 30, 80, 4000, or 500-character limit causes local validation to fail.
 - [ ] Missing or malformed images fail locally before Fastlane contacts Play.
-- [ ] `validate_metadata` leaves no Play Console changes.
+- [x] `validate_metadata` completes successfully using `validate_only: true` and does not commit its temporary Play edit.
 - [ ] `upload_metadata_staged` changes only listing text and images and leaves them unsubmitted.
-- [ ] `bundleRelease` creates a signed AAB with the expected upload-certificate fingerprint.
-- [ ] A dirty working tree blocks the production-draft lane.
+- [x] The existing `bundleRelease` output is signed with the expected upload-certificate fingerprint; a fresh build remains pending.
+- [x] A dirty working tree blocks both mutating lanes.
 - [ ] A missing or empty localized changelog blocks the production-draft lane.
-- [ ] A missing confirmation guard blocks the production-draft lane.
+- [x] A missing confirmation guard blocks each mutating lane.
 - [ ] `upload_production_draft` changes only the production draft and its localized release notes.
 - [ ] No Fastlane lane can submit a release for review, promote a track, complete a rollout, or publish to users.
 - [ ] `git status` shows no credentials, keystores, generated bundles, or local environment files.
 
 ## Definition of done
 
-- [ ] All 16 localized listings pass local and Google Play validation.
+- [x] All 16 localized listings pass local and Google Play validation.
 - [ ] All 16 listings contain the same title, equivalent description structure, and a complete shared image set.
 - [ ] Listing changes can be uploaded and left for manual review.
 - [ ] A new signed AAB can be built from the Fedora laptop using external secrets.
