@@ -24,6 +24,7 @@ SUPPORTED_LOCALES = %w[
 ].freeze
 
 METADATA_ROOT = File.expand_path("metadata/android", __dir__)
+PROJECT_ROOT = File.expand_path("..", __dir__)
 VERSION_FILE = File.expand_path("../app/build.gradle.kts", __dir__)
 GRADLEW = File.expand_path("../gradlew", __dir__)
 RELEASE_AAB = File.expand_path("../app/build/outputs/bundle/release/app-release.aab", __dir__)
@@ -449,7 +450,7 @@ platform :android do
     end
 
     validate_release_changelogs!(version_code)
-    sh(GRADLEW, "bundleRelease")
+    sh(GRADLEW, "--project-dir", PROJECT_ROOT, "bundleRelease")
     validate_signed_aab!
 
     upload_to_play_store(
