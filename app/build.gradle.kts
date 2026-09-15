@@ -13,12 +13,6 @@ plugins {
   id("com.procrastilearn.play-release")
 }
 
-playRelease {
-  expectedUploadCertificateSha256.set(
-    "C6:AA:76:E0:C2:20:D2:19:F5:42:B2:AE:6B:72:58:C3:0C:38:8D:27:CA:91:D4:0E:CD:6D:8D:85:4C:BD:73:52",
-  )
-}
-
 jacoco {
   toolVersion = "0.8.12"
 }

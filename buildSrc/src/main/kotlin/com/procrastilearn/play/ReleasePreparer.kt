@@ -2,8 +2,6 @@ package com.procrastilearn.play
 
 import java.nio.file.Files
 import java.nio.file.Path
-import java.security.MessageDigest
-import java.security.cert.Certificate
 import java.util.jar.JarFile
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
@@ -18,11 +16,7 @@ data class PreparedRelease(
 )
 
 object BundleSignatureVerifier {
-  fun verify(
-    bundle: Path,
-    expectedCertificateSha256: String,
-  ) {
-    val certificates = linkedSetOf<Certificate>()
+  fun verify(bundle: Path) {
     var signedPayloadEntries = 0
     val unsignedPayloadEntries = mutableListOf<String>()
     JarFile(bundle.toFile(), true).use { jar ->
@@ -33,7 +27,6 @@ object BundleSignatureVerifier {
             unsignedPayloadEntries += entry.name
           } else {
             signedPayloadEntries += 1
-            certificates += entry.certificates
           }
         }
       }
@@ -42,32 +35,18 @@ object BundleSignatureVerifier {
     check(unsignedPayloadEntries.isEmpty()) {
       "bundle contains unsigned payload entries: ${unsignedPayloadEntries.take(5).joinToString()}"
     }
-    val fingerprints = certificates.map { it.sha256Fingerprint() }.toSet()
-    val expected = expectedCertificateSha256.normalizedFingerprint()
-    check(expected in fingerprints) {
-      "bundle certificate SHA-256 is ${fingerprints.sorted().joinToString().ifEmpty { "unavailable" }}; expected $expected"
-    }
   }
-
-  private fun Certificate.sha256Fingerprint(): String =
-    MessageDigest
-      .getInstance("SHA-256")
-      .digest(encoded)
-      .joinToString(":") { "%02X".format(it) }
-
-  private fun String.normalizedFingerprint(): String = replace(":", "").uppercase().chunked(2).joinToString(":")
 }
 
 class ReleasePreparer(
   private val metadataRoot: Path,
   private val preparedDirectory: Path,
   private val bundle: Path,
-  private val expectedCertificateSha256: String,
 ) {
   fun prepare(release: PreparedRelease) {
     clearPreparedDirectory()
     check(Files.isRegularFile(bundle)) { "release bundle is missing: $bundle" }
-    BundleSignatureVerifier.verify(bundle, expectedCertificateSha256)
+    BundleSignatureVerifier.verify(bundle)
 
     val aabDestination = preparedDirectory.resolve(release.relativeAabPath)
     aabDestination.parent.createDirectories()

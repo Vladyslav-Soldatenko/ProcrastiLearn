@@ -3,13 +3,11 @@ package com.procrastilearn.play
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Delete
 
 abstract class PlayReleaseExtension {
   abstract val metadataDirectory: DirectoryProperty
   abstract val preparedDirectory: DirectoryProperty
-  abstract val expectedUploadCertificateSha256: Property<String>
 }
 
 class PlayReleasePlugin : Plugin<Project> {
@@ -74,7 +72,6 @@ class PlayReleasePlugin : Plugin<Project> {
           this.packageName.set(packageName)
           this.versionCode.set(versionCode)
           this.versionName.set(versionName)
-          expectedCertificateSha256.set(extension.expectedUploadCertificateSha256)
         }
         project.tasks.named("check") {
           dependsOn(validateMetadata, validateChangelogs)

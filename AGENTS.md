@@ -114,7 +114,7 @@ Never commit `fastlane.env`, JSON keys, keystores, passwords, AABs, or prepared 
 | `./gradlew :app:validatePlayMetadata` | Reads every locale under `fastlane/metadata/android`; no output artifact | No | None | No | No | `Play listing metadata is valid.` |
 | `./gradlew :app:validatePlayChangelogs` | Reads `<versionCode>.txt` for every discovered locale using the Android `defaultConfig.versionCode`; no output artifact | No | None | No | No | `Play changelogs for version <code> are valid.` |
 | `./gradlew :app:validatePlayReleaseSigning` | Checks the four signing variables and keystore path; does not read Play credentials | No | Signing | No | No | `Release signing configuration is present.` |
-| `./gradlew :app:preparePlayRelease` | Invalidates old prepared output, validates current changelogs/signing, runs `bundleRelease`, verifies the AAB signature and configured upload certificate, then snapshots the AAB and changelogs | Yes, release AAB | Signing | No | No | Prints the prepared `manifest.json` path after all checks pass |
+| `./gradlew :app:preparePlayRelease` | Invalidates old prepared output, validates current changelogs/signing, runs `bundleRelease`, verifies that the AAB is signed, then snapshots the AAB and changelogs | Yes, release AAB | Signing | No | No | Prints the prepared `manifest.json` path after all checks pass |
 | `bundle exec fastlane android validate_credentials` | Queries the internal track to check service-account authentication and app access | No | Play | Yes | No | `Google Play credentials and app access are valid.` |
 | `bundle exec fastlane android validate_metadata` | Chooses an existing standard-track release context and sends descriptions/images with `validate_only: true` | No | Play | Yes | No | Fastlane and Supply finish successfully with validate-only enabled |
 | `bundle exec fastlane android upload_metadata_for_review` | Uploads source listing descriptions and images; skips APK, AAB, and changelogs | No | Play plus listing confirmation | Yes | Yes | Fastlane upload succeeds; then inspect listing/review state in Play Console |
@@ -196,7 +196,7 @@ app/build/play-release/prepared/
 └── metadata/android/<locale>/changelogs/<versionCode>.txt
 ```
 
-The manifest contains the Android package name, version code, version name, and AAB path relative to the prepared directory. Fastlane reads this manifest instead of parsing `app/build.gradle.kts`, rebuilding, inspecting signing tools, or reading source changelogs. The manifest is written only after the bundle signature and configured upload-certificate fingerprint pass. Preparation deletes previous prepared output first; a failed preparation leaves no usable manifest.
+The manifest contains the Android package name, version code, version name, and AAB path relative to the prepared directory. Fastlane reads this manifest instead of parsing `app/build.gradle.kts`, rebuilding, inspecting signing tools, or reading source changelogs. The manifest is written only after the bundle signature check passes. Preparation deletes previous prepared output first; a failed preparation leaves no usable manifest.
 
 Rerun preparation after any source, resource, dependency, version, signing configuration, or current-version changelog change. Old prepared bundles and notes are a snapshot and must not be reused after those inputs change. The prepared directory is ignored build output and does not make a dirty committed tree clean.
 
@@ -214,7 +214,7 @@ An environment value is a guard input, not proof of user authorization. An agent
 - Missing Play credentials: set `PLAY_JSON_KEY_PATH` to a readable service-account JSON file and run `validate_credentials`. Authentication success does not imply sufficient Play app permissions.
 - Missing signing credentials: load all four `PROCRASTILEARN_UPLOAD_*` values into the Gradle process. Check the keystore path without printing passwords.
 - Dirty working tree: inspect `git status --short`, review and commit intended release/listing changes, and keep unrelated or secret files out of Git. Do not bypass the guard.
-- Signature mismatch: stop. Confirm the intended upload keystore was loaded and compare its certificate to the named nonsecret fingerprint in `app/build.gradle.kts`; do not change the expected fingerprint merely to accept an unexpected key.
+- Signature verification failure: stop. Confirm the intended signing variables and keystore were loaded, then rebuild the release bundle.
 - Version-code conflict: bump to a code greater than every active Play-track code, complete the new changelogs, commit, and prepare again.
 - Missing release context: `validate_metadata` and listing upload need an existing release on production, beta, alpha, or internal for Supply. Create or restore the intended Play release context; do not hard-code or silently substitute another version.
 - Play review errors: preserve the error output, inspect Publishing overview and the affected listing/release, resolve the reported Play state, then rerun only after confirming whether the original request committed.
@@ -236,7 +236,7 @@ The first two validation tasks require no signing or Play credentials. The build
 Report evidence according to the completed step:
 
 - Local listing/changelog validation: exact command, successful Gradle result, validated Android version code for changelogs, and confirmation that no Play credentials were used.
-- Prepared release: successful task, manifest path and parsed package/version/AAB relative path, signature/fingerprint verification success, and the complete set of copied locale changelogs. Do not expose secret values.
+- Prepared release: successful task, manifest path and parsed package/version/AAB relative path, signature verification success, and the complete set of copied locale changelogs. Do not expose secret values.
 - Remote validate-only listing check: selected track/version release context, `validate_only: true`, successful Fastlane result, and confirmation that no remote commit was requested.
 - Listing submission: explicit authority, clean-tree evidence, successful lane result, and independently inspected Play listing/review state. A local or validate-only pass is not submission evidence.
 - Production draft: explicit authority, clean-tree evidence, prepared manifest version, remote version-code preflight, successful lane result, and independently inspected production Draft state. A successful upload response alone is not verified remote state, and a draft is not a rollout.

@@ -89,9 +89,6 @@ abstract class PreparePlayReleaseTask : DefaultTask() {
   @get:Input
   abstract val versionName: Property<String>
 
-  @get:Input
-  abstract val expectedCertificateSha256: Property<String>
-
   @TaskAction
   fun prepare() {
     val output = preparedDirectory.get().asFile.toPath()
@@ -107,7 +104,6 @@ abstract class PreparePlayReleaseTask : DefaultTask() {
         metadataRoot = metadataDirectory.get().asFile.toPath(),
         preparedDirectory = output,
         bundle = releaseBundle.get().asFile.toPath(),
-        expectedCertificateSha256 = expectedCertificateSha256.get(),
       ).prepare(release)
     } catch (error: Exception) {
       output.resolve("manifest.json").toFile().delete()

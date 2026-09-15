@@ -36,7 +36,6 @@ class ReleasePreparerTest {
         metadataRoot = metadata,
         preparedDirectory = prepared,
         bundle = unsignedBundle,
-        expectedCertificateSha256 = "00",
       ).prepare(
         PreparedRelease(
           packageName = "com.example",
