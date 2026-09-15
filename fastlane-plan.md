@@ -390,12 +390,6 @@ Google requires screenshots to be JPEG or 24-bit PNG without alpha, from 320px t
 ### Lane: `android upload_production_draft`
 
 - [x] Require all service-account and release-signing environment variables.
-- [x] Require an explicit guard:
-
-  ```bash
-  CONFIRM_PRODUCTION_DRAFT=NO_PENDING_REVIEW_CHANGES
-  ```
-
 - [x] Require a clean Git working tree.
 - [x] Read version code and version name from `app/build.gradle.kts`.
 - [x] Query the four standard active Play tracks and reject an obviously reused or lower version code. This is a best-effort preflight; Play remains authoritative for historical and custom-track version codes.
@@ -483,13 +477,12 @@ The production-track API confirmed that draft 18 already contained all 16 locali
   git status --short
   ```
 
-- [x] Load secrets and set the explicit draft guard:
+- [x] Load secrets:
 
   ```bash
   set -a
   source ~/.config/procrastilearn/google-play/fastlane.env
   set +a
-  export CONFIRM_PRODUCTION_DRAFT=NO_PENDING_REVIEW_CHANGES
   ```
 
 - [x] Create the production draft:
@@ -542,7 +535,8 @@ No application runtime API, database schema, package name, or user-facing featur
 - [x] A fresh `bundleRelease` output is signed with the expected upload-certificate fingerprint.
 - [x] A dirty working tree blocks both mutating lanes.
 - [ ] A missing or empty localized changelog blocks the production-draft lane.
-- [x] A missing confirmation guard blocks each mutating lane.
+- [x] A missing confirmation guard blocks the listing-review submission lane.
+- [x] `upload_production_draft` runs directly without a separate confirmation variable.
 - [x] `upload_production_draft` created production draft 18 with its 16 localized release notes.
 - [x] No Fastlane lane can submit the production release for review, promote a track, complete a rollout, or publish to users.
 - [x] `git status` shows no credentials, keystores, generated bundles, or local environment files.

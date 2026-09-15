@@ -38,8 +38,14 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Verify (ktlint, detekt, lint, unit tests)
-        run: ./gradlew ktlintCheck detekt lint testDebugUnitTest
+      - name: Verify (ktlint, detekt, lint, unit tests, Play metadata)
+        run: ./gradlew ktlintCheck detekt lint testDebugUnitTest validatePlayMetadata validatePlayChangelogs
+
+      - name: Test Play release build plugin
+        run: ./gradlew -p buildSrc test
+
+      - name: Test Fastlane workflows with stubbed Play actions
+        run: ruby fastlane/spec/fastfile_test.rb
 
       - name: Upload test reports
         if: failure()

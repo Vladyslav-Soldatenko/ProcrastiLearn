@@ -1,278 +1,13 @@
 opt_out_usage
 default_platform(:android)
 
-require "digest"
+require "json"
 require "open3"
 
-SUPPORTED_LOCALES = %w[
-  de-DE
-  en-US
-  es-ES
-  fr-FR
-  hi-IN
-  id
-  it-IT
-  ja-JP
-  ko-KR
-  pl-PL
-  pt-BR
-  ru-RU
-  tr-TR
-  uk
-  vi
-  zh-CN
-].freeze
-
 METADATA_ROOT = File.expand_path("metadata/android", __dir__)
-PROJECT_ROOT = File.expand_path("..", __dir__)
-VERSION_FILE = File.expand_path("../app/build.gradle.kts", __dir__)
-GRADLEW = File.expand_path("../gradlew", __dir__)
-RELEASE_AAB = File.expand_path("../app/build/outputs/bundle/release/app-release.aab", __dir__)
-UPLOAD_CERTIFICATE_SHA256 = "C6:AA:76:E0:C2:20:D2:19:F5:42:B2:AE:6B:72:58:C3:0C:38:8D:27:CA:91:D4:0E:CD:6D:8D:85:4C:BD:73:52"
-RELEASE_SIGNING_ENVIRONMENT = %w[
-  PROCRASTILEARN_UPLOAD_STORE_FILE
-  PROCRASTILEARN_UPLOAD_STORE_PASSWORD
-  PROCRASTILEARN_UPLOAD_KEY_ALIAS
-  PROCRASTILEARN_UPLOAD_KEY_PASSWORD
-].freeze
+PREPARED_ROOT = File.expand_path("../app/build/play-release/prepared", __dir__)
+PREPARED_MANIFEST = File.join(PREPARED_ROOT, "manifest.json")
 PLAY_TRACKS = %w[production beta alpha internal].freeze
-
-class ProcrastiLearnMetadataValidator
-  TITLE = "ProcrastiLearn"
-  SCREENSHOT_COUNT = 5
-  FULL_DESCRIPTION_PARAGRAPH_COUNT = 19
-  CANONICAL_ASSET_LOCALE = "en-US"
-  TEXT_LIMITS = {
-    "title.txt" => 30,
-    "short_description.txt" => 80,
-    "full_description.txt" => 4_000
-  }.freeze
-  REQUIRED_TEXT_FILES = TEXT_LIMITS.keys.freeze
-  REQUIRED_IMAGES = {
-    "images/icon.png" => { width: 512, height: 512, alpha: true, max_bytes: 1_024 * 1_024 },
-    "images/featureGraphic.png" => { width: 1_024, height: 500, alpha: false },
-    "images/phoneScreenshots/1.png" => { min_dimension: 320, max_dimension: 3_840, max_aspect_ratio: 2.0, alpha: false },
-    "images/phoneScreenshots/2.png" => { min_dimension: 320, max_dimension: 3_840, max_aspect_ratio: 2.0, alpha: false },
-    "images/phoneScreenshots/3.png" => { min_dimension: 320, max_dimension: 3_840, max_aspect_ratio: 2.0, alpha: false },
-    "images/phoneScreenshots/4.png" => { min_dimension: 320, max_dimension: 3_840, max_aspect_ratio: 2.0, alpha: false },
-    "images/phoneScreenshots/5.png" => { min_dimension: 320, max_dimension: 3_840, max_aspect_ratio: 2.0, alpha: false }
-  }.freeze
-  SHARED_IMAGES = %w[
-    images/icon.png
-    images/featureGraphic.png
-    images/phoneScreenshots/1.png
-    images/phoneScreenshots/2.png
-    images/phoneScreenshots/3.png
-    images/phoneScreenshots/4.png
-    images/phoneScreenshots/5.png
-  ].freeze
-
-  def initialize(metadata_root:, locales:)
-    @metadata_root = metadata_root
-    @locales = locales
-  end
-
-  def validate!
-    errors = []
-    validate_locale_set(errors)
-    image_inspection_available = validate_imagemagick(errors)
-
-    @locales.each do |locale|
-      locale_dir = File.join(@metadata_root, locale)
-      next unless File.directory?(locale_dir)
-
-      validate_text_files(errors, locale, locale_dir)
-      validate_images(errors, locale, locale_dir, image_inspection_available)
-    end
-
-    validate_shared_assets(errors)
-
-    return true if errors.empty?
-
-    raise "Metadata validation failed:\n#{errors.map { |error| "- #{error}" }.join("\n")}"
-  end
-
-  private
-
-  def validate_locale_set(errors)
-    unless File.directory?(@metadata_root)
-      errors << "metadata directory is missing: #{@metadata_root}"
-      return
-    end
-
-    entries = Dir.children(@metadata_root).sort
-    actual_locales = entries.select { |entry| File.directory?(File.join(@metadata_root, entry)) }
-    missing = @locales - actual_locales
-    unexpected = actual_locales - @locales
-
-    errors << "missing locales: #{missing.join(", ")}" unless missing.empty?
-    errors << "unexpected locales: #{unexpected.join(", ")}" unless unexpected.empty?
-  end
-
-  def validate_text_files(errors, locale, locale_dir)
-    values = {}
-
-    REQUIRED_TEXT_FILES.each do |filename|
-      path = File.join(locale_dir, filename)
-      unless File.file?(path)
-        errors << "#{locale}/#{filename} is missing"
-        next
-      end
-
-      value = read_text(path, errors)
-      next if value.nil?
-
-      values[filename] = value
-      errors << "#{locale}/#{filename} is empty" if value.empty?
-
-      limit = TEXT_LIMITS.fetch(filename)
-      if value.length > limit
-        errors << "#{locale}/#{filename} has #{value.length} characters; maximum is #{limit}"
-      end
-    end
-
-    if values["title.txt"] && values["title.txt"] != TITLE
-      errors << "#{locale}/title.txt must be exactly #{TITLE.inspect}"
-    end
-
-    if values["full_description.txt"]
-      paragraphs = values["full_description.txt"].split(/\R\s*\R+/).reject(&:empty?)
-      if paragraphs.length != FULL_DESCRIPTION_PARAGRAPH_COUNT
-        errors << "#{locale}/full_description.txt has #{paragraphs.length} non-empty paragraphs; expected #{FULL_DESCRIPTION_PARAGRAPH_COUNT}"
-      end
-    end
-
-  end
-
-  def read_text(path, errors)
-    value = File.binread(path).force_encoding(Encoding::UTF_8)
-    unless value.valid_encoding?
-      errors << "#{path} is not valid UTF-8"
-      return nil
-    end
-
-    value.strip
-  rescue SystemCallError => e
-    errors << "could not read #{path}: #{e.message}"
-    nil
-  end
-
-  def validate_images(errors, locale, locale_dir, image_inspection_available)
-    screenshot_dir = File.join(locale_dir, "images", "phoneScreenshots")
-    expected_screenshots = (1..SCREENSHOT_COUNT).map { |number| "#{number}.png" }
-    if File.directory?(screenshot_dir)
-      actual_screenshots = Dir.children(screenshot_dir).sort
-      unless actual_screenshots == expected_screenshots
-        errors << "#{locale}/images/phoneScreenshots must contain exactly #{expected_screenshots.join(", ")}; found #{actual_screenshots.join(", ")}"
-      end
-    else
-      errors << "#{locale}/images/phoneScreenshots is missing"
-    end
-
-    REQUIRED_IMAGES.each do |relative_path, requirements|
-      path = File.join(locale_dir, relative_path)
-      unless File.file?(path)
-        errors << "#{locale}/#{relative_path} is missing"
-        next
-      end
-
-      validate_image(errors, locale, relative_path, path, requirements) if image_inspection_available
-    end
-  end
-
-  def validate_imagemagick(errors)
-    _, stderr, status = Open3.capture3("identify", "-version")
-    return true if status.success?
-
-    detail = stderr.strip
-    errors << "ImageMagick `identify` is unavailable#{detail.empty? ? "" : ": #{detail}"}"
-    false
-  rescue Errno::ENOENT
-    errors << "ImageMagick `identify` is not installed or not in PATH"
-    false
-  rescue SystemCallError => e
-    errors << "could not run ImageMagick `identify`: #{e.message}"
-    false
-  end
-
-  def validate_image(errors, locale, relative_path, path, requirements)
-    stdout, stderr, status = Open3.capture3(
-      "identify",
-      "-format",
-      "%m|%w|%h|%[channels]",
-      path
-    )
-    unless status.success?
-      errors << "#{locale}/#{relative_path} could not be inspected: #{stderr.strip}"
-      return
-    end
-
-    format, width, height, channels = stdout.strip.split("|", 4)
-    channels = channels.to_s.split.first
-    unless format == "PNG"
-      errors << "#{locale}/#{relative_path} must be PNG; found #{format.inspect}"
-    end
-
-    width_value = width.to_i
-    height_value = height.to_i
-
-    if requirements[:width] && width_value != requirements[:width]
-      errors << "#{locale}/#{relative_path} width is #{width}; expected #{requirements[:width]}"
-    end
-    if requirements[:height] && height_value != requirements[:height]
-      errors << "#{locale}/#{relative_path} height is #{height}; expected #{requirements[:height]}"
-    end
-
-    if requirements[:min_dimension] && [width_value, height_value].min < requirements[:min_dimension]
-      errors << "#{locale}/#{relative_path} dimensions are #{width}x#{height}; both dimensions must be at least #{requirements[:min_dimension]}"
-    end
-    if requirements[:max_dimension] && [width_value, height_value].max > requirements[:max_dimension]
-      errors << "#{locale}/#{relative_path} dimensions are #{width}x#{height}; both dimensions must be at most #{requirements[:max_dimension]}"
-    end
-    if requirements[:max_aspect_ratio] && width_value.positive? && height_value.positive?
-      aspect_ratio = [width_value, height_value].max.to_f / [width_value, height_value].min
-      if aspect_ratio > requirements[:max_aspect_ratio]
-        errors << "#{locale}/#{relative_path} aspect ratio is #{aspect_ratio.round(3)}; maximum is #{requirements[:max_aspect_ratio]}"
-      end
-    end
-
-    has_alpha = channels.to_s.downcase.include?("a")
-    if has_alpha != requirements[:alpha]
-      expected = requirements[:alpha] ? "alpha" : "no alpha"
-      errors << "#{locale}/#{relative_path} must have #{expected}; found channels #{channels.inspect}"
-    end
-
-    channels_without_alpha = channels.to_s.downcase.delete("a")
-    unless %w[rgb srgb].include?(channels_without_alpha)
-      errors << "#{locale}/#{relative_path} must be an RGB image; found channels #{channels.inspect}"
-    end
-
-    max_bytes = requirements[:max_bytes]
-    if max_bytes && File.size(path) >= max_bytes
-      errors << "#{locale}/#{relative_path} is #{File.size(path)} bytes; must be below #{max_bytes} bytes"
-    end
-  rescue SystemCallError => e
-    errors << "could not inspect #{locale}/#{relative_path}: #{e.message}"
-  end
-
-  def validate_shared_assets(errors)
-    canonical_dir = File.join(@metadata_root, CANONICAL_ASSET_LOCALE)
-
-    SHARED_IMAGES.each do |relative_path|
-      canonical_path = File.join(canonical_dir, relative_path)
-      next unless File.file?(canonical_path)
-
-      canonical_hash = Digest::SHA256.file(canonical_path).hexdigest
-      @locales.reject { |locale| locale == CANONICAL_ASSET_LOCALE }.each do |locale|
-        path = File.join(@metadata_root, locale, relative_path)
-        next unless File.file?(path)
-        next if Digest::SHA256.file(path).hexdigest == canonical_hash
-
-        errors << "#{locale}/#{relative_path} differs from #{CANONICAL_ASSET_LOCALE}/#{relative_path}"
-      end
-    end
-  end
-end
 
 def required_environment_value!(name)
   value = ENV[name]
@@ -287,48 +22,6 @@ def required_file!(environment_name)
   path
 end
 
-def validate_local_metadata!
-  ProcrastiLearnMetadataValidator.new(
-    metadata_root: METADATA_ROOT,
-    locales: SUPPORTED_LOCALES
-  ).validate!
-  UI.success("Local Fastlane metadata validation passed.")
-end
-
-def release_version!
-  content = File.read(VERSION_FILE, encoding: "UTF-8")
-  version_code = content[/^\s*versionCode\s*=\s*(\d+)\s*$/, 1]
-  version_name = content[/^\s*versionName\s*=\s*"([^"]+)"\s*$/, 1]
-  UI.user_error!("Could not find versionCode in #{VERSION_FILE}") if version_code.nil?
-  UI.user_error!("Could not find versionName in #{VERSION_FILE}") if version_name.nil?
-
-  [Integer(version_code, 10), version_name]
-rescue SystemCallError => e
-  UI.user_error!("Could not read #{VERSION_FILE}: #{e.message}")
-end
-
-def validate_release_changelogs!(version_code)
-  errors = SUPPORTED_LOCALES.filter_map do |locale|
-    path = File.join(METADATA_ROOT, locale, "changelogs", "#{version_code}.txt")
-    unless File.file?(path)
-      next "#{locale}/changelogs/#{version_code}.txt is missing"
-    end
-
-    value = File.binread(path).force_encoding(Encoding::UTF_8)
-    next "#{locale}/changelogs/#{version_code}.txt is not valid UTF-8" unless value.valid_encoding?
-
-    value = value.strip
-    next "#{locale}/changelogs/#{version_code}.txt is empty" if value.empty?
-    next "#{locale}/changelogs/#{version_code}.txt has #{value.length} characters; maximum is 500" if value.length > 500
-  rescue SystemCallError => e
-    "could not read #{locale}/changelogs/#{version_code}.txt: #{e.message}"
-  end
-
-  return if errors.empty?
-
-  UI.user_error!("Release changelog validation failed:\n#{errors.map { |error| "- #{error}" }.join("\n")}")
-end
-
 def ensure_clean_git_tree!(operation)
   stdout, stderr, status = Open3.capture3("git", "status", "--porcelain")
   UI.user_error!("Could not inspect the Git working tree: #{stderr.strip}") unless status.success?
@@ -339,26 +32,6 @@ def validate_confirmation!(name, expected, operation)
   return if ENV[name] == expected
 
   UI.user_error!("Set #{name}=#{expected} to #{operation}.")
-end
-
-def validate_signed_aab!
-  UI.user_error!("Expected release bundle is missing: #{RELEASE_AAB}") unless File.file?(RELEASE_AAB)
-
-  stdout, stderr, status = Open3.capture3("jarsigner", "-verify", "-verbose", "-certs", RELEASE_AAB)
-  unless status.success? && stdout.include?("jar verified")
-    detail = [stdout, stderr].map(&:strip).reject(&:empty?).join("\n")
-    UI.user_error!("Release bundle signature verification failed#{detail.empty? ? "" : ":\n#{detail}"}")
-  end
-
-  certificate, certificate_error, certificate_status = Open3.capture3("keytool", "-printcert", "-jarfile", RELEASE_AAB)
-  fingerprint = certificate[/SHA256:\s*([0-9A-F:]+)/i, 1]&.upcase
-  return if certificate_status.success? && fingerprint == UPLOAD_CERTIFICATE_SHA256
-
-  detail = certificate_error.strip
-  actual = fingerprint || "unavailable#{detail.empty? ? "" : " (#{detail})"}"
-  UI.user_error!("Release bundle uses SHA-256 certificate #{actual}; expected upload certificate #{UPLOAD_CERTIFICATE_SHA256}")
-rescue Errno::ENOENT
-  UI.user_error!("jarsigner or keytool is not installed or not in PATH")
 end
 
 def active_play_version_codes(json_key)
@@ -376,6 +49,75 @@ def metadata_release_context!(json_key)
   UI.user_error!("No release exists on a standard Play track to provide Supply's metadata context.")
 end
 
+def listing_upload_options(json_key:, track:, version_code:, validate_only: false)
+  {
+    json_key: json_key,
+    metadata_path: METADATA_ROOT,
+    version_code: version_code,
+    validate_only: validate_only,
+    skip_upload_apk: true,
+    skip_upload_aab: true,
+    skip_upload_changelogs: true,
+    skip_upload_metadata: false,
+    skip_upload_images: false,
+    skip_upload_screenshots: false,
+    track: track,
+    track_promote_to: nil,
+    rollout: nil
+  }
+end
+
+def prepared_release!
+  UI.user_error!("Prepared release manifest is missing: #{PREPARED_MANIFEST}. Run ./gradlew :app:preparePlayRelease.") unless File.file?(PREPARED_MANIFEST)
+
+  manifest = JSON.parse(File.read(PREPARED_MANIFEST, encoding: "UTF-8"))
+  package_name = manifest["packageName"]
+  version_code = manifest["versionCode"]
+  version_name = manifest["versionName"]
+  relative_aab = manifest["aab"]
+  unless package_name.is_a?(String) && !package_name.empty? && version_code.is_a?(Integer) &&
+         version_name.is_a?(String) && !version_name.empty? && relative_aab.is_a?(String) && !relative_aab.empty?
+    UI.user_error!("Prepared release manifest is invalid: #{PREPARED_MANIFEST}")
+  end
+
+  aab = File.expand_path(relative_aab, PREPARED_ROOT)
+  unless aab.start_with?("#{PREPARED_ROOT}/") && File.file?(aab)
+    UI.user_error!("Prepared release AAB is missing or outside the prepared directory: #{relative_aab}")
+  end
+  metadata_path = File.join(PREPARED_ROOT, "metadata", "android")
+  UI.user_error!("Prepared changelogs are missing: #{metadata_path}") unless File.directory?(metadata_path)
+
+  {
+    package_name: package_name,
+    version_code: version_code,
+    version_name: version_name,
+    aab: aab,
+    metadata_path: metadata_path
+  }
+rescue JSON::ParserError, SystemCallError => e
+  UI.user_error!("Could not read prepared release manifest: #{e.message}")
+end
+
+def draft_upload_options(json_key:, release:)
+  {
+    json_key: json_key,
+    aab: release.fetch(:aab),
+    metadata_path: release.fetch(:metadata_path),
+    version_code: release.fetch(:version_code),
+    version_name: release.fetch(:version_name),
+    track: "production",
+    release_status: "draft",
+    skip_upload_apk: true,
+    skip_upload_aab: false,
+    skip_upload_metadata: true,
+    skip_upload_images: true,
+    skip_upload_screenshots: true,
+    skip_upload_changelogs: false,
+    track_promote_to: nil,
+    rollout: nil
+  }
+end
+
 platform :android do
   desc "Validate the Google Play service-account credentials without changing Play data"
   lane :validate_credentials do
@@ -386,85 +128,41 @@ platform :android do
     UI.success("Google Play credentials and app access are valid.")
   end
 
-  desc "Validate listing metadata locally and through Google Play without committing changes"
+  desc "Validate listing metadata through Google Play without committing changes"
   lane :validate_metadata do
-    validate_local_metadata!
     json_key = required_file!("PLAY_JSON_KEY_PATH")
     track, version_code = metadata_release_context!(json_key)
-
-    upload_to_play_store(
+    upload_to_play_store(**listing_upload_options(
       json_key: json_key,
-      metadata_path: METADATA_ROOT,
-      version_code: version_code,
-      validate_only: true,
-      skip_upload_apk: true,
-      skip_upload_aab: true,
-      skip_upload_changelogs: true,
-      skip_upload_metadata: false,
-      skip_upload_images: false,
-      skip_upload_screenshots: false,
       track: track,
-      track_promote_to: nil,
-      rollout: nil
-    )
+      version_code: version_code,
+      validate_only: true
+    ))
   end
 
   desc "Upload listing metadata and assets and submit them for Google Play review"
   lane :upload_metadata_for_review do
     validate_confirmation!("CONFIRM_METADATA_REVIEW_SUBMISSION", "YES", "upload store-listing changes and submit them for review")
     ensure_clean_git_tree!("Store-listing upload")
-    validate_local_metadata!
     json_key = required_file!("PLAY_JSON_KEY_PATH")
     track, version_code = metadata_release_context!(json_key)
-
-    upload_to_play_store(
-      json_key: json_key,
-      metadata_path: METADATA_ROOT,
-      version_code: version_code,
-      skip_upload_apk: true,
-      skip_upload_aab: true,
-      skip_upload_changelogs: true,
-      skip_upload_metadata: false,
-      skip_upload_images: false,
-      skip_upload_screenshots: false,
-      sync_image_upload: true,
-      track: track,
-      track_promote_to: nil,
-      rollout: nil
-    )
+    options = listing_upload_options(json_key: json_key, track: track, version_code: version_code)
+    upload_to_play_store(**options.merge(sync_image_upload: true))
   end
 
-  desc "Build and upload a signed AAB as a production draft without submitting it for review"
+  desc "Upload a prepared AAB and changelogs as a production draft"
   lane :upload_production_draft do
-    json_key = required_file!("PLAY_JSON_KEY_PATH")
-    RELEASE_SIGNING_ENVIRONMENT.each { |name| required_environment_value!(name) }
-    validate_confirmation!("CONFIRM_PRODUCTION_DRAFT", "NO_PENDING_REVIEW_CHANGES", "create a production draft")
     ensure_clean_git_tree!("Production-draft upload")
-
-    version_code, version_name = release_version!
+    json_key = required_file!("PLAY_JSON_KEY_PATH")
+    release = prepared_release!
     existing_version_codes = active_play_version_codes(json_key)
-    if existing_version_codes.any? { |existing_version_code| existing_version_code >= version_code }
-      UI.user_error!("Version code #{version_code} is not greater than active Play version codes: #{existing_version_codes.sort.join(", ")}")
+    if existing_version_codes.any? { |existing_version_code| existing_version_code >= release.fetch(:version_code) }
+      UI.user_error!(
+        "Version code #{release.fetch(:version_code)} is not greater than active Play version codes: " \
+        "#{existing_version_codes.sort.join(', ')}"
+      )
     end
 
-    validate_release_changelogs!(version_code)
-    sh(GRADLEW, "--project-dir", PROJECT_ROOT, "bundleRelease")
-    validate_signed_aab!
-
-    upload_to_play_store(
-      json_key: json_key,
-      aab: RELEASE_AAB,
-      metadata_path: METADATA_ROOT,
-      version_code: version_code,
-      version_name: version_name,
-      track: "production",
-      release_status: "draft",
-      skip_upload_metadata: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true,
-      skip_upload_changelogs: false,
-      track_promote_to: nil,
-      rollout: nil
-    )
+    upload_to_play_store(**draft_upload_options(json_key: json_key, release: release))
   end
 end
