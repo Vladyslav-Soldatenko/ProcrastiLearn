@@ -44,7 +44,7 @@ android {
 
   defaultConfig {
     applicationId = "com.procrastilearn.app"
-    minSdk = 30
+    minSdk = 26
     //noinspection OldTargetApi
     targetSdk = 36
     versionCode = 18

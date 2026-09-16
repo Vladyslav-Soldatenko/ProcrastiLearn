@@ -72,6 +72,10 @@ jobs:
     needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        api-level: [26, 30]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -98,13 +102,13 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-${{ runner.os }}-30-pixel_6-x86_64-v1
+          key: avd-${{ runner.os }}-${{ matrix.api-level }}-pixel_6-x86_64-v1
 
       - name: Create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30
+          api-level: ${{ matrix.api-level }}
           target: default
           arch: x86_64
           profile: pixel_6
@@ -120,20 +124,22 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-${{ runner.os }}-30-pixel_6-x86_64-v1
+          key: avd-${{ runner.os }}-${{ matrix.api-level }}-pixel_6-x86_64-v1
 
       - name: Run instrumented tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30
+          api-level: ${{ matrix.api-level }}
           target: default
           arch: x86_64
           profile: pixel_6
           force-avd-creation: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-snapshot-load -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
-            adb logcat -c
+            adb wait-for-device
+            until adb shell service check input | grep -q 'found'; do sleep 2; done
+            until adb logcat -c; do sleep 2; done
             adb logcat -v threadtime > /tmp/logcat.txt &
             ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notPackage=com.procrastilearn.app.e2e.ai
 

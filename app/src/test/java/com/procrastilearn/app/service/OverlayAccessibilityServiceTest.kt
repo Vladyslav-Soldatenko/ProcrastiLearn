@@ -94,7 +94,8 @@ class OverlayAccessibilityServiceTest {
         cls: String = "com.example.MainActivity",
         eventType: Int = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
     ): AccessibilityEvent =
-        AccessibilityEvent(eventType).apply {
+        ReflectionHelpers.callConstructor(AccessibilityEvent::class.java).apply {
+            this.eventType = eventType
             packageName = pkg
             className = cls
         }
@@ -124,7 +125,11 @@ class OverlayAccessibilityServiceTest {
 
     @Test
     fun `ignores events with no package name`() {
-        service.onAccessibilityEvent(AccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED))
+        service.onAccessibilityEvent(
+            ReflectionHelpers.callConstructor(AccessibilityEvent::class.java).apply {
+                eventType = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
+            },
+        )
         advanceUntilIdle()
 
         coVerify(exactly = 0) { getNextVocabularyItemUseCase() }
