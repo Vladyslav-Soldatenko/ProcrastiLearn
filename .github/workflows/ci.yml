@@ -134,10 +134,12 @@ jobs:
           arch: x86_64
           profile: pixel_6
           force-avd-creation: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-snapshot-load -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
-            adb logcat -c
+            adb wait-for-device
+            until adb shell service check input | grep -q 'found'; do sleep 2; done
+            until adb logcat -c; do sleep 2; done
             adb logcat -v threadtime > /tmp/logcat.txt &
             ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notPackage=com.procrastilearn.app.e2e.ai
 
