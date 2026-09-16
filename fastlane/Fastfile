@@ -1,0 +1,168 @@
+opt_out_usage
+default_platform(:android)
+
+require "json"
+require "open3"
+
+METADATA_ROOT = File.expand_path("metadata/android", __dir__)
+PREPARED_ROOT = File.expand_path("../app/build/play-release/prepared", __dir__)
+PREPARED_MANIFEST = File.join(PREPARED_ROOT, "manifest.json")
+PLAY_TRACKS = %w[production beta alpha internal].freeze
+
+def required_environment_value!(name)
+  value = ENV[name]
+  return value unless value.nil? || value.strip.empty?
+
+  UI.user_error!("Missing required environment variable #{name}")
+end
+
+def required_file!(environment_name)
+  path = required_environment_value!(environment_name)
+  UI.user_error!("#{environment_name} does not point to a readable file: #{path}") unless File.file?(path) && File.readable?(path)
+  path
+end
+
+def ensure_clean_git_tree!(operation)
+  stdout, stderr, status = Open3.capture3("git", "status", "--porcelain")
+  UI.user_error!("Could not inspect the Git working tree: #{stderr.strip}") unless status.success?
+  UI.user_error!("#{operation} requires a clean Git working tree.") unless stdout.empty?
+end
+
+def validate_confirmation!(name, expected, operation)
+  return if ENV[name] == expected
+
+  UI.user_error!("Set #{name}=#{expected} to #{operation}.")
+end
+
+def active_play_version_codes(json_key)
+  PLAY_TRACKS.flat_map do |track|
+    google_play_track_version_codes(json_key: json_key, track: track)
+  end.uniq
+end
+
+def metadata_release_context!(json_key)
+  PLAY_TRACKS.each do |track|
+    version_codes = google_play_track_version_codes(json_key: json_key, track: track)
+    return [track, version_codes.max] unless version_codes.empty?
+  end
+
+  UI.user_error!("No release exists on a standard Play track to provide Supply's metadata context.")
+end
+
+def listing_upload_options(json_key:, track:, version_code:, validate_only: false)
+  {
+    json_key: json_key,
+    metadata_path: METADATA_ROOT,
+    version_code: version_code,
+    validate_only: validate_only,
+    skip_upload_apk: true,
+    skip_upload_aab: true,
+    skip_upload_changelogs: true,
+    skip_upload_metadata: false,
+    skip_upload_images: false,
+    skip_upload_screenshots: false,
+    track: track,
+    track_promote_to: nil,
+    rollout: nil
+  }
+end
+
+def prepared_release!
+  UI.user_error!("Prepared release manifest is missing: #{PREPARED_MANIFEST}. Run ./gradlew :app:preparePlayRelease.") unless File.file?(PREPARED_MANIFEST)
+
+  manifest = JSON.parse(File.read(PREPARED_MANIFEST, encoding: "UTF-8"))
+  package_name = manifest["packageName"]
+  version_code = manifest["versionCode"]
+  version_name = manifest["versionName"]
+  relative_aab = manifest["aab"]
+  unless package_name.is_a?(String) && !package_name.empty? && version_code.is_a?(Integer) &&
+         version_name.is_a?(String) && !version_name.empty? && relative_aab.is_a?(String) && !relative_aab.empty?
+    UI.user_error!("Prepared release manifest is invalid: #{PREPARED_MANIFEST}")
+  end
+
+  aab = File.expand_path(relative_aab, PREPARED_ROOT)
+  unless aab.start_with?("#{PREPARED_ROOT}/") && File.file?(aab)
+    UI.user_error!("Prepared release AAB is missing or outside the prepared directory: #{relative_aab}")
+  end
+  metadata_path = File.join(PREPARED_ROOT, "metadata", "android")
+  UI.user_error!("Prepared changelogs are missing: #{metadata_path}") unless File.directory?(metadata_path)
+
+  {
+    package_name: package_name,
+    version_code: version_code,
+    version_name: version_name,
+    aab: aab,
+    metadata_path: metadata_path
+  }
+rescue JSON::ParserError, SystemCallError => e
+  UI.user_error!("Could not read prepared release manifest: #{e.message}")
+end
+
+def draft_upload_options(json_key:, release:)
+  {
+    json_key: json_key,
+    aab: release.fetch(:aab),
+    metadata_path: release.fetch(:metadata_path),
+    version_code: release.fetch(:version_code),
+    version_name: release.fetch(:version_name),
+    track: "production",
+    release_status: "draft",
+    skip_upload_apk: true,
+    skip_upload_aab: false,
+    skip_upload_metadata: true,
+    skip_upload_images: true,
+    skip_upload_screenshots: true,
+    skip_upload_changelogs: false,
+    track_promote_to: nil,
+    rollout: nil
+  }
+end
+
+platform :android do
+  desc "Validate the Google Play service-account credentials without changing Play data"
+  lane :validate_credentials do
+    google_play_track_version_codes(
+      json_key: required_file!("PLAY_JSON_KEY_PATH"),
+      track: "internal"
+    )
+    UI.success("Google Play credentials and app access are valid.")
+  end
+
+  desc "Validate listing metadata through Google Play without committing changes"
+  lane :validate_metadata do
+    json_key = required_file!("PLAY_JSON_KEY_PATH")
+    track, version_code = metadata_release_context!(json_key)
+    upload_to_play_store(**listing_upload_options(
+      json_key: json_key,
+      track: track,
+      version_code: version_code,
+      validate_only: true
+    ))
+  end
+
+  desc "Upload listing metadata and assets and submit them for Google Play review"
+  lane :upload_metadata_for_review do
+    validate_confirmation!("CONFIRM_METADATA_REVIEW_SUBMISSION", "YES", "upload store-listing changes and submit them for review")
+    ensure_clean_git_tree!("Store-listing upload")
+    json_key = required_file!("PLAY_JSON_KEY_PATH")
+    track, version_code = metadata_release_context!(json_key)
+    options = listing_upload_options(json_key: json_key, track: track, version_code: version_code)
+    upload_to_play_store(**options.merge(sync_image_upload: true))
+  end
+
+  desc "Upload a prepared AAB and changelogs as a production draft"
+  lane :upload_production_draft do
+    ensure_clean_git_tree!("Production-draft upload")
+    json_key = required_file!("PLAY_JSON_KEY_PATH")
+    release = prepared_release!
+    existing_version_codes = active_play_version_codes(json_key)
+    if existing_version_codes.any? { |existing_version_code| existing_version_code >= release.fetch(:version_code) }
+      UI.user_error!(
+        "Version code #{release.fetch(:version_code)} is not greater than active Play version codes: " \
+        "#{existing_version_codes.sort.join(', ')}"
+      )
+    end
+
+    upload_to_play_store(**draft_upload_options(json_key: json_key, release: release))
+  end
+end

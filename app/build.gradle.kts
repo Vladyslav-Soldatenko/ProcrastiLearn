@@ -10,6 +10,7 @@ plugins {
   alias(libs.plugins.detekt)
   alias(libs.plugins.dependency.analysis)
   jacoco
+  id("com.procrastilearn.play-release")
 }
 
 jacoco {
@@ -27,6 +28,16 @@ val localProperties =
 val openAiApiKeyForTests: String =
   System.getenv("OPENAI_API_KEY") ?: localProperties.getProperty("OPENAI_API_KEY") ?: ""
 
+val releaseSigningEnvironment =
+  listOf(
+    "PROCRASTILEARN_UPLOAD_STORE_FILE",
+    "PROCRASTILEARN_UPLOAD_STORE_PASSWORD",
+    "PROCRASTILEARN_UPLOAD_KEY_ALIAS",
+    "PROCRASTILEARN_UPLOAD_KEY_PASSWORD",
+  ).associateWith(System::getenv)
+
+val hasReleaseSigningCredentials = releaseSigningEnvironment.values.all { !it.isNullOrBlank() }
+
 android {
   namespace = "com.procrastilearn.app"
   compileSdk = 37
@@ -36,8 +47,8 @@ android {
     minSdk = 30
     //noinspection OldTargetApi
     targetSdk = 36
-    versionCode = 17
-    versionName = "1.4.3"
+    versionCode = 18
+    versionName = "1.4.4"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     testInstrumentationRunnerArguments["OPENAI_API_KEY"] = openAiApiKeyForTests
   }
@@ -56,6 +67,17 @@ android {
     getByName("test").resources.srcDirs("src/testShared/resources")
   }
 
+  signingConfigs {
+    if (hasReleaseSigningCredentials) {
+      create("release") {
+        storeFile = file(releaseSigningEnvironment.getValue("PROCRASTILEARN_UPLOAD_STORE_FILE"))
+        storePassword = releaseSigningEnvironment.getValue("PROCRASTILEARN_UPLOAD_STORE_PASSWORD")
+        keyAlias = releaseSigningEnvironment.getValue("PROCRASTILEARN_UPLOAD_KEY_ALIAS")
+        keyPassword = releaseSigningEnvironment.getValue("PROCRASTILEARN_UPLOAD_KEY_PASSWORD")
+      }
+    }
+  }
+
   buildTypes {
     debug {
       isMinifyEnabled = false
@@ -63,6 +85,7 @@ android {
     release {
       isMinifyEnabled = true
       isShrinkResources = true
+      signingConfig = signingConfigs.findByName("release")
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"),
         "proguard-rules.pro",
