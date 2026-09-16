@@ -1,5 +1,8 @@
 # ProcrastiLearn
 
+<a href="https://play.google.com/store/apps/details?id=com.procrastilearn.app"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="40"></a>
+<a href="https://f-droid.org/packages/com.procrastilearn.app/"><img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="40"></a>
+
 There's Anki on your phone, there's Duolingo, and you do mean to get around to them. Then you pick the phone up, and twenty minutes later you're somewhere in TikTok, not really sure how you got there. ProcrastiLearn steps in right at that moment and asks you for one word first.
 
 ProcrastiLearn is an Android (Kotlin + Jetpack Compose) app that turns distracting moments into spaced‑repetition reps. Pick the apps you tend to open mindlessly; whenever you launch them, a full‑screen overlay blocks access until you learn/review a word. Optional OpenAI-powered translations (API key required) make adding new words fast.
