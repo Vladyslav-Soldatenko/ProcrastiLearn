@@ -1,20 +1,8 @@
 package com.procrastilearn.app.e2e
 
-import android.app.Activity
 import android.app.Instrumentation
-import android.content.ClipData
-import android.content.ContentResolver
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
-import androidx.test.espresso.intent.Intents.intending
-import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.rule.IntentsRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -22,9 +10,7 @@ import com.procrastilearn.app.MainActivity
 import com.procrastilearn.app.R
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.mapper.toDomain
-import com.procrastilearn.app.di.DatabaseEntryPoint
 import com.procrastilearn.app.domain.model.VocabularyItem
-import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -57,22 +43,22 @@ class SettingsAnkiImportE2eTest {
         instrumentation = InstrumentationRegistry.getInstrumentation()
         targetContext = instrumentation.targetContext
         instrumentationContext = instrumentation.context
-        resetDatabase()
+        targetContext.resetE2eDatabase()
     }
 
     @After
     fun afterEach() {
-        resetDatabase()
+        targetContext.resetE2eDatabase()
     }
 
     @Test
     fun importAnkiDeck_addsVocabularyItems() {
-        val deckUri = stagedDeckUri()
-        prepareDocumentPickerResponse(deckUri)
+        val deckUri = targetContext.stagedAnkiDeckUri(testAssetProviderAuthority, DECK_FILE_NAME)
+        prepareAnkiDocumentPickerResponse(instrumentationContext, targetContext, deckUri)
 
         composeTestRule.dismissOnboardingIfPresent(targetContext)
-        navigateToSettings()
-        openImportAndSelectAnki()
+        composeTestRule.navigateTo(targetContext, R.string.nav_settings, TIMEOUT_IMPORT_MS)
+        composeTestRule.openAnkiImport(targetContext, ROW_TIMEOUT_MS)
 
         composeTestRule.waitUntil(timeoutMillis = TIMEOUT_IMPORT_MS) {
             runBlocking { hasImportedExpectedItems() }
@@ -105,66 +91,9 @@ class SettingsAnkiImportE2eTest {
         )
     }
 
-    private fun resetDatabase() {
-        val entryPoint = databaseEntryPoint()
-        runBlocking {
-            withContext(Dispatchers.IO) {
-                entryPoint.appDatabase().vocabularyDao().deleteAllVocabulary()
-            }
-        }
-    }
-
-    private fun stagedDeckUri(): Uri =
-        Uri
-            .Builder()
-            .scheme(ContentResolver.SCHEME_CONTENT)
-            .authority(testAssetProviderAuthority)
-            .appendPath("import")
-            .appendPath("anki")
-            .appendPath(DECK_FILE_NAME)
-            .build()
-
-    private fun prepareDocumentPickerResponse(uri: Uri) {
-        instrumentationContext.grantUriPermission(
-            targetContext.packageName,
-            uri,
-            Intent.FLAG_GRANT_READ_URI_PERMISSION,
-        )
-        val resultIntent =
-            Intent().apply {
-                setDataAndType(uri, ANKI_MIME_TYPE)
-                clipData = ClipData.newRawUri("anki-deck", uri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-        intending(hasAction(Intent.ACTION_OPEN_DOCUMENT))
-            .respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, resultIntent))
-    }
-
-    private fun navigateToSettings() {
-        val settingsLabel = targetContext.getString(R.string.nav_settings)
-        composeTestRule.waitUntilNodeExists(hasText(settingsLabel), DEFAULT_TIMEOUT_MS)
-        composeTestRule
-            .onNodeWithContentDescription(settingsLabel, useUnmergedTree = true)
-            .performClick()
-        composeTestRule.waitForIdle()
-    }
-
-    private fun openImportAndSelectAnki() {
-        val importRow = targetContext.getString(R.string.settings_import_row)
-        composeTestRule.waitUntilNodeExists(hasText(importRow), ROW_TIMEOUT_MS)
-        composeTestRule.onNodeWithText(importRow, useUnmergedTree = true).performScrollTo()
-        composeTestRule.onNodeWithText(importRow, useUnmergedTree = true).performClick()
-
-        composeTestRule.waitForIdle()
-
-        val ankiOption = targetContext.getString(R.string.settings_import_option_anki_apkg)
-        composeTestRule.waitUntilNodeExists(hasText(ankiOption), ROW_TIMEOUT_MS)
-        composeTestRule.onNodeWithText(ankiOption, useUnmergedTree = true).performClick()
-    }
-
     private suspend fun loadImportedItems(): List<VocabularyItem> =
         withContext(Dispatchers.IO) {
-            databaseEntryPoint()
+            targetContext.databaseEntryPoint()
                 .appDatabase()
                 .vocabularyDao()
                 .getAllVocabulary()
@@ -174,7 +103,7 @@ class SettingsAnkiImportE2eTest {
 
     private suspend fun loadImportedEntitiesOrderedByPosition(): List<VocabularyEntity> =
         withContext(Dispatchers.IO) {
-            databaseEntryPoint()
+            targetContext.databaseEntryPoint()
                 .appDatabase()
                 .vocabularyDao()
                 .getAllVocabulary()
@@ -187,15 +116,10 @@ class SettingsAnkiImportE2eTest {
         return expectedVocabularyItems.all { it.word in actualWords }
     }
 
-    private fun databaseEntryPoint(): DatabaseEntryPoint =
-        EntryPointAccessors.fromApplication(targetContext.applicationContext, DatabaseEntryPoint::class.java)
-
     private companion object {
         private const val DECK_FILE_NAME = "procrastilearn-test-deck.apkg"
-        private const val DEFAULT_TIMEOUT_MS = 50_000L
         private const val TIMEOUT_IMPORT_MS = 50_000L
         private const val ROW_TIMEOUT_MS = 10_000L
-        private const val ANKI_MIME_TYPE = "application/apkg"
 
         // Matches the fixture's cards.due (type=0) values: test2=276, TestTitle=8475,
         // bold...=8475 (ties with TestTitle, loses on note id), agree=8476.
