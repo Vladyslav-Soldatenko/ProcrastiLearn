@@ -84,5 +84,4 @@ class WordListSearchE2eTest {
         composeTestRule.waitUntilNodeExists(hasTestTag(wordListItemTag(idA)), E2E_TIMEOUT_MS)
         composeTestRule.waitUntilNodeExists(hasTestTag(wordListItemTag(idB)), E2E_TIMEOUT_MS)
     }
-
 }

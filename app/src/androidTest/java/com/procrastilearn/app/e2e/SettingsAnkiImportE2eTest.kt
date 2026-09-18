@@ -93,7 +93,8 @@ class SettingsAnkiImportE2eTest {
 
     private suspend fun loadImportedItems(): List<VocabularyItem> =
         withContext(Dispatchers.IO) {
-            targetContext.databaseEntryPoint()
+            targetContext
+                .databaseEntryPoint()
                 .appDatabase()
                 .vocabularyDao()
                 .getAllVocabulary()
@@ -103,7 +104,8 @@ class SettingsAnkiImportE2eTest {
 
     private suspend fun loadImportedEntitiesOrderedByPosition(): List<VocabularyEntity> =
         withContext(Dispatchers.IO) {
-            targetContext.databaseEntryPoint()
+            targetContext
+                .databaseEntryPoint()
                 .appDatabase()
                 .vocabularyDao()
                 .getAllVocabulary()

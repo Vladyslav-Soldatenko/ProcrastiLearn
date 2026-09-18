@@ -294,17 +294,17 @@ class WordListReorderE2eTest {
             .fetchSemanticsNodes()
             .maxOf { node -> node.boundsInRoot.bottom }
 
-    private fun seedWord(
-        word: String,
-        translation: String,
-        position: Long,
-    ): Long =
+    private fun seedWord(word: String, translation: String, position: Long): Long =
         targetContext.seedWord(word, translation, position)
 
     private fun importBatch(words: List<Pair<String, String>>): List<Long> =
         runBlocking {
             withContext(Dispatchers.IO) {
-                val dao = targetContext.databaseEntryPoint().appDatabase().vocabularyDao()
+                val dao =
+                    targetContext
+                        .databaseEntryPoint()
+                        .appDatabase()
+                        .vocabularyDao()
                 dao.applyImportBatch(
                     toInsert =
                         words.map { (word, translation) ->
@@ -322,7 +322,11 @@ class WordListReorderE2eTest {
         runBlocking {
             withContext(Dispatchers.IO) {
                 requireNotNull(
-                    targetContext.databaseEntryPoint().appDatabase().vocabularyDao().getVocabularyById(id),
+                    targetContext
+                        .databaseEntryPoint()
+                        .appDatabase()
+                        .vocabularyDao()
+                        .getVocabularyById(id),
                 ).position
             }
         }
@@ -330,7 +334,11 @@ class WordListReorderE2eTest {
     private fun pickNewIdByPositionAsc(): Long? =
         runBlocking {
             withContext(Dispatchers.IO) {
-                targetContext.databaseEntryPoint().appDatabase().vocabularyReviewDao().pickNewIdByPositionAsc()
+                targetContext
+                    .databaseEntryPoint()
+                    .appDatabase()
+                    .vocabularyReviewDao()
+                    .pickNewIdByPositionAsc()
             }
         }
 

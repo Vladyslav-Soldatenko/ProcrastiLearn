@@ -95,5 +95,4 @@ class WordListBulkDeleteE2eTest {
         composeTestRule.onNodeWithTag(wordListItemTag(id)).assertExists()
         assertNotNull(targetContext.vocabularyById(id))
     }
-
 }

@@ -10,6 +10,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.ParcelFileDescriptor
 import androidx.annotation.StringRes
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
@@ -26,15 +28,13 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.semantics.getOrNull
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.platform.app.InstrumentationRegistry
+import com.procrastilearn.app.R
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.di.DatabaseEntryPoint
 import com.procrastilearn.app.di.PreferencesEntryPoint
-import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.SearchScope
 import com.procrastilearn.app.domain.model.StudyDirectionMode
 import dagger.hilt.android.EntryPointAccessors
@@ -183,7 +183,9 @@ fun ComposeTestRule.dismissOnboardingIfPresent(context: Context) {
     OnboardingState.dismissed = true
 }
 
-fun Context.string(@StringRes resId: Int): String = getString(resId)
+fun Context.string(
+    @StringRes resId: Int,
+): String = getString(resId)
 
 fun Context.databaseEntryPoint(): DatabaseEntryPoint =
     EntryPointAccessors.fromApplication(applicationContext, DatabaseEntryPoint::class.java)
@@ -234,7 +236,11 @@ fun Context.vocabularyByWord(word: String): VocabularyEntity? =
 fun Context.allVocabularyEntities(): List<VocabularyEntity> =
     runBlocking {
         withContext(Dispatchers.IO) {
-            databaseEntryPoint().appDatabase().vocabularyDao().getAllVocabulary().first()
+            databaseEntryPoint()
+                .appDatabase()
+                .vocabularyDao()
+                .getAllVocabulary()
+                .first()
         }
     }
 
@@ -337,7 +343,10 @@ fun ComposeTestRule.lastVisibleWordListItemBottomYPx(): Float =
         .fetchSemanticsNodes()
         .maxOf { node -> node.boundsInRoot.bottom }
 
-fun ComposeTestRule.longPressWordListItem(id: Long, timeoutMillis: Long = E2E_TIMEOUT_MS) {
+fun ComposeTestRule.longPressWordListItem(
+    id: Long,
+    timeoutMillis: Long = E2E_TIMEOUT_MS,
+) {
     val tag = wordListItemTag(id)
     waitUntilNodeExists(hasTestTag(tag), timeoutMillis)
     onNodeWithTag(tag).performTouchInput { longClick() }
@@ -349,20 +358,29 @@ fun ComposeTestRule.clickWordListItem(id: Long) {
     waitForIdle()
 }
 
-fun ComposeTestRule.openWordListSelectionMenuAndTap(context: Context, @StringRes actionResId: Int) {
+fun ComposeTestRule.openWordListSelectionMenuAndTap(
+    context: Context,
+    @StringRes actionResId: Int,
+) {
     onNodeWithContentDescription(context.string(R.string.word_list_more_actions_selection)).performClick()
     waitForIdle()
     onNodeWithText(context.string(actionResId)).performClick()
     waitForIdle()
 }
 
-fun ComposeTestRule.confirmWordListBulkDelete(context: Context, timeoutMillis: Long = E2E_TIMEOUT_MS) {
+fun ComposeTestRule.confirmWordListBulkDelete(
+    context: Context,
+    timeoutMillis: Long = E2E_TIMEOUT_MS,
+) {
     waitUntilNodeExists(hasText(context.string(R.string.word_list_bulk_delete_confirm_title)), timeoutMillis)
     onNodeWithText(context.string(R.string.action_delete)).performClick()
     waitForIdle()
 }
 
-fun ComposeTestRule.typeInWordListSearch(query: String, timeoutMillis: Long = E2E_TIMEOUT_MS) {
+fun ComposeTestRule.typeInWordListSearch(
+    query: String,
+    timeoutMillis: Long = E2E_TIMEOUT_MS,
+) {
     waitUntilNodeExists(hasTestTag(WORD_LIST_SEARCH_FIELD_TAG), timeoutMillis)
     onNodeWithTag(WORD_LIST_SEARCH_FIELD_TAG).performTextInput(query)
     waitForIdle()
@@ -373,14 +391,20 @@ fun ComposeTestRule.clearWordListSearch() {
     waitForIdle()
 }
 
-fun ComposeTestRule.openWordListSearchScope(context: Context, timeoutMillis: Long = E2E_TIMEOUT_MS) {
+fun ComposeTestRule.openWordListSearchScope(
+    context: Context,
+    timeoutMillis: Long = E2E_TIMEOUT_MS,
+) {
     val contentDescription = context.string(R.string.word_list_search_scope_content_description)
     waitUntilNodeExists(hasContentDescription(contentDescription), timeoutMillis)
     onNodeWithContentDescription(contentDescription).performClick()
     waitForIdle()
 }
 
-fun ComposeTestRule.selectStudyDirectionMode(context: Context, mode: StudyDirectionMode) {
+fun ComposeTestRule.selectStudyDirectionMode(
+    context: Context,
+    mode: StudyDirectionMode,
+) {
     onNodeWithText(context.string(R.string.settings_review_direction_title)).performClick()
     waitForIdle()
     onNodeWithText(context.studyDirectionModeLabel(mode)).performClick()
@@ -403,7 +427,10 @@ fun ComposeTestRule.recreateActivity() {
 fun UiAutomation.shell(command: String): String =
     ParcelFileDescriptor.AutoCloseInputStream(executeShellCommand(command)).bufferedReader().use { it.readText() }
 
-fun Context.stagedAnkiDeckUri(authority: String, deckFileName: String): Uri =
+fun Context.stagedAnkiDeckUri(
+    authority: String,
+    deckFileName: String,
+): Uri =
     Uri
         .Builder()
         .scheme(ContentResolver.SCHEME_CONTENT)
@@ -433,7 +460,10 @@ fun prepareAnkiDocumentPickerResponse(
         .respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, resultIntent))
 }
 
-fun ComposeTestRule.openAnkiImport(context: Context, rowTimeoutMillis: Long = E2E_SHORT_TIMEOUT_MS) {
+fun ComposeTestRule.openAnkiImport(
+    context: Context,
+    rowTimeoutMillis: Long = E2E_SHORT_TIMEOUT_MS,
+) {
     val importRow = context.string(R.string.settings_import_row)
     waitUntilNodeExists(hasText(importRow), rowTimeoutMillis)
     onNodeWithText(importRow, useUnmergedTree = true).performScrollTo()
