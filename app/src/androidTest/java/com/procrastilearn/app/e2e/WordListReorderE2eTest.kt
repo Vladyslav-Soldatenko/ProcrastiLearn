@@ -298,8 +298,7 @@ class WordListReorderE2eTest {
         word: String,
         translation: String,
         position: Long,
-    ): Long =
-        targetContext.seedWord(word, translation, position)
+    ): Long = targetContext.seedWord(word, translation, position)
 
     private fun importBatch(words: List<Pair<String, String>>): List<Long> =
         runBlocking {
