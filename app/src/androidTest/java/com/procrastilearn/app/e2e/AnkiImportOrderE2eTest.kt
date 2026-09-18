@@ -66,10 +66,10 @@ class AnkiImportOrderE2eTest {
                 .allVocabularyEntities()
                 .sortedBy { it.position }
                 .map { entity ->
-                requireNotNull(RANK_REGEX.find(entity.translation)) {
-                    "Expected a \"Rank: N\" field in translation but got: ${entity.translation}"
-                }.groupValues[1].toInt()
-            }
+                    requireNotNull(RANK_REGEX.find(entity.translation)) {
+                        "Expected a \"Rank: N\" field in translation but got: ${entity.translation}"
+                    }.groupValues[1].toInt()
+                }
         assertEquals(
             "Imported rows should be ordered by Anki's own new-card position (cards.due), " +
                 "not arbitrary insertion order",

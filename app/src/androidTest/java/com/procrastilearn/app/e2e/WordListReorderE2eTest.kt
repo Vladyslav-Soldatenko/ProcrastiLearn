@@ -294,7 +294,11 @@ class WordListReorderE2eTest {
             .fetchSemanticsNodes()
             .maxOf { node -> node.boundsInRoot.bottom }
 
-    private fun seedWord(word: String, translation: String, position: Long): Long =
+    private fun seedWord(
+        word: String,
+        translation: String,
+        position: Long,
+    ): Long =
         targetContext.seedWord(word, translation, position)
 
     private fun importBatch(words: List<Pair<String, String>>): List<Long> =
