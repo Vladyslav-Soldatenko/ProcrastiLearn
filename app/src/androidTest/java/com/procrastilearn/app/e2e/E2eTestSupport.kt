@@ -20,7 +20,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.longClick
-import androidx.compose.ui.test.onAllNodes
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -418,7 +418,7 @@ fun Context.studyDirectionModeLabel(mode: StudyDirectionMode): String =
         StudyDirectionMode.BIDIRECTIONAL -> string(R.string.settings_review_direction_bidirectional)
     }
 
-fun ComposeTestRule.recreateActivity() {
+fun ComposeTestRule.recreateActivity(activity: Activity) {
     InstrumentationRegistry.getInstrumentation().runOnMainSync {
         activity.recreate()
     }

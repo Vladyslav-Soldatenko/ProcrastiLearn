@@ -138,7 +138,7 @@ class WordListSearchScopeE2eTest {
         composeTestRule.onNodeWithTag("word_list_search_scope_translation_checkbox").performClick()
         composeTestRule.onNodeWithText(targetContext.string(R.string.action_apply)).performClick()
 
-        composeTestRule.recreateActivity()
+        composeTestRule.recreateActivity(composeTestRule.activity)
         composeTestRule.dismissOnboardingIfPresent(targetContext)
         composeTestRule.navigateToWordList(targetContext)
         composeTestRule.typeInWordListSearch("emberfallecho")

@@ -62,7 +62,7 @@ class WordListReorderE2eTest {
 
         dragHandleToItem(alphaId, zetaId)
 
-        composeTestRule.recreateActivity()
+        composeTestRule.recreateActivity(composeTestRule.activity)
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(alphaId)), E2E_TIMEOUT_MS)
         assertEquals(listOf(muId, zetaId, alphaId), displayedWordIdsInOrder())
     }
@@ -77,7 +77,7 @@ class WordListReorderE2eTest {
 
         dragHandleToItem(zetaId, alphaId)
 
-        composeTestRule.recreateActivity()
+        composeTestRule.recreateActivity(composeTestRule.activity)
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(alphaId)), E2E_TIMEOUT_MS)
         assertEquals(listOf(zetaId, alphaId, muId), displayedWordIdsInOrder())
     }
@@ -93,7 +93,7 @@ class WordListReorderE2eTest {
 
         dragHandleToItem(bId, dId)
 
-        composeTestRule.recreateActivity()
+        composeTestRule.recreateActivity(composeTestRule.activity)
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(aId)), E2E_TIMEOUT_MS)
         assertEquals(listOf(aId, cId, dId, bId), displayedWordIdsInOrder())
     }
@@ -151,7 +151,7 @@ class WordListReorderE2eTest {
         handle.performTouchInput { cancel() }
         composeTestRule.waitForIdle()
 
-        composeTestRule.recreateActivity()
+        composeTestRule.recreateActivity(composeTestRule.activity)
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(gammaId)), E2E_TIMEOUT_MS)
         assertEquals(listOf(alphaId, betaId, gammaId), displayedWordIdsInOrder())
     }
@@ -235,7 +235,7 @@ class WordListReorderE2eTest {
 
         dragHandleToItem(importedIds[1], existingId)
 
-        composeTestRule.recreateActivity()
+        composeTestRule.recreateActivity(composeTestRule.activity)
         composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(existingId)), E2E_TIMEOUT_MS)
         assertEquals(listOf(importedIds[1], existingId, importedIds[0]), displayedWordIdsInOrder())
     }
