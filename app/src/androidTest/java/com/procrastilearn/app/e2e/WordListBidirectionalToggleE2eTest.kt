@@ -9,11 +9,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.procrastilearn.app.MainActivity
 import com.procrastilearn.app.R
-import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.domain.model.StudyDirectionMode
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -32,13 +28,15 @@ class WordListBidirectionalToggleE2eTest {
     @Before
     fun beforeEach() {
         targetContext = InstrumentationRegistry.getInstrumentation().targetContext
-        resetState()
+        targetContext.resetE2eDatabase()
+        targetContext.setStudyDirectionMode(StudyDirectionMode.BIDIRECTIONAL)
         composeTestRule.dismissOnboardingIfPresent(targetContext)
     }
 
     @After
     fun afterEach() {
-        resetState()
+        targetContext.resetE2eDatabase()
+        targetContext.setStudyDirectionMode(StudyDirectionMode.BIDIRECTIONAL)
     }
 
     @Test
@@ -46,7 +44,7 @@ class WordListBidirectionalToggleE2eTest {
         val word = "glimmerquat"
         val translation = "twillendor"
         val forwardDueAt = System.currentTimeMillis() + ONE_DAY_MS
-        val id = seedWord(word = word, translation = translation, correctCount = 1, fsrsDueAt = forwardDueAt)
+        val id = targetContext.seedWord(word = word, translation = translation, correctCount = 1, fsrsDueAt = forwardDueAt)
 
         composeTestRule.navigateToWordList(targetContext)
         composeTestRule.longPressWordListItem(id)
@@ -61,7 +59,7 @@ class WordListBidirectionalToggleE2eTest {
     fun disablingBidirectionalOnSelectedWordShowsConfirmDialogAndClearsFlagOnConfirm() {
         val word = "sunderpike"
         val translation = "molvantree"
-        val id = seedWord(word = word, translation = translation, bidirectional = true)
+        val id = targetContext.seedWord(word = word, translation = translation, bidirectional = true)
 
         composeTestRule.navigateToWordList(targetContext)
         composeTestRule.longPressWordListItem(id)
@@ -82,8 +80,8 @@ class WordListBidirectionalToggleE2eTest {
     fun bulkTestBothDirectionsAppliesToMultipleSelectedWords() {
         val wordA = "corvantiel"
         val wordB = "brellathorn"
-        val idA = seedWord(word = wordA, translation = "translation-a")
-        val idB = seedWord(word = wordB, translation = "translation-b")
+        val idA = targetContext.seedWord(word = wordA, translation = "translation-a")
+        val idB = targetContext.seedWord(word = wordB, translation = "translation-b")
 
         composeTestRule.navigateToWordList(targetContext)
         composeTestRule.longPressWordListItem(idA)
@@ -92,33 +90,6 @@ class WordListBidirectionalToggleE2eTest {
 
         assertTrue(targetContext.vocabularyByWord(wordA)!!.bidirectional)
         assertTrue(targetContext.vocabularyByWord(wordB)!!.bidirectional)
-    }
-
-    private fun seedWord(
-        word: String,
-        translation: String,
-        bidirectional: Boolean = false,
-        correctCount: Int = 0,
-        fsrsDueAt: Long = 0L,
-    ): Long =
-        targetContext.insertVocabulary(
-            VocabularyEntity(
-                word = word,
-                translation = translation,
-                bidirectional = bidirectional,
-                correctCount = correctCount,
-                fsrsCardJson = "",
-                fsrsDueAt = fsrsDueAt,
-            ),
-        )
-
-    private fun resetState() {
-        targetContext.resetE2eDatabase()
-        runBlocking {
-            withContext(Dispatchers.IO) {
-                targetContext.preferencesEntryPoint().dayCountersStore().setStudyDirectionMode(StudyDirectionMode.BIDIRECTIONAL)
-            }
-        }
     }
 
     private companion object {

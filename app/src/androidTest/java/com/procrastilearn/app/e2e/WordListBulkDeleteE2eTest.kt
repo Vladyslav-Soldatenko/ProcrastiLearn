@@ -9,7 +9,6 @@ import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.procrastilearn.app.MainActivity
 import com.procrastilearn.app.R
-import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import org.junit.After
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -39,7 +38,7 @@ class WordListBulkDeleteE2eTest {
     @Test
     fun deletingSingleSelectedWordRemovesItFromListAndDatabase() {
         val word = "quorvintal"
-        val id = seedWord(word = word, translation = "flembercot")
+        val id = targetContext.seedWord(word = word, translation = "flembercot")
 
         composeTestRule.navigateToWordList(targetContext)
         composeTestRule.longPressWordListItem(id)
@@ -55,9 +54,9 @@ class WordListBulkDeleteE2eTest {
         val wordA = "plindorash"
         val wordB = "castervine"
         val wordKept = "molthingear"
-        val idA = seedWord(word = wordA, translation = "translation-a")
-        val idB = seedWord(word = wordB, translation = "translation-b")
-        val idKept = seedWord(word = wordKept, translation = "translation-kept")
+        val idA = targetContext.seedWord(word = wordA, translation = "translation-a")
+        val idB = targetContext.seedWord(word = wordB, translation = "translation-b")
+        val idKept = targetContext.seedWord(word = wordKept, translation = "translation-kept")
 
         composeTestRule.navigateToWordList(targetContext)
         composeTestRule.longPressWordListItem(idA)
@@ -80,7 +79,7 @@ class WordListBulkDeleteE2eTest {
     @Test
     fun cancelingBulkDeleteDialogKeepsSelectedWords() {
         val word = "haventrolm"
-        val id = seedWord(word = word, translation = "sondrifelt")
+        val id = targetContext.seedWord(word = word, translation = "sondrifelt")
 
         composeTestRule.navigateToWordList(targetContext)
         composeTestRule.longPressWordListItem(id)
@@ -97,11 +96,4 @@ class WordListBulkDeleteE2eTest {
         assertNotNull(targetContext.vocabularyById(id))
     }
 
-    private fun seedWord(
-        word: String,
-        translation: String,
-    ): Long =
-        targetContext.insertVocabulary(
-            VocabularyEntity(word = word, translation = translation, fsrsCardJson = ""),
-        )
 }

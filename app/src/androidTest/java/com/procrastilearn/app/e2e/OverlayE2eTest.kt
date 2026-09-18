@@ -72,9 +72,9 @@ class OverlayE2eTest {
         uiAutomation.shell("appops set ${targetContext.packageName} SYSTEM_ALERT_WINDOW allow")
         waitUntilAccessibilityServiceBound()
 
-        resetAppState()
-        seedWord(SEEDED_WORD, "seeded-translation", position = 0L)
-        seedWord(SECOND_WORD, "seeded-translation-2", position = 1L)
+        resetOverlayState()
+        targetContext.seedWord(SEEDED_WORD, "seeded-translation", position = 0L)
+        targetContext.seedWord(SECOND_WORD, "seeded-translation-2", position = 1L)
         runBlocking(Dispatchers.IO) {
             appPreferencesRepository().setBlockedApps(emptySet())
             appPreferencesRepository().setProcrastilearnEnabled(true)
@@ -91,7 +91,7 @@ class OverlayE2eTest {
             appPreferencesRepository().setProcrastilearnEnabled(true)
             dayCountersStore().setRatingDelaySeconds(0)
         }
-        resetAppState()
+        resetOverlayState()
 
         val restored = previousEnabledServices
         if (restored.isNullOrBlank() || restored == "null") {
@@ -110,7 +110,7 @@ class OverlayE2eTest {
 
         launchTargetAppUntilOverlayAppears()
 
-        composeTestRule.assertEventuallyDisplayed(hasText(SEEDED_WORD, substring = true), DEFAULT_TIMEOUT_MS)
+        composeTestRule.assertEventuallyDisplayed(hasText(SEEDED_WORD, substring = true), E2E_TIMEOUT_MS)
         revealTranslation()
 
         listOf(
@@ -118,12 +118,12 @@ class OverlayE2eTest {
             R.string.rating_hard,
             R.string.rating_good,
             R.string.rating_easy,
-        ).forEach { resId -> composeTestRule.assertEventuallyDisplayed(hasText(string(resId)), DEFAULT_TIMEOUT_MS) }
+        ).forEach { resId -> composeTestRule.assertEventuallyDisplayed(hasText(targetContext.string(resId)), E2E_TIMEOUT_MS) }
 
-        composeTestRule.onNodeWithText(string(R.string.rating_good)).performClick()
+        composeTestRule.onNodeWithText(targetContext.string(R.string.rating_good)).performClick()
 
-        composeTestRule.waitUntilNodeGone(hasText(SEEDED_WORD, substring = true), DEFAULT_TIMEOUT_MS)
-        composeTestRule.waitUntilNodeGone(hasText(string(R.string.rating_good)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.waitUntilNodeGone(hasText(SEEDED_WORD, substring = true), E2E_TIMEOUT_MS)
+        composeTestRule.waitUntilNodeGone(hasText(targetContext.string(R.string.rating_good)), E2E_TIMEOUT_MS)
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -135,14 +135,14 @@ class OverlayE2eTest {
         launchTargetAppUntilOverlayAppears()
         revealTranslation()
 
-        composeTestRule.assertEventuallyDisplayed(hasTestTag("rating_lock_countdown"), DEFAULT_TIMEOUT_MS)
+        composeTestRule.assertEventuallyDisplayed(hasTestTag("rating_lock_countdown"), E2E_TIMEOUT_MS)
         listOf(
             R.string.rating_again,
             R.string.rating_hard,
             R.string.rating_good,
             R.string.rating_easy,
         ).forEach { resId ->
-            composeTestRule.onNodeWithText(string(resId)).assertIsNotEnabled()
+            composeTestRule.onNodeWithText(targetContext.string(resId)).assertIsNotEnabled()
         }
     }
 
@@ -155,21 +155,21 @@ class OverlayE2eTest {
         launchTargetAppUntilOverlayAppears()
         revealTranslation()
 
-        composeTestRule.assertEventuallyDisplayed(hasTestTag("rating_lock_countdown"), DEFAULT_TIMEOUT_MS)
+        composeTestRule.assertEventuallyDisplayed(hasTestTag("rating_lock_countdown"), E2E_TIMEOUT_MS)
         listOf(
             R.string.rating_again,
             R.string.rating_hard,
             R.string.rating_good,
             R.string.rating_easy,
         ).forEach { resId ->
-            composeTestRule.onNodeWithText(string(resId)).assertIsNotEnabled()
+            composeTestRule.onNodeWithText(targetContext.string(resId)).assertIsNotEnabled()
         }
 
-        composeTestRule.onNodeWithText(string(R.string.rating_good)).performClick()
+        composeTestRule.onNodeWithText(targetContext.string(R.string.rating_good)).performClick()
         composeTestRule.waitForIdle()
 
-        composeTestRule.assertEventuallyDisplayed(hasText(string(R.string.rating_good)), DEFAULT_TIMEOUT_MS)
-        composeTestRule.onNodeWithText(string(R.string.rating_good)).assertIsNotEnabled()
+        composeTestRule.assertEventuallyDisplayed(hasText(targetContext.string(R.string.rating_good)), E2E_TIMEOUT_MS)
+        composeTestRule.onNodeWithText(targetContext.string(R.string.rating_good)).assertIsNotEnabled()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -181,13 +181,13 @@ class OverlayE2eTest {
         launchTargetAppUntilOverlayAppears()
         revealTranslation()
 
-        composeTestRule.assertEventuallyDisplayed(hasTestTag("rating_lock_countdown"), DEFAULT_TIMEOUT_MS)
+        composeTestRule.assertEventuallyDisplayed(hasTestTag("rating_lock_countdown"), E2E_TIMEOUT_MS)
         waitForRatingUnlock()
 
-        composeTestRule.onNodeWithText(string(R.string.rating_good)).assertIsEnabled()
-        composeTestRule.onNodeWithText(string(R.string.rating_good)).performClick()
+        composeTestRule.onNodeWithText(targetContext.string(R.string.rating_good)).assertIsEnabled()
+        composeTestRule.onNodeWithText(targetContext.string(R.string.rating_good)).performClick()
 
-        composeTestRule.waitUntilNodeGone(hasText(string(R.string.rating_good)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.waitUntilNodeGone(hasText(targetContext.string(R.string.rating_good)), E2E_TIMEOUT_MS)
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -198,15 +198,15 @@ class OverlayE2eTest {
 
         launchTargetAppUntilOverlayAppears()
         revealTranslation()
-        composeTestRule.assertEventuallyDisplayed(hasTestTag("rating_lock_countdown"), DEFAULT_TIMEOUT_MS)
+        composeTestRule.assertEventuallyDisplayed(hasTestTag("rating_lock_countdown"), E2E_TIMEOUT_MS)
         waitForRatingUnlock()
-        composeTestRule.onNodeWithText(string(R.string.rating_good)).performClick()
-        composeTestRule.waitUntilNodeGone(hasText(string(R.string.rating_good)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.onNodeWithText(targetContext.string(R.string.rating_good)).performClick()
+        composeTestRule.waitUntilNodeGone(hasText(targetContext.string(R.string.rating_good)), E2E_TIMEOUT_MS)
 
         launchTargetAppUntilOverlayAppears()
         revealTranslation()
 
-        composeTestRule.assertEventuallyDisplayed(hasTestTag("rating_lock_countdown"), DEFAULT_TIMEOUT_MS)
+        composeTestRule.assertEventuallyDisplayed(hasTestTag("rating_lock_countdown"), E2E_TIMEOUT_MS)
         composeTestRule
             .onNodeWithTag("rating_lock_countdown", useUnmergedTree = true)
             .assertTextEquals(RATING_DELAY_SECONDS.toString())
@@ -216,21 +216,21 @@ class OverlayE2eTest {
             R.string.rating_good,
             R.string.rating_easy,
         ).forEach { resId ->
-            composeTestRule.onNodeWithText(string(resId)).assertIsNotEnabled()
+            composeTestRule.onNodeWithText(targetContext.string(resId)).assertIsNotEnabled()
         }
     }
 
     private fun selectTargetAppAsBlocked() {
-        composeTestRule.waitUntilNodeExists(hasText(string(R.string.nav_apps)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.waitUntilNodeExists(hasText(targetContext.string(R.string.nav_apps)), E2E_TIMEOUT_MS)
         composeTestRule
-            .onNodeWithContentDescription(string(R.string.nav_apps), useUnmergedTree = true)
+            .onNodeWithContentDescription(targetContext.string(R.string.nav_apps), useUnmergedTree = true)
             .performClick()
         composeTestRule.waitForIdle()
 
         val rowTag = "app_row_$TARGET_PACKAGE"
         val checkboxTag = "app_checkbox_$TARGET_PACKAGE"
 
-        composeTestRule.waitUntilNodeExists(hasScrollAction(), DEFAULT_TIMEOUT_MS)
+        composeTestRule.waitUntilNodeExists(hasScrollAction(), E2E_TIMEOUT_MS)
         composeTestRule.waitUntilNodeGone(hasTestTag("apps_list_loading_indicator"), APPS_LIST_TIMEOUT_MS)
         composeTestRule
             .onNode(hasScrollAction())
@@ -242,14 +242,14 @@ class OverlayE2eTest {
     }
 
     private fun revealTranslation() {
-        composeTestRule.onNodeWithText(string(R.string.learning_show_translation)).performClick()
+        composeTestRule.onNodeWithText(targetContext.string(R.string.learning_show_translation)).performClick()
         composeTestRule.waitForIdle()
     }
 
     private fun setRatingDelayViaSettings(seconds: Int) {
-        composeTestRule.waitUntilNodeExists(hasText(string(R.string.nav_settings)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.waitUntilNodeExists(hasText(targetContext.string(R.string.nav_settings)), E2E_TIMEOUT_MS)
         composeTestRule
-            .onNodeWithContentDescription(string(R.string.nav_settings), useUnmergedTree = true)
+            .onNodeWithContentDescription(targetContext.string(R.string.nav_settings), useUnmergedTree = true)
             .performClick()
         composeTestRule.waitForIdle()
 
@@ -259,22 +259,22 @@ class OverlayE2eTest {
         ratingDelayField.performClick()
         composeTestRule.waitForIdle()
         ratingDelayField.performTextReplacement(seconds.toString())
-        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+        composeTestRule.onNodeWithText(targetContext.string(R.string.action_ok)).performClick()
         composeTestRule.waitForIdle()
 
         composeTestRule
-            .onNodeWithContentDescription(string(R.string.nav_apps), useUnmergedTree = true)
+            .onNodeWithContentDescription(targetContext.string(R.string.nav_apps), useUnmergedTree = true)
             .performClick()
         composeTestRule.waitForIdle()
     }
 
     private fun openRatingDelayDialog() {
         composeTestRule
-            .onNodeWithText(string(R.string.settings_rating_delay_headline))
+            .onNodeWithText(targetContext.string(R.string.settings_rating_delay_headline))
             .performScrollTo()
             .performClick()
         composeTestRule.waitForIdle()
-        composeTestRule.waitUntilNodeExists(hasText(string(R.string.settings_rating_delay_title)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.waitUntilNodeExists(hasText(targetContext.string(R.string.settings_rating_delay_title)), E2E_TIMEOUT_MS)
     }
 
     private fun waitForRatingUnlock() {
@@ -291,7 +291,7 @@ class OverlayE2eTest {
             }
 
             if (composeTestRule.nodeVisibleWithin(
-                    hasText(string(R.string.learning_show_translation)),
+                    hasText(targetContext.string(R.string.learning_show_translation)),
                     LAUNCH_POLL_TIMEOUT_MS,
                 )
             ) {
@@ -313,7 +313,7 @@ class OverlayE2eTest {
 
     private fun waitUntilAccessibilityServiceBound() {
         val manager = targetContext.getSystemService(AccessibilityManager::class.java)
-        val deadline = System.currentTimeMillis() + DEFAULT_TIMEOUT_MS
+        val deadline = System.currentTimeMillis() + E2E_TIMEOUT_MS
         while (System.currentTimeMillis() < deadline) {
             val bound =
                 manager
@@ -327,7 +327,7 @@ class OverlayE2eTest {
 
     private fun waitUntilBlockedAppsContains(packageName: String) {
         runBlocking(Dispatchers.IO) {
-            val deadline = System.currentTimeMillis() + DEFAULT_TIMEOUT_MS
+            val deadline = System.currentTimeMillis() + E2E_TIMEOUT_MS
             while (System.currentTimeMillis() < deadline) {
                 if (appPreferencesRepository().getBlockedApps().first().contains(packageName)) return@runBlocking
                 delay(SERVICE_BIND_POLL_MS)
@@ -335,31 +335,9 @@ class OverlayE2eTest {
         }
     }
 
-    private fun string(resId: Int) = targetContext.getString(resId)
-
-    private fun seedWord(
-        word: String,
-        translation: String,
-        position: Long = 0L,
-    ) {
+    private fun resetOverlayState() {
         runBlocking(Dispatchers.IO) {
-            databaseEntryPoint().appDatabase().vocabularyDao().insertVocabulary(
-                VocabularyEntity(
-                    word = word,
-                    translation = translation,
-                    correctCount = 0,
-                    incorrectCount = 0,
-                    fsrsCardJson = "",
-                    fsrsDueAt = 0L,
-                    position = position,
-                ),
-            )
-        }
-    }
-
-    private fun resetAppState() {
-        runBlocking(Dispatchers.IO) {
-            val db = databaseEntryPoint().appDatabase()
+            val db = targetContext.databaseEntryPoint().appDatabase()
             db.vocabularyDao().deleteAllVocabulary()
             db.undoSnapshotDao().deleteAll()
             // DayCountersStore persists across app runs (unlike the DB tables above), so a
@@ -369,24 +347,12 @@ class OverlayE2eTest {
         }
     }
 
-    private fun todayStamp(): Int =
-        LocalDate
-            .now()
-            .format(DateTimeFormatter.BASIC_ISO_DATE)
-            .toInt()
-
     private fun dayCountersStore(): DayCountersStore =
         EntryPointAccessors
             .fromApplication(
                 targetContext.applicationContext,
                 ServiceEntryPoint::class.java,
             ).dayCountersStore()
-
-    private fun databaseEntryPoint(): DatabaseEntryPoint =
-        EntryPointAccessors.fromApplication(
-            targetContext.applicationContext,
-            DatabaseEntryPoint::class.java,
-        )
 
     private fun appPreferencesRepository(): AppPreferencesRepository =
         EntryPointAccessors
@@ -395,16 +361,12 @@ class OverlayE2eTest {
                 ServiceEntryPoint::class.java,
             ).appPreferencesRepository()
 
-    private fun UiAutomation.shell(command: String): String =
-        ParcelFileDescriptor.AutoCloseInputStream(executeShellCommand(command)).bufferedReader().use { it.readText() }
-
     private companion object {
-        const val DEFAULT_TIMEOUT_MS = 15_000L
 
         // The installed-apps list is loaded via PackageManager.queryIntentActivities() plus a
         // per-app icon-load loop (AppRepositoryImpl.loadLaunchableApps()). On a cold emulator this
         // can be slow the first time it runs (odex/vdex verification of large system packages like
-        // Google Play services), well past DEFAULT_TIMEOUT_MS, so give it its own longer budget.
+        // Google Play services), well past E2E_TIMEOUT_MS, so give it its own longer budget.
         const val APPS_LIST_TIMEOUT_MS = 30_000L
         const val LAUNCH_POLL_TIMEOUT_MS = 3_000L
         const val LAUNCH_RETRY_COUNT = 3

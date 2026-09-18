@@ -2,11 +2,13 @@ package com.procrastilearn.app.e2e
 
 import android.app.Activity
 import android.app.Instrumentation
+import android.app.UiAutomation
 import android.content.ClipData
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import androidx.annotation.StringRes
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
@@ -16,6 +18,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onAllNodes
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -23,14 +26,20 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
+import androidx.test.platform.app.InstrumentationRegistry
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.di.DatabaseEntryPoint
 import com.procrastilearn.app.di.PreferencesEntryPoint
 import com.procrastilearn.app.R
+import com.procrastilearn.app.domain.model.SearchScope
+import com.procrastilearn.app.domain.model.StudyDirectionMode
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -38,10 +47,19 @@ import java.time.format.DateTimeFormatter
 
 const val E2E_TIMEOUT_MS = 15_000L
 const val E2E_SHORT_TIMEOUT_MS = 5_000L
+const val E2E_DEFAULT_NEW_CARDS_PER_DAY = 15
+const val E2E_ANKI_IMPORT_TIMEOUT_MS = 50_000L
+const val E2E_ANKI_IMPORT_ROW_TIMEOUT_MS = 10_000L
 
 private const val ONBOARDING_STEP_TIMEOUT_MS = 1_500L
 private const val NODE_POLL_INTERVAL_MS = 100L
 private const val WORD_LIST_SEARCH_FIELD_TAG = "word_list_search_field"
+private const val WORD_LIST_ITEM_TAG_PREFIX = "word_list_item_"
+
+private val wordListItemMatcher =
+    SemanticsMatcher("has a word-list item tag") { node ->
+        node.config.getOrNull(SemanticsProperties.TestTag)?.startsWith(WORD_LIST_ITEM_TAG_PREFIX) == true
+    }
 
 @OptIn(ExperimentalTestApi::class)
 fun ComposeTestRule.waitUntilNodeExists(
@@ -213,6 +231,13 @@ fun Context.vocabularyByWord(word: String): VocabularyEntity? =
         }
     }
 
+fun Context.allVocabularyEntities(): List<VocabularyEntity> =
+    runBlocking {
+        withContext(Dispatchers.IO) {
+            databaseEntryPoint().appDatabase().vocabularyDao().getAllVocabulary().first()
+        }
+    }
+
 fun Context.resetDailyCounters() {
     runBlocking {
         withContext(Dispatchers.IO) {
@@ -230,6 +255,50 @@ fun Context.setNewCardsPerDay(count: Int) {
         }
     }
 }
+
+fun Context.setStudyDirectionMode(mode: StudyDirectionMode) {
+    runBlocking {
+        withContext(Dispatchers.IO) {
+            preferencesEntryPoint().dayCountersStore().setStudyDirectionMode(mode)
+        }
+    }
+}
+
+fun Context.resetWordListSearchScope() {
+    runBlocking {
+        withContext(Dispatchers.IO) {
+            preferencesEntryPoint().wordListSearchPreferencesStore().setScope(SearchScope())
+        }
+    }
+}
+
+fun Context.seedWord(
+    word: String,
+    translation: String,
+    position: Long? = null,
+    bidirectional: Boolean = false,
+    correctCount: Int = 0,
+    fsrsDueAt: Long = 0L,
+    backwardFsrsDueAt: Long = 0L,
+    backwardPromptOverride: String? = null,
+    backwardAnswerOverride: String? = null,
+): Long =
+    insertVocabulary(
+        VocabularyEntity(
+            word = word,
+            translation = translation,
+            position = position ?: 0L,
+            bidirectional = bidirectional,
+            correctCount = correctCount,
+            fsrsCardJson = "",
+            fsrsDueAt = fsrsDueAt,
+            backwardFsrsCardJson = "",
+            backwardFsrsDueAt = backwardFsrsDueAt,
+            backwardPromptOverride = backwardPromptOverride,
+            backwardAnswerOverride = backwardAnswerOverride,
+        ),
+        assignNextPosition = position == null,
+    )
 
 fun todayStamp(): Int = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE).toInt()
 
@@ -255,7 +324,18 @@ fun ComposeTestRule.navigateToWordList(
     waitForIdle()
 }
 
-fun wordListItemTag(id: Long): String = "word_list_item_$id"
+fun wordListItemTag(id: Long): String = "$WORD_LIST_ITEM_TAG_PREFIX$id"
+
+fun ComposeTestRule.displayedWordListItemIds(): List<Long> =
+    onAllNodes(wordListItemMatcher, useUnmergedTree = true)
+        .fetchSemanticsNodes()
+        .mapNotNull { node -> node.config.getOrNull(SemanticsProperties.TestTag) }
+        .map { tag -> tag.removePrefix(WORD_LIST_ITEM_TAG_PREFIX).toLong() }
+
+fun ComposeTestRule.lastVisibleWordListItemBottomYPx(): Float =
+    onAllNodes(wordListItemMatcher, useUnmergedTree = true)
+        .fetchSemanticsNodes()
+        .maxOf { node -> node.boundsInRoot.bottom }
 
 fun ComposeTestRule.longPressWordListItem(id: Long, timeoutMillis: Long = E2E_TIMEOUT_MS) {
     val tag = wordListItemTag(id)
@@ -292,6 +372,36 @@ fun ComposeTestRule.clearWordListSearch() {
     onNodeWithTag(WORD_LIST_SEARCH_FIELD_TAG).performTextClearance()
     waitForIdle()
 }
+
+fun ComposeTestRule.openWordListSearchScope(context: Context, timeoutMillis: Long = E2E_TIMEOUT_MS) {
+    val contentDescription = context.string(R.string.word_list_search_scope_content_description)
+    waitUntilNodeExists(hasContentDescription(contentDescription), timeoutMillis)
+    onNodeWithContentDescription(contentDescription).performClick()
+    waitForIdle()
+}
+
+fun ComposeTestRule.selectStudyDirectionMode(context: Context, mode: StudyDirectionMode) {
+    onNodeWithText(context.string(R.string.settings_review_direction_title)).performClick()
+    waitForIdle()
+    onNodeWithText(context.studyDirectionModeLabel(mode)).performClick()
+    waitForIdle()
+}
+
+fun Context.studyDirectionModeLabel(mode: StudyDirectionMode): String =
+    when (mode) {
+        StudyDirectionMode.FORWARD -> string(R.string.settings_review_direction_forward)
+        StudyDirectionMode.BACKWARD -> string(R.string.settings_review_direction_backward)
+        StudyDirectionMode.BIDIRECTIONAL -> string(R.string.settings_review_direction_bidirectional)
+    }
+
+fun ComposeTestRule.recreateActivity() {
+    InstrumentationRegistry.getInstrumentation().runOnMainSync {
+        activity.recreate()
+    }
+}
+
+fun UiAutomation.shell(command: String): String =
+    ParcelFileDescriptor.AutoCloseInputStream(executeShellCommand(command)).bufferedReader().use { it.readText() }
 
 fun Context.stagedAnkiDeckUri(authority: String, deckFileName: String): Uri =
     Uri

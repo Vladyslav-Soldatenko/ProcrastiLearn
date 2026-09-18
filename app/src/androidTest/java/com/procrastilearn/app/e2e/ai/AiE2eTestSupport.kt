@@ -2,22 +2,62 @@ package com.procrastilearn.app.e2e.ai
 
 import android.content.Context
 import androidx.compose.ui.test.hasAnySibling
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.ComposeTestRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.test.platform.app.InstrumentationRegistry
+import com.procrastilearn.app.MainActivity
+import com.procrastilearn.app.R
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
-import com.procrastilearn.app.di.DatabaseEntryPoint
-import com.procrastilearn.app.di.PreferencesEntryPoint
+import com.procrastilearn.app.data.local.prefs.TranslationPreferences
 import com.procrastilearn.app.domain.model.AiTranslationDirection
 import com.procrastilearn.app.domain.model.Language
-import dagger.hilt.android.EntryPointAccessors
+import com.procrastilearn.app.e2e.dismissOnboardingIfPresent
+import com.procrastilearn.app.e2e.insertVocabulary
+import com.procrastilearn.app.e2e.navigateTo
+import com.procrastilearn.app.e2e.preferencesEntryPoint
+import com.procrastilearn.app.e2e.resetE2eDatabase
+import com.procrastilearn.app.e2e.vocabularyByWord
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+
+const val AI_CALL_TIMEOUT_MS = 30_000L
+const val AI_ERROR_CARD_TAG = "add_word_error_card"
+const val AI_NO_RESPONSE_TIMEOUT_MS = 3_000L
 
 private const val OPENAI_API_KEY_ARG = "OPENAI_API_KEY"
+
+abstract class AiTranslationE2eTest {
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    protected lateinit var targetContext: Context
+
+    @Before
+    fun setUpAiTranslationE2eTest() {
+        targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        targetContext.resetE2eDatabase()
+        clearAiTranslationPrefs(targetContext)
+        composeTestRule.dismissOnboardingIfPresent(targetContext)
+    }
+
+    @After
+    fun tearDownAiTranslationE2eTest() {
+        restoreAiTranslationE2eEnvironment()
+        targetContext.resetE2eDatabase()
+        clearAiTranslationPrefs(targetContext)
+    }
+
+    protected open fun restoreAiTranslationE2eEnvironment() = Unit
+}
 
 fun requireOpenAiApiKey(): String {
     val key = InstrumentationRegistry.getArguments().getString(OPENAI_API_KEY_ARG)
@@ -36,24 +76,18 @@ fun seedAiTranslationPrefs(
     native: Language = Language.ENGLISH,
     target: Language = Language.RUSSIAN,
 ) {
-    runBlocking {
-        withContext(Dispatchers.IO) {
-            val prefs = translationPreferences(context)
-            prefs.openAiStore.setOpenAiApiKey(apiKey)
-            prefs.openAiStore.setUseAiForTranslation(useAi)
-            prefs.openAiStore.setAiTranslationDirection(direction)
-            prefs.languagePreferencesStore.setLanguagePair(native, target)
-        }
+    context.updateAiTranslationPrefs {
+        openAiStore.setOpenAiApiKey(apiKey)
+        openAiStore.setUseAiForTranslation(useAi)
+        openAiStore.setAiTranslationDirection(direction)
+        languagePreferencesStore.setLanguagePair(native, target)
     }
 }
 
 fun clearAiTranslationPrefs(context: Context) {
-    runBlocking {
-        withContext(Dispatchers.IO) {
-            val prefs = translationPreferences(context)
-            prefs.openAiStore.setUseAiForTranslation(false)
-            prefs.openAiStore.setOpenAiApiKey("")
-        }
+    context.updateAiTranslationPrefs {
+        openAiStore.setUseAiForTranslation(false)
+        openAiStore.setOpenAiApiKey("")
     }
 }
 
@@ -62,47 +96,27 @@ fun seedExistingWord(
     word: String,
     translation: String,
 ) {
-    runBlocking {
-        withContext(Dispatchers.IO) {
-            val dao = databaseEntryPoint(context).appDatabase().vocabularyDao()
-            dao.insertVocabulary(
-                VocabularyEntity(
-                    word = word,
-                    translation = translation,
-                    correctCount = 0,
-                    incorrectCount = 0,
-                    fsrsCardJson = "",
-                    fsrsDueAt = 0L,
-                    position = dao.getMaxPosition() + 1,
-                ),
-            )
-        }
-    }
+    context.insertVocabulary(
+        VocabularyEntity(
+            word = word,
+            translation = translation,
+            correctCount = 0,
+            incorrectCount = 0,
+            fsrsCardJson = "",
+            fsrsDueAt = 0L,
+        ),
+    )
 }
 
-fun resetAiVocabulary(context: Context) {
-    runBlocking {
-        withContext(Dispatchers.IO) {
-            val db = databaseEntryPoint(context).appDatabase()
-            db.vocabularyDao().deleteAllVocabulary()
-            db.undoSnapshotDao().deleteAll()
-        }
-    }
+fun vocabularyExists(context: Context, word: String): Boolean = context.vocabularyByWord(word) != null
+
+fun ComposeTestRule.navigateToAddWord(context: Context) = navigateTo(context, R.string.nav_add_word)
+
+fun ComposeTestRule.typeAddWord(word: String) {
+    onNode(hasSetTextAction()).performTextInput(word)
+    waitForIdle()
 }
 
-fun vocabularyExists(
-    context: Context,
-    word: String,
-): Boolean =
-    runBlocking {
-        withContext(Dispatchers.IO) {
-            val dao = databaseEntryPoint(context).appDatabase().vocabularyDao()
-            dao.getVocabularyByWord(VocabularyEntity.normalizeWord(word)) != null
-        }
-    }
-
-// The "use AI" Checkbox has no testTag/contentDescription and, whenever the bidirectional
-// checkbox is also visible (AI mode not active yet), isToggleable() alone isn't unique.
 fun ComposeTestRule.clickUseAiToggle(useAiToggleLabel: String) {
     onNode(
         isToggleable().and(hasAnySibling(hasText(useAiToggleLabel))),
@@ -110,15 +124,10 @@ fun ComposeTestRule.clickUseAiToggle(useAiToggleLabel: String) {
     ).performClick()
 }
 
-private fun translationPreferences(context: Context) =
-    EntryPointAccessors
-        .fromApplication(
-            context.applicationContext,
-            PreferencesEntryPoint::class.java,
-        ).translationPreferences()
-
-private fun databaseEntryPoint(context: Context): DatabaseEntryPoint =
-    EntryPointAccessors.fromApplication(
-        context.applicationContext,
-        DatabaseEntryPoint::class.java,
-    )
+private fun Context.updateAiTranslationPrefs(update: suspend TranslationPreferences.() -> Unit) {
+    runBlocking {
+        withContext(Dispatchers.IO) {
+            preferencesEntryPoint().translationPreferences().update()
+        }
+    }
+}

@@ -7,7 +7,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.procrastilearn.app.MainActivity
 import com.procrastilearn.app.R
-import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -34,8 +33,8 @@ class WordListSearchE2eTest {
 
     @Test
     fun typingQueryFiltersListToMatchingWordsOnly() {
-        val matchingId = seedWord(word = "glimmerquat", translation = "shiny-thing")
-        val otherId = seedWord(word = "sunderpike", translation = "broken-spear")
+        val matchingId = targetContext.seedWord(word = "glimmerquat", translation = "shiny-thing")
+        val otherId = targetContext.seedWord(word = "sunderpike", translation = "broken-spear")
 
         composeTestRule.navigateToWordList(targetContext)
         composeTestRule.waitUntilNodeExists(hasTestTag(wordListItemTag(matchingId)), E2E_TIMEOUT_MS)
@@ -49,7 +48,7 @@ class WordListSearchE2eTest {
 
     @Test
     fun searchIsCaseInsensitiveAndMatchesSubstringAnywhereInWord() {
-        val id = seedWord(word = "corvantiel", translation = "translation-a")
+        val id = targetContext.seedWord(word = "corvantiel", translation = "translation-a")
 
         composeTestRule.navigateToWordList(targetContext)
         composeTestRule.typeInWordListSearch("VANTI")
@@ -59,7 +58,7 @@ class WordListSearchE2eTest {
 
     @Test
     fun queryWithNoMatchesShowsEmptyStateAndHidesAllWords() {
-        val id = seedWord(word = "brellathorn", translation = "translation-b")
+        val id = targetContext.seedWord(word = "brellathorn", translation = "translation-b")
 
         composeTestRule.navigateToWordList(targetContext)
         composeTestRule.typeInWordListSearch("xyznotfound")
@@ -73,8 +72,8 @@ class WordListSearchE2eTest {
 
     @Test
     fun clearingSearchQueryRestoresFullWordList() {
-        val idA = seedWord(word = "molvantree", translation = "translation-a")
-        val idB = seedWord(word = "pikewander", translation = "translation-b")
+        val idA = targetContext.seedWord(word = "molvantree", translation = "translation-a")
+        val idB = targetContext.seedWord(word = "pikewander", translation = "translation-b")
 
         composeTestRule.navigateToWordList(targetContext)
         composeTestRule.typeInWordListSearch("molvan")
@@ -86,11 +85,4 @@ class WordListSearchE2eTest {
         composeTestRule.waitUntilNodeExists(hasTestTag(wordListItemTag(idB)), E2E_TIMEOUT_MS)
     }
 
-    private fun seedWord(
-        word: String,
-        translation: String,
-    ): Long =
-        targetContext.insertVocabulary(
-            VocabularyEntity(word = word, translation = translation, fsrsCardJson = ""),
-        )
 }
