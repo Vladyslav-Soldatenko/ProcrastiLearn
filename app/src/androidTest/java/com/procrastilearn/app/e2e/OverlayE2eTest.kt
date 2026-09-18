@@ -4,7 +4,6 @@ import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.UiAutomation
 import android.content.Context
 import android.content.Intent
-import android.os.ParcelFileDescriptor
 import android.view.accessibility.AccessibilityManager
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsEnabled
@@ -26,9 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.procrastilearn.app.MainActivity
 import com.procrastilearn.app.R
-import com.procrastilearn.app.data.local.entity.VocabularyEntity
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
-import com.procrastilearn.app.di.DatabaseEntryPoint
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
 import com.procrastilearn.app.service.OverlayAccessibilityService
 import com.procrastilearn.app.service.ServiceEntryPoint
@@ -42,8 +39,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 @RunWith(AndroidJUnit4::class)
 class OverlayE2eTest {
@@ -118,7 +113,9 @@ class OverlayE2eTest {
             R.string.rating_hard,
             R.string.rating_good,
             R.string.rating_easy,
-        ).forEach { resId -> composeTestRule.assertEventuallyDisplayed(hasText(targetContext.string(resId)), E2E_TIMEOUT_MS) }
+        ).forEach { resId ->
+            composeTestRule.assertEventuallyDisplayed(hasText(targetContext.string(resId)), E2E_TIMEOUT_MS)
+        }
 
         composeTestRule.onNodeWithText(targetContext.string(R.string.rating_good)).performClick()
 
@@ -274,7 +271,10 @@ class OverlayE2eTest {
             .performScrollTo()
             .performClick()
         composeTestRule.waitForIdle()
-        composeTestRule.waitUntilNodeExists(hasText(targetContext.string(R.string.settings_rating_delay_title)), E2E_TIMEOUT_MS)
+        composeTestRule.waitUntilNodeExists(
+            hasText(targetContext.string(R.string.settings_rating_delay_title)),
+            E2E_TIMEOUT_MS,
+        )
     }
 
     private fun waitForRatingUnlock() {

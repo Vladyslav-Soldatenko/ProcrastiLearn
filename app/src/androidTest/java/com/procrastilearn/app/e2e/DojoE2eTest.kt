@@ -63,7 +63,11 @@ class DojoE2eTest {
             .assertIsNotEnabled()
 
         val firstShown =
-            if (composeTestRule.nodeVisibleWithin(hasText(wordA, substring = true), E2E_SHORT_TIMEOUT_MS)) wordA else wordB
+            if (composeTestRule.nodeVisibleWithin(hasText(wordA, substring = true), E2E_SHORT_TIMEOUT_MS)) {
+                wordA
+            } else {
+                wordB
+            }
         val expectedNext = if (firstShown == wordA) wordB else wordA
 
         composeTestRule.onNodeWithText(targetContext.string(R.string.learning_show_translation)).performClick()

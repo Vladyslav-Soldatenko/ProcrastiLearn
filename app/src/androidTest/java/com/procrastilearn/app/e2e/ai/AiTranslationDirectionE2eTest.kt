@@ -24,12 +24,16 @@ class AiTranslationDirectionE2eTest : AiTranslationE2eTest() {
         composeTestRule.navigateToAddWord(targetContext)
 
         composeTestRule.typeAddWord("morning")
-        composeTestRule.onNodeWithText(targetContext.string(R.string.add_word_button_preview)).performClick()
+        composeTestRule
+            .onNodeWithText(targetContext.string(R.string.add_word_button_preview))
+            .performClick()
         composeTestRule.waitUntilNodeExists(
             hasText(targetContext.string(R.string.add_word_preview_title)),
             AI_CALL_TIMEOUT_MS,
         )
-        composeTestRule.onNodeWithText(targetContext.string(R.string.add_word_preview_cancel)).performClick()
+        composeTestRule
+            .onNodeWithText(targetContext.string(R.string.add_word_preview_cancel))
+            .performClick()
         composeTestRule.waitForIdle()
 
         composeTestRule
@@ -38,7 +42,9 @@ class AiTranslationDirectionE2eTest : AiTranslationE2eTest() {
         composeTestRule.waitForIdle()
 
         composeTestRule.typeAddWord("утро")
-        composeTestRule.onNodeWithText(targetContext.string(R.string.add_word_button_preview)).performClick()
+        composeTestRule
+            .onNodeWithText(targetContext.string(R.string.add_word_button_preview))
+            .performClick()
         composeTestRule.waitUntilNodeExists(
             hasText(targetContext.string(R.string.add_word_preview_title)),
             AI_CALL_TIMEOUT_MS,

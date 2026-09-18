@@ -44,7 +44,13 @@ class WordListBidirectionalToggleE2eTest {
         val word = "glimmerquat"
         val translation = "twillendor"
         val forwardDueAt = System.currentTimeMillis() + ONE_DAY_MS
-        val id = targetContext.seedWord(word = word, translation = translation, correctCount = 1, fsrsDueAt = forwardDueAt)
+        val id =
+            targetContext.seedWord(
+                word = word,
+                translation = translation,
+                correctCount = 1,
+                fsrsDueAt = forwardDueAt,
+            )
 
         composeTestRule.navigateToWordList(targetContext)
         composeTestRule.longPressWordListItem(id)

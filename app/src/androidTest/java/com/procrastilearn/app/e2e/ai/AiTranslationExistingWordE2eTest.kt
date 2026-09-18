@@ -27,7 +27,9 @@ class AiTranslationExistingWordE2eTest : AiTranslationE2eTest() {
             hasText(targetContext.string(R.string.add_word_existing_title)),
             E2E_TIMEOUT_MS,
         )
-        composeTestRule.onNodeWithText(targetContext.string(R.string.add_word_existing_proceed)).performClick()
+        composeTestRule
+            .onNodeWithText(targetContext.string(R.string.add_word_existing_proceed))
+            .performClick()
 
         composeTestRule.waitUntilNodeExists(
             hasText(targetContext.string(R.string.add_word_success_updated)),

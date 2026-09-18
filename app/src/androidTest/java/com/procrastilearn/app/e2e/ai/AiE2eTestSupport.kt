@@ -108,7 +108,10 @@ fun seedExistingWord(
     )
 }
 
-fun vocabularyExists(context: Context, word: String): Boolean = context.vocabularyByWord(word) != null
+fun vocabularyExists(
+    context: Context,
+    word: String,
+): Boolean = context.vocabularyByWord(word) != null
 
 fun ComposeTestRule.navigateToAddWord(context: Context) = navigateTo(context, R.string.nav_add_word)
 

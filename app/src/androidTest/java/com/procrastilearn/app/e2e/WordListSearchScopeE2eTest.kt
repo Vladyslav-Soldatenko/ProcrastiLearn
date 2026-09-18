@@ -2,29 +2,16 @@ package com.procrastilearn.app.e2e
 
 import android.content.Context
 import androidx.compose.ui.test.assertIsOn
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextClearance
-import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.procrastilearn.app.MainActivity
 import com.procrastilearn.app.R
-import com.procrastilearn.app.data.local.entity.VocabularyEntity
-import com.procrastilearn.app.di.DatabaseEntryPoint
-import com.procrastilearn.app.di.PreferencesEntryPoint
-import com.procrastilearn.app.domain.model.SearchScope
-import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -73,7 +60,9 @@ class WordListSearchScopeE2eTest {
 
         composeTestRule.onNodeWithText(targetContext.string(R.string.word_list_search_scope_title)).assertExists()
         composeTestRule.onNodeWithText(targetContext.string(R.string.word_list_search_scope_option_word)).assertExists()
-        composeTestRule.onNodeWithText(targetContext.string(R.string.word_list_search_scope_option_translation)).assertExists()
+        composeTestRule
+            .onNodeWithText(targetContext.string(R.string.word_list_search_scope_option_translation))
+            .assertExists()
     }
 
     @Test

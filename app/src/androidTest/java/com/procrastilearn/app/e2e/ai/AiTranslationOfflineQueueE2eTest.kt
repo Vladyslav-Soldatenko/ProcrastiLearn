@@ -37,13 +37,17 @@ class AiTranslationOfflineQueueE2eTest : AiTranslationE2eTest() {
         )
 
         composeTestRule.typeAddWord("glacier")
-        composeTestRule.onNodeWithText(targetContext.string(R.string.add_word_button_add_later)).performClick()
+        composeTestRule
+            .onNodeWithText(targetContext.string(R.string.add_word_button_add_later))
+            .performClick()
 
         composeTestRule.waitUntilNodeExists(
             hasText(targetContext.string(R.string.add_word_success_pending)),
             E2E_TIMEOUT_MS,
         )
-        require(!composeTestRule.nodeVisibleWithin(hasTestTag(AI_ERROR_CARD_TAG), AI_NO_RESPONSE_TIMEOUT_MS)) {
+        require(
+            !composeTestRule.nodeVisibleWithin(hasTestTag(AI_ERROR_CARD_TAG), AI_NO_RESPONSE_TIMEOUT_MS),
+        ) {
             "Offline add-later should never surface an AI error card"
         }
     }

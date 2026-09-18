@@ -36,7 +36,9 @@ class AiTranslationHappyPathE2eTest : AiTranslationE2eTest() {
         composeTestRule.onNodeWithText(targetContext.string(R.string.action_ok)).performClick()
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText(targetContext.string(R.string.settings_openai_api_key_set)).assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(targetContext.string(R.string.settings_openai_api_key_set))
+            .assertIsDisplayed()
 
         composeTestRule.navigateToAddWord(targetContext)
         composeTestRule.waitUntilNodeExists(
@@ -58,7 +60,9 @@ class AiTranslationHappyPathE2eTest : AiTranslationE2eTest() {
 
         val word = "lighthouse"
         composeTestRule.typeAddWord(word)
-        composeTestRule.onNodeWithText(targetContext.string(R.string.add_word_button_preview)).performClick()
+        composeTestRule
+            .onNodeWithText(targetContext.string(R.string.add_word_button_preview))
+            .performClick()
 
         composeTestRule.waitUntilNodeExists(
             hasText(targetContext.string(R.string.add_word_preview_title)),
@@ -81,7 +85,9 @@ class AiTranslationHappyPathE2eTest : AiTranslationE2eTest() {
         composeTestRule.navigateToAddWord(targetContext)
 
         composeTestRule.typeAddWord(word)
-        composeTestRule.onNodeWithText(targetContext.string(R.string.add_word_button_preview)).performClick()
+        composeTestRule
+            .onNodeWithText(targetContext.string(R.string.add_word_button_preview))
+            .performClick()
 
         composeTestRule.waitUntilNodeExists(
             hasText(targetContext.string(R.string.add_word_preview_stored_title)),

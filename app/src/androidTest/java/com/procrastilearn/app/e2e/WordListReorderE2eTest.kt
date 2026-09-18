@@ -6,15 +6,10 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -22,8 +17,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.procrastilearn.app.MainActivity
 import com.procrastilearn.app.R
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
-import com.procrastilearn.app.di.DatabaseEntryPoint
-import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -328,7 +321,9 @@ class WordListReorderE2eTest {
     private fun positionOf(id: Long): Long =
         runBlocking {
             withContext(Dispatchers.IO) {
-                requireNotNull(targetContext.databaseEntryPoint().appDatabase().vocabularyDao().getVocabularyById(id)).position
+                requireNotNull(
+                    targetContext.databaseEntryPoint().appDatabase().vocabularyDao().getVocabularyById(id),
+                ).position
             }
         }
 

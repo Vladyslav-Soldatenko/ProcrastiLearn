@@ -19,7 +19,9 @@ class AiTranslationInvalidKeyE2eTest : AiTranslationE2eTest() {
         composeTestRule.navigateToAddWord(targetContext)
 
         composeTestRule.typeAddWord("harvest")
-        composeTestRule.onNodeWithText(targetContext.getString(R.string.add_word_button_preview)).performClick()
+        composeTestRule
+            .onNodeWithText(targetContext.getString(R.string.add_word_button_preview))
+            .performClick()
 
         composeTestRule.waitUntilNodeExists(hasTestTag(AI_ERROR_CARD_TAG), AI_CALL_TIMEOUT_MS)
         composeTestRule.onNodeWithTag(AI_ERROR_CARD_TAG).assertIsDisplayed()
