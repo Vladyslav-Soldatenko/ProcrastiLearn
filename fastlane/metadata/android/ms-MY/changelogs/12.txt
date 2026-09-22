@@ -1,0 +1,4 @@
+Tambah sokongan dua hala (hadapan-ke-belakang dan belakang-ke-hadapan) semasa mengedit perkataan.
+Pemasangan baharu kini belajar secara dua hala secara lalai.
+Tambah mod berbilang pilihan dalam Kosa Kata Saya untuk pemadaman pukal dan perubahan arah pukal.
+Baiki warna kotak semak yang kurang kontras.

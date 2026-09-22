@@ -1,0 +1,2 @@
+Kemas kini dan perbaik gesaan untuk penjanaan terjemahan AI (kedua-dua EN-RU dan RU-EN).
+Sediakan integrasi App Functions dengan pembantu telefon.

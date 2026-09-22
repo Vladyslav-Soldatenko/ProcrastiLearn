@@ -1,0 +1,6 @@
+Tambah tindakan pemilihan teks "ProcrastiLearn ini" untuk menambah perkataan dengan pantas dari mana-mana apl.
+Tambah fungsi batal untuk penilaian dojo/tindanan terakhir.
+Tambah navigasi kembali dari Kosa Kata Saya ke halaman Tambah Perkataan.
+Kumpulkan tetapan mengikut bahagian berlabel.
+Baiki Tambah Kad untuk Hari Ini yang terlebih mengira kad belum dilihat.
+Sokongan Anki dipertingkatkan.

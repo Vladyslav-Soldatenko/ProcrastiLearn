@@ -1,0 +1,43 @@
+Ada Anki dalam telefon anda, ada Duolingo, dan memang ada niat untuk menggunakannya. Kemudian anda mengambil telefon, dan dua puluh minit kemudian anda sudah berada di TikTok tanpa benar-benar pasti bagaimana anda boleh sampai ke situ.
+
+ProcrastiLearn hadir tepat pada saat itu. Ia menghalang anda sebaik sahaja anda hendak tenggelam dalam satu lagi pembaziran masa, lalu meminta anda mengulang kaji satu perkataan dahulu.
+
+Begitulah tindakan membuka apl tanpa berfikir berubah menjadi latihan kosa kata. Pilih apl yang sering anda buka secara tabiat — media sosial, pelayar, permainan — dan setiap kali anda melancarkan salah satu daripadanya, tindanan kad imbas skrin penuh akan muncul. Lihat terjemahan, nilai sejauh mana anda mengingatinya, dan apl yang anda mahu akan dibuka serta-merta. Tiada langganan, iklan atau akaun.
+
+
+CARA IA BERFUNGSI
+
+Pilih apl yang anda mahu sekat dalam tab Apl. Selepas itu, membuka mana-mana apl tersebut akan memaparkan kad imbas terlebih dahulu. Anda menilai jawapan anda (Sekali lagi / Sukar / Baik / Mudah), dan algoritma ulangan berjarak FSRS menjadualkan ulang kaji seterusnya secara automatik. Had harian memastikan anda tidak dibebani.
+
+Jika anda cenderung hilang jejak masa apabila berada dalam apl yang disekat, peringatan berulang pilihan dapat membantu: tetapkan sela masa (contohnya setiap 3 minit) dan tindanan akan muncul semula selagi anda kekal dalam apl itu, menjadikan setiap sesi yang berpanjangan sebagai pusingan ulang kaji tambahan.
+
+
+KOSA KATA
+
+Tambah perkataan secara manual atau gunakan ciri terjemahan AI pilihan: tampal perkataan, ketik Jana, dan apl akan menyediakan draf terjemahan menggunakan OpenAI. Gesaan AI boleh diedit sepenuhnya supaya anda boleh mengawal nada, konteks atau bahasa sasaran.
+
+Anda juga boleh mengimport dek Anki sedia ada (fail .apkg) untuk bermula segera dengan set kosa kata yang sudah anda percayai. Selepas itu, anda boleh yakin bahawa anda akhirnya akan mempelajarinya, sambil menonton TikTok atau YouTuber kegemaran anda.
+
+Terjumpa perkataan di tempat lain — dalam artikel, sembang atau apl lain? Pilih perkataan itu dan ketik "ProcrastiLearn ini" daripada menu untuk menambahkannya serta-merta, tanpa perlu bertukar apl dahulu.
+
+
+SOKONGAN BAHASA
+
+Gesaan AI menyesuaikan diri secara automatik dengan bahasa ibunda dan bahasa sasaran yang anda pilih dalam Tetapan: penjelasan muncul dalam bahasa ibunda anda, manakala contoh dalam bahasa yang sedang anda pelajari. Mana-mana pasangan bahasa berfungsi terus tanpa perlu mengedit gesaan secara manual. Penambahbaikan berkaitan bahasa akan terus ditambah, khususnya berdasarkan permintaan pengguna melalui isu GitHub atau e-mel.
+
+
+PRIVASI
+
+Semua data — kosa kata, senarai apl yang disekat, sejarah ulang kaji dan tetapan — disimpan sepenuhnya pada peranti anda. Tiada analitik, pelapor ranap atau SDK pengiklanan. Satu-satunya trafik rangkaian keluar ialah panggilan API OpenAI pilihan yang anda mulakan dengan mengetik Jana menggunakan kunci API sendiri yang dimasukkan dalam Tetapan.
+
+
+KEBENARAN
+
+Perkhidmatan Kebolehcapaian: digunakan hanya untuk mengesan apl yang sedang berada di latar hadapan supaya ProcrastiLearn tahu bila hendak memaparkan tindanan. Perkhidmatan ini tidak membaca kandungan skrin, ketukan kekunci atau sebarang input lain.
+
+Paparan Di Atas Apl Lain: diperlukan untuk melukis tindanan kad imbas di atas apl yang disekat.
+
+
+SUMBER TERBUKA
+
+ProcrastiLearn ialah perisian percuma dan sumber terbuka (lesen Apache 2.0). Kod sumber dan penjejak isu tersedia di GitHub.
