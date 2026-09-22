@@ -1,7 +1,6 @@
 package com.procrastilearn.app.e2e
 
 import android.content.Context
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isToggleable
@@ -17,14 +16,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.procrastilearn.app.MainActivity
 import com.procrastilearn.app.R
-import com.procrastilearn.app.data.local.entity.VocabularyEntity
-import com.procrastilearn.app.di.DatabaseEntryPoint
-import com.procrastilearn.app.di.PreferencesEntryPoint
 import com.procrastilearn.app.domain.model.StudyDirectionMode
-import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -45,29 +37,29 @@ class WordEditE2eTest {
     @Before
     fun beforeEach() {
         targetContext = InstrumentationRegistry.getInstrumentation().targetContext
-        resetAppState()
+        resetState()
         composeTestRule.dismissOnboardingIfPresent(targetContext)
     }
 
     @After
     fun afterEach() {
-        resetAppState()
+        resetState()
     }
 
     @Test
     fun editingWordAndTranslationPersistsChangesToDatabase() {
         val originalWord = "flarnbicket"
         val originalTranslation = "gloomventra"
-        seedWord(word = originalWord, translation = originalTranslation)
+        targetContext.seedWord(word = originalWord, translation = originalTranslation)
 
-        navigateToWordList()
+        composeTestRule.navigateToWordList(targetContext)
         openEditDialogFor(originalWord)
         replaceFieldText(R.string.add_word_label_word, "flarnbicket-updated")
         replaceFieldText(R.string.add_word_label_translation, "gloomventra-updated")
         clickAction(R.string.action_save)
 
-        assertNull(vocabularyByWord(originalWord))
-        val updated = vocabularyByWord("flarnbicket-updated")!!
+        assertNull(targetContext.vocabularyByWord(originalWord))
+        val updated = requireNotNull(targetContext.vocabularyByWord("flarnbicket-updated"))
         assertEquals("gloomventra-updated", updated.translation)
     }
 
@@ -75,15 +67,15 @@ class WordEditE2eTest {
     fun cancellingEditDialogDiscardsChanges() {
         val word = "prendolack"
         val translation = "ostrivane"
-        seedWord(word = word, translation = translation)
+        targetContext.seedWord(word = word, translation = translation)
 
-        navigateToWordList()
+        composeTestRule.navigateToWordList(targetContext)
         openEditDialogFor(word)
         replaceFieldText(R.string.add_word_label_word, "prendolack-changed")
         clickAction(R.string.action_cancel)
 
-        assertNull(vocabularyByWord("prendolack-changed"))
-        assertEquals(translation, vocabularyByWord(word)!!.translation)
+        assertNull(targetContext.vocabularyByWord("prendolack-changed"))
+        assertEquals(translation, requireNotNull(targetContext.vocabularyByWord(word)).translation)
     }
 
     @Test
@@ -91,14 +83,14 @@ class WordEditE2eTest {
         val word = "quindaloop"
         val translation = "brastanix"
         val forwardDueAt = System.currentTimeMillis() + ONE_DAY_MS
-        seedWord(word = word, translation = translation, correctCount = 1, fsrsDueAt = forwardDueAt)
+        targetContext.seedWord(word = word, translation = translation, correctCount = 1, fsrsDueAt = forwardDueAt)
 
-        navigateToWordList()
+        composeTestRule.navigateToWordList(targetContext)
         openEditDialogFor(word)
         composeTestRule.onNode(isToggleable(), useUnmergedTree = true).performClick()
         clickAction(R.string.action_save)
 
-        val updated = vocabularyByWord(word)!!
+        val updated = requireNotNull(targetContext.vocabularyByWord(word))
         assertTrue(updated.bidirectional)
         assertTrue(updated.backwardFsrsDueAt > 0L)
     }
@@ -107,40 +99,40 @@ class WordEditE2eTest {
     fun disablingBidirectionalInEditDialogClearsFlag() {
         val word = "trevoskin"
         val translation = "mundacrest"
-        seedWord(word = word, translation = translation, bidirectional = true)
+        targetContext.seedWord(word = word, translation = translation, bidirectional = true)
 
-        navigateToWordList()
+        composeTestRule.navigateToWordList(targetContext)
         openEditDialogFor(word)
         composeTestRule.onNode(isToggleable(), useUnmergedTree = true).performClick()
         clickAction(R.string.action_save)
 
-        assertFalse(vocabularyByWord(word)!!.bidirectional)
+        assertFalse(requireNotNull(targetContext.vocabularyByWord(word)).bidirectional)
     }
 
     @Test
     fun customizingReverseOverridesPersistsPromptAndAnswerText() {
         val word = "shalimquor"
         val translation = "ventrabole"
-        seedWord(word = word, translation = translation)
+        targetContext.seedWord(word = word, translation = translation)
 
-        navigateToWordList()
+        composeTestRule.navigateToWordList(targetContext)
         openEditDialogFor(word)
         composeTestRule.onNode(isToggleable(), useUnmergedTree = true).performClick()
         composeTestRule
-            .onNodeWithText(string(R.string.add_word_customize_backward_show))
+            .onNodeWithText(targetContext.string(R.string.add_word_customize_backward_show))
             .performScrollTo()
             .performClick()
         composeTestRule
-            .onNodeWithText(string(R.string.add_word_backward_prompt_label))
+            .onNodeWithText(targetContext.string(R.string.add_word_backward_prompt_label))
             .performScrollTo()
             .performTextInput("What runs?")
         composeTestRule
-            .onNodeWithText(string(R.string.add_word_backward_answer_label))
+            .onNodeWithText(targetContext.string(R.string.add_word_backward_answer_label))
             .performScrollTo()
             .performTextInput(word)
         clickAction(R.string.action_save)
 
-        val updated = vocabularyByWord(word)!!
+        val updated = requireNotNull(targetContext.vocabularyByWord(word))
         assertTrue(updated.bidirectional)
         assertEquals("What runs?", updated.backwardPromptOverride)
         assertEquals(word, updated.backwardAnswerOverride)
@@ -150,7 +142,7 @@ class WordEditE2eTest {
     fun clearingReverseOverridesOnSaveResetsThemToNull() {
         val word = "nostrivell"
         val translation = "quenthalor"
-        seedWord(
+        targetContext.seedWord(
             word = word,
             translation = translation,
             bidirectional = true,
@@ -158,48 +150,32 @@ class WordEditE2eTest {
             backwardAnswerOverride = "Old answer",
         )
 
-        navigateToWordList()
+        composeTestRule.navigateToWordList(targetContext)
         openEditDialogFor(word)
         composeTestRule
-            .onNodeWithText(string(R.string.add_word_backward_prompt_label))
+            .onNodeWithText(targetContext.string(R.string.add_word_backward_prompt_label))
             .performScrollTo()
             .performTextClearance()
         composeTestRule
-            .onNodeWithText(string(R.string.add_word_backward_answer_label))
+            .onNodeWithText(targetContext.string(R.string.add_word_backward_answer_label))
             .performScrollTo()
             .performTextClearance()
         clickAction(R.string.action_save)
 
-        val updated = vocabularyByWord(word)!!
+        val updated = requireNotNull(targetContext.vocabularyByWord(word))
         assertTrue(updated.bidirectional)
         assertNull(updated.backwardPromptOverride)
         assertNull(updated.backwardAnswerOverride)
     }
 
-    private fun string(resId: Int) = targetContext.getString(resId)
-
-    private fun navigateToWordList() {
-        val addWordLabel = string(R.string.nav_add_word)
-        composeTestRule.waitUntilNodeExists(hasText(addWordLabel), DEFAULT_TIMEOUT_MS)
-        composeTestRule
-            .onNodeWithContentDescription(addWordLabel, useUnmergedTree = true)
-            .performClick()
-        composeTestRule.waitForIdle()
-
-        val viewListLabel = string(R.string.action_view_list)
-        composeTestRule.waitUntilNodeExists(hasContentDescription(viewListLabel), DEFAULT_TIMEOUT_MS)
-        composeTestRule.onNodeWithContentDescription(viewListLabel).performClick()
-        composeTestRule.waitForIdle()
-    }
-
     private fun openEditDialogFor(word: String) {
-        composeTestRule.waitUntilNodeExists(hasText(word), DEFAULT_TIMEOUT_MS)
+        composeTestRule.waitUntilNodeExists(hasText(word), E2E_TIMEOUT_MS)
         composeTestRule
-            .onNodeWithContentDescription(string(R.string.word_list_more_actions), useUnmergedTree = true)
+            .onNodeWithContentDescription(targetContext.string(R.string.word_list_more_actions), useUnmergedTree = true)
             .performClick()
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(string(R.string.action_edit)).performClick()
-        composeTestRule.waitUntilNodeExists(hasText(string(R.string.edit_word_title)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.onNodeWithText(targetContext.string(R.string.action_edit)).performClick()
+        composeTestRule.waitUntilNodeExists(hasText(targetContext.string(R.string.edit_word_title)), E2E_TIMEOUT_MS)
     }
 
     private fun replaceFieldText(
@@ -207,73 +183,21 @@ class WordEditE2eTest {
         newValue: String,
     ) {
         composeTestRule
-            .onNode(hasText(string(labelResId)).and(hasSetTextAction()))
+            .onNode(hasText(targetContext.string(labelResId)).and(hasSetTextAction()))
             .performTextReplacement(newValue)
     }
 
     private fun clickAction(actionResId: Int) {
-        composeTestRule.onNodeWithText(string(actionResId)).performClick()
+        composeTestRule.onNodeWithText(targetContext.string(actionResId)).performClick()
         composeTestRule.waitForIdle()
     }
 
-    private fun seedWord(
-        word: String,
-        translation: String,
-        bidirectional: Boolean = false,
-        correctCount: Int = 0,
-        fsrsDueAt: Long = 0L,
-        backwardPromptOverride: String? = null,
-        backwardAnswerOverride: String? = null,
-    ): Long =
-        runBlocking {
-            withContext(Dispatchers.IO) {
-                entryPoint().appDatabase().vocabularyDao().insertVocabulary(
-                    VocabularyEntity(
-                        word = word,
-                        translation = translation,
-                        bidirectional = bidirectional,
-                        correctCount = correctCount,
-                        fsrsCardJson = "",
-                        fsrsDueAt = fsrsDueAt,
-                        backwardPromptOverride = backwardPromptOverride,
-                        backwardAnswerOverride = backwardAnswerOverride,
-                    ),
-                )
-            }
-        }
-
-    private fun vocabularyByWord(word: String): VocabularyEntity? =
-        runBlocking {
-            withContext(Dispatchers.IO) {
-                entryPoint().appDatabase().vocabularyDao().getVocabularyByWord(VocabularyEntity.normalizeWord(word))
-            }
-        }
-
-    private fun resetAppState() {
-        runBlocking {
-            withContext(Dispatchers.IO) {
-                val db = entryPoint().appDatabase()
-                db.vocabularyDao().deleteAllVocabulary()
-                db.undoSnapshotDao().deleteAll()
-                preferencesEntryPoint().dayCountersStore().setStudyDirectionMode(StudyDirectionMode.BIDIRECTIONAL)
-            }
-        }
+    private fun resetState() {
+        targetContext.resetE2eDatabase()
+        targetContext.setStudyDirectionMode(StudyDirectionMode.BIDIRECTIONAL)
     }
 
-    private fun entryPoint(): DatabaseEntryPoint =
-        EntryPointAccessors.fromApplication(
-            targetContext.applicationContext,
-            DatabaseEntryPoint::class.java,
-        )
-
-    private fun preferencesEntryPoint(): PreferencesEntryPoint =
-        EntryPointAccessors.fromApplication(
-            targetContext.applicationContext,
-            PreferencesEntryPoint::class.java,
-        )
-
     private companion object {
-        const val DEFAULT_TIMEOUT_MS = 15_000L
         const val ONE_DAY_MS = 24 * 60 * 60 * 1000L
     }
 }
