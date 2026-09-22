@@ -1,0 +1,2 @@
+Prompts voor AI-vertalingen verbeterd en bijgewerkt (zowel EN-RU als RU-EN).
+Voorbereidingen voor integratie van appfuncties met telefoonassistenten.

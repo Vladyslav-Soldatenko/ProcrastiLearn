@@ -1,0 +1,4 @@
+Ondersteuning voor beide richtingen toegevoegd (voor-naar-achter en achter-naar-voor) bij het bewerken van een woord.
+Nieuwe installaties oefenen nu standaard in beide richtingen.
+Meervoudige selectie in Mijn woordenschat toegevoegd voor bulkverwijderen en het in bulk wijzigen van richtingen.
+Checkboxkleur met te weinig contrast opgelost.

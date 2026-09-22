@@ -1,0 +1,2 @@
+Een instelling voor beoordelingsvertraging toegevoegd om de beoordelingsknoppen in de overlay te vergrendelen en snelle kliks alleen om de overlay te sluiten te voorkomen.
+De dojo-kop iets kleiner gemaakt om meer ruimte voor kaarten te laten.
