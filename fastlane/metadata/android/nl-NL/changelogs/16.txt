@@ -1,0 +1,3 @@
+Een optie toegevoegd om Mijn woordenschat te doorzoeken op alleen woord, alleen vertaling of beide.
+De lay-out in liggende stand verbeterd.
+De app kleiner gemaakt met slimmere codeverkleining, voor een kleinere installatiegrootte en lager geheugengebruik.

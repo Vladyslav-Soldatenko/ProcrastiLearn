@@ -1,0 +1,37 @@
+Anki staat op je telefoon, Duolingo ook, en je bent echt van plan ze te gebruiken. Maar dan pak je je telefoon op en twintig minuten later zit je op TikTok, zonder goed te weten hoe je daar bent beland.
+
+ProcrastiLearn grijpt precies op dat moment in. Net voordat je weer in een tijdvreter verdwijnt, vraagt de app je eerst om één woord.
+
+Zo wordt gedachteloos apps openen woordenschattraining. Kies welke apps je uit gewoonte opent — sociale media, browsers, games — en zodra je er een start, verschijnt er een flashcard-overlay op volledig scherm. Toon de vertaling, beoordeel hoe goed je het woord nog wist en de app die je wilde openen gaat meteen open. Geen abonnement, geen advertenties, geen account.
+
+HOE HET WERKT
+
+Kies in het tabblad Apps welke apps je wilt blokkeren. Vanaf dat moment verschijnt er eerst een flashcard wanneer je een van die apps opent. Je beoordeelt je antwoord (Opnieuw / Moeilijk / Goed / Makkelijk) en het FSRS-algoritme voor gespreide herhaling plant de volgende herhaling automatisch in. Daglimieten voorkomen dat het te veel wordt.
+
+Raak je de tijd kwijt zodra je in een geblokkeerde app zit? Dan helpt de optionele terugkerende herinnering: stel een interval in (bijvoorbeeld elke 3 minuten) en de overlay verschijnt opnieuw zolang je in die app blijft. Zo wordt elke lange sessie extra oefening.
+
+WOORDENSCHAT
+
+Voeg woorden handmatig toe of gebruik de optionele AI-vertaalfunctie: plak een woord, tik op Genereren en de app maakt met OpenAI een conceptvertaling. De AI-prompt is volledig aanpasbaar, zodat je toon, context of doeltaal zelf bepaalt.
+
+Je kunt ook bestaande Anki-sets (.apkg-bestanden) importeren om direct te beginnen met een woordenlijst die je al vertrouwt. Daarna weet je zeker dat je het uiteindelijk leert, terwijl je TikTok kijkt of naar je favoriete YouTuber.
+
+Kom je ergens anders een woord tegen — in een artikel, chat of andere app? Selecteer het en tik in het menu op "Toevoegen aan ProcrastiLearn" om het meteen toe te voegen. Je hoeft niet eerst van app te wisselen.
+
+TAALONDERSTEUNING
+
+De AI-prompt past zich automatisch aan de moedertaal en doeltaal aan die je in Instellingen kiest: uitleg verschijnt in je moedertaal en voorbeelden in de taal die je leert. Elk talenpaar werkt meteen — handmatig de prompt bewerken is niet nodig. Er blijven verbeteringen rond talen komen, vooral op basis van verzoeken in GitHub-issues of via e-mail.
+
+PRIVACY
+
+Alle gegevens — woordenschat, lijst met geblokkeerde apps, herhaalgeschiedenis en instellingen — worden volledig op je apparaat opgeslagen. Er zijn geen analyses, crashrapporteurs of advertentie-SDK's. Het enige uitgaande netwerkverkeer is de optionele OpenAI-API-aanroep die je zelf start door op Genereren te tikken, met je eigen API-sleutel uit Instellingen.
+
+TOESTEMMINGEN
+
+Toegankelijkheidsservice: alleen gebruikt om te detecteren welke app momenteel op de voorgrond staat, zodat ProcrastiLearn weet wanneer de overlay moet worden getoond. De service leest geen scherminhoud, toetsaanslagen of andere invoer.
+
+Weergeven over andere apps: nodig om de flashcard-overlay boven op de geblokkeerde app te tekenen.
+
+OPEN SOURCE
+
+ProcrastiLearn is gratis en opensourcesoftware (Apache 2.0-licentie). De broncode en issue-tracker staan op GitHub.

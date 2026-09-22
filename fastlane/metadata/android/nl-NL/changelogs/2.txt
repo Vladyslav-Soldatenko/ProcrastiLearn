@@ -1,0 +1,1 @@
+Eerste uitgave. Flashcard-overlay als blokkade voor gekozen apps, FSRS-gespreide herhaling, Anki-.apkg-import, optionele door OpenAI gemaakte vertalingen, oefenmodus in de app en JSON-import/-export van woordenschat.

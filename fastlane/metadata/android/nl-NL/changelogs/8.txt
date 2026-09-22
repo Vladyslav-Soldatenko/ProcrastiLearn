@@ -1,0 +1,6 @@
+De tekstselectieactie "Toevoegen aan ProcrastiLearn" toegevoegd om snel woorden uit elke app toe te voegen.
+Ongedaan maken voor de laatste dojo-/overlaybeoordeling toegevoegd.
+Terugnavigatie van Mijn woordenschat naar Woord toevoegen toegevoegd.
+Instellingen in gelabelde secties gegroepeerd.
+Fout opgelost waarbij Kaarten voor vandaag toevoegen ongeziene kaarten te vaak telde.
+Anki-ondersteuning verbeterd.
