@@ -1,0 +1,262 @@
+<resources xmlns:tools="http://schemas.android.com/tools"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="app_function_description">เพิ่มคำศัพท์พร้อมคำแปลจาก AI เพื่อการเรียนรู้แบบทบทวนเป็นช่วง</string>
+
+    <string name="action_open_settings">เปิดการตั้งค่า</string>
+    <string name="action_not_now">ไว้ก่อน</string>
+    <string name="action_continue">ดำเนินการต่อ</string>
+    <string name="action_view_list">ดูรายการ</string>
+    <string name="action_add">เพิ่ม</string>
+    <string name="action_save">บันทึก</string>
+    <string name="action_delete">ลบ</string>
+    <string name="action_edit">แก้ไข</string>
+    <string name="action_reset">รีเซ็ต</string>
+    <string name="action_ok">ตกลง</string>
+    <string name="action_apply">ใช้</string>
+    <string name="action_cancel">ยกเลิก</string>
+    <string name="action_proceed">ดำเนินการ</string>
+    <string name="action_select_all">เลือกทั้งหมด</string>
+    <string name="action_deselect_all">ยกเลิกการเลือกทั้งหมด</string>
+
+    <string name="process_text_action">เพิ่มใน ProcrastiLearn</string>
+
+    <string name="nav_apps">แอป</string>
+    <string name="nav_add_word">เพิ่มคำศัพท์</string>
+    <string name="nav_dojo">โดโจ</string>
+    <string name="nav_settings">การตั้งค่า</string>
+
+    <string name="learning_no_word">ยังไม่ได้โหลดคำศัพท์</string>
+    <string name="learning_no_translation">ยังไม่ได้โหลดคำแปล</string>
+    <string name="learning_show_translation">แสดงคำแปล</string>
+    <string name="learning_question">คุณจำคำนี้ได้ดีแค่ไหน?</string>
+
+    <string name="rating_again">อีกครั้ง</string>
+    <string name="rating_hard">ยาก</string>
+    <string name="rating_good">ดี</string>
+    <string name="rating_easy">ง่าย</string>
+
+    <string name="dojo_stats_new_remaining">ใหม่</string>
+    <string name="dojo_stats_reviews_due">ครบกำหนด</string>
+    <string name="dojo_stats_skipped">ข้ามแล้ว</string>
+    <string name="dojo_empty_title">เสร็จเรียบร้อยสำหรับตอนนี้!</string>
+    <string name="dojo_empty_message">คุณทบทวนคำศัพท์ที่มีสำหรับวันนี้ครบแล้ว กลับมาใหม่ภายหลังหรือปรับขีดจำกัดรายวันใน การตั้งค่า</string>
+    <string name="dojo_undo_content_description">เลิกทำการให้คะแนนล่าสุด</string>
+    <string name="dojo_undo_confirmation">เลิกทำ %1$s สำหรับ “%2$s” แล้ว</string>
+
+    <string name="overlay_permission_title">อนุญาตให้แสดงทับแอปอื่น</string>
+    <string name="overlay_permission_message">แอปนี้ต้องได้รับอนุญาตให้แสดงหน้าต่างทับแอปอื่น</string>
+
+    <string name="a11y_disclosure_title">เหตุใดเราจึงต้องใช้การช่วยเหลือพิเศษ</string>
+    <string name="a11y_disclosure_description">แอปนี้ใช้สิทธิ์ Android Accessibility Service เพื่อตรวจจับเมื่อคุณเปิดแอปที่เลือก
+        (เช่น TikTok, Reddit หรือแอปอื่นที่คุณเลือก) เพื่อแสดงข้อความชวนเรียนรู้สั้น ๆ ก่อนที่คุณจะใช้งานต่อ</string>
+    <string name="a11y_disclosure_section_access">สิ่งที่เราเข้าถึง</string>
+    <string name="a11y_disclosure_access_details">• แอปที่กำลังแสดงอยู่บนหน้าจอของคุณ\n
+        • เราไม่อ่านข้อความ รหัสผ่าน หรือข้อความบนหน้าจอของคุณ\n
+        • ข้อมูลของคุณจะไม่ออกจากอุปกรณ์ และจะไม่ถูกขายหรือแชร์</string>
+    <string name="a11y_disclosure_section_usage">วิธีที่เราใช้ข้อมูล</string>
+    <string name="a11y_disclosure_usage_details">ใช้เพื่อเรียกหน้าจอการเรียนรู้สำหรับแอปที่คุณเลือกเท่านั้น
+        คุณปิดได้ทุกเมื่อใน การตั้งค่า เราไม่ขายหรือแชร์ข้อมูลนี้
+        และข้อมูลจะไม่ออกจากอุปกรณ์ของคุณ</string>
+    <string name="a11y_disclosure_checkbox">ฉันเข้าใจและยินยอมให้แอปนี้ใช้สิทธิ์ Accessibility Service เพื่อวัตถุประสงค์นี้</string>
+    <string name="a11y_disclosure_accept">ยอมรับและดำเนินการต่อ</string>
+    <string name="a11y_disclosure_decline">@string/action_not_now</string>
+    <string name="a11y_disclosure_privacy">นโยบายความเป็นส่วนตัวและรายละเอียด</string>
+
+    <string name="add_word_title">เพิ่มคำศัพท์ใหม่</string>
+    <string name="add_word_subtitle">เพิ่มพูนคลังคำศัพท์ของคุณ</string>
+    <string name="add_word_label_word">คำศัพท์</string>
+    <string name="add_word_placeholder_word">กรอกคำศัพท์</string>
+    <string name="add_word_label_translation">คำแปล</string>
+    <string name="add_word_placeholder_translation">กรอกคำแปล (หลายบรรทัดได้)</string>
+    <string name="edit_word_title">แก้ไขคำศัพท์</string>
+    <string name="add_word_success_default">สำเร็จ!</string>
+    <string name="add_word_error_word_required">โปรดกรอกคำศัพท์</string>
+    <string name="add_word_error_translation_required">โปรดกรอกคำแปล</string>
+    <string name="add_word_success_added">เพิ่มคำศัพท์แล้ว!</string>
+    <string name="add_word_success_updated">อัปเดตคำศัพท์และรีเซ็ตความคืบหน้าแล้ว!</string>
+    <string name="add_word_success_pending">บันทึกแล้ว ระบบจะสร้างคำแปลเมื่อคุณกลับมาออนไลน์</string>
+    <string name="add_word_error_preview_failed">สร้างตัวอย่างไม่ได้</string>
+    <string name="add_word_error_translation_failed">สร้างคำแปลไม่ได้</string>
+    <string name="add_word_error_update_failed">อัปเดตคำศัพท์ไม่ได้</string>
+    <string name="add_word_error_add_failed">เพิ่มคำศัพท์ไม่ได้</string>
+    <string name="add_word_error_lookup_failed">ตรวจสอบคำศัพท์ที่มีอยู่ไม่ได้</string>
+
+    <string name="add_word_bidirectional_toggle">ทดสอบทั้งสองทิศทาง</string>
+    <string name="add_word_customize_backward_show">ปรับแต่งบัตรคำย้อนกลับ</string>
+    <string name="add_word_customize_backward_hide">ซ่อนการปรับแต่ง</string>
+    <string name="add_word_backward_prompt_label">คำถามย้อนกลับ</string>
+    <string name="add_word_backward_prompt_placeholder">เว้นว่างไว้เพื่อใช้คำแปล</string>
+    <string name="add_word_backward_answer_label">คำตอบย้อนกลับ</string>
+    <string name="add_word_backward_answer_placeholder">เว้นว่างไว้เพื่อใช้คำศัพท์</string>
+
+    <string name="language_name_english">อังกฤษ</string>
+    <string name="language_name_russian">รัสเซีย</string>
+    <string name="language_name_spanish">สเปน</string>
+    <string name="language_name_french">ฝรั่งเศส</string>
+    <string name="language_name_german">เยอรมัน</string>
+    <string name="language_name_italian">อิตาลี</string>
+    <string name="language_name_portuguese">โปรตุเกส</string>
+    <string name="language_name_chinese">จีนกลาง</string>
+    <string name="language_name_japanese">ญี่ปุ่น</string>
+    <string name="language_name_korean">เกาหลี</string>
+    <string name="language_name_ukrainian">ยูเครน</string>
+    <string name="language_name_polish">โปแลนด์</string>
+    <string name="language_name_hindi">ฮินดี</string>
+    <string name="language_name_turkish">ตุรกี</string>
+    <string name="language_name_dutch" tools:ignore="MissingTranslation">ดัตช์</string>
+    <string name="language_name_vietnamese">เวียดนาม</string>
+    <string name="language_name_indonesian">อินโดนีเซีย</string>
+    <string name="language_name_thai" tools:ignore="MissingTranslation">ไทย</string>
+    <string name="language_name_swedish" tools:ignore="MissingTranslation">สวีเดน</string>
+    <string name="language_selection_dialog_title">เลือกภาษาของคุณ</string>
+    <string name="language_selection_subtitle">เลือกภาษาที่คุณพูดและภาษาที่คุณต้องการเรียน คุณเปลี่ยนได้ภายหลังใน การตั้งค่า</string>
+    <string name="language_selection_native_label">ฉันพูด</string>
+    <string name="language_selection_target_label">ฉันต้องการเรียน</string>
+
+    <string name="settings_title">@string/nav_settings</string>
+    <string name="settings_section_study_reviews">การเรียนและการทบทวน</string>
+    <string name="settings_section_ai_features">ฟีเจอร์ AI (ต้องใช้คีย์ API)</string>
+    <string name="settings_section_permissions">สิทธิ์การเข้าถึง</string>
+    <string name="settings_section_data_about">ข้อมูลและเกี่ยวกับแอป</string>
+    <string name="settings_language_pair_title">คู่ภาษา</string>
+    <string name="settings_language_pair_desc">%1$s → %2$s</string>
+    <string name="settings_study_mode_title">โหมดการเรียน</string>
+    <string name="settings_study_mode_mixed">ผสม</string>
+    <string name="settings_study_mode_reviews_first">ทบทวนก่อน</string>
+    <string name="settings_study_mode_new_first">คำศัพท์ใหม่ก่อน</string>
+    <string name="settings_study_mode_mixed_desc">ผสมบัตรคำใหม่และบัตรคำทบทวน</string>
+    <string name="settings_study_mode_reviews_first_desc">แสดงบัตรคำทบทวนทั้งหมดก่อนบัตรคำใหม่</string>
+    <string name="settings_study_mode_new_first_desc">แสดงบัตรคำใหม่ก่อนบัตรคำทบทวน</string>
+    <string name="settings_new_card_order_title">ลำดับบัตรคำใหม่</string>
+    <string name="settings_new_card_order_sequential">ตามลำดับ</string>
+    <string name="settings_new_card_order_random">สุ่ม</string>
+    <string name="settings_new_card_order_sequential_desc">แสดงบัตรคำใหม่ตามลำดับที่นำเข้า</string>
+    <string name="settings_new_card_order_random_desc">แสดงบัตรคำใหม่แบบสุ่ม</string>
+    <string name="settings_review_direction_title">ทิศทางการทบทวน</string>
+    <string name="settings_review_direction_forward">ไปข้างหน้า</string>
+    <string name="settings_review_direction_backward">ย้อนกลับ</string>
+    <string name="settings_review_direction_bidirectional">สองทิศทาง</string>
+    <string name="settings_review_direction_forward_desc">แสดงคำศัพท์ แล้วถามคำแปล</string>
+    <string name="settings_review_direction_backward_desc">แสดงคำแปล แล้วถามคำศัพท์</string>
+    <string name="settings_review_direction_bidirectional_desc">สลับทั้งสองทิศทางสำหรับบัตรคำที่เลือก “ทดสอบทั้งสองทิศทาง”</string>
+    <string name="settings_add_cards_for_today_title">เพิ่มบัตรคำสำหรับวันนี้</string>
+    <string name="settings_add_cards_for_today_dialog_title">เพิ่มบัตรคำสำหรับวันนี้ (คำศัพท์ใหม่ที่มี: %1$d)</string>
+    <string name="settings_new_cards_per_day_title">บัตรคำใหม่ต่อวัน</string>
+    <string name="settings_new_cards_per_day_dialog_title">บัตรคำใหม่ต่อวัน (คำศัพท์ใหม่ที่มี: %1$d)</string>
+    <string name="settings_reviews_per_day_title">จำนวนทบทวนต่อวัน</string>
+    <string name="settings_overlay_interval_title">แสดงหน้าต่างทับทุก X นาที</string>
+    <string name="settings_overlay_interval_headline">แสดงหน้าต่างทับทุก X นาทีขณะที่เปิดแอปที่บล็อกไว้</string>
+    <string name="settings_rating_delay_title">หน่วงเวลาก่อนให้คะแนน</string>
+    <string name="settings_rating_delay_headline">รอก่อนจึงจะให้คะแนนบัตรคำได้</string>
+    <string name="settings_rating_delay_off">ปิด</string>
+    <string name="settings_overlay_headline">สิทธิ์แสดงทับแอปอื่น</string>
+    <string name="settings_overlay_support">จำเป็นสำหรับการแสดงบัตรคำการเรียนรู้ทับแอปที่เลือก</string>
+    <string name="settings_a11y_headline">ด่านการเรียนรู้ (การช่วยเหลือพิเศษ)</string>
+    <string name="settings_a11y_support">ตรวจจับแอปที่เลือกซึ่งอยู่ด้านหน้าเพื่อเรียกบัตรคำการเรียนรู้</string>
+
+    <string name="settings_about_us_row">เกี่ยวกับเรา</string>
+    <string name="settings_about_us_row_desc">เรียนรู้เพิ่มเติมเกี่ยวกับแอป</string>
+    <string name="settings_about_us_title">@string/settings_about_us_row</string>
+    <string name="settings_about_us_intro">ProcrastiLearn เปลี่ยนช่วงเวลาที่วอกแวกให้เป็นโอกาสเรียนรู้ เมื่อคุณพยายามเปิดแอปที่เลือก เราจะแสดงโจทย์คำศัพท์สั้น ๆ ก่อน ด้วยวิธีนี้ คุณจะเพิ่มพูนความรู้ไปพร้อมกับควบคุมสิ่งรบกวนได้</string>
+    <string name="settings_about_us_mission_title">พันธกิจของเรา</string>
+    <string name="settings_about_us_mission_body">เราต้องการช่วยให้ผู้คนทวงคืนเวลาและสมาธิ ด้วยการเปลี่ยนนิสัยในชีวิตประจำวันให้เป็นโอกาสเรียนรู้สิ่งใหม่</string>
+    <string name="settings_about_us_who_title">เราคือใคร</string>
+    <string name="settings_about_us_who_body">ProcrastiLearn สร้างและดูแลโดยนักพัฒนาอิสระผู้หลงใหลในประสิทธิภาพการทำงานและการเรียนภาษา</string>
+    <string name="settings_about_us_values_title">คุณค่าของเรา</string>
+    <string name="settings_about_us_values_simplicity">เรียบง่าย: การออกแบบที่น้อยแต่มากและไร้สิ่งรบกวน</string>
+    <string name="settings_about_us_values_growth">เติบโต: ก้าวเล็ก ๆ ทุกวันรวมกันเป็นความก้าวหน้าที่ยั่งยืน</string>
+    <string name="settings_about_us_contact_title">ติดต่อ</string>
+    <string name="settings_about_us_contact_body">หากมีคำถามหรือข้อเสนอแนะ ติดต่อเราได้ที่: Apocalypse_232@proton.me</string>
+    <string name="settings_about_us_privacy">นโยบายความเป็นส่วนตัว</string>
+    <string name="settings_import_row">นำเข้า</string>
+    <string name="settings_import_row_desc">เพิ่มคำศัพท์จากแอปอื่น</string>
+    <string name="settings_import_option_anki_apkg">ชุดบัตรคำ Anki (.apkg)</string>
+    <string name="settings_import_option_anki_apkg_desc">อ่านบัตรคำที่ส่งออกจาก Anki</string>
+    <string name="settings_import_option_json">ไฟล์ส่งออก JSON (.json)</string>
+    <string name="settings_import_option_json_desc">นำเข้าข้อมูลส่งออก ProcrastiLearn ทั้งหมด</string>
+    <string name="settings_import_failure_generic">นำเข้าไม่สำเร็จ</string>
+    <string name="settings_import_failure_format">ยังไม่รองรับรูปแบบนี้</string>
+    <string name="settings_import_failure_schema_version">ไฟล์นี้สร้างโดย ProcrastiLearn เวอร์ชันใหม่กว่า โปรดอัปเดตแอป</string>
+    <string name="settings_export_row">ส่งออก</string>
+    <string name="settings_export_row_desc">ส่งออกคำศัพท์ทั้งหมดเป็นไฟล์ JSON</string>
+    <string name="settings_export_success">ส่งออกเสร็จสมบูรณ์</string>
+    <string name="settings_export_failure">ส่งออกไม่สำเร็จ</string>
+
+    <string name="settings_openai_api_key_title">คีย์ API ของ OpenAI</string>
+    <string name="settings_openai_api_key_dialog_title">ป้อนคีย์ API ของ OpenAI</string>
+    <string name="settings_openai_api_key_not_set">ยังไม่ได้ตั้งค่า</string>
+    <string name="settings_openai_api_key_set">บันทึกแล้ว</string>
+    <string name="settings_openai_prompt_title">พรอมต์ AI %1$s-&gt;%2$s</string>
+    <string name="settings_openai_prompt_dialog_title">แก้ไขพรอมต์ AI %1$s-&gt;%2$s</string>
+    <string name="settings_openai_prompt_default">กำลังใช้พรอมต์เริ่มต้น %1$s-&gt;%2$s</string>
+    <string name="settings_openai_prompt_custom">บันทึกพรอมต์ที่กำหนดเอง %1$s-&gt;%2$s แล้ว</string>
+    <string name="settings_openai_reverse_prompt_title">@string/settings_openai_prompt_title</string>
+    <string name="settings_openai_reverse_prompt_dialog_title">@string/settings_openai_prompt_dialog_title</string>
+    <string name="settings_openai_reverse_prompt_default">@string/settings_openai_prompt_default</string>
+    <string name="settings_openai_reverse_prompt_custom">@string/settings_openai_prompt_custom</string>
+    <string name="settings_openai_prompt_placeholder_hint">ใช้ {{NATIVE_LANGUAGE}} และ {{TARGET_LANGUAGE}} เป็นตัวยึดตำแหน่ง ซึ่งจะแทนที่ด้วยภาษาที่คุณเลือกโดยอัตโนมัติเมื่อสร้างคำแปล</string>
+
+    <string name="add_word_use_ai_toggle">ใช้ AI สร้างคำแปล</string>
+    <string name="add_word_toggle_direction">สลับทิศทางการแปล</string>
+    <string name="add_word_button_preview">ดูตัวอย่าง</string>
+    <string name="add_word_preview_title">ตัวอย่างจาก AI</string>
+    <string name="add_word_preview_stored_title">คำแปลที่บันทึกไว้ — มีอยู่ในรายการแล้ว</string>
+    <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
+    <string name="add_word_preview_regenerate">สร้างใหม่</string>
+    <string name="add_word_existing_title">มีคำศัพท์นี้อยู่แล้ว</string>
+    <string name="add_word_existing_message">คุณเพิ่มคำศัพท์นี้ไว้แล้ว หากดำเนินการต่อ ความคืบหน้าของคำศัพท์จะถูกรีเซ็ตและบันทึกคำแปลใหม่ หากต้องการเพียงแก้ไข ให้ทำได้จากรายการคำศัพท์</string>
+    <string name="add_word_existing_cancel">@string/action_cancel</string>
+    <string name="add_word_existing_proceed">@string/action_proceed</string>
+    <string name="add_word_button_add_later">เพิ่มภายหลัง</string>
+    <string name="add_word_pending_title">คำแปลที่รอดำเนินการ</string>
+    <string name="add_word_pending_delete">นำคำศัพท์ที่รอดำเนินการออก</string>
+
+    <string name="word_list_title">คลังคำศัพท์ของฉัน</string>
+    <string name="word_list_navigate_back">กลับไปเพิ่มคำศัพท์</string>
+    <string name="word_list_empty">ยังไม่มีคำศัพท์</string>
+    <string name="word_list_delete_confirm_title">ลบคำศัพท์</string>
+    <string name="word_list_delete_confirm_message">ลบ <xliff:g id="word_name">%1$s</xliff:g> ออกจากรายการของคุณ?</string>
+    <string name="word_list_reset_confirm_title">รีเซ็ตความคืบหน้า</string>
+    <string name="word_list_reset_confirm_message">รีเซ็ตความคืบหน้าการเรียนของ <xliff:g id="word_name">%1$s</xliff:g>?</string>
+    <string name="word_list_more_actions">การดำเนินการเพิ่มเติม</string>
+    <string name="word_list_more_actions_selection">การดำเนินการกับสิ่งที่เลือก</string>
+    <string name="word_list_bulk_delete_confirm_title">ลบคำศัพท์ที่เลือก</string>
+    <string name="word_list_bulk_bidirectional_enable">@string/add_word_bidirectional_toggle</string>
+    <string name="word_list_bulk_bidirectional_disable">ทดสอบเฉพาะไปข้างหน้า</string>
+    <string name="word_list_bulk_forward_only_confirm_title">@string/word_list_bulk_bidirectional_disable</string>
+    <string name="word_list_search_label">ค้นหา</string>
+    <string name="word_list_search_placeholder">ค้นหาคำศัพท์</string>
+    <string name="word_list_search_no_results">ไม่พบผลลัพธ์ที่ตรงกัน</string>
+    <string name="word_list_search_scope_content_description">ตัวเลือกการค้นหา</string>
+    <string name="word_list_search_scope_title">ค้นหาใน</string>
+    <string name="word_list_search_scope_option_word">@string/add_word_label_word</string>
+    <string name="word_list_search_scope_option_translation">@string/add_word_label_translation</string>
+    <string name="word_list_search_scope_error">เลือกอย่างน้อยหนึ่งตัวเลือก</string>
+    <string name="word_list_drag_handle_content_description">จัดลำดับ <xliff:g id="word_name">%1$s</xliff:g> ใหม่</string>
+
+    <string name="apps_list_enable_procrastilearn_title">เปิดใช้ ProcrastiLearn</string>
+    <string name="apps_list_error_message">ข้อผิดพลาด: <xliff:g id="error_message">%1$s</xliff:g></string>
+
+    <plurals name="settings_import_success">
+        <item quantity="other">นำเข้าบัตรคำ %1$d ใบแล้ว</item>
+    </plurals>
+    <plurals name="cards_count">
+        <item quantity="other">%d บัตรคำ</item>
+    </plurals>
+    <plurals name="overlay_minutes_interval">
+        <item quantity="other">ทุก %d นาที</item>
+    </plurals>
+    <plurals name="rating_delay_seconds">
+        <item quantity="other">%d วินาที</item>
+    </plurals>
+    <plurals name="word_list_selection_count">
+        <item quantity="other">เลือกแล้ว %1$d รายการ</item>
+    </plurals>
+    <plurals name="word_list_bulk_delete_confirm_message">
+        <item quantity="other">ลบคำศัพท์ %1$d คำออกจากรายการของคุณ?</item>
+    </plurals>
+    <plurals name="word_list_bulk_forward_only_confirm_message">
+        <item quantity="other">หยุดทดสอบคำศัพท์ %1$d คำแบบย้อนกลับ? ความคืบหน้าแบบย้อนกลับจะยังคงอยู่และจะกลับมาเมื่อคุณเปิดใช้ใหม่</item>
+    </plurals>
+</resources>
