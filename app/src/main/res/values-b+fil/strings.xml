@@ -1,0 +1,262 @@
+<resources xmlns:tools="http://schemas.android.com/tools"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="app_function_description">Magdagdag ng mga salita sa bokabularyo gamit ang mga saling likha ng AI para sa pag-aaral na may spaced repetition</string>
+    <string name="action_open_settings">Buksan ang Mga Setting</string>
+    <string name="action_not_now">Huwag muna</string>
+    <string name="action_continue">Magpatuloy</string>
+    <string name="action_view_list">Tingnan ang Listahan</string>
+    <string name="action_add">Idagdag</string>
+    <string name="action_save">I-save</string>
+    <string name="action_delete">Tanggalin</string>
+    <string name="action_edit">I-edit</string>
+    <string name="action_reset">I-reset</string>
+    <string name="action_ok">OK</string>
+    <string name="action_apply">Ilapat</string>
+    <string name="action_cancel">Kanselahin</string>
+    <string name="action_proceed">Ituloy</string>
+    <string name="action_select_all">Piliin lahat</string>
+    <string name="action_deselect_all">Alisin sa pagpili lahat</string>
+
+    <string name="process_text_action">Idagdag sa ProcrastiLearn</string>
+
+    <string name="nav_apps">Mga App</string>
+    <string name="nav_add_word">Magdagdag ng Salita</string>
+    <string name="nav_dojo">Dojo</string>
+    <string name="nav_settings">Mga Setting</string>
+
+    <string name="learning_no_word">Walang nakargang salita</string>
+    <string name="learning_no_translation">Walang nakargang salin</string>
+    <string name="learning_show_translation">Ipakita ang salin</string>
+    <string name="learning_question">Gaano mo ito kakilala?</string>
+
+    <string name="rating_again">Ulitin</string>
+    <string name="rating_hard">Mahirap</string>
+    <string name="rating_good">Mabuti</string>
+    <string name="rating_easy">Madali</string>
+
+    <string name="dojo_stats_new_remaining">bago</string>
+    <string name="dojo_stats_reviews_due">nakaiskedyul</string>
+    <string name="dojo_stats_skipped">nilaktawan</string>
+    <string name="dojo_empty_title">Tapos ka na muna!</string>
+    <string name="dojo_empty_message">Nasagutan mo na ang lahat ng salitang available ngayong araw. Bumalik mamaya o ayusin ang iyong arawang limitasyon sa Mga Setting.</string>
+    <string name="dojo_undo_content_description">I-undo ang huling rating</string>
+    <string name="dojo_undo_confirmation">Na-undo ang %1$s para sa “%2$s”</string>
+
+    <string name="overlay_permission_title">Payagan ang overlay</string>
+    <string name="overlay_permission_message">Kailangan ng app na ito ng pahintulot para magpakita ng overlay sa ibabaw ng iba pang app.</string>
+
+    <string name="a11y_disclosure_title">Bakit namin kailangan ang Accessibility</string>
+    <string name="a11y_disclosure_description">Ginagamit ng app na ito ang pahintulot sa Android Accessibility Service upang malaman kapag binubuksan mo ang mga napiling app (halimbawa, TikTok, Reddit, o anumang app na pipiliin mo), para makapagpakita ito ng maikling prompt sa pag-aaral bago ka magpatuloy.</string>
+    <string name="a11y_disclosure_section_access">Ano ang ina-access namin</string>
+    <string name="a11y_disclosure_access_details">• Aling app ang kasalukuyang nasa screen mo.\n\n• HINDI namin binabasa ang iyong mga password, mensahe, o tekstong nasa screen.\n\n• Hindi kailanman umaalis sa device mo ang iyong data at hindi ito ibinebenta o ibinabahagi.</string>
+    <string name="a11y_disclosure_section_usage">Paano ito ginagamit</string>
+    <string name="a11y_disclosure_usage_details">Para lamang ma-trigger ang learning overlay para sa mga app na pinili mo. Maaari mo itong i-off anumang oras sa Mga Setting. Hindi namin ibinebenta o ibinabahagi ang data na ito, at hindi ito umaalis sa iyong device.</string>
+    <string name="a11y_disclosure_checkbox">Nauunawaan ko at sumasang-ayon akong payagan ang app na ito na gamitin ang pahintulot sa Accessibility Service para sa layuning ito.</string>
+    <string name="a11y_disclosure_accept">Tanggapin at Magpatuloy</string>
+    <string name="a11y_disclosure_decline">@string/action_not_now</string>
+    <string name="a11y_disclosure_privacy">Patakaran sa privacy at mga detalye</string>
+
+    <string name="add_word_title">Magdagdag ng Bagong Salita</string>
+    <string name="add_word_subtitle">Palawakin ang iyong bokabularyo</string>
+    <string name="add_word_label_word">Salita</string>
+    <string name="add_word_placeholder_word">Ilagay ang salita</string>
+    <string name="add_word_label_translation">Salin</string>
+    <string name="add_word_placeholder_translation">Ilagay ang salin (maraming linya)</string>
+    <string name="edit_word_title">I-edit ang Salita</string>
+    <string name="add_word_success_default">Tagumpay!</string>
+    <string name="add_word_error_word_required">Maglagay ng salita.</string>
+    <string name="add_word_error_translation_required">Maglagay ng salin.</string>
+    <string name="add_word_success_added">Matagumpay na naidagdag ang salita!</string>
+    <string name="add_word_success_updated">Na-update ang salita at na-reset ang progreso!</string>
+    <string name="add_word_success_pending">Nai-save na. Gagawa ng salin kapag online ka na ulit.</string>
+    <string name="add_word_error_preview_failed">Hindi makagawa ng preview</string>
+    <string name="add_word_error_translation_failed">Hindi makagawa ng salin</string>
+    <string name="add_word_error_update_failed">Hindi ma-update ang salita</string>
+    <string name="add_word_error_add_failed">Hindi maidagdag ang salita</string>
+    <string name="add_word_error_lookup_failed">Hindi masuri ang mga umiiral na salita</string>
+
+    <string name="add_word_bidirectional_toggle">Subukan sa parehong direksyon</string>
+    <string name="add_word_customize_backward_show">I-customize ang reverse card</string>
+    <string name="add_word_customize_backward_hide">Itago ang pag-customize</string>
+    <string name="add_word_backward_prompt_label">Reverse prompt</string>
+    <string name="add_word_backward_prompt_placeholder">Iwanang blangko upang gamitin ang salin</string>
+    <string name="add_word_backward_answer_label">Reverse answer</string>
+    <string name="add_word_backward_answer_placeholder">Iwanang blangko upang gamitin ang salita</string>
+
+    <string name="language_name_english">Ingles</string>
+    <string name="language_name_russian">Ruso</string>
+    <string name="language_name_spanish">Espanyol</string>
+    <string name="language_name_french">Pranses</string>
+    <string name="language_name_german">Aleman</string>
+    <string name="language_name_italian">Italyano</string>
+    <string name="language_name_portuguese">Portuges</string>
+    <string name="language_name_chinese">Chinese (Mandarin)</string>
+    <string name="language_name_japanese">Hapones</string>
+    <string name="language_name_korean">Koreano</string>
+    <string name="language_name_ukrainian">Ukrainian</string>
+    <string name="language_name_polish">Polish</string>
+    <string name="language_name_hindi">Hindi</string>
+    <string name="language_name_turkish">Turkish</string>
+    <string name="language_name_dutch" tools:ignore="MissingTranslation">Dutch</string>
+    <string name="language_name_vietnamese">Vietnamese</string>
+    <string name="language_name_indonesian">Indonesian</string>
+    <string name="language_name_thai" tools:ignore="MissingTranslation">Thai</string>
+    <string name="language_name_swedish" tools:ignore="MissingTranslation">Swedish</string>
+    <string name="language_selection_dialog_title">Piliin ang iyong mga wika</string>
+    <string name="language_selection_subtitle">Piliin ang wikang sinasalita mo at ang wikang gusto mong matutuhan. Maaari mo itong baguhin sa ibang pagkakataon sa Mga Setting.</string>
+    <string name="language_selection_native_label">Nagsasalita ako ng</string>
+    <string name="language_selection_target_label">Gusto kong matutuhan ang</string>
+
+    <string name="settings_title">@string/nav_settings</string>
+    <string name="settings_section_study_reviews">Pag-aaral at Mga Review</string>
+    <string name="settings_section_ai_features">Mga Feature ng AI (kailangan ng API key)</string>
+    <string name="settings_section_permissions">Mga Pahintulot</string>
+    <string name="settings_section_data_about">Data at Tungkol sa App</string>
+    <string name="settings_language_pair_title">Pares ng wika</string>
+    <string name="settings_language_pair_desc">%1$s → %2$s</string>
+    <string name="settings_study_mode_title">Mode ng Pag-aaral</string>
+    <string name="settings_study_mode_mixed">Halo-halo</string>
+    <string name="settings_study_mode_reviews_first">Mga Review Muna</string>
+    <string name="settings_study_mode_new_first">Mga Bago Muna</string>
+    <string name="settings_study_mode_mixed_desc">Paghaluin ang mga bago at review card</string>
+    <string name="settings_study_mode_reviews_first_desc">Ipakita ang lahat ng review bago ang mga bagong card</string>
+    <string name="settings_study_mode_new_first_desc">Ipakita ang mga bagong card bago ang mga review</string>
+    <string name="settings_new_card_order_title">Ayos ng Bagong Card</string>
+    <string name="settings_new_card_order_sequential">Sunod-sunod</string>
+    <string name="settings_new_card_order_random">Random</string>
+    <string name="settings_new_card_order_sequential_desc">Ipakita ang mga bagong card ayon sa pagkaka-import</string>
+    <string name="settings_new_card_order_random_desc">Ipakita ang mga bagong card nang random</string>
+    <string name="settings_review_direction_title">Direksyon ng Review</string>
+    <string name="settings_review_direction_forward">Pasulong</string>
+    <string name="settings_review_direction_backward">Paatras</string>
+    <string name="settings_review_direction_bidirectional">Dalawang direksyon</string>
+    <string name="settings_review_direction_forward_desc">Ipakita ang salita, hingin ang salin</string>
+    <string name="settings_review_direction_backward_desc">Ipakita ang salin, hingin ang salita</string>
+    <string name="settings_review_direction_bidirectional_desc">Paghaluin ang dalawang direksyon para sa mga card na may markang “Subukan sa parehong direksyon”</string>
+    <string name="settings_add_cards_for_today_title">Magdagdag ng Mga Card Para Ngayon</string>
+    <string name="settings_add_cards_for_today_dialog_title">Magdagdag ng Mga Card Para Ngayon (Available na Bago: %1$d)</string>
+    <string name="settings_new_cards_per_day_title">Bagong Mga Card Kada Araw</string>
+    <string name="settings_new_cards_per_day_dialog_title">Bagong Mga Card Kada Araw (Available na Bago: %1$d)</string>
+    <string name="settings_reviews_per_day_title">Mga Review Kada Araw</string>
+    <string name="settings_overlay_interval_title">Ipakita ang overlay kada X minuto</string>
+    <string name="settings_overlay_interval_headline">Ipakita ang overlay bawat X minuto habang bukas ang naka-block na app</string>
+    <string name="settings_rating_delay_title">Antala bago mag-rate</string>
+    <string name="settings_rating_delay_headline">Maghintay bago mo ma-rate ang card</string>
+    <string name="settings_rating_delay_off">Naka-off</string>
+    <string name="settings_overlay_headline">Pahintulot sa overlay</string>
+    <string name="settings_overlay_support">Kailangan upang maipakita ang learning card sa ibabaw ng mga napiling app.</string>
+    <string name="settings_a11y_headline">Learning gate (Accessibility)</string>
+    <string name="settings_a11y_support">Tinutukoy ang mga napiling app na nasa foreground upang ma-trigger ang learning card.</string>
+
+    <string name="settings_about_us_row">Tungkol sa amin</string>
+    <string name="settings_about_us_row_desc">Matuto pa tungkol sa app</string>
+    <string name="settings_about_us_title">@string/settings_about_us_row</string>
+    <string name="settings_about_us_intro">Ginagawang pagkakataon sa pag-aaral ng ProcrastiLearn ang mga sandali ng pagkagambala. Kapag sinusubukan mong magbukas ng napiling app, magpapakita muna kami ng mabilis na hamon sa bokabularyo. Sa ganitong paraan, nadaragdagan ang iyong kaalaman habang napipigilan ang mga distraksiyon.</string>
+    <string name="settings_about_us_mission_title">Ang Aming Misyon</string>
+    <string name="settings_about_us_mission_body">Gusto naming tulungan ang mga tao na mabawi ang kanilang oras at atensyon sa pamamagitan ng pagliko ng araw-araw na gawi tungo sa mga pagkakataong matuto ng bago.</string>
+    <string name="settings_about_us_who_title">Sino Kami</string>
+    <string name="settings_about_us_who_body">Ang ProcrastiLearn ay binuo at pinapanatili ng isang independent developer na mahilig sa productivity at pag-aaral ng wika.</string>
+    <string name="settings_about_us_values_title">Ang Aming Mga Halaga</string>
+    <string name="settings_about_us_values_simplicity">Simple: minimal na disenyong walang distraksiyon.</string>
+    <string name="settings_about_us_values_growth">Pag-unlad: ang maliliit na hakbang araw-araw ay humahantong sa pangmatagalang progreso.</string>
+    <string name="settings_about_us_contact_title">Makipag-ugnayan</string>
+    <string name="settings_about_us_contact_body">Kung may mga tanong o puna ka, makipag-ugnayan sa amin sa: Apocalypse_232@proton.me</string>
+    <string name="settings_about_us_privacy">Patakaran sa Privacy</string>
+    <string name="settings_import_row">Mag-import</string>
+    <string name="settings_import_row_desc">Magdagdag ng bokabularyo mula sa ibang app</string>
+    <string name="settings_import_option_anki_apkg">Anki deck (.apkg)</string>
+    <string name="settings_import_option_anki_apkg_desc">I-parse ang mga card na na-export mula sa Anki</string>
+    <string name="settings_import_option_json">JSON export (.json)</string>
+    <string name="settings_import_option_json_desc">Mag-import ng buong ProcrastiLearn export</string>
+    <string name="settings_import_failure_generic">Nabigo ang pag-import</string>
+    <string name="settings_import_failure_format">Hindi pa suportado ang format na iyon</string>
+    <string name="settings_import_failure_schema_version">Ginawa ang file na ito ng mas bagong bersyon ng ProcrastiLearn. Paki-update ang app.</string>
+    <string name="settings_export_row">Mag-export</string>
+    <string name="settings_export_row_desc">I-export ang lahat ng bokabularyo sa JSON file</string>
+    <string name="settings_export_success">Tapos na ang pag-export</string>
+    <string name="settings_export_failure">Nabigo ang pag-export</string>
+
+    <string name="settings_openai_api_key_title">OpenAI API Key</string>
+    <string name="settings_openai_api_key_dialog_title">Ilagay ang OpenAI API Key</string>
+    <string name="settings_openai_api_key_not_set">Hindi nakatakda</string>
+    <string name="settings_openai_api_key_set">Nai-save</string>
+    <string name="settings_openai_prompt_title">AI %1$s-&gt;%2$s prompt</string>
+    <string name="settings_openai_prompt_dialog_title">I-edit ang AI %1$s-&gt;%2$s prompt</string>
+    <string name="settings_openai_prompt_default">Ginagamit ang default na %1$s-&gt;%2$s prompt</string>
+    <string name="settings_openai_prompt_custom">Nai-save ang custom na %1$s-&gt;%2$s prompt</string>
+    <string name="settings_openai_reverse_prompt_title">@string/settings_openai_prompt_title</string>
+    <string name="settings_openai_reverse_prompt_dialog_title">@string/settings_openai_prompt_dialog_title</string>
+    <string name="settings_openai_reverse_prompt_default">@string/settings_openai_prompt_default</string>
+    <string name="settings_openai_reverse_prompt_custom">@string/settings_openai_prompt_custom</string>
+    <string name="settings_openai_prompt_placeholder_hint">Gamitin ang {{NATIVE_LANGUAGE}} at {{TARGET_LANGUAGE}} bilang mga placeholder — awtomatiko silang papalitan ng iyong napiling mga wika kapag gumagawa ng salin.</string>
+
+    <string name="add_word_use_ai_toggle">gumamit ng AI para gumawa ng salin</string>
+    <string name="add_word_toggle_direction">Palitan ang direksyon ng salin</string>
+    <string name="add_word_button_preview">Preview</string>
+    <string name="add_word_preview_title">AI preview</string>
+    <string name="add_word_preview_stored_title">Nai-save na salin — nasa listahan mo na</string>
+    <string name="add_word_preview_cancel">@string/add_word_existing_cancel</string>
+    <string name="add_word_preview_regenerate">Gumawa Muli</string>
+    <string name="add_word_existing_title">Mayroon nang salitang ito</string>
+    <string name="add_word_existing_message">Naidagdag mo na ang salitang ito. Kung magpapatuloy ka, mare-reset ang progreso nito at mase-save ang bagong salin. Kung gusto mo lang itong i-edit, magagawa mo iyon mula sa listahan ng salita.</string>
+    <string name="add_word_existing_cancel">@string/action_cancel</string>
+    <string name="add_word_existing_proceed">@string/action_proceed</string>
+    <string name="add_word_button_add_later">Idagdag mamaya</string>
+    <string name="add_word_pending_title">Mga nakabinbing salin</string>
+    <string name="add_word_pending_delete">Alisin ang nakabinbing salita</string>
+
+    <string name="word_list_title">Aking Bokabularyo</string>
+    <string name="word_list_navigate_back">Bumalik sa pagdagdag ng salita</string>
+    <string name="word_list_empty">Wala pang naidagdag na salita</string>
+    <string name="word_list_delete_confirm_title">Tanggalin ang salita</string>
+    <string name="word_list_delete_confirm_message">Tanggalin ang <xliff:g id="word_name">%1$s</xliff:g> mula sa iyong listahan?</string>
+    <string name="word_list_reset_confirm_title">I-reset ang progreso</string>
+    <string name="word_list_reset_confirm_message">I-reset ang progreso sa pag-aaral para sa <xliff:g id="word_name">%1$s</xliff:g>?</string>
+    <string name="word_list_more_actions">Higit pang aksyon</string>
+    <string name="word_list_more_actions_selection">Mga aksyon sa napili</string>
+    <string name="word_list_bulk_delete_confirm_title">Tanggalin ang mga napiling salita</string>
+    <string name="word_list_bulk_bidirectional_enable">@string/add_word_bidirectional_toggle</string>
+    <string name="word_list_bulk_bidirectional_disable">Subukan lang pasulong</string>
+    <string name="word_list_bulk_forward_only_confirm_title">@string/word_list_bulk_bidirectional_disable</string>
+    <string name="word_list_search_label">Maghanap</string>
+    <string name="word_list_search_placeholder">Maghanap ng mga salita</string>
+    <string name="word_list_search_no_results">Walang nahanap</string>
+    <string name="word_list_search_scope_content_description">Mga opsyon sa paghahanap</string>
+    <string name="word_list_search_scope_title">Hanapin sa</string>
+    <string name="word_list_search_scope_option_word">@string/add_word_label_word</string>
+    <string name="word_list_search_scope_option_translation">@string/add_word_label_translation</string>
+    <string name="word_list_search_scope_error">Pumili ng kahit isang opsyon</string>
+    <string name="word_list_drag_handle_content_description">Baguhin ang ayos ng <xliff:g id="word_name">%1$s</xliff:g></string>
+    <string name="apps_list_enable_procrastilearn_title">I-enable ang ProcrastiLearn</string>
+    <string name="apps_list_error_message">Error: <xliff:g id="error_message">%1$s</xliff:g></string>
+
+    <plurals name="settings_import_success">
+        <item quantity="one">Na-import ang %1$d card</item>
+        <item quantity="other">Na-import ang %1$d card</item>
+    </plurals>
+    <plurals name="cards_count">
+        <item quantity="one">%d card</item>
+        <item quantity="other">%d card</item>
+    </plurals>
+    <plurals name="overlay_minutes_interval">
+        <item quantity="one">Bawat %d minuto</item>
+        <item quantity="other">Bawat %d minuto</item>
+    </plurals>
+    <plurals name="rating_delay_seconds">
+        <item quantity="one">%d segundo</item>
+        <item quantity="other">%d segundo</item>
+    </plurals>
+    <plurals name="word_list_selection_count">
+        <item quantity="one">%1$d ang napili</item>
+        <item quantity="other">%1$d ang napili</item>
+    </plurals>
+    <plurals name="word_list_bulk_delete_confirm_message">
+        <item quantity="one">Tanggalin ang %1$d salita mula sa iyong listahan?</item>
+        <item quantity="other">Tanggalin ang %1$d salita mula sa iyong listahan?</item>
+    </plurals>
+    <plurals name="word_list_bulk_forward_only_confirm_message">
+        <item quantity="one">Itigil ang pagsubok sa %1$d salita nang pabaliktad? Mananatili ang reverse progress at maibabalik kung muli mo itong i-on.</item>
+        <item quantity="other">Itigil ang pagsubok sa %1$d salita nang pabaliktad? Mananatili ang reverse progress at maibabalik kung muli mo itong i-on.</item>
+    </plurals>
+</resources>

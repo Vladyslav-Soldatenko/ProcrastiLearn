@@ -1,0 +1,4 @@
+Magdagdag ng suporta sa dalawang direksyon (harap-patungo-likod at likod-patungo-harap) kapag nag-e-edit ng salita.
+Ang mga bagong install ay nag-aaral na ngayon sa dalawang direksyon bilang default.
+Magdagdag ng multi-select mode sa Aking Bokabularyo para sa maramihang pagtanggal at pagbabago ng direksyon.
+Ayusin ang kulay ng checkbox na mahirap makita.

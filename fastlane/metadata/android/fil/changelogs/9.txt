@@ -1,0 +1,2 @@
+Ayusin ang bug kung saan mali ang mga numerong ipinapakita sa dojo stats.
+Ilang maliliit na pag-aayos at pagpapahusay.

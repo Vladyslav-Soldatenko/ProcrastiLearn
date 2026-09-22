@@ -1,0 +1,37 @@
+May Anki sa phone mo, may Duolingo rin, at balak mo naman talaga silang gamitin. Pero kukunin mo ang phone mo, at makalipas ang dalawampung minuto, nasa TikTok ka na—hindi mo na nga alam kung paano ka napunta roon.
+
+Doon pumapasok ang ProcrastiLearn. Sasaluhin ka nito bago ka tuluyang malubog sa isa na namang ubos-oras na app, at hihingi muna ito ng isang salita.
+
+Ganito nagiging pagsasanay sa bokabularyo ang walang malay na pagbubukas ng app. Piliin ang mga app na madalas mong buksan dahil nakasanayan—social media, browser, laro—at tuwing ilulunsad mo ang isa sa mga iyon, lalabas ang full-screen flashcard overlay. Ipakita ang salin, i-rate kung gaano mo ito naalala, at agad na bubukas ang app na gusto mo. Walang subscription, ads, o account.
+
+PAANO ITO GUMAGANA
+
+Piliin sa tab na Mga App ang mga app na gusto mong lagyan ng gate. Mula noon, magpapakita muna ng flashcard ang pagbubukas ng alinman sa mga app na iyon. Ira-rate mo ang sagot mo (Ulitin / Mahirap / Mabuti / Madali), at awtomatikong itatakda ng FSRS spaced-repetition algorithm ang susunod na review. Hindi ka malulula dahil may arawang limitasyon.
+
+Kung nawawalan ka ng oras kapag nasa loob ka na ng naka-gate na app, may opsyonal na paulit-ulit na paalala: magtakda ng pagitan (hal. bawat 3 minuto) at muling lalabas ang overlay habang nananatili ka sa app. Ginagawang dagdag na review ang bawat matagal na sesyon.
+
+BOKABULARYO
+
+Magdagdag ng mga salita nang mano-mano o gamitin ang opsyonal na AI translation feature: mag-paste ng salita, i-tap ang Generate, at gagawa ang app ng draft na salin gamit ang OpenAI. Ganap na nae-edit ang AI prompt kaya ikaw ang may kontrol sa tono, konteksto, at target na wika.
+
+Maaari ka ring mag-import ng mga umiiral nang Anki deck (.apkg file) upang agad makapagsimula gamit ang bokabularyong pinagkakatiwalaan mo na. Pagkatapos nito, sigurado kang matututunan mo rin ito kalaunan—habang nanonood ng TikTok o ng paborito mong YouTuber.
+
+May nakita ka bang salita sa ibang lugar—sa artikulo, chat, o ibang app? Piliin ito at i-tap ang "Idagdag sa ProcrastiLearn" sa menu upang maidagdag agad, nang hindi na kailangang lumipat muna ng app.
+
+SUPORTA SA WIKA
+
+Awtomatikong umaangkop ang AI prompt sa anumang native at target na wikang pipiliin mo sa Mga Setting: lalabas ang mga paliwanag sa native mong wika at ang mga halimbawa sa wikang pinag-aaralan mo. Gumagana agad ang anumang pares ng wika—hindi na kailangang manu-manong i-edit ang prompt. Patuloy na dadating ang mga pagpapahusay para sa wika, lalo na batay sa mga hiling ng user sa GitHub issues o email.
+
+PRIVACY
+
+Lahat ng data—bokabularyo, listahan ng naka-block na app, kasaysayan ng review, at mga setting—ay nakaimbak lamang sa device mo. Walang analytics, crash reporter, o advertising SDK. Ang tanging outbound network traffic ay ang opsyonal na OpenAI API call na ikaw mismo ang nagsisimula sa pag-tap sa Generate, gamit ang sarili mong API key na inilagay sa Mga Setting.
+
+MGA PAHINTULOT
+
+Accessibility Service: ginagamit lamang upang malaman kung aling app ang kasalukuyang nasa foreground, para malaman ng ProcrastiLearn kung kailan ipapakita ang overlay. Hindi binabasa ng serbisyong ito ang laman ng screen, mga keystroke, o anumang ibang input.
+
+Display Over Other Apps: kailangan upang maipakita ang flashcard overlay sa ibabaw ng naka-gate na app.
+
+OPEN SOURCE
+
+Ang ProcrastiLearn ay libre at open-source software (Apache 2.0 license). Nasa GitHub ang source code at issue tracker.

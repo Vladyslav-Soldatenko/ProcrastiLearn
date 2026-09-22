@@ -1,0 +1,3 @@
+Magdagdag ng opsyong maghanap sa Aking Bokabularyo ayon sa salita lamang, salin lamang, o pareho.
+Pagbutihin ang layout sa landscape mode.
+Pagaanin ang app gamit ang mas matalinong code shrinking, para sa mas maliit na install size at mas magaan na paggamit ng memorya.
