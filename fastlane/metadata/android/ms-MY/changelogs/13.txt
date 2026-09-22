@@ -1,0 +1,2 @@
+Tambah tetapan kelewatan penilaian untuk mengunci butang penilaian tindanan dan mengelakkan klik pantas semata-mata untuk menutup tindanan.
+Kecilkan sedikit pengepala dojo bagi memberi lebih ruang kepada kad.

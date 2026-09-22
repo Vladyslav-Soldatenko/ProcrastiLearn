@@ -1,0 +1,2 @@
+Tambah penyusunan semula seret dan lepas dalam Kosa Kata Saya.
+Kekalkan susunan kad asal apabila mengimport daripada Anki.
