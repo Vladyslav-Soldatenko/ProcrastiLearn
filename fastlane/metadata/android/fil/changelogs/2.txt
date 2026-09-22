@@ -1,0 +1,1 @@
+Unang release. Flashcard overlay gate para sa mga piniling app, FSRS spaced repetition, pag-import ng Anki .apkg, opsyonal na mga saling likha ng OpenAI AI, in-app na practice mode, at JSON vocabulary import/export.

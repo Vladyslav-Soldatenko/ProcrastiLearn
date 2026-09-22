@@ -1,0 +1,6 @@
+Idagdag ang text-selection action na “Idagdag sa ProcrastiLearn” para mabilis na magdagdag ng mga salita mula sa anumang app.
+Magdagdag ng undo para sa huling rating sa dojo/overlay.
+Magdagdag ng back navigation mula sa Aking Bokabularyo papunta sa pahinang Magdagdag ng Salita.
+Igrupo ang mga setting sa may label na mga seksyon.
+Ayusin ang maling pagbibilang ng mga hindi pa nakikitang card sa Magdagdag ng Mga Card Para Ngayon.
+Pinahusay na suporta sa Anki.

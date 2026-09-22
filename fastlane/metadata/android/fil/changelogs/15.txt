@@ -1,0 +1,5 @@
+Magdagdag ng suporta sa pag-import ng Anki cloze deck.
+Magdagdag ng 9 na bagong wika, kabilang ang Japanese, Korean, Portuguese (Brazil), at Hindi.
+Palawakin ang mga saling likha ng AI sa 19 na pares ng wika.
+Ayusin ang pagtukoy ng duplicate na salita na nakakaligta ng mga tugmang nagkakaiba lamang sa laki ng titik na may accent.
+I-update ang link ng patakaran sa privacy.

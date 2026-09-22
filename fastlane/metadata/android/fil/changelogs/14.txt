@@ -1,0 +1,2 @@
+Magdagdag ng drag-and-drop na pagbabago ng ayos sa Aking Bokabularyo.
+Panatilihin ang orihinal na ayos ng mga card kapag nag-i-import mula sa Anki.
