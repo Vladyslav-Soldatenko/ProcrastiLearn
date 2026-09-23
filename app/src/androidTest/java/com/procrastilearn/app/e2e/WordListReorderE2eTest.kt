@@ -6,15 +6,10 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -22,8 +17,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.procrastilearn.app.MainActivity
 import com.procrastilearn.app.R
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
-import com.procrastilearn.app.di.DatabaseEntryPoint
-import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -50,13 +43,13 @@ class WordListReorderE2eTest {
     @Before
     fun beforeEach() {
         targetContext = InstrumentationRegistry.getInstrumentation().targetContext
-        resetAppState()
+        targetContext.resetE2eDatabase()
         composeTestRule.dismissOnboardingIfPresent(targetContext)
     }
 
     @After
     fun afterEach() {
-        resetAppState()
+        targetContext.resetE2eDatabase()
     }
 
     @Test
@@ -64,13 +57,13 @@ class WordListReorderE2eTest {
         val alphaId = seedWord("alpha-fenrix", "translation-alpha", position = 1L)
         val muId = seedWord("mu-fenrix", "translation-mu", position = 2L)
         val zetaId = seedWord("zeta-fenrix", "translation-zeta", position = 3L)
-        navigateToWordList()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(zetaId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.navigateToWordList(targetContext)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(zetaId)), E2E_TIMEOUT_MS)
 
         dragHandleToItem(alphaId, zetaId)
 
-        recreateActivity()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(alphaId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.recreateActivity(composeTestRule.activity)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(alphaId)), E2E_TIMEOUT_MS)
         assertEquals(listOf(muId, zetaId, alphaId), displayedWordIdsInOrder())
     }
 
@@ -79,13 +72,13 @@ class WordListReorderE2eTest {
         val alphaId = seedWord("alpha-torvane", "translation-alpha", position = 1L)
         val muId = seedWord("mu-torvane", "translation-mu", position = 2L)
         val zetaId = seedWord("zeta-torvane", "translation-zeta", position = 3L)
-        navigateToWordList()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(zetaId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.navigateToWordList(targetContext)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(zetaId)), E2E_TIMEOUT_MS)
 
         dragHandleToItem(zetaId, alphaId)
 
-        recreateActivity()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(alphaId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.recreateActivity(composeTestRule.activity)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(alphaId)), E2E_TIMEOUT_MS)
         assertEquals(listOf(zetaId, alphaId, muId), displayedWordIdsInOrder())
     }
 
@@ -95,13 +88,13 @@ class WordListReorderE2eTest {
         val bId = seedWord("b-quillon", "translation-b", position = 2L)
         val cId = seedWord("c-quillon", "translation-c", position = 3L)
         val dId = seedWord("d-quillon", "translation-d", position = 4L)
-        navigateToWordList()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(dId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.navigateToWordList(targetContext)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(dId)), E2E_TIMEOUT_MS)
 
         dragHandleToItem(bId, dId)
 
-        recreateActivity()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(aId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.recreateActivity(composeTestRule.activity)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(aId)), E2E_TIMEOUT_MS)
         assertEquals(listOf(aId, cId, dId, bId), displayedWordIdsInOrder())
     }
 
@@ -109,8 +102,8 @@ class WordListReorderE2eTest {
     fun dragHandleIsAbsentWhileSearchQueryIsActive() {
         val alphaId = seedWord("alpha-dravik", "translation-alpha", position = 1L)
         val betaId = seedWord("beta-dravik", "translation-beta", position = 2L)
-        navigateToWordList()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(betaId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.navigateToWordList(targetContext)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(betaId)), E2E_TIMEOUT_MS)
 
         composeTestRule.onNodeWithTag("word_list_search_field").performTextInput("alpha")
         composeTestRule.waitForIdle()
@@ -122,8 +115,8 @@ class WordListReorderE2eTest {
     fun dragHandleIsAbsentWhileSelectionModeIsActive() {
         val alphaId = seedWord("alpha-brinshall", "translation-alpha", position = 1L)
         val betaId = seedWord("beta-brinshall", "translation-beta", position = 2L)
-        navigateToWordList()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(betaId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.navigateToWordList(targetContext)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(betaId)), E2E_TIMEOUT_MS)
 
         composeTestRule.onNodeWithTag(itemTag(alphaId)).performTouchInput { longClick() }
         composeTestRule.waitForIdle()
@@ -134,8 +127,8 @@ class WordListReorderE2eTest {
     @Test
     fun dragHandleIsAbsentWhenListHasOnlyOneWord() {
         val onlyId = seedWord("solo-ravenna", "translation-solo", position = 1L)
-        navigateToWordList()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(onlyId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.navigateToWordList(targetContext)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(onlyId)), E2E_TIMEOUT_MS)
 
         composeTestRule.onNodeWithTag(dragHandleTag(onlyId)).assertDoesNotExist()
     }
@@ -145,8 +138,8 @@ class WordListReorderE2eTest {
         val alphaId = seedWord("alpha-serath", "translation-alpha", position = 1L)
         val betaId = seedWord("beta-serath", "translation-beta", position = 2L)
         val gammaId = seedWord("gamma-serath", "translation-gamma", position = 3L)
-        navigateToWordList()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(gammaId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.navigateToWordList(targetContext)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(gammaId)), E2E_TIMEOUT_MS)
 
         val handle = composeTestRule.onNodeWithTag(dragHandleTag(alphaId))
         val stepDeltaY = stepDeltaYTowardItem(handle, gammaId)
@@ -158,8 +151,8 @@ class WordListReorderE2eTest {
         handle.performTouchInput { cancel() }
         composeTestRule.waitForIdle()
 
-        recreateActivity()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(gammaId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.recreateActivity(composeTestRule.activity)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(gammaId)), E2E_TIMEOUT_MS)
         assertEquals(listOf(alphaId, betaId, gammaId), displayedWordIdsInOrder())
     }
 
@@ -168,8 +161,8 @@ class WordListReorderE2eTest {
         val ids =
             (1..WORD_COUNT_EXCEEDING_ONE_SCREEN).map { seedWord("word-$it-quorlath", "t-$it", position = it.toLong()) }
         val firstId = ids.first()
-        navigateToWordList()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(firstId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.navigateToWordList(targetContext)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(firstId)), E2E_TIMEOUT_MS)
 
         val handle = composeTestRule.onNodeWithTag(dragHandleTag(firstId))
         val startY = centerYPx(handle)
@@ -203,8 +196,8 @@ class WordListReorderE2eTest {
     fun reorderingWordsChangesWhichWordSequentialNewCardOrderIntroducesNext() {
         val alphaId = seedWord("alpha-mornith", "translation-alpha", position = 1L)
         val betaId = seedWord("beta-mornith", "translation-beta", position = 2L)
-        navigateToWordList()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(betaId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.navigateToWordList(targetContext)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(betaId)), E2E_TIMEOUT_MS)
         assertEquals(alphaId, pickNewIdByPositionAsc())
 
         dragHandleToItem(alphaId, betaId)
@@ -217,8 +210,8 @@ class WordListReorderE2eTest {
         val aId = seedWord("a-thessaly", "translation-a", position = 1L)
         val bId = seedWord("b-thessaly", "translation-b", position = 2L)
         val cId = seedWord("c-thessaly", "translation-c", position = 3L)
-        navigateToWordList()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(cId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.navigateToWordList(targetContext)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(cId)), E2E_TIMEOUT_MS)
 
         dragHandleToItem(aId, cId)
         assertEquals(listOf(bId, cId, aId), displayedWordIdsInOrder())
@@ -226,7 +219,7 @@ class WordListReorderE2eTest {
         longPressItem(bId)
         openSelectionMenuAndTap(R.string.action_delete)
         confirmBulkDeleteDialog()
-        composeTestRule.waitUntilNodeGone(hasTestTag(itemTag(bId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.waitUntilNodeGone(hasTestTag(itemTag(bId)), E2E_TIMEOUT_MS)
 
         assertEquals(listOf(cId, aId), displayedWordIdsInOrder())
         assertEquals(1L, positionOf(cId))
@@ -237,60 +230,26 @@ class WordListReorderE2eTest {
     fun reorderingFreshlyAnkiImportedWordsPersistsCorrectly() {
         val existingId = seedWord("existing-vantrel", "translation-existing", position = 1L)
         val importedIds = importBatch(listOf("imported-a-vantrel" to "t-a", "imported-b-vantrel" to "t-b"))
-        navigateToWordList()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(importedIds[1])), DEFAULT_TIMEOUT_MS)
+        composeTestRule.navigateToWordList(targetContext)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(importedIds[1])), E2E_TIMEOUT_MS)
 
         dragHandleToItem(importedIds[1], existingId)
 
-        recreateActivity()
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(existingId)), DEFAULT_TIMEOUT_MS)
+        composeTestRule.recreateActivity(composeTestRule.activity)
+        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(existingId)), E2E_TIMEOUT_MS)
         assertEquals(listOf(importedIds[1], existingId, importedIds[0]), displayedWordIdsInOrder())
     }
 
-    private fun recreateActivity() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            composeTestRule.activity.recreate()
-        }
-    }
-
-    private fun string(resId: Int) = targetContext.getString(resId)
-
-    private fun navigateToWordList() {
-        val addWordLabel = string(R.string.nav_add_word)
-        composeTestRule.waitUntilNodeExists(hasText(addWordLabel), DEFAULT_TIMEOUT_MS)
-        composeTestRule
-            .onNodeWithContentDescription(addWordLabel, useUnmergedTree = true)
-            .performClick()
-        composeTestRule.waitForIdle()
-
-        val viewListLabel = string(R.string.action_view_list)
-        composeTestRule.waitUntilNodeExists(hasContentDescription(viewListLabel), DEFAULT_TIMEOUT_MS)
-        composeTestRule.onNodeWithContentDescription(viewListLabel).performClick()
-        composeTestRule.waitForIdle()
-    }
-
     private fun longPressItem(id: Long) {
-        composeTestRule.waitUntilNodeExists(hasTestTag(itemTag(id)), DEFAULT_TIMEOUT_MS)
-        composeTestRule.onNodeWithTag(itemTag(id)).performTouchInput { longClick() }
-        composeTestRule.waitForIdle()
+        composeTestRule.longPressWordListItem(id)
     }
 
     private fun openSelectionMenuAndTap(actionResId: Int) {
-        composeTestRule
-            .onNodeWithContentDescription(string(R.string.word_list_more_actions_selection))
-            .performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(string(actionResId)).performClick()
-        composeTestRule.waitForIdle()
+        composeTestRule.openWordListSelectionMenuAndTap(targetContext, actionResId)
     }
 
     private fun confirmBulkDeleteDialog() {
-        composeTestRule.waitUntilNodeExists(
-            hasText(string(R.string.word_list_bulk_delete_confirm_title)),
-            DEFAULT_TIMEOUT_MS,
-        )
-        composeTestRule.onNodeWithText(string(R.string.action_delete)).performClick()
-        composeTestRule.waitForIdle()
+        composeTestRule.confirmWordListBulkDelete(targetContext)
     }
 
     private fun centerYPx(node: SemanticsNodeInteraction): Float {
@@ -323,16 +282,11 @@ class WordListReorderE2eTest {
         composeTestRule.waitForIdle()
     }
 
-    private fun itemTag(id: Long) = "word_list_item_$id"
+    private fun itemTag(id: Long) = wordListItemTag(id)
 
     private fun dragHandleTag(id: Long) = "word_list_drag_handle_$id"
 
-    private fun displayedWordIdsInOrder(): List<Long> =
-        composeTestRule
-            .onAllNodes(WORD_LIST_ITEM_MATCHER, useUnmergedTree = true)
-            .fetchSemanticsNodes()
-            .mapNotNull { node -> node.config.getOrNull(SemanticsProperties.TestTag) }
-            .map { tag -> tag.removePrefix("word_list_item_").toLong() }
+    private fun displayedWordIdsInOrder(): List<Long> = composeTestRule.displayedWordListItemIds()
 
     private fun lastVisibleItemBottomYPx(): Float =
         composeTestRule
@@ -344,24 +298,16 @@ class WordListReorderE2eTest {
         word: String,
         translation: String,
         position: Long,
-    ): Long =
-        runBlocking {
-            withContext(Dispatchers.IO) {
-                entryPoint().appDatabase().vocabularyDao().insertVocabulary(
-                    VocabularyEntity(
-                        word = word,
-                        translation = translation,
-                        fsrsCardJson = "",
-                        position = position,
-                    ),
-                )
-            }
-        }
+    ): Long = targetContext.seedWord(word, translation, position)
 
     private fun importBatch(words: List<Pair<String, String>>): List<Long> =
         runBlocking {
             withContext(Dispatchers.IO) {
-                val dao = entryPoint().appDatabase().vocabularyDao()
+                val dao =
+                    targetContext
+                        .databaseEntryPoint()
+                        .appDatabase()
+                        .vocabularyDao()
                 dao.applyImportBatch(
                     toInsert =
                         words.map { (word, translation) ->
@@ -378,35 +324,28 @@ class WordListReorderE2eTest {
     private fun positionOf(id: Long): Long =
         runBlocking {
             withContext(Dispatchers.IO) {
-                requireNotNull(entryPoint().appDatabase().vocabularyDao().getVocabularyById(id)).position
+                requireNotNull(
+                    targetContext
+                        .databaseEntryPoint()
+                        .appDatabase()
+                        .vocabularyDao()
+                        .getVocabularyById(id),
+                ).position
             }
         }
 
     private fun pickNewIdByPositionAsc(): Long? =
         runBlocking {
             withContext(Dispatchers.IO) {
-                entryPoint().appDatabase().vocabularyReviewDao().pickNewIdByPositionAsc()
+                targetContext
+                    .databaseEntryPoint()
+                    .appDatabase()
+                    .vocabularyReviewDao()
+                    .pickNewIdByPositionAsc()
             }
         }
-
-    private fun resetAppState() {
-        runBlocking {
-            withContext(Dispatchers.IO) {
-                val db = entryPoint().appDatabase()
-                db.vocabularyDao().deleteAllVocabulary()
-                db.undoSnapshotDao().deleteAll()
-            }
-        }
-    }
-
-    private fun entryPoint(): DatabaseEntryPoint =
-        EntryPointAccessors.fromApplication(
-            targetContext.applicationContext,
-            DatabaseEntryPoint::class.java,
-        )
 
     private companion object {
-        const val DEFAULT_TIMEOUT_MS = 15_000L
         const val WORD_COUNT_EXCEEDING_ONE_SCREEN = 40
         const val AUTO_SCROLL_EDGE_INSET_PX = 30f
         const val AUTO_SCROLL_JITTER_PX = 5f

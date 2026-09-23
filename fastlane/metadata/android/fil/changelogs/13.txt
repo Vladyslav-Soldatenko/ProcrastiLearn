@@ -1,0 +1,2 @@
+Magdagdag ng setting ng antala bago mag-rate upang i-lock ang mga button ng rating sa overlay at maiwasan ang mabilis na pag-click para lang maisara ito.
+Bahagyang paliitin ang header ng dojo para magkaroon ng mas maraming espasyo para sa mga card.

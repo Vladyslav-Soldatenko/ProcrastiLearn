@@ -1,0 +1,1 @@
+Het AI-vertaalmodel geüpgraded naar 5.6 Luna.

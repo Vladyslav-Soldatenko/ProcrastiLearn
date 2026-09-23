@@ -1,0 +1,5 @@
+Tambah sokongan untuk mengimport dek cloze Anki.
+Tambah 9 bahasa baharu, termasuk bahasa Jepun, Korea, Portugis (Brazil) dan Hindi.
+Luaskan terjemahan dijana AI kepada 19 pasangan bahasa.
+Baiki pengesanan perkataan pendua yang terlepas padanan yang hanya berbeza pada huruf beraksen dan huruf besar/kecil.
+Kemas kini pautan dasar privasi.

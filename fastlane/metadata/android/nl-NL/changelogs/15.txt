@@ -1,0 +1,5 @@
+Ondersteuning voor het importeren van Anki-cloze-sets toegevoegd.
+9 nieuwe talen toegevoegd, waaronder Japans, Koreaans, Portugees (Brazilië) en Hindi.
+Door AI gemaakte vertalingen uitgebreid naar 19 talenparen.
+Fout opgelost waarbij dubbele woorden die alleen verschilden in hoofdletters met accenten niet werden herkend.
+Link naar het privacybeleid bijgewerkt.

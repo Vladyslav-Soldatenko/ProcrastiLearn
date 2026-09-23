@@ -1,0 +1,1 @@
+Keluaran awal. Tindanan kad imbas untuk apl terpilih, ulangan berjarak FSRS, import Anki .apkg, terjemahan dijana AI OpenAI pilihan, mod latihan dalam apl serta import/eksport kosa kata JSON.

@@ -1,0 +1,2 @@
+Fout opgelost waarbij de dojo-statistieken onjuiste aantallen toonden.
+Enkele kleine aanpassingen en verbeteringen

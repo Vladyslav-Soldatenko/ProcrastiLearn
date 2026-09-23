@@ -1,0 +1,2 @@
+Slepen-en-neerzetten om de volgorde in Mijn woordenschat te wijzigen toegevoegd.
+De oorspronkelijke kaartvolgorde blijft behouden bij importeren uit Anki.

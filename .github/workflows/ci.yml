@@ -102,7 +102,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-${{ runner.os }}-${{ matrix.api-level }}-pixel_6-x86_64-v1
+          key: avd-${{ runner.os }}-${{ matrix.api-level }}-pixel_6-x86_64-v2
 
       - name: Create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
@@ -124,7 +124,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-${{ runner.os }}-${{ matrix.api-level }}-pixel_6-x86_64-v1
+          key: avd-${{ runner.os }}-${{ matrix.api-level }}-pixel_6-x86_64-v2
 
       - name: Run instrumented tests
         uses: reactivecircus/android-emulator-runner@v2
@@ -188,7 +188,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-${{ runner.os }}-30-pixel_6-x86_64-v1
+          key: avd-${{ runner.os }}-30-pixel_6-x86_64-v2
 
       - name: Create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
@@ -210,7 +210,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-${{ runner.os }}-30-pixel_6-x86_64-v1
+          key: avd-${{ runner.os }}-30-pixel_6-x86_64-v2
 
       - name: Run AI translation e2e tests
         env:

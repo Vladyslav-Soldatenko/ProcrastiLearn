@@ -1,0 +1,3 @@
+Tambah pilihan untuk mencari dalam Kosa Kata Saya mengikut perkataan sahaja, terjemahan sahaja atau kedua-duanya.
+Perbaik susun atur dalam mod landskap.
+Kecilkan saiz apl dengan pengecilan kod yang lebih pintar demi pemasangan yang lebih kecil dan penggunaan memori yang lebih ringan.
