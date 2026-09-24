@@ -96,7 +96,7 @@ class VocabularyRepositoryGetNextItemTest {
         )
 
     // Test 1: Empty database should throw exception
-    @Test(expected = NoSuchElementException::class)
+    @Test(expected = NoAvailableItemsException::class)
     fun `getNextVocabularyItem throws when database is empty`() =
         runTest {
             // Setup

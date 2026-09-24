@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.procrastilearn.app.R
@@ -26,7 +27,7 @@ fun MaximumIntervalSettingsItem(
         headlineContent = { Text(stringResource(R.string.settings_maximum_interval_title)) },
         supportingContent = {
             Text(
-                stringResource(R.string.settings_maximum_interval_days, value),
+                pluralStringResource(R.plurals.settings_maximum_interval_days, value, value),
                 style = MaterialTheme.typography.bodySmall,
             )
         },

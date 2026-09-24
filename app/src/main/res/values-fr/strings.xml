@@ -197,7 +197,11 @@
     <string name="settings_new_cards_per_day_dialog_title">Nouvelles cartes par jour (nouvelles disponibles : %1$d)</string>
     <string name="settings_reviews_per_day_title">Révisions par jour</string>
     <string name="settings_maximum_interval_title">Intervalle maximal entre révisions</string>
-    <string name="settings_maximum_interval_days">%1$d jours</string>
+
+    <plurals name="settings_maximum_interval_days">
+        <item quantity="one">%1$d jour</item>
+        <item quantity="other">%1$d jours</item>
+    </plurals>
 
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">Afficher la superposition toutes les X minutes</string>
