@@ -146,6 +146,11 @@
     <string name="settings_new_cards_per_day_title">Kad Baharu Sehari</string>
     <string name="settings_new_cards_per_day_dialog_title">Kad Baharu Sehari (Kad Baharu Tersedia: %1$d)</string>
     <string name="settings_reviews_per_day_title">Ulang Kaji Sehari</string>
+    <string name="settings_maximum_interval_title">Selang maksimum ulang kaji</string>
+
+    <plurals name="settings_maximum_interval_days">
+        <item quantity="other">%1$d hari</item>
+    </plurals>
 
     <string name="settings_overlay_interval_title">Tunjukkan tindanan setiap X minit</string>
     <string name="settings_overlay_interval_headline">Tunjukkan tindanan setiap X minit semasa apl disekat dibuka</string>

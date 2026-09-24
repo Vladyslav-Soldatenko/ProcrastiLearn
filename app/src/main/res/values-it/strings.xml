@@ -196,6 +196,13 @@
     <string name="settings_new_cards_per_day_title">Nuove carte al giorno</string>
     <string name="settings_new_cards_per_day_dialog_title">Nuove carte al giorno (nuove disponibili: %1$d)</string>
     <string name="settings_reviews_per_day_title">Ripassi al giorno</string>
+    <string name="settings_maximum_interval_title">Intervallo massimo tra i ripassi</string>
+
+    <plurals name="settings_maximum_interval_days">
+        <item quantity="many">%1$d giorni</item>
+        <item quantity="one">%1$d giorno</item>
+        <item quantity="other">%1$d giorni</item>
+    </plurals>
 
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">Mostra l’overlay ogni X minuti</string>

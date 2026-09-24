@@ -196,6 +196,11 @@
     <string name="settings_new_cards_per_day_title">Kartu Baru per Hari</string>
     <string name="settings_new_cards_per_day_dialog_title">Kartu Baru per Hari (Kata Baru Tersedia: %1$d)</string>
     <string name="settings_reviews_per_day_title">Ulasan per Hari</string>
+    <string name="settings_maximum_interval_title">Jeda maksimum antarulasan</string>
+
+    <plurals name="settings_maximum_interval_days">
+        <item quantity="other">%1$d hari</item>
+    </plurals>
 
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">Tampilkan overlay setiap X menit</string>

@@ -145,6 +145,11 @@
     <string name="settings_new_cards_per_day_title">บัตรคำใหม่ต่อวัน</string>
     <string name="settings_new_cards_per_day_dialog_title">บัตรคำใหม่ต่อวัน (คำศัพท์ใหม่ที่มี: %1$d)</string>
     <string name="settings_reviews_per_day_title">จำนวนทบทวนต่อวัน</string>
+    <string name="settings_maximum_interval_title">ช่วงห่างสูงสุดระหว่างการทบทวน</string>
+
+    <plurals name="settings_maximum_interval_days">
+        <item quantity="other">%1$d วัน</item>
+    </plurals>
     <string name="settings_overlay_interval_title">แสดงหน้าต่างทับทุก X นาที</string>
     <string name="settings_overlay_interval_headline">แสดงหน้าต่างทับทุก X นาทีขณะที่เปิดแอปที่บล็อกไว้</string>
     <string name="settings_rating_delay_title">หน่วงเวลาก่อนให้คะแนน</string>

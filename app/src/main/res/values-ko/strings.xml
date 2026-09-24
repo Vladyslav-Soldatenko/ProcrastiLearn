@@ -196,6 +196,11 @@
     <string name="settings_new_cards_per_day_title">하루 새 카드 수</string>
     <string name="settings_new_cards_per_day_dialog_title">하루 새 카드 수(사용 가능한 새 단어: %1$d개)</string>
     <string name="settings_reviews_per_day_title">하루 복습 수</string>
+    <string name="settings_maximum_interval_title">최대 복습 간격</string>
+
+    <plurals name="settings_maximum_interval_days">
+        <item quantity="other">%1$d일</item>
+    </plurals>
 
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">X분마다 오버레이 표시</string>

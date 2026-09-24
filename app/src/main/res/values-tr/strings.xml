@@ -196,6 +196,12 @@
     <string name="settings_new_cards_per_day_title">Günlük Yeni Kart Sayısı</string>
     <string name="settings_new_cards_per_day_dialog_title">Günlük Yeni Kart Sayısı (Kullanılabilir yeni: %1$d)</string>
     <string name="settings_reviews_per_day_title">Günlük Tekrar Sayısı</string>
+    <string name="settings_maximum_interval_title">En uzun tekrar aralığı</string>
+
+    <plurals name="settings_maximum_interval_days">
+        <item quantity="one">%1$d gün</item>
+        <item quantity="other">%1$d gün</item>
+    </plurals>
 
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">Kaplamayı her X dakikada bir göster</string>
