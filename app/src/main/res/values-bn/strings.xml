@@ -152,6 +152,7 @@
     <string name="settings_maximum_interval_title">রিভিউর সর্বোচ্চ বিরতি</string>
 
     <plurals name="settings_maximum_interval_days">
+        <item quantity="one">%1$d দিন</item>
         <item quantity="other">%1$d দিন</item>
     </plurals>
     <string name="settings_overlay_interval_title">প্রতি X মিনিটে ওভারলে দেখান</string>

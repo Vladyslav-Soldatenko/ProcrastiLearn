@@ -199,6 +199,7 @@
     <string name="settings_maximum_interval_title">Intervalo máximo entre revisões</string>
 
     <plurals name="settings_maximum_interval_days">
+        <item quantity="many">%1$d dias</item>
         <item quantity="one">%1$d dia</item>
         <item quantity="other">%1$d dias</item>
     </plurals>

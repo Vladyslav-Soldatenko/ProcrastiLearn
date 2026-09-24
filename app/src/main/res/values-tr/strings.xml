@@ -199,6 +199,7 @@
     <string name="settings_maximum_interval_title">En uzun tekrar aralığı</string>
 
     <plurals name="settings_maximum_interval_days">
+        <item quantity="one">%1$d gün</item>
         <item quantity="other">%1$d gün</item>
     </plurals>
 

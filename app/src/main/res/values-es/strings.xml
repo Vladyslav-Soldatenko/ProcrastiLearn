@@ -199,6 +199,7 @@
     <string name="settings_maximum_interval_title">Intervalo máximo entre repasos</string>
 
     <plurals name="settings_maximum_interval_days">
+        <item quantity="many">%1$d días</item>
         <item quantity="one">%1$d día</item>
         <item quantity="other">%1$d días</item>
     </plurals>

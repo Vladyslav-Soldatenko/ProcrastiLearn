@@ -199,6 +199,7 @@
     <string name="settings_maximum_interval_title">समीक्षाओं के बीच अधिकतम अंतराल</string>
 
     <plurals name="settings_maximum_interval_days">
+        <item quantity="one">%1$d दिन</item>
         <item quantity="other">%1$d दिन</item>
     </plurals>
 
