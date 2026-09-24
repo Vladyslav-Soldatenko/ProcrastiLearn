@@ -5,7 +5,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNode
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -13,12 +12,12 @@ import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.MainActivity
 import com.procrastilearn.app.R
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -78,7 +77,7 @@ class SettingsMaximumIntervalE2eTest {
         composeTestRule.onNode(hasSetTextAction()).performTextClearance()
         composeTestRule.onNode(hasSetTextAction()).performTextInput("36501")
         composeTestRule.onNodeWithText(targetContext.getString(R.string.action_ok)).assertIsNotEnabled()
-        assertThat(storedMaximumInterval()).isEqualTo(365)
+        assertEquals(365, storedMaximumInterval())
         composeTestRule.onNode(hasSetTextAction()).performTextClearance()
         composeTestRule.onNode(hasSetTextAction()).performTextInput("1")
         composeTestRule.onNodeWithText(targetContext.getString(R.string.action_ok)).performClick()
