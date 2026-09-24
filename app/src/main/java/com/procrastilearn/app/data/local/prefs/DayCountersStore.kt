@@ -11,10 +11,10 @@ import com.procrastilearn.app.domain.model.MIN_MAXIMUM_INTERVAL_DAYS
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
 class DayCountersStore
@@ -148,7 +148,13 @@ class DayCountersStore
         }
 
         suspend fun setMaximumIntervalDays(value: Int) {
-            ds.edit { it[K.MAXIMUM_INTERVAL_DAYS] = value.coerceIn(MIN_MAXIMUM_INTERVAL_DAYS, MAX_MAXIMUM_INTERVAL_DAYS) }
+            ds.edit { preferences ->
+                preferences[K.MAXIMUM_INTERVAL_DAYS] =
+                    value.coerceIn(
+                        MIN_MAXIMUM_INTERVAL_DAYS,
+                        MAX_MAXIMUM_INTERVAL_DAYS,
+                    )
+            }
         }
 
         suspend fun setOverlayInterval(value: Int) {

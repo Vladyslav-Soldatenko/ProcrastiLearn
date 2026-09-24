@@ -78,10 +78,10 @@ import com.procrastilearn.app.ui.screens.settings.components.openAccessibilitySe
 import com.procrastilearn.app.ui.screens.settings.components.openOverlaySettings
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import com.procrastilearn.app.utils.isPermissionsGranted
-import java.time.LocalDate
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import java.time.LocalDate
 
 private const val MAX_RATING_DELAY_SECONDS = 60
 
