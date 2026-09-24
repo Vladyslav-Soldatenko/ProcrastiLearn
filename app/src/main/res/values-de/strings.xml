@@ -196,12 +196,6 @@
     <string name="settings_new_cards_per_day_title">Neue Karten pro Tag</string>
     <string name="settings_new_cards_per_day_dialog_title">Neue Karten pro Tag (verfügbar neu: %1$d)</string>
     <string name="settings_reviews_per_day_title">Wiederholungen pro Tag</string>
-    <string name="settings_maximum_interval_title">Maximaler Wiederholungsabstand</string>
-
-    <plurals name="settings_maximum_interval_days">
-        <item quantity="one">%1$d Tag</item>
-        <item quantity="other">%1$d Tage</item>
-    </plurals>
 
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">Overlay alle X Minuten anzeigen</string>

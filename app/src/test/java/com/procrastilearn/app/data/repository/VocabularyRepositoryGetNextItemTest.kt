@@ -55,8 +55,6 @@ class VocabularyRepositoryGetNextItemTest {
         vocabularyReviewDao = database.vocabularyReviewDao()
         vocabularyStatsDao = database.vocabularyStatsDao()
         dayCountersStore = mockk(relaxed = true)
-        coEvery { dayCountersStore.readPolicy() } returns flowOf(LearningPreferencesConfig())
-
         repository =
             VocabularyRepositoryImpl(
                 appDatabase = database,
@@ -96,7 +94,7 @@ class VocabularyRepositoryGetNextItemTest {
         )
 
     // Test 1: Empty database should throw exception
-    @Test(expected = NoAvailableItemsException::class)
+    @Test(expected = NoSuchElementException::class)
     fun `getNextVocabularyItem throws when database is empty`() =
         runTest {
             // Setup
