@@ -47,6 +47,10 @@ jobs:
       - name: Test Fastlane workflows with stubbed Play actions
         run: ruby fastlane/spec/fastfile_test.rb
 
+      - name: Show ktlint failures
+        if: failure()
+        run: find app/build/reports/ktlint -name "*.txt" -exec cat {} \;
+
       - name: Upload test reports
         if: failure()
         uses: actions/upload-artifact@v4
