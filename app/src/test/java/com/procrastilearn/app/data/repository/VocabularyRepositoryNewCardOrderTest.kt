@@ -15,8 +15,6 @@ import com.procrastilearn.app.domain.model.VocabularyItem
 import io.github.openspacedrepetition.Rating
 import io.mockk.coEvery
 import io.mockk.mockk
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -25,6 +23,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @ExperimentalCoroutinesApi
 @RunWith(RobolectricTestRunner::class)

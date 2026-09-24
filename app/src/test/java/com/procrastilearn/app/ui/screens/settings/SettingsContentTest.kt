@@ -487,7 +487,10 @@ class SettingsContentTest {
         var saved: Int? = null
         setContent(maximumIntervalDays = 365, onMaximumIntervalDaysChange = { saved = it })
 
-        composeTestRule.onNodeWithText(string(R.string.settings_maximum_interval_title)).performScrollTo().performClick()
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_maximum_interval_title))
+            .performScrollTo()
+            .performClick()
         composeTestRule.onNodeWithText("365").assertIsDisplayed()
         composeTestRule.onNode(hasSetTextAction()).performTextClearance()
         composeTestRule.onNode(hasSetTextAction()).performTextInput("730")
@@ -500,7 +503,10 @@ class SettingsContentTest {
     fun `maximum interval dialog rejects zero and numbers beyond limit`() {
         var saved: Int? = null
         setContent(onMaximumIntervalDaysChange = { saved = it })
-        composeTestRule.onNodeWithText(string(R.string.settings_maximum_interval_title)).performScrollTo().performClick()
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_maximum_interval_title))
+            .performScrollTo()
+            .performClick()
 
         composeTestRule.onNode(hasSetTextAction()).performTextClearance()
         composeTestRule.onNode(hasSetTextAction()).performTextInput("0")
