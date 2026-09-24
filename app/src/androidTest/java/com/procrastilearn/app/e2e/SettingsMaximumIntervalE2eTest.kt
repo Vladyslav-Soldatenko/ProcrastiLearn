@@ -46,20 +46,26 @@ class SettingsMaximumIntervalE2eTest {
     @Test
     fun changingIntervalPersistsAndIsShownWhenReturningToSettings() {
         composeTestRule.navigateTo(targetContext, R.string.nav_settings)
-        composeTestRule.onNodeWithText(targetContext.getString(R.string.settings_maximum_interval_days, 365))
-            .performScrollTo().assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(targetContext.getString(R.string.settings_maximum_interval_days, 365))
+            .performScrollTo()
+            .assertIsDisplayed()
         openIntervalDialog()
         composeTestRule.onNode(hasSetTextAction()).performTextClearance()
         composeTestRule.onNode(hasSetTextAction()).performTextInput("730")
         composeTestRule.onNodeWithText(targetContext.getString(R.string.action_ok)).performClick()
 
         composeTestRule.waitUntil(E2E_TIMEOUT_MS) { storedMaximumInterval() == 730 }
-        composeTestRule.onNodeWithText(targetContext.getString(R.string.settings_maximum_interval_days, 730))
-            .performScrollTo().assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(targetContext.getString(R.string.settings_maximum_interval_days, 730))
+            .performScrollTo()
+            .assertIsDisplayed()
         composeTestRule.navigateTo(targetContext, R.string.nav_dojo)
         composeTestRule.navigateTo(targetContext, R.string.nav_settings)
-        composeTestRule.onNodeWithText(targetContext.getString(R.string.settings_maximum_interval_days, 730))
-            .performScrollTo().assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(targetContext.getString(R.string.settings_maximum_interval_days, 730))
+            .performScrollTo()
+            .assertIsDisplayed()
     }
 
     @Test
@@ -70,20 +76,24 @@ class SettingsMaximumIntervalE2eTest {
         composeTestRule.onNode(hasSetTextAction()).performTextInput("0")
         composeTestRule.onNodeWithText(targetContext.getString(R.string.action_ok)).assertIsNotEnabled()
         composeTestRule.onNode(hasSetTextAction()).performTextClearance()
-        composeTestRule.onNode(hasSetTextAction()).performTextInput("36_501")
+        composeTestRule.onNode(hasSetTextAction()).performTextInput("36501")
         composeTestRule.onNodeWithText(targetContext.getString(R.string.action_ok)).assertIsNotEnabled()
         assertThat(storedMaximumInterval()).isEqualTo(365)
         composeTestRule.onNode(hasSetTextAction()).performTextClearance()
         composeTestRule.onNode(hasSetTextAction()).performTextInput("1")
         composeTestRule.onNodeWithText(targetContext.getString(R.string.action_ok)).performClick()
         composeTestRule.waitUntil(E2E_TIMEOUT_MS) { storedMaximumInterval() == 1 }
-        composeTestRule.onNodeWithText(targetContext.getString(R.string.settings_maximum_interval_days, 1))
-            .performScrollTo().assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(targetContext.getString(R.string.settings_maximum_interval_days, 1))
+            .performScrollTo()
+            .assertIsDisplayed()
     }
 
     private fun openIntervalDialog() {
-        composeTestRule.onNodeWithText(targetContext.getString(R.string.settings_maximum_interval_title))
-            .performScrollTo().performClick()
+        composeTestRule
+            .onNodeWithText(targetContext.getString(R.string.settings_maximum_interval_title))
+            .performScrollTo()
+            .performClick()
     }
 
     private fun setMaximumInterval(value: Int) {
@@ -91,5 +101,12 @@ class SettingsMaximumIntervalE2eTest {
     }
 
     private fun storedMaximumInterval(): Int =
-        runBlocking { targetContext.preferencesEntryPoint().dayCountersStore().readPolicy().first().maximumIntervalDays }
+        runBlocking {
+            targetContext
+                .preferencesEntryPoint()
+                .dayCountersStore()
+                .readPolicy()
+                .first()
+                .maximumIntervalDays
+        }
 }
