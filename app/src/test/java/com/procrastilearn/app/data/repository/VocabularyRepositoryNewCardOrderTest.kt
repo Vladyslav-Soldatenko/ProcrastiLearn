@@ -13,7 +13,6 @@ import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.VocabularyItem
 import io.github.openspacedrepetition.Rating
-import io.github.openspacedrepetition.Scheduler
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,7 +32,6 @@ class VocabularyRepositoryNewCardOrderTest {
     private lateinit var database: AppDatabase
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var dayCountersStore: DayCountersStore
-    private lateinit var scheduler: Scheduler
     private lateinit var repository: VocabularyRepositoryImpl
 
     @Before
@@ -48,12 +46,12 @@ class VocabularyRepositoryNewCardOrderTest {
 
         vocabularyDao = database.vocabularyDao()
         dayCountersStore = mockk(relaxed = true)
-        scheduler = Scheduler.builder().build()
+        coEvery { dayCountersStore.readPolicy() } returns flowOf(LearningPreferencesConfig())
 
         repository =
             VocabularyRepositoryImpl(
                 appDatabase = database,
-                scheduler = scheduler,
+                schedulerFactory = FsrsSchedulerFactory(),
                 prefs = dayCountersStore,
             )
     }

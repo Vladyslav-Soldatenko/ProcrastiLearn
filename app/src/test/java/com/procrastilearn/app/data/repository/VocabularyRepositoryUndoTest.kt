@@ -18,7 +18,6 @@ import com.procrastilearn.app.data.local.prefs.StudyPreferencesDataStore
 import com.procrastilearn.app.domain.model.StudyDirection
 import io.github.openspacedrepetition.Card
 import io.github.openspacedrepetition.Rating
-import io.github.openspacedrepetition.Scheduler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -75,7 +74,7 @@ class VocabularyRepositoryUndoTest {
         repository =
             VocabularyRepositoryImpl(
                 appDatabase = database,
-                scheduler = Scheduler.builder().build(),
+                schedulerFactory = FsrsSchedulerFactory(),
                 prefs = dayCountersStore,
             )
     }

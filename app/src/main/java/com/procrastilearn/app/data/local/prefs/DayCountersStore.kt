@@ -4,6 +4,9 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.procrastilearn.app.data.counter.DayCounters
+import com.procrastilearn.app.domain.model.DEFAULT_MAXIMUM_INTERVAL_DAYS
+import com.procrastilearn.app.domain.model.MAX_MAXIMUM_INTERVAL_DAYS
+import com.procrastilearn.app.domain.model.MIN_MAXIMUM_INTERVAL_DAYS
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.NewCardOrder
@@ -31,6 +34,7 @@ class DayCountersStore
             val MIX_MODE = stringPreferencesKey("mix_mode")
             val NEW_PER_DAY_LIMIT = intPreferencesKey("new_per_day_limit")
             val REVIEW_PER_DAY_LIMIT = intPreferencesKey("review_per_day_limit")
+            val MAXIMUM_INTERVAL_DAYS = intPreferencesKey("maximum_interval_days")
             val OVERLAY_INTERVAL_TIME = intPreferencesKey("overlay_interval_time")
             val STUDY_DIRECTION_MODE = stringPreferencesKey("study_direction_mode")
             val RATING_DELAY_SECONDS = intPreferencesKey("rating_delay_seconds")
@@ -108,6 +112,9 @@ class DayCountersStore
                 LearningPreferencesConfig(
                     newPerDay = p[K.NEW_PER_DAY_LIMIT] ?: DEFAULT_NEW_PER_DAY,
                     reviewPerDay = p[K.REVIEW_PER_DAY_LIMIT] ?: DEFAULT_REVIEW_PER_DAY,
+                    maximumIntervalDays =
+                        (p[K.MAXIMUM_INTERVAL_DAYS] ?: DEFAULT_MAXIMUM_INTERVAL_DAYS)
+                            .coerceIn(MIN_MAXIMUM_INTERVAL_DAYS, MAX_MAXIMUM_INTERVAL_DAYS),
                     overlayInterval = p[K.OVERLAY_INTERVAL_TIME] ?: DEFAULT_OVERLAY_INTERVAL_TIME,
                     mixMode = runCatching { MixMode.valueOf(mixName) }.getOrDefault(MixMode.MIX),
                     studyDirectionMode =
@@ -138,6 +145,10 @@ class DayCountersStore
 
         suspend fun setReviewPerDay(value: Int) {
             ds.edit { it[K.REVIEW_PER_DAY_LIMIT] = value.coerceIn(MIN_LIMIT, MAX_REVIEW_PER_DAY) }
+        }
+
+        suspend fun setMaximumIntervalDays(value: Int) {
+            ds.edit { it[K.MAXIMUM_INTERVAL_DAYS] = value.coerceIn(MIN_MAXIMUM_INTERVAL_DAYS, MAX_MAXIMUM_INTERVAL_DAYS) }
         }
 
         suspend fun setOverlayInterval(value: Int) {

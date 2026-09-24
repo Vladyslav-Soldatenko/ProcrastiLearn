@@ -197,6 +197,8 @@
     <string name="settings_new_cards_per_day_title">New Cards Per Day</string>
     <string name="settings_new_cards_per_day_dialog_title">New Cards Per Day (Available New: %1$d)</string>
     <string name="settings_reviews_per_day_title">Reviews Per Day</string>
+    <string name="settings_maximum_interval_title">Maximum Review Interval</string>
+    <string name="settings_maximum_interval_days">%1$d days</string>
 
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">Show overlay every X minutes</string>

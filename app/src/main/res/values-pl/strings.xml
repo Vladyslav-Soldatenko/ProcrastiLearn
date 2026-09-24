@@ -196,6 +196,8 @@
     <string name="settings_new_cards_per_day_title">Nowe karty dziennie</string>
     <string name="settings_new_cards_per_day_dialog_title">Nowe karty dziennie (dostępne nowe: %1$d)</string>
     <string name="settings_reviews_per_day_title">Powtórki dziennie</string>
+    <string name="settings_maximum_interval_title">Maksymalny odstęp między powtórkami</string>
+    <string name="settings_maximum_interval_days">%1$d dni</string>
 
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">Pokazuj nakładkę co X minut</string>

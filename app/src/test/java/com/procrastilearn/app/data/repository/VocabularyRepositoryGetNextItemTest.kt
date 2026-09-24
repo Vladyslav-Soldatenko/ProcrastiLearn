@@ -14,7 +14,6 @@ import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.VocabularyItem
 import io.github.openspacedrepetition.Card
-import io.github.openspacedrepetition.Scheduler
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -39,7 +38,6 @@ class VocabularyRepositoryGetNextItemTest {
     private lateinit var vocabularyReviewDao: VocabularyReviewDao
     private lateinit var vocabularyStatsDao: VocabularyStatsDao
     private lateinit var dayCountersStore: DayCountersStore
-    private lateinit var scheduler: Scheduler
     private lateinit var repository: VocabularyRepositoryImpl
     private var nextTestPosition = 1L
 
@@ -57,12 +55,12 @@ class VocabularyRepositoryGetNextItemTest {
         vocabularyReviewDao = database.vocabularyReviewDao()
         vocabularyStatsDao = database.vocabularyStatsDao()
         dayCountersStore = mockk(relaxed = true)
-        scheduler = Scheduler.builder().build()
+        coEvery { dayCountersStore.readPolicy() } returns flowOf(LearningPreferencesConfig())
 
         repository =
             VocabularyRepositoryImpl(
                 appDatabase = database,
-                scheduler = scheduler,
+                schedulerFactory = FsrsSchedulerFactory(),
                 prefs = dayCountersStore,
             )
     }
@@ -232,7 +230,7 @@ class VocabularyRepositoryGetNextItemTest {
             val customRepo =
                 VocabularyRepositoryImpl(
                     appDatabase = database,
-                    scheduler = scheduler,
+                    schedulerFactory = FsrsSchedulerFactory(),
                     prefs = dayCountersStore,
                 )
 
@@ -713,7 +711,7 @@ class VocabularyRepositoryGetNextItemTest {
             val customRepo =
                 VocabularyRepositoryImpl(
                     appDatabase = database,
-                    scheduler = scheduler,
+                    schedulerFactory = FsrsSchedulerFactory(),
                     prefs = dayCountersStore,
                 )
             coEvery { dayCountersStore.readPolicy() } returns

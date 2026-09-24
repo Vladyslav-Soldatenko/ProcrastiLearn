@@ -92,6 +92,7 @@ class SettingsViewModelTest {
                 LearningPreferencesConfig(
                     newPerDay = 20,
                     reviewPerDay = 150,
+                    maximumIntervalDays = 730,
                     overlayInterval = 10,
                     mixMode = MixMode.MIX,
                     ratingDelaySeconds = 4,
@@ -164,6 +165,7 @@ class SettingsViewModelTest {
                 assertThat(hydrated.mixMode).isEqualTo(MixMode.MIX)
                 assertThat(hydrated.newPerDay).isEqualTo(20)
                 assertThat(hydrated.reviewPerDay).isEqualTo(150)
+                assertThat(hydrated.maximumIntervalDays).isEqualTo(730)
                 assertThat(hydrated.overlayInterval).isEqualTo(10)
                 assertThat(hydrated.ratingDelaySeconds).isEqualTo(4)
                 assertThat(hydrated.newCardOrder).isEqualTo(NewCardOrder.SEQUENTIAL)
@@ -178,6 +180,7 @@ class SettingsViewModelTest {
                         mixMode = MixMode.NEW_FIRST,
                         newPerDay = 5,
                         reviewPerDay = 80,
+                        maximumIntervalDays = 1,
                         overlayInterval = 3,
                         ratingDelaySeconds = 12,
                         newCardOrder = NewCardOrder.RANDOM,
@@ -191,6 +194,7 @@ class SettingsViewModelTest {
                 assertThat(updated.mixMode).isEqualTo(MixMode.NEW_FIRST)
                 assertThat(updated.newPerDay).isEqualTo(5)
                 assertThat(updated.reviewPerDay).isEqualTo(80)
+                assertThat(updated.maximumIntervalDays).isEqualTo(1)
                 assertThat(updated.overlayInterval).isEqualTo(3)
                 assertThat(updated.ratingDelaySeconds).isEqualTo(12)
                 assertThat(updated.newCardOrder).isEqualTo(NewCardOrder.RANDOM)
@@ -364,6 +368,18 @@ class SettingsViewModelTest {
             advanceUntilIdle()
 
             coVerify { dayCountersStore.setReviewPerDay(77) }
+        }
+
+    @Test
+    fun `onMaximumIntervalDaysChange delegates to store`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+            coEvery { dayCountersStore.setMaximumIntervalDays(any()) } returns Unit
+
+            viewModel.onMaximumIntervalDaysChange(730)
+            advanceUntilIdle()
+
+            coVerify { dayCountersStore.setMaximumIntervalDays(730) }
         }
 
     @Test

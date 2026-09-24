@@ -196,6 +196,8 @@
     <string name="settings_new_cards_per_day_title">Tarjetas nuevas por día</string>
     <string name="settings_new_cards_per_day_dialog_title">Tarjetas nuevas por día (nuevas disponibles: %1$d)</string>
     <string name="settings_reviews_per_day_title">Repasos por día</string>
+    <string name="settings_maximum_interval_title">Intervalo máximo entre repasos</string>
+    <string name="settings_maximum_interval_days">%1$d días</string>
 
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">Mostrar superposición cada X minutos</string>

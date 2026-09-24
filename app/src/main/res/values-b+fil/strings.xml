@@ -139,6 +139,8 @@
     <string name="settings_new_cards_per_day_title">Bagong Mga Card Kada Araw</string>
     <string name="settings_new_cards_per_day_dialog_title">Bagong Mga Card Kada Araw (Available na Bago: %1$d)</string>
     <string name="settings_reviews_per_day_title">Mga Review Kada Araw</string>
+    <string name="settings_maximum_interval_title">Pinakamahabang pagitan ng pagre-review</string>
+    <string name="settings_maximum_interval_days">%1$d araw</string>
     <string name="settings_overlay_interval_title">Ipakita ang overlay kada X minuto</string>
     <string name="settings_overlay_interval_headline">Ipakita ang overlay bawat X minuto habang bukas ang naka-block na app</string>
     <string name="settings_rating_delay_title">Antala bago mag-rate</string>
