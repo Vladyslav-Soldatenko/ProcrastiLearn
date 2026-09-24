@@ -11,6 +11,7 @@ import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
+import java.io.File
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -20,7 +21,6 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -80,13 +80,13 @@ class DayCountersStoreTest {
             store.setMaximumIntervalDays(0)
             assertThat(store.readPolicy().first().maximumIntervalDays).isEqualTo(1)
             store.setMaximumIntervalDays(Int.MAX_VALUE)
-            assertThat(store.readPolicy().first().maximumIntervalDays).isEqualTo(36500)
+            assertThat(store.readPolicy().first().maximumIntervalDays).isEqualTo(36_500)
 
             val key = intPreferencesKey("maximum_interval_days")
             studyPreferences.ds.edit { it[key] = -100 }
             assertThat(store.readPolicy().first().maximumIntervalDays).isEqualTo(1)
             studyPreferences.ds.edit { it[key] = Int.MAX_VALUE }
-            assertThat(store.readPolicy().first().maximumIntervalDays).isEqualTo(36500)
+            assertThat(store.readPolicy().first().maximumIntervalDays).isEqualTo(36_500)
         }
 
     @Test

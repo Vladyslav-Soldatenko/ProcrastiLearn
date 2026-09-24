@@ -70,7 +70,7 @@ class SettingsMaximumIntervalE2eTest {
         composeTestRule.onNode(hasSetTextAction()).performTextInput("0")
         composeTestRule.onNodeWithText(targetContext.getString(R.string.action_ok)).assertIsNotEnabled()
         composeTestRule.onNode(hasSetTextAction()).performTextClearance()
-        composeTestRule.onNode(hasSetTextAction()).performTextInput("36501")
+        composeTestRule.onNode(hasSetTextAction()).performTextInput("36_501")
         composeTestRule.onNodeWithText(targetContext.getString(R.string.action_ok)).assertIsNotEnabled()
         assertThat(storedMaximumInterval()).isEqualTo(365)
         composeTestRule.onNode(hasSetTextAction()).performTextClearance()

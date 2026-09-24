@@ -5,16 +5,16 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.domain.model.DEFAULT_MAXIMUM_INTERVAL_DAYS
+import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MAX_MAXIMUM_INTERVAL_DAYS
 import com.procrastilearn.app.domain.model.MIN_MAXIMUM_INTERVAL_DAYS
-import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 @Singleton
 class DayCountersStore

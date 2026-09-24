@@ -41,6 +41,8 @@ import com.procrastilearn.app.R
 import com.procrastilearn.app.data.export.VocabularyImportFailureReason
 import com.procrastilearn.app.data.export.VocabularyImportResult
 import com.procrastilearn.app.domain.model.Language
+import com.procrastilearn.app.domain.model.MAX_MAXIMUM_INTERVAL_DAYS
+import com.procrastilearn.app.domain.model.MIN_MAXIMUM_INTERVAL_DAYS
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
@@ -54,14 +56,12 @@ import com.procrastilearn.app.ui.screens.settings.components.AddCardsForTodaySet
 import com.procrastilearn.app.ui.screens.settings.components.ExportSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ImportSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.LanguagePairSettingsItem
+import com.procrastilearn.app.ui.screens.settings.components.MaximumIntervalSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.MixModeDialog
 import com.procrastilearn.app.ui.screens.settings.components.MixModeSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NewCardOrderDialog
 import com.procrastilearn.app.ui.screens.settings.components.NewCardOrderSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NewPerDaySettingsItem
-import com.procrastilearn.app.domain.model.MAX_MAXIMUM_INTERVAL_DAYS
-import com.procrastilearn.app.domain.model.MIN_MAXIMUM_INTERVAL_DAYS
-import com.procrastilearn.app.ui.screens.settings.components.MaximumIntervalSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NumberInputDialog
 import com.procrastilearn.app.ui.screens.settings.components.OpenAiApiKeySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.OpenAiPromptSettingsItem
@@ -78,10 +78,10 @@ import com.procrastilearn.app.ui.screens.settings.components.openAccessibilitySe
 import com.procrastilearn.app.ui.screens.settings.components.openOverlaySettings
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import com.procrastilearn.app.utils.isPermissionsGranted
+import java.time.LocalDate
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import java.time.LocalDate
 
 private const val MAX_RATING_DELAY_SECONDS = 60
 

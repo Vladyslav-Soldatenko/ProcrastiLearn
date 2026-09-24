@@ -6,6 +6,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@Suppress("MagicNumber")
 class FsrsSchedulerFactory @Inject constructor() {
     private val schedulers = mutableMapOf<Int, Scheduler>()
 

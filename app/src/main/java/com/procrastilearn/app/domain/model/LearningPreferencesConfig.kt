@@ -12,7 +12,7 @@ val StudyDirectionMode.isBackwardOnly: Boolean get() = this == StudyDirectionMod
 
 const val DEFAULT_MAXIMUM_INTERVAL_DAYS = 365
 const val MIN_MAXIMUM_INTERVAL_DAYS = 1
-const val MAX_MAXIMUM_INTERVAL_DAYS = 36500
+const val MAX_MAXIMUM_INTERVAL_DAYS = 36_500
 
 data class LearningPreferencesConfig(
     val newPerDay: Int = 20,

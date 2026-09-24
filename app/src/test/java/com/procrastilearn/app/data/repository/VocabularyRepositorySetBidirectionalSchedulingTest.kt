@@ -8,10 +8,12 @@ import com.procrastilearn.app.data.local.dao.VocabularyReviewDao
 import com.procrastilearn.app.data.local.dao.VocabularyStatsDao
 import com.procrastilearn.app.data.local.database.AppDatabase
 import com.procrastilearn.app.data.local.entity.VocabularyEntity
-import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
+import com.procrastilearn.app.domain.model.LearningPreferencesConfig
+import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
