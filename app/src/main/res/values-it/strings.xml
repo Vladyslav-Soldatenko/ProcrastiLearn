@@ -197,6 +197,7 @@
     <string name="settings_new_cards_per_day_dialog_title">Nuove carte al giorno (nuove disponibili: %1$d)</string>
     <string name="settings_reviews_per_day_title">Ripassi al giorno</string>
     <string name="settings_maximum_interval_title">Intervallo massimo tra i ripassi</string>
+    <string name="settings_maximum_interval_description">Il numero massimo di giorni che una scheda di ripasso attenderà. Più breve lo imposti, maggiore sarà il tuo carico di lavoro.</string>
 
     <plurals name="settings_maximum_interval_days">
         <item quantity="many">%1$d giorni</item>

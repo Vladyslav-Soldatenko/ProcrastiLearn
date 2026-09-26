@@ -535,6 +535,7 @@ private fun SettingsDialogs(
                 currentValue = studySettings.maximumIntervalDays,
                 minValue = MIN_MAXIMUM_INTERVAL_DAYS,
                 maxValue = MAX_MAXIMUM_INTERVAL_DAYS,
+                description = stringResource(R.string.settings_maximum_interval_description),
                 onValueConfirm = {
                     studyCallbacks.onMaximumIntervalDaysChange(it)
                     dismiss()

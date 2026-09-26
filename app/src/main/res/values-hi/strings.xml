@@ -197,6 +197,7 @@
     <string name="settings_new_cards_per_day_dialog_title">रोज़ाना नए कार्ड्स (उपलब्ध नए: %1$d)</string>
     <string name="settings_reviews_per_day_title">रोज़ाना रिव्यूज़</string>
     <string name="settings_maximum_interval_title">समीक्षाओं के बीच अधिकतम अंतराल</string>
+    <string name="settings_maximum_interval_description">किसी समीक्षा कार्ड के प्रतीक्षा करने के दिनों की अधिकतम संख्या। इसे जितना कम सेट करेंगे, आपका कार्यभार उतना ही अधिक होगा।</string>
 
     <plurals name="settings_maximum_interval_days">
         <item quantity="one">%1$d दिन</item>

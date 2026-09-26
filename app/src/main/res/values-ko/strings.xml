@@ -197,6 +197,7 @@
     <string name="settings_new_cards_per_day_dialog_title">하루 새 카드 수(사용 가능한 새 단어: %1$d개)</string>
     <string name="settings_reviews_per_day_title">하루 복습 수</string>
     <string name="settings_maximum_interval_title">최대 복습 간격</string>
+    <string name="settings_maximum_interval_description">복습 카드가 기다릴 수 있는 최대 일수입니다. 짧게 설정할수록 학습량이 늘어납니다.</string>
 
     <plurals name="settings_maximum_interval_days">
         <item quantity="other">%1$d일</item>

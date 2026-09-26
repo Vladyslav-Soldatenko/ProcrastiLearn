@@ -182,6 +182,7 @@
     <string name="settings_new_cards_per_day_dialog_title">每日新词数（可用新词：%1$d）</string>
     <string name="settings_reviews_per_day_title">每日复习数</string>
     <string name="settings_maximum_interval_title">最长复习间隔</string>
+    <string name="settings_maximum_interval_description">复习卡片等待的最长天数。设置得越短，学习负担越大。</string>
 
     <plurals name="settings_maximum_interval_days">
         <item quantity="other">%1$d 天</item>

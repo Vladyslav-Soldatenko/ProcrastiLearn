@@ -140,6 +140,7 @@
     <string name="settings_new_cards_per_day_dialog_title">Bagong Mga Card Kada Araw (Available na Bago: %1$d)</string>
     <string name="settings_reviews_per_day_title">Mga Review Kada Araw</string>
     <string name="settings_maximum_interval_title">Pinakamahabang pagitan ng pagre-review</string>
+    <string name="settings_maximum_interval_description">Ang pinakamataas na bilang ng araw na maghihintay ang isang card para sa pagre-review. Kapag mas maikli ang itinakda mo rito, mas dadami ang iyong gawain.</string>
 
     <plurals name="settings_maximum_interval_days">
         <item quantity="other">%1$d araw</item>

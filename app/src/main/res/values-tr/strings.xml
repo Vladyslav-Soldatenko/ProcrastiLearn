@@ -197,6 +197,7 @@
     <string name="settings_new_cards_per_day_dialog_title">Günlük Yeni Kart Sayısı (Kullanılabilir yeni: %1$d)</string>
     <string name="settings_reviews_per_day_title">Günlük Tekrar Sayısı</string>
     <string name="settings_maximum_interval_title">En uzun tekrar aralığı</string>
+    <string name="settings_maximum_interval_description">Bir tekrar kartının bekleyeceği maksimum gün sayısı. Bunu ne kadar kısa ayarlarsanız, iş yükünüz o kadar artar.</string>
 
     <plurals name="settings_maximum_interval_days">
         <item quantity="one">%1$d gün</item>
