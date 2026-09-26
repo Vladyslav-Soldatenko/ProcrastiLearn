@@ -5,6 +5,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -73,6 +74,7 @@ internal fun OverlayScreen(
                 onToggleShowAnswer = onToggleShowAnswer,
                 onDifficultySelect = onDifficultySelect,
                 ratingLockSecondsRemaining = uiState.ratingLockSecondsRemaining,
+                modifier = Modifier.safeDrawingPadding(),
             )
         }
     }
