@@ -123,8 +123,18 @@ class WordListScreenTest {
 
         openMenuFor()
 
-        val selectTop = composeTestRule.onNodeWithText(string(R.string.action_select)).fetchSemanticsNode().boundsInRoot.top
-        val editTop = composeTestRule.onNodeWithText(string(R.string.action_edit)).fetchSemanticsNode().boundsInRoot.top
+        val selectTop =
+            composeTestRule
+                .onNodeWithText(string(R.string.action_select))
+                .fetchSemanticsNode()
+                .boundsInRoot
+                .top
+        val editTop =
+            composeTestRule
+                .onNodeWithText(string(R.string.action_edit))
+                .fetchSemanticsNode()
+                .boundsInRoot
+                .top
 
         assertThat(selectTop).isLessThan(editTop)
     }
