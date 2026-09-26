@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -125,6 +126,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val ctx = LocalContext.current
+    val resources = LocalResources.current
     val permissionStates = rememberPermissionStates(ctx)
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val availableNewCount by viewModel.availableNewCount.collectAsStateWithLifecycle()
@@ -160,7 +162,7 @@ fun SettingsScreen(
                     val message =
                         when (result) {
                             is VocabularyImportResult.Success ->
-                                ctx.resources.getQuantityString(
+                                resources.getQuantityString(
                                     R.plurals.settings_import_success,
                                     result.importedCount,
                                     result.importedCount,
