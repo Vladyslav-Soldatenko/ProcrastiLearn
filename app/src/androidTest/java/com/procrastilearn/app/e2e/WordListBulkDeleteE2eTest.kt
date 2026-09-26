@@ -63,7 +63,8 @@ class WordListBulkDeleteE2eTest {
             hasContentDescription(targetContext.string(R.string.word_list_more_actions))
                 .and(hasAnyAncestor(hasTestTag(wordListItemTag(selectedId)))),
             useUnmergedTree = true,
-        ).performClick()
+        )
+            .performClick()
         composeTestRule.onNodeWithText(targetContext.string(R.string.action_select)).performClick()
         composeTestRule.onNodeWithTag("word_list_checkbox_$selectedId").assertIsOn()
         composeTestRule.clickWordListItem(addedId)
