@@ -11,7 +11,6 @@ import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.StudyPreferencesDataStore
 import com.procrastilearn.app.domain.model.StudyDirection
 import io.github.openspacedrepetition.Rating
-import io.github.openspacedrepetition.Scheduler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -65,7 +64,7 @@ class AddCardsForTodayIntegrationTest {
         repository =
             VocabularyRepositoryImpl(
                 appDatabase = database,
-                scheduler = Scheduler.builder().build(),
+                schedulerFactory = FsrsSchedulerFactory(),
                 prefs = dayCountersStore,
             )
     }
@@ -94,6 +93,26 @@ class AddCardsForTodayIntegrationTest {
         val item = repository.getNextVocabularyItem()
         repository.reviewVocabularyItem(item.id, Rating.GOOD, StudyDirection.FORWARD)
     }
+
+    @Test
+    fun `changed maximum interval is applied to the next review without restarting repository`() =
+        runTest {
+            dayCountersStore.resetFor(todayStamp())
+            insertNewWords(2)
+            val first = repository.getNextVocabularyItem()
+            dayCountersStore.setMaximumIntervalDays(1)
+            val firstStart = System.currentTimeMillis()
+            repository.reviewVocabularyItem(first.id, Rating.EASY, StudyDirection.FORWARD)
+            val firstDue = database.vocabularyDao().getVocabularyById(first.id)!!.fsrsDueAt
+            assertThat(firstDue).isAtMost(firstStart + 2 * 86_400_000L)
+
+            dayCountersStore.setMaximumIntervalDays(365)
+            val second = repository.getNextVocabularyItem()
+            repository.reviewVocabularyItem(second.id, Rating.EASY, StudyDirection.FORWARD)
+            val secondDue = database.vocabularyDao().getVocabularyById(second.id)!!.fsrsDueAt
+            assertThat(secondDue).isGreaterThan(firstDue)
+            assertThat(dayCountersStore.readPolicy().first().maximumIntervalDays).isEqualTo(365)
+        }
 
     @Test
     fun `add cards for today grants extra new cards and resets on day rollover`() =

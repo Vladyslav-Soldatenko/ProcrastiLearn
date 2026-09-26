@@ -196,6 +196,12 @@
     <string name="settings_new_cards_per_day_title">Số từ mới mỗi ngày</string>
     <string name="settings_new_cards_per_day_dialog_title">Số từ mới mỗi ngày (Từ mới khả dụng: %1$d)</string>
     <string name="settings_reviews_per_day_title">Số lượt ôn tập mỗi ngày</string>
+    <string name="settings_maximum_interval_title">Khoảng cách ôn tập tối đa</string>
+    <string name="settings_maximum_interval_description">Số ngày tối đa mà một thẻ ôn tập sẽ chờ. Bạn đặt giá trị này càng ngắn, khối lượng học tập của bạn càng lớn.</string>
+
+    <plurals name="settings_maximum_interval_days">
+        <item quantity="other">%1$d ngày</item>
+    </plurals>
 
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">Hiện lớp phủ mỗi X phút</string>

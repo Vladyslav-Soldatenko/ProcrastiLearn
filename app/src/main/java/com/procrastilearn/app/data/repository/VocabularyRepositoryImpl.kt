@@ -22,7 +22,6 @@ import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
 import com.procrastilearn.app.domain.repository.VocabularyStudyRepository
 import io.github.openspacedrepetition.Card
 import io.github.openspacedrepetition.Rating
-import io.github.openspacedrepetition.Scheduler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -57,7 +56,7 @@ class VocabularyRepositoryImpl
     @Inject
     constructor(
         private val appDatabase: AppDatabase,
-        private val scheduler: Scheduler,
+        private val schedulerFactory: FsrsSchedulerFactory,
         private val prefs: DayCountersStore,
     ) : VocabularyCatalogRepository,
         VocabularyStudyRepository {
@@ -205,7 +204,8 @@ class VocabularyRepositoryImpl
                             Card.fromJson(cardJsonBefore)
                         }
 
-                    val result = scheduler.reviewCard(card, rating)
+                    val maximumIntervalDays = prefs.readPolicy().first().maximumIntervalDays
+                    val result = schedulerFactory.forMaximumInterval(maximumIntervalDays).reviewCard(card, rating)
                     val updatedCard = result.card()
                     val log = result.reviewLog()
 

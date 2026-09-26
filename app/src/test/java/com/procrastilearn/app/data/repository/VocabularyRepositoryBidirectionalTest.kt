@@ -17,7 +17,6 @@ import com.procrastilearn.app.domain.model.StudyDirection
 import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.model.VocabularyItem
 import io.github.openspacedrepetition.Rating
-import io.github.openspacedrepetition.Scheduler
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,7 +38,6 @@ class VocabularyRepositoryBidirectionalTest {
     private lateinit var vocabularyReviewDao: VocabularyReviewDao
     private lateinit var vocabularyStatsDao: VocabularyStatsDao
     private lateinit var dayCountersStore: DayCountersStore
-    private lateinit var scheduler: Scheduler
     private lateinit var repository: VocabularyRepositoryImpl
     private var nextTestPosition = 1L
 
@@ -56,11 +54,11 @@ class VocabularyRepositoryBidirectionalTest {
         vocabularyReviewDao = database.vocabularyReviewDao()
         vocabularyStatsDao = database.vocabularyStatsDao()
         dayCountersStore = mockk(relaxed = true)
-        scheduler = Scheduler.builder().build()
+        coEvery { dayCountersStore.readPolicy() } returns flowOf(LearningPreferencesConfig())
         repository =
             VocabularyRepositoryImpl(
                 appDatabase = database,
-                scheduler = scheduler,
+                schedulerFactory = FsrsSchedulerFactory(),
                 prefs = dayCountersStore,
             )
     }

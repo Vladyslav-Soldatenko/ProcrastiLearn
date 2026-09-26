@@ -19,7 +19,6 @@ import com.procrastilearn.app.domain.model.StudyDirection
 import com.procrastilearn.app.domain.model.VocabularyItem
 import io.github.openspacedrepetition.Card
 import io.github.openspacedrepetition.Rating
-import io.github.openspacedrepetition.Scheduler
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -45,7 +44,6 @@ class VocabularyRepositoryImplTest {
     private lateinit var vocabularyReviewDao: VocabularyReviewDao
     private lateinit var vocabularyStatsDao: VocabularyStatsDao
     private lateinit var dayCountersStore: DayCountersStore
-    private lateinit var scheduler: Scheduler
     private lateinit var undoSnapshotDao: UndoSnapshotDao
     private lateinit var repository: VocabularyRepositoryImpl
     private var nextTestPosition = 1L
@@ -67,16 +65,16 @@ class VocabularyRepositoryImplTest {
 
         // Mock DayCountersStore
         dayCountersStore = mockk(relaxed = true)
+        coEvery { dayCountersStore.readPolicy() } returns flowOf(LearningPreferencesConfig())
 
         // Setup default scheduler
-        scheduler = Scheduler.builder().build()
 
         // Create repository
         undoSnapshotDao = database.undoSnapshotDao()
         repository =
             VocabularyRepositoryImpl(
                 appDatabase = database,
-                scheduler = scheduler,
+                schedulerFactory = FsrsSchedulerFactory(),
                 prefs = dayCountersStore,
             )
     }

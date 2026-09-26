@@ -196,6 +196,12 @@
     <string name="settings_new_cards_per_day_title">1日の新規カード数</string>
     <string name="settings_new_cards_per_day_dialog_title">1日の新規カード数（追加可能な新規: %1$d）</string>
     <string name="settings_reviews_per_day_title">1日の復習数</string>
+    <string name="settings_maximum_interval_title">復習の最大間隔</string>
+    <string name="settings_maximum_interval_description">復習カードが待機する最大日数です。短く設定するほど、学習量が増えます。</string>
+
+    <plurals name="settings_maximum_interval_days">
+        <item quantity="other">%1$d日</item>
+    </plurals>
 
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">オーバーレイの表示間隔（X分ごと）</string>

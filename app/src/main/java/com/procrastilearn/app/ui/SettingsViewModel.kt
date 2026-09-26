@@ -31,6 +31,7 @@ data class SettingsUiState(
     val studyDirectionMode: StudyDirectionMode = StudyDirectionMode.FORWARD,
     val newPerDay: Int = 10,
     val reviewPerDay: Int = 100,
+    val maximumIntervalDays: Int = 365,
     val overlayInterval: Int = 6,
     val ratingDelaySeconds: Int = 0,
     val newCardOrder: NewCardOrder = NewCardOrder.SEQUENTIAL,
@@ -64,6 +65,7 @@ class SettingsViewModel
                         studyDirectionMode = policy.studyDirectionMode,
                         newPerDay = policy.newPerDay,
                         reviewPerDay = policy.reviewPerDay,
+                        maximumIntervalDays = policy.maximumIntervalDays,
                         overlayInterval = policy.overlayInterval,
                         ratingDelaySeconds = policy.ratingDelaySeconds,
                         newCardOrder = policy.newCardOrder,
@@ -118,6 +120,10 @@ class SettingsViewModel
 
         fun onReviewPerDayChange(value: Int) {
             viewModelScope.launch { dayCountersStore.setReviewPerDay(value) }
+        }
+
+        fun onMaximumIntervalDaysChange(value: Int) {
+            viewModelScope.launch { dayCountersStore.setMaximumIntervalDays(value) }
         }
 
         fun onOverlayIntervalChange(value: Int) {

@@ -149,6 +149,13 @@
     <string name="settings_new_cards_per_day_title">প্রতিদিন নতুন কার্ড</string>
     <string name="settings_new_cards_per_day_dialog_title">প্রতিদিন নতুন কার্ড (উপলব্ধ নতুন: %1$d)</string>
     <string name="settings_reviews_per_day_title">প্রতিদিন পুনরালোচনা</string>
+    <string name="settings_maximum_interval_title">রিভিউর সর্বোচ্চ বিরতি</string>
+    <string name="settings_maximum_interval_description">একটি রিভিউ কার্ড সর্বোচ্চ যত দিন অপেক্ষা করবে। এটি যত কম দিন নির্ধারণ করবেন, আপনার কাজের চাপ তত বেশি হবে।</string>
+
+    <plurals name="settings_maximum_interval_days">
+        <item quantity="one">%1$d দিন</item>
+        <item quantity="other">%1$d দিন</item>
+    </plurals>
     <string name="settings_overlay_interval_title">প্রতি X মিনিটে ওভারলে দেখান</string>
     <string name="settings_overlay_interval_headline">ব্লক করা অ্যাপ খোলা থাকলে প্রতি X মিনিটে ওভারলে দেখান</string>
     <string name="settings_rating_delay_title">রেটিংয়ের বিলম্ব</string>

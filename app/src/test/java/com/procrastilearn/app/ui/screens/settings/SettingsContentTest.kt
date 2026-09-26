@@ -483,6 +483,43 @@ class SettingsContentTest {
     }
 
     @Test
+    fun `maximum interval row opens dialog and confirms valid value`() {
+        var saved: Int? = null
+        setContent(maximumIntervalDays = 365, onMaximumIntervalDaysChange = { saved = it })
+
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_maximum_interval_title))
+            .performScrollTo()
+            .performClick()
+        composeTestRule.onNodeWithText("365").assertIsDisplayed()
+        composeTestRule.onNode(hasSetTextAction()).performTextClearance()
+        composeTestRule.onNode(hasSetTextAction()).performTextInput("730")
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+
+        assertThat(saved).isEqualTo(730)
+    }
+
+    @Test
+    fun `maximum interval dialog rejects zero and numbers beyond limit`() {
+        var saved: Int? = null
+        setContent(onMaximumIntervalDaysChange = { saved = it })
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_maximum_interval_title))
+            .performScrollTo()
+            .performClick()
+
+        composeTestRule.onNode(hasSetTextAction()).performTextClearance()
+        composeTestRule.onNode(hasSetTextAction()).performTextInput("0")
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+        composeTestRule.onNode(hasSetTextAction()).performTextClearance()
+        composeTestRule.onNode(hasSetTextAction()).performTextInput("36501")
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+        composeTestRule.onNode(hasSetTextAction()).performTextClearance()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+        assertThat(saved).isNull()
+    }
+
+    @Test
     fun `confirming overlay interval value invokes callback`() {
         var overlayInterval: Int? = null
         setContent(onOverlayIntervalChange = { overlayInterval = it })
@@ -565,6 +602,7 @@ class SettingsContentTest {
         availableNewCount: Int = 0,
         availableToAddToday: Int = 100,
         reviewPerDay: Int = 50,
+        maximumIntervalDays: Int = 365,
         overlayInterval: Int = 5,
         ratingDelaySeconds: Int = 0,
         newCardOrder: NewCardOrder = NewCardOrder.SEQUENTIAL,
@@ -583,6 +621,7 @@ class SettingsContentTest {
         onNewPerDayChange: (Int) -> Unit = {},
         onAddCardsForToday: (Int) -> Unit = {},
         onReviewPerDayChange: (Int) -> Unit = {},
+        onMaximumIntervalDaysChange: (Int) -> Unit = {},
         onOverlayIntervalChange: (Int) -> Unit = {},
         onRatingDelayChange: (Int) -> Unit = {},
         onNewCardOrderChange: (NewCardOrder) -> Unit = {},
@@ -607,6 +646,7 @@ class SettingsContentTest {
                             availableNewCount = availableNewCount,
                             availableToAddToday = availableToAddToday,
                             reviewPerDay = reviewPerDay,
+                            maximumIntervalDays = maximumIntervalDays,
                             overlayInterval = overlayInterval,
                             ratingDelaySeconds = ratingDelaySeconds,
                             newCardOrder = newCardOrder,
@@ -619,6 +659,7 @@ class SettingsContentTest {
                             onNewPerDayChange = onNewPerDayChange,
                             onAddCardsForToday = onAddCardsForToday,
                             onReviewPerDayChange = onReviewPerDayChange,
+                            onMaximumIntervalDaysChange = onMaximumIntervalDaysChange,
                             onOverlayIntervalChange = onOverlayIntervalChange,
                             onRatingDelayChange = onRatingDelayChange,
                             onNewCardOrderChange = onNewCardOrderChange,

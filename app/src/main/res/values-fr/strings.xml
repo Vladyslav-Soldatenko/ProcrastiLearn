@@ -196,6 +196,14 @@
     <string name="settings_new_cards_per_day_title">Nouvelles cartes par jour</string>
     <string name="settings_new_cards_per_day_dialog_title">Nouvelles cartes par jour (nouvelles disponibles : %1$d)</string>
     <string name="settings_reviews_per_day_title">Révisions par jour</string>
+    <string name="settings_maximum_interval_title">Intervalle maximal entre révisions</string>
+    <string name="settings_maximum_interval_description">Le nombre maximal de jours pendant lesquels une carte de révision attendra. Plus vous définissez cette durée courte, plus votre charge de travail sera importante.</string>
+
+    <plurals name="settings_maximum_interval_days">
+        <item quantity="many">%1$d jours</item>
+        <item quantity="one">%1$d jour</item>
+        <item quantity="other">%1$d jours</item>
+    </plurals>
 
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">Afficher la superposition toutes les X minutes</string>

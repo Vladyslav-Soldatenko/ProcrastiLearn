@@ -41,6 +41,8 @@ import com.procrastilearn.app.R
 import com.procrastilearn.app.data.export.VocabularyImportFailureReason
 import com.procrastilearn.app.data.export.VocabularyImportResult
 import com.procrastilearn.app.domain.model.Language
+import com.procrastilearn.app.domain.model.MAX_MAXIMUM_INTERVAL_DAYS
+import com.procrastilearn.app.domain.model.MIN_MAXIMUM_INTERVAL_DAYS
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
@@ -54,6 +56,7 @@ import com.procrastilearn.app.ui.screens.settings.components.AddCardsForTodaySet
 import com.procrastilearn.app.ui.screens.settings.components.ExportSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ImportSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.LanguagePairSettingsItem
+import com.procrastilearn.app.ui.screens.settings.components.MaximumIntervalSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.MixModeDialog
 import com.procrastilearn.app.ui.screens.settings.components.MixModeSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.NewCardOrderDialog
@@ -94,6 +97,8 @@ sealed interface DialogState {
     object NewPerDay : DialogState
 
     object NewCardOrder : DialogState
+
+    object MaximumIntervalDays : DialogState
 
     object ReviewPerDay : DialogState
 
@@ -192,6 +197,7 @@ fun SettingsScreen(
                     availableNewCount = availableNewCount,
                     availableToAddToday = availableToAddToday,
                     reviewPerDay = state.reviewPerDay,
+                    maximumIntervalDays = state.maximumIntervalDays,
                     overlayInterval = state.overlayInterval,
                     ratingDelaySeconds = state.ratingDelaySeconds,
                     newCardOrder = state.newCardOrder,
@@ -204,6 +210,7 @@ fun SettingsScreen(
                     onNewPerDayChange = viewModel::onNewPerDayChange,
                     onAddCardsForToday = viewModel::onAddCardsForToday,
                     onReviewPerDayChange = viewModel::onReviewPerDayChange,
+                    onMaximumIntervalDaysChange = viewModel::onMaximumIntervalDaysChange,
                     onOverlayIntervalChange = viewModel::onOverlayIntervalChange,
                     onRatingDelayChange = viewModel::onRatingDelayChange,
                     onNewCardOrderChange = viewModel::onNewCardOrderChange,
@@ -270,6 +277,7 @@ internal fun SettingsContent(
     val studyDirectionMode = studySettings.studyDirectionMode
     val newPerDay = studySettings.newPerDay
     val reviewPerDay = studySettings.reviewPerDay
+    val maximumIntervalDays = studySettings.maximumIntervalDays
     val overlayInterval = studySettings.overlayInterval
     val ratingDelaySeconds = studySettings.ratingDelaySeconds
     val newCardOrder = studySettings.newCardOrder
@@ -342,6 +350,15 @@ internal fun SettingsContent(
                 value = reviewPerDay,
                 onClick = { dialogState = DialogState.ReviewPerDay },
             )
+            Spacer(Modifier.height(4.dp))
+
+            MaximumIntervalSettingsItem(
+                value = maximumIntervalDays,
+                onClick = { dialogState = DialogState.MaximumIntervalDays },
+            )
+
+            Spacer(Modifier.height(4.dp))
+
             ShowOverlayIntervalSettingsItem(
                 value = overlayInterval,
                 onClick = { dialogState = DialogState.OverlayInterval },
@@ -512,6 +529,20 @@ private fun SettingsDialogs(
                 onDismiss = dismiss,
             )
         }
+        DialogState.MaximumIntervalDays -> {
+            NumberInputDialog(
+                title = stringResource(R.string.settings_maximum_interval_title),
+                currentValue = studySettings.maximumIntervalDays,
+                minValue = MIN_MAXIMUM_INTERVAL_DAYS,
+                maxValue = MAX_MAXIMUM_INTERVAL_DAYS,
+                description = stringResource(R.string.settings_maximum_interval_description),
+                onValueConfirm = {
+                    studyCallbacks.onMaximumIntervalDaysChange(it)
+                    dismiss()
+                },
+                onDismiss = dismiss,
+            )
+        }
         DialogState.OverlayInterval -> {
             NumberInputDialog(
                 title = stringResource(R.string.settings_overlay_interval_title),
@@ -672,6 +703,7 @@ internal fun SettingsScreenAllGrantedPreview() {
                     availableNewCount = 0,
                     availableToAddToday = 0,
                     reviewPerDay = 200,
+                    maximumIntervalDays = 365,
                     overlayInterval = 6,
                     ratingDelaySeconds = 0,
                     newCardOrder = NewCardOrder.SEQUENTIAL,
@@ -684,6 +716,7 @@ internal fun SettingsScreenAllGrantedPreview() {
                     onNewPerDayChange = {},
                     onAddCardsForToday = {},
                     onReviewPerDayChange = {},
+                    onMaximumIntervalDaysChange = {},
                     onOverlayIntervalChange = {},
                     onRatingDelayChange = {},
                     onNewCardOrderChange = {},

@@ -196,6 +196,15 @@
     <string name="settings_new_cards_per_day_title">Нових карток на день</string>
     <string name="settings_new_cards_per_day_dialog_title">Нових карток на день (Доступно нових: %1$d)</string>
     <string name="settings_reviews_per_day_title">Повторень на день</string>
+    <string name="settings_maximum_interval_title">Максимальний інтервал повторення</string>
+    <string name="settings_maximum_interval_description">Максимальна кількість днів, протягом яких картка для повторення чекатиме. Що меншим буде це значення, то більшим буде ваше навчальне навантаження.</string>
+
+    <plurals name="settings_maximum_interval_days">
+        <item quantity="one">%1$d день</item>
+        <item quantity="few">%1$d дні</item>
+        <item quantity="many">%1$d днів</item>
+        <item quantity="other">%1$d дня</item>
+    </plurals>
 
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">Показувати оверлей кожні X хвилин</string>

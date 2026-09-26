@@ -3,6 +3,7 @@ package com.procrastilearn.app.data.local.prefs
 import android.content.Context
 import android.content.ContextWrapper
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -53,11 +54,39 @@ class DayCountersStoreTest {
             val policy = store.readPolicy().first()
             assertThat(policy.newPerDay).isEqualTo(15)
             assertThat(policy.reviewPerDay).isEqualTo(99)
+            assertThat(policy.maximumIntervalDays).isEqualTo(365)
             assertThat(policy.overlayInterval).isEqualTo(0)
             assertThat(policy.mixMode).isEqualTo(MixMode.MIX)
             assertThat(policy.studyDirectionMode).isEqualTo(StudyDirectionMode.BIDIRECTIONAL)
             assertThat(policy.ratingDelaySeconds).isEqualTo(0)
             assertThat(policy.newCardOrder).isEqualTo(NewCardOrder.SEQUENTIAL)
+        }
+
+    @Test
+    fun maximumIntervalPersistsAcrossStoreInstancesAndDoesNotResetWithDailyCounters() =
+        runTest {
+            store.setMaximumIntervalDays(730)
+            store.resetFor(20_260_924)
+
+            val reopened = DayCountersStore(studyPreferences)
+            assertThat(reopened.readPolicy().first().maximumIntervalDays).isEqualTo(730)
+            reopened.setMaximumIntervalDays(1)
+            assertThat(store.readPolicy().first().maximumIntervalDays).isEqualTo(1)
+        }
+
+    @Test
+    fun maximumIntervalClampsOutOfRangeWritesAndCorruptStoredValues() =
+        runTest {
+            store.setMaximumIntervalDays(0)
+            assertThat(store.readPolicy().first().maximumIntervalDays).isEqualTo(1)
+            store.setMaximumIntervalDays(Int.MAX_VALUE)
+            assertThat(store.readPolicy().first().maximumIntervalDays).isEqualTo(36_500)
+
+            val key = intPreferencesKey("maximum_interval_days")
+            studyPreferences.ds.edit { it[key] = -100 }
+            assertThat(store.readPolicy().first().maximumIntervalDays).isEqualTo(1)
+            studyPreferences.ds.edit { it[key] = Int.MAX_VALUE }
+            assertThat(store.readPolicy().first().maximumIntervalDays).isEqualTo(36_500)
         }
 
     @Test
