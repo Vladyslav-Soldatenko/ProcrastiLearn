@@ -15,6 +15,7 @@
     <string name="action_apply">Ilapat</string>
     <string name="action_cancel">Kanselahin</string>
     <string name="action_proceed">Ituloy</string>
+    <string name="action_select">Piliin</string>
     <string name="action_select_all">Piliin lahat</string>
     <string name="action_deselect_all">Alisin sa pagpili lahat</string>
 

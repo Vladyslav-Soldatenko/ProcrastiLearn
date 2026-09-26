@@ -20,6 +20,7 @@
     <string name="action_apply">適用</string>
     <string name="action_cancel">キャンセル</string>
     <string name="action_proceed">続行</string>
+    <string name="action_select">選択</string>
     <string name="action_select_all">すべて選択</string>
     <string name="action_deselect_all">すべて選択解除</string>
 

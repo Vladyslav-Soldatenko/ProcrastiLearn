@@ -20,6 +20,7 @@
     <string name="action_apply">Застосувати</string>
     <string name="action_cancel">Скасувати</string>
     <string name="action_proceed">@string/action_continue</string>
+    <string name="action_select">Вибрати</string>
     <string name="action_select_all">Вибрати всі</string>
     <string name="action_deselect_all">Скасувати вибір</string>
 

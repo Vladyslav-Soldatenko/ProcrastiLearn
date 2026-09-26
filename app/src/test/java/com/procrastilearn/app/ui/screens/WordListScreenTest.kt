@@ -118,6 +118,32 @@ class WordListScreenTest {
     }
 
     @Test
+    fun `Select is the first item menu action`() {
+        setContent(words = words.take(1))
+
+        openMenuFor()
+
+        val selectTop = composeTestRule.onNodeWithText(string(R.string.action_select)).fetchSemanticsNode().boundsInRoot.top
+        val editTop = composeTestRule.onNodeWithText(string(R.string.action_edit)).fetchSemanticsNode().boundsInRoot.top
+
+        assertThat(selectTop).isLessThan(editTop)
+    }
+
+    @Test
+    fun `selecting from the item menu enters selection mode for that item and dismisses the menu`() {
+        setContent(words = words.take(1))
+
+        openMenuFor()
+        composeTestRule.onNodeWithText(string(R.string.action_select)).performClick()
+
+        verify(exactly = 1) { onEnterSelectionMode(words[0].id) }
+        verify { onDelete wasNot called }
+        verify { onEdit wasNot called }
+        verify { onReset wasNot called }
+        composeTestRule.onNodeWithText(string(R.string.action_select)).assertDoesNotExist()
+    }
+
+    @Test
     fun `confirming reset dialog invokes onReset for that item`() {
         setContent(words = words.take(1))
         openMenuFor()

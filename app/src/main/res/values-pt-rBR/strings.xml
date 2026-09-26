@@ -20,6 +20,7 @@
     <string name="action_apply">Aplicar</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_proceed">Prosseguir</string>
+    <string name="action_select">Selecionar</string>
     <string name="action_select_all">Selecionar tudo</string>
     <string name="action_deselect_all">Desmarcar tudo</string>
 

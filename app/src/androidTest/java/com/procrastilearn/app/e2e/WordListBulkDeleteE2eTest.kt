@@ -1,5 +1,8 @@
 package com.procrastilearn.app.e2e
 
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -47,6 +50,32 @@ class WordListBulkDeleteE2eTest {
 
         composeTestRule.waitUntilNodeGone(hasTestTag(wordListItemTag(id)), E2E_TIMEOUT_MS)
         assertNull(targetContext.vocabularyById(id))
+    }
+
+    @Test
+    fun selectingFromItemMenuStartsBulkDeletionForThatWord() {
+        val selectedId = targetContext.seedWord(word = "quorvintal", translation = "flembercot")
+        val addedId = targetContext.seedWord(word = "florentide", translation = "glow season")
+        val keptId = targetContext.seedWord(word = "marnivex", translation = "steady current")
+
+        composeTestRule.navigateToWordList(targetContext)
+        composeTestRule
+            .onNode(
+                hasContentDescription(targetContext.string(R.string.word_list_more_actions))
+                    .and(hasAnyAncestor(hasTestTag(wordListItemTag(selectedId)))),
+                useUnmergedTree = true,
+            )
+            .performClick()
+        composeTestRule.onNodeWithText(targetContext.string(R.string.action_select)).performClick()
+        composeTestRule.onNodeWithTag("word_list_checkbox_$selectedId").assertIsOn()
+        composeTestRule.clickWordListItem(addedId)
+        composeTestRule.openWordListSelectionMenuAndTap(targetContext, R.string.action_delete)
+        composeTestRule.confirmWordListBulkDelete(targetContext)
+
+        composeTestRule.waitUntilNodeGone(hasTestTag(wordListItemTag(selectedId)), E2E_TIMEOUT_MS)
+        assertNull(targetContext.vocabularyById(selectedId))
+        assertNull(targetContext.vocabularyById(addedId))
+        assertNotNull(targetContext.vocabularyById(keptId))
     }
 
     @Test

@@ -20,6 +20,7 @@
     <string name="action_apply">Uygula</string>
     <string name="action_cancel">İptal</string>
     <string name="action_proceed">Onayla</string>
+    <string name="action_select">Seç</string>
     <string name="action_select_all">Tümünü seç</string>
     <string name="action_deselect_all">Seçimi kaldır</string>
 

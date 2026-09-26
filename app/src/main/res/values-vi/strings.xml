@@ -20,6 +20,7 @@
     <string name="action_apply">Áp dụng</string>
     <string name="action_cancel">Hủy</string>
     <string name="action_proceed">Xác nhận</string>
+    <string name="action_select">Chọn</string>
     <string name="action_select_all">Chọn tất cả</string>
     <string name="action_deselect_all">Bỏ chọn tất cả</string>
 
