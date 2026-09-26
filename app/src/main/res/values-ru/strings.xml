@@ -16,6 +16,7 @@
         <string name="action_apply">Применить</string>
         <string name="action_cancel">Отмена</string>
         <string name="action_proceed">@string/action_continue</string>
+        <string name="action_select">Выбрать</string>
         <string name="action_select_all">Выбрать все</string>
         <string name="action_deselect_all">Снять выделение</string>
 
