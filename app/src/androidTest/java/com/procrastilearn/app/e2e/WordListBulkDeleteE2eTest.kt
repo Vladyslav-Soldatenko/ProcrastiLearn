@@ -59,13 +59,11 @@ class WordListBulkDeleteE2eTest {
         val keptId = targetContext.seedWord(word = "marnivex", translation = "steady current")
 
         composeTestRule.navigateToWordList(targetContext)
-        composeTestRule
-            .onNode(
-                hasContentDescription(targetContext.string(R.string.word_list_more_actions))
-                    .and(hasAnyAncestor(hasTestTag(wordListItemTag(selectedId)))),
-                useUnmergedTree = true,
-            )
-            .performClick()
+        composeTestRule.onNode(
+            hasContentDescription(targetContext.string(R.string.word_list_more_actions))
+                .and(hasAnyAncestor(hasTestTag(wordListItemTag(selectedId)))),
+            useUnmergedTree = true,
+        ).performClick()
         composeTestRule.onNodeWithText(targetContext.string(R.string.action_select)).performClick()
         composeTestRule.onNodeWithTag("word_list_checkbox_$selectedId").assertIsOn()
         composeTestRule.clickWordListItem(addedId)
