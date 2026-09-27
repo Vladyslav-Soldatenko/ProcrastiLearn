@@ -6,12 +6,14 @@ import android.graphics.PixelFormat
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
+import android.os.Looper
 import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
+import androidx.annotation.MainThread
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.ui.platform.ComposeView
@@ -19,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.procrastilearn.app.BuildConfig
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.repository.AppPreferencesRepository
@@ -35,7 +38,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 class OverlayAccessibilityService : AccessibilityService() {
     internal var windowManager: WindowManager? = null
@@ -93,6 +98,17 @@ class OverlayAccessibilityService : AccessibilityService() {
             "com.google.android.systemui",
         )
 
+    @MainThread
+    internal fun setStudyUseCasesForE2eTests(
+        getNextVocabularyItemUseCase: GetNextVocabularyItemUseCase,
+        getSaveDifficultyRatingUseCase: SaveDifficultyRatingUseCase,
+    ) {
+        check(BuildConfig.DEBUG) { "E2E test use cases are only available in debug builds" }
+        check(Looper.myLooper() == Looper.getMainLooper()) { "E2E test use cases must be set on the main thread" }
+        this.getNextVocabularyItemUseCase = getNextVocabularyItemUseCase
+        this.getSaveDifficultyRatingUseCase = getSaveDifficultyRatingUseCase
+    }
+
     private fun initializeDependenciesIfNeeded() {
         if (!::appPreferencesRepository.isInitialized) {
             appPreferencesRepository = serviceEntryPoint.appPreferencesRepository()
@@ -116,6 +132,7 @@ class OverlayAccessibilityService : AccessibilityService() {
             windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         }
         initializeDependenciesIfNeeded()
+        if (BuildConfig.DEBUG) debugInstanceReference = WeakReference(this)
 
         serviceScope.launch {
             appPreferencesRepository.getBlockedApps().collect { apps ->
@@ -193,6 +210,7 @@ class OverlayAccessibilityService : AccessibilityService() {
     private fun createComposeOverlay(
         owner: ServiceLifecycleOwner,
         initialItem: VocabularyItem,
+        requiredCards: Int,
         onUnlock: () -> Unit,
     ): View =
         ComposeView(this).apply {
@@ -211,7 +229,7 @@ class OverlayAccessibilityService : AccessibilityService() {
                 ).get(OverlayViewModel::class.java)
             // Seed the already-loaded word so the first composition renders it immediately,
             // instead of drawing an empty frame and waiting on an async update.
-            viewModel.seedInitialWord(initialItem)
+            viewModel.seedInitialWord(initialItem, requiredCards)
 
             setContent {
                 MaterialTheme(colorScheme = darkColorScheme()) {
@@ -241,9 +259,10 @@ class OverlayAccessibilityService : AccessibilityService() {
             // Load the word *before* attaching the overlay so the first frame already shows it.
             getNextVocabularyItemUseCase()
                 .onSuccess { item ->
+                    val requiredCards = dayCountersStore.readPolicy().first().cardsPerGate
                     gateActive = true
                     gatedPackage = pkg
-                    showOverlay(item)
+                    showOverlay(item, requiredCards)
                     // Don't start timer here - it will be started after unlock
                 }.onFailure { }
         }
@@ -276,8 +295,10 @@ class OverlayAccessibilityService : AccessibilityService() {
                 if (isProcrastilearnEnabled && gateActive && gatedPackage != null) {
                     // Load the next word before re-showing so the first frame already has it.
                     getNextVocabularyItemUseCase()
-                        .onSuccess { item -> showOverlay(item) }
-                        .onFailure { }
+                        .onSuccess { item ->
+                            val requiredCards = dayCountersStore.readPolicy().first().cardsPerGate
+                            showOverlay(item, requiredCards)
+                        }.onFailure { }
                 }
             }
     }
@@ -305,7 +326,10 @@ class OverlayAccessibilityService : AccessibilityService() {
     private fun isIgnorableSystem(pkg: String): Boolean = pkg in ignoredPackages
 
     @Suppress("DEPRECATION") // SOFT_INPUT_ADJUST_RESIZE has no WindowInsets-based equivalent for this overlay
-    private fun showOverlay(initialItem: VocabularyItem) {
+    private fun showOverlay(
+        initialItem: VocabularyItem,
+        requiredCards: Int,
+    ) {
         if (!isProcrastilearnEnabled) {
             return
         }
@@ -319,6 +343,7 @@ class OverlayAccessibilityService : AccessibilityService() {
             createComposeOverlay(
                 owner = owner,
                 initialItem = initialItem,
+                requiredCards = requiredCards,
                 onUnlock = {
                     // Mark this app as unlocked for current session
                     gatedPackage?.let { pkg ->
@@ -412,12 +437,19 @@ class OverlayAccessibilityService : AccessibilityService() {
         hideOverlay()
         stopIntervalTimer()
         serviceScope.cancel()
+        if (BuildConfig.DEBUG && debugInstanceForE2eTests === this) debugInstanceReference = null
         super.onDestroy()
     }
 
-    private companion object {
-        const val TAG = "OverlayAccessibilityService"
-        const val SECONDS_PER_MINUTE = 60
-        const val MILLIS_PER_SECOND = 1000L
+    internal companion object {
+        @Volatile
+        private var debugInstanceReference: WeakReference<OverlayAccessibilityService>? = null
+
+        internal val debugInstanceForE2eTests: OverlayAccessibilityService?
+            get() = debugInstanceReference?.get()
+
+        private const val TAG = "OverlayAccessibilityService"
+        private const val SECONDS_PER_MINUTE = 60
+        private const val MILLIS_PER_SECOND = 1000L
     }
 }

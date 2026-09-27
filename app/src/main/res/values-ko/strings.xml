@@ -209,6 +209,9 @@
     <string name="settings_overlay_interval_headline">차단된 앱이 열려 있는 동안 X분마다 오버레이 표시</string>
 
     <!-- Rating delay -->
+    <string name="settings_cards_per_gate_headline">게이트당 카드 수</string>
+    <string name="settings_cards_per_gate_summary">접속 전에 필요한 카드: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">게이트당 카드 수 (1~100)</string>
     <string name="settings_rating_delay_title">평가 지연 시간</string>
     <string name="settings_rating_delay_headline">카드를 평가하기 전 대기 시간</string>
     <string name="settings_rating_delay_off">끄기</string>
@@ -351,4 +354,9 @@
     <plurals name="word_list_bulk_forward_only_confirm_message">
         <item quantity="other">단어 %1$d개의 역방향 테스트를 중지할까요? 역방향 학습 진행 상태는 유지되며, 다시 켜면 복원됩니다.</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">평가를 저장할 수 없습니다. 다시 시도하세요.</string>
+    <string name="overlay_next_card_load_error">다음 카드를 불러올 수 없습니다.</string>
+    <string name="overlay_next_card_retry">다시 시도</string>
+    <string name="overlay_next_card_loading">다음 카드 불러오는 중…</string>
 </resources>

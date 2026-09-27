@@ -194,6 +194,9 @@
     <string name="settings_overlay_interval_headline">打开被拦截应用时，每隔 X 分钟显示一次悬浮窗</string>
 
     <!-- Rating delay -->
+    <string name="settings_cards_per_gate_headline">每次拦截所需卡片数</string>
+    <string name="settings_cards_per_gate_summary">访问前需完成评分：%1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">每次拦截所需卡片数（1–100）</string>
     <string name="settings_rating_delay_title">评分延迟</string>
     <string name="settings_rating_delay_headline">需等待一段时间才能给卡片评分</string>
     <string name="settings_rating_delay_off">关闭</string>
@@ -322,4 +325,9 @@
     <plurals name="word_list_bulk_forward_only_confirm_message">
         <item quantity="other">停止反向测试已选择的 %1$d 个单词？反向进度会被保留，重新开启后即可恢复。</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">无法保存评分。请重试。</string>
+    <string name="overlay_next_card_load_error">无法加载下一张卡片。</string>
+    <string name="overlay_next_card_retry">重试</string>
+    <string name="overlay_next_card_loading">正在加载下一张卡片…</string>
 </resources>

@@ -212,6 +212,9 @@
     <string name="settings_overlay_interval_headline">Pokazuj nakładkę co X minut, gdy zablokowana aplikacja jest otwarta</string>
 
     <!-- Rating delay -->
+    <string name="settings_cards_per_gate_headline">Karty na blokadę</string>
+    <string name="settings_cards_per_gate_summary">Wymagane przed dostępem: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">Karty na blokadę (1–100)</string>
     <string name="settings_rating_delay_title">Opóźnienie oceny</string>
     <string name="settings_rating_delay_headline">Poczekaj, zanim będzie można ocenić kartę</string>
     <string name="settings_rating_delay_off">Wyłączone</string>
@@ -375,4 +378,9 @@
         <item quantity="many">Przestać testować %1$d słówek w odwrotną stronę? Postęp w odwrotną stronę zostanie zachowany i przywrócony po ponownym włączeniu.</item>
         <item quantity="other">Przestać testować %1$d słówka w odwrotną stronę? Postęp w odwrotną stronę zostanie zachowany i przywrócony po ponownym włączeniu.</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">Nie udało się zapisać oceny. Spróbuj ponownie.</string>
+    <string name="overlay_next_card_load_error">Nie udało się wczytać następnej karty.</string>
+    <string name="overlay_next_card_retry">Spróbuj ponownie</string>
+    <string name="overlay_next_card_loading">Wczytywanie następnej karty…</string>
 </resources>

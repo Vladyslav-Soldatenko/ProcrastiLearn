@@ -3,34 +3,32 @@
 <a href="https://play.google.com/store/apps/details?id=com.procrastilearn.app"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="40"></a>
 <a href="https://f-droid.org/packages/com.procrastilearn.app/"><img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="40"></a>
 
-There's Anki on your phone, there's Duolingo, and you do mean to get around to them. Then you pick the phone up, and twenty minutes later you're somewhere in TikTok, not really sure how you got there. ProcrastiLearn steps in right at that moment and asks you for one word first.
+There's Anki on your phone, there's Duolingo, and you do mean to get around to them. Then you pick the phone up, and twenty minutes later you're somewhere in TikTok, not really sure how you got there. ProcrastiLearn steps in right at that moment and asks you to review before continuing.
 
-ProcrastiLearn is an Android (Kotlin + Jetpack Compose) app that turns distracting moments into spaced‑repetition reps. Pick the apps you tend to open mindlessly; whenever you launch them, a full‑screen overlay blocks access until you learn/review a word. Optional OpenAI-powered translations (API key required) make adding new words fast.
+ProcrastiLearn is an Android (Kotlin + Jetpack Compose) app that turns distracting moments into spaced-repetition reps. Pick the apps you tend to open mindlessly; when you launch one, a full-screen overlay asks you to review a configurable number of cards before you continue. Optional OpenAI-powered translation suggestions (your API key required) make adding new words faster.
 
 ## How It Works
-- Select gated apps: choose which packages to guard in `Apps`. A gate session starts whenever one of them is opened.
-- Learn before you scroll: the overlay shows a card over the target app. Reveal the translation, rate it, and the app you opened comes back to the front.
-- In-app timer: if you tend to lose track of time once you're already inside a gated app, set an interval (say, every 3 minutes) and the overlay keeps coming back for as long as you stay there — each lingering session turns into extra reps.
-- Smart scheduling: FSRS (Again/Hard/Good/Easy) with daily limits for new/review cards and mix modes (mixed, reviews-first, new-first).
-- All local: vocabulary, preferences, and progress stay fully on-device (opt-in possibility for cloud sync may be added later). For now - no external traffic except optional OpenAI calls you initiate (API key required).
+- Select apps to gate in `Apps`. Opening one starts a study session when cards are available.
+- Recall each card, reveal its answer, and rate it Again, Hard, Good, or Easy. After the configured number of cards, the app you opened comes back to the front.
+- Set an optional interval to bring the overlay back while you remain in a gated app. You can also study without opening another app in the `Dojo` tab.
+- FSRS schedules reviews. Daily new/review limits, card order, mix mode, and study direction control which cards appear.
 
 ## Features
-- 📱 Overlay gate on chosen apps using Accessibility + overlay permissions.
-- 🧠 Spaced repetition via FSRS with daily caps.
-- ➕ Add words manually or let AI draft translations (prompt is editable). Currently GPT-5.6-luna is used, which means that you can add hundreds of words for a few cents.
-- 📂 Import Anki `.apkg` decks.
-- 📋 Word list with search, edit, delete, and “reset progress”.
--    Select a word in any other app and click "Procrastilearn this" to immediately add this word to the app and be sure that you'll learn it later
-- ⚙️ Configurable overlay interval, OpenAI key/prompt, and enable/disable switch for gating.
+- 📱 Gate selected apps using Accessibility and overlay permissions; choose how many cards to review per gate.
+- 🧠 Practice in the Dojo, check today's available cards, and undo a rating. Study cards forward, backward, or in both directions.
+- ➕ Add words manually or request an AI translation with your OpenAI key, language pair, and editable prompts. If you're offline, you can queue a word for translation when connectivity returns. Currently GPT-5.6-luna is used, which means that you can add hundreds of words for a few cents.
+- 📂 Import Anki `.apkg` decks or ProcrastiLearn JSON exports; export your vocabulary and study progress to JSON.
+- 📋 Search, reorder, edit, delete, and reset progress in the word list. Select text in another app and choose “ProcrastiLearn this” to bring it into Add Word.
+- ⚙️ Configure daily limits, study order, overlay interval, and a master switch for gating.
 
 ## User Setup
 1) Permissions: grant overlay (“draw over other apps”) and Accessibility when prompted on first launch. Accessibility permission is needed only to check what app is currently in foreground.
 2) Pick apps to gate: `Apps` tab → toggle the packages you want blocked. Use the master switch to pause/enable ProcrastiLearn.
-3) Add vocabulary: `Add Word` tab → type word/translation or toggle “use AI to generate translation” (first supply your OpenAI API key in Settings). Preview the AI output before saving if you want.
-4) Practice flow: open a gated app → overlay appears → → try to remember what the presented word means → tap “Show translation” → rate. If daily limits are reached, the overlay won’t appear.
+3) Add vocabulary: `Add Word` tab → enter a word and translation, or use AI translation after adding your OpenAI API key in Settings. You can also import a deck or JSON export in Settings.
+4) Practice: open a gated app → recall the card → tap “Show translation” → rate it. Repeat until the gate is complete, or open `Dojo` to study directly. When no cards are available under your current limits, a new gate does not appear.
 
 ## Privacy
-All data (blocked apps, vocabulary, progress, and preferences) is stored locally. No analytics or ads. OpenAI calls use your key directly.
+Blocked apps, vocabulary, study progress, and preferences are stored on-device. There are no analytics or ads. AI translation is optional; when used, the app sends the word and your configured prompt to OpenAI using your API key.
 
 ## Roadmap
 - UI polish, improve color scheme and UX where needed.
@@ -39,7 +37,7 @@ All data (blocked apps, vocabulary, progress, and preferences) is stored locally
 - Let users choose GPT model or provider (e.g., via LangChain).
 - Track progress properties and show analytics charts.
 - Use AI to analyze existing words, estimate level and suggest new vocabulary based on that info.
-- On export, ask to keep progress for transfer or reset it for sharing the deck.
+- Offer an option to reset study progress when exporting a deck for sharing.
 - Possibility to "buy" time beforehand in dojo.
 
 ### Long Term Roadmap

@@ -159,6 +159,9 @@
     </plurals>
     <string name="settings_overlay_interval_title">প্রতি X মিনিটে ওভারলে দেখান</string>
     <string name="settings_overlay_interval_headline">ব্লক করা অ্যাপ খোলা থাকলে প্রতি X মিনিটে ওভারলে দেখান</string>
+    <string name="settings_cards_per_gate_headline">প্রতি গেটে কার্ড</string>
+    <string name="settings_cards_per_gate_summary">প্রবেশের আগে প্রয়োজন: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">প্রতি গেটে কার্ড (১–১০০)</string>
     <string name="settings_rating_delay_title">রেটিংয়ের বিলম্ব</string>
     <string name="settings_rating_delay_headline">কার্ড রেটিং দেওয়ার আগে অপেক্ষা করুন</string>
     <string name="settings_rating_delay_off">বন্ধ</string>
@@ -279,4 +282,9 @@
         <item quantity="one">%1$dটি শব্দের উল্টো দিকের পরীক্ষা বন্ধ করবেন? উল্টো দিকের অগ্রগতি রাখা হবে এবং আবার চালু করলে ফিরিয়ে আনা হবে।</item>
         <item quantity="other">%1$dটি শব্দের উল্টো দিকের পরীক্ষা বন্ধ করবেন? উল্টো দিকের অগ্রগতি রাখা হবে এবং আবার চালু করলে ফিরিয়ে আনা হবে।</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">রেটিং সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।</string>
+    <string name="overlay_next_card_load_error">পরবর্তী কার্ড লোড করা যায়নি।</string>
+    <string name="overlay_next_card_retry">আবার চেষ্টা করুন</string>
+    <string name="overlay_next_card_loading">পরবর্তী কার্ড লোড হচ্ছে…</string>
 </resources>

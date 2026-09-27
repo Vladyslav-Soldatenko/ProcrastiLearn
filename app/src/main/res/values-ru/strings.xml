@@ -210,7 +210,10 @@
         <string name="settings_overlay_interval_headline">Показывать оверлей каждые X минут, пока открыто заблокированное приложение</string>
 
         <!-- Rating delay -->
-        <string name="settings_rating_delay_title">Задержка оценки</string>
+        <string name="settings_cards_per_gate_headline">Карточек для доступа</string>
+    <string name="settings_cards_per_gate_summary">Нужно оценить до доступа: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">Карточек для доступа (1–100)</string>
+    <string name="settings_rating_delay_title">Задержка оценки</string>
         <string name="settings_rating_delay_headline">Подождите, прежде чем сможете оценить карточку</string>
         <string name="settings_rating_delay_off">Выкл.</string>
 
@@ -363,4 +366,9 @@
             <item quantity="other">Перестать проверять %1$d слова в обратном направлении? Прогресс в обратном направлении сохранится и восстановится, если вы включите это снова.</item>
         </plurals>
 
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">Не удалось сохранить оценку. Повторите попытку.</string>
+    <string name="overlay_next_card_load_error">Не удалось загрузить следующую карточку.</string>
+    <string name="overlay_next_card_retry">Повторить</string>
+    <string name="overlay_next_card_loading">Загрузка следующей карточки…</string>
 </resources>

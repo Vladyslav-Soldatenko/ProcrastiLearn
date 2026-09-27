@@ -60,6 +60,35 @@ class DayCountersStoreTest {
             assertThat(policy.studyDirectionMode).isEqualTo(StudyDirectionMode.BIDIRECTIONAL)
             assertThat(policy.ratingDelaySeconds).isEqualTo(0)
             assertThat(policy.newCardOrder).isEqualTo(NewCardOrder.SEQUENTIAL)
+            assertThat(policy.cardsPerGate).isEqualTo(1)
+        }
+
+    @Test
+    fun cardsPerGatePersistsAcrossStoreInstancesAndDoesNotResetWithDailyCounters() =
+        runTest {
+            store.setCardsPerGate(100)
+            store.resetFor(20_260_926)
+
+            val reopened = DayCountersStore(studyPreferences)
+            assertThat(reopened.readPolicy().first().cardsPerGate).isEqualTo(100)
+
+            reopened.setCardsPerGate(1)
+            assertThat(store.readPolicy().first().cardsPerGate).isEqualTo(1)
+        }
+
+    @Test
+    fun cardsPerGateClampsOutOfRangeWritesAndCorruptStoredValues() =
+        runTest {
+            store.setCardsPerGate(0)
+            assertThat(store.readPolicy().first().cardsPerGate).isEqualTo(1)
+            store.setCardsPerGate(101)
+            assertThat(store.readPolicy().first().cardsPerGate).isEqualTo(100)
+
+            val key = intPreferencesKey("cards_per_gate")
+            studyPreferences.ds.edit { it[key] = -100 }
+            assertThat(store.readPolicy().first().cardsPerGate).isEqualTo(1)
+            studyPreferences.ds.edit { it[key] = 101 }
+            assertThat(store.readPolicy().first().cardsPerGate).isEqualTo(100)
         }
 
     @Test

@@ -211,6 +211,9 @@
     <string name="settings_overlay_interval_headline">Afficher la superposition toutes les X minutes tant que l’application bloquée est ouverte</string>
 
     <!-- Rating delay -->
+    <string name="settings_cards_per_gate_headline">Cartes par blocage</string>
+    <string name="settings_cards_per_gate_summary">Requises avant l’accès : %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">Cartes par blocage (1–100)</string>
     <string name="settings_rating_delay_title">Délai de notation</string>
     <string name="settings_rating_delay_headline">Attendre avant de pouvoir noter une carte</string>
     <string name="settings_rating_delay_off">Désactivé</string>
@@ -369,4 +372,9 @@
         <item quantity="many">Arrêter de tester %1$d mots dans le sens inverse ? La progression inverse est conservée et restaurée si vous la réactivez.</item>
         <item quantity="other">Arrêter de tester %1$d mots dans le sens inverse ? La progression inverse est conservée et restaurée si vous la réactivez.</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">Impossible d’enregistrer la note. Réessayez.</string>
+    <string name="overlay_next_card_load_error">Impossible de charger la carte suivante.</string>
+    <string name="overlay_next_card_retry">Réessayer</string>
+    <string name="overlay_next_card_loading">Chargement de la carte suivante…</string>
 </resources>

@@ -210,6 +210,9 @@
     <string name="settings_overlay_interval_headline">ब्लॉक किया गया ऐप खुला रहने तक हर X मिनट में ओवरले दिखाएं</string>
 
     <!-- Rating delay -->
+    <string name="settings_cards_per_gate_headline">हर गेट पर कार्ड</string>
+    <string name="settings_cards_per_gate_summary">पहुंच से पहले आवश्यक: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">हर गेट पर कार्ड (1–100)</string>
     <string name="settings_rating_delay_title">रेटिंग डिले</string>
     <string name="settings_rating_delay_headline">कार्ड रेट करने से पहले इंतज़ार करें</string>
     <string name="settings_rating_delay_off">बंद</string>
@@ -361,4 +364,9 @@
         <item quantity="one">क्या %1$d शब्द को रिवर्स में टेस्ट करना बंद करें? रिवर्स प्रोग्रेस सेव रहेगी और दोबारा चालू करने पर वापस आ जाएगी।</item>
         <item quantity="other">क्या %1$d शब्दों को रिवर्स में टेस्ट करना बंद करें? रिवर्स प्रोग्रेस सेव रहेगी और दोबारा चालू करने पर वापस आ जाएगी।</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">रेटिंग सहेजी नहीं जा सकी। फिर से कोशिश करें।</string>
+    <string name="overlay_next_card_load_error">अगला कार्ड लोड नहीं हो सका।</string>
+    <string name="overlay_next_card_retry">फिर से कोशिश करें</string>
+    <string name="overlay_next_card_loading">अगला कार्ड लोड हो रहा है…</string>
 </resources>

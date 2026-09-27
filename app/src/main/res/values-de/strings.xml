@@ -210,6 +210,9 @@
     <string name="settings_overlay_interval_headline">Overlay alle X Minuten anzeigen, solange die gesperrte App geöffnet ist</string>
 
     <!-- Rating delay -->
+    <string name="settings_cards_per_gate_headline">Karten pro Sperre</string>
+    <string name="settings_cards_per_gate_summary">Vor dem Zugriff erforderlich: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">Karten pro Sperre (1–100)</string>
     <string name="settings_rating_delay_title">Bewertungsverzögerung</string>
     <string name="settings_rating_delay_headline">Warten, bevor du eine Karte bewerten kannst</string>
     <string name="settings_rating_delay_off">Aus</string>
@@ -361,4 +364,9 @@
         <item quantity="one">Rückwärtsabfrage für %1$d Wort stoppen? Der Rückwärts-Fortschritt bleibt erhalten und wird beim erneuten Aktivieren wiederhergestellt.</item>
         <item quantity="other">Rückwärtsabfrage für %1$d Wörter stoppen? Der Rückwärts-Fortschritt bleibt erhalten und wird beim erneuten Aktivieren wiederhergestellt.</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">Bewertung konnte nicht gespeichert werden. Versuche es erneut.</string>
+    <string name="overlay_next_card_load_error">Die nächste Karte konnte nicht geladen werden.</string>
+    <string name="overlay_next_card_retry">Erneut versuchen</string>
+    <string name="overlay_next_card_loading">Nächste Karte wird geladen…</string>
 </resources>

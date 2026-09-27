@@ -96,6 +96,7 @@ class SettingsViewModelTest {
                     overlayInterval = 10,
                     mixMode = MixMode.MIX,
                     ratingDelaySeconds = 4,
+                    cardsPerGate = 4,
                 ),
             )
         countersFlow =
@@ -168,6 +169,7 @@ class SettingsViewModelTest {
                 assertThat(hydrated.maximumIntervalDays).isEqualTo(730)
                 assertThat(hydrated.overlayInterval).isEqualTo(10)
                 assertThat(hydrated.ratingDelaySeconds).isEqualTo(4)
+                assertThat(hydrated.cardsPerGate).isEqualTo(4)
                 assertThat(hydrated.newCardOrder).isEqualTo(NewCardOrder.SEQUENTIAL)
                 assertThat(hydrated.openAiApiKey).isNull()
                 assertThat(hydrated.openAiPrompt).isEqualTo(OpenAiPromptDefaults.translationPrompt)
@@ -184,6 +186,7 @@ class SettingsViewModelTest {
                         overlayInterval = 3,
                         ratingDelaySeconds = 12,
                         newCardOrder = NewCardOrder.RANDOM,
+                        cardsPerGate = 2,
                     )
                 apiKeyFlow.value = "abc"
                 promptFlow.value = "custom prompt"
@@ -197,6 +200,7 @@ class SettingsViewModelTest {
                 assertThat(updated.maximumIntervalDays).isEqualTo(1)
                 assertThat(updated.overlayInterval).isEqualTo(3)
                 assertThat(updated.ratingDelaySeconds).isEqualTo(12)
+                assertThat(updated.cardsPerGate).isEqualTo(2)
                 assertThat(updated.newCardOrder).isEqualTo(NewCardOrder.RANDOM)
                 assertThat(updated.openAiApiKey).isEqualTo("abc")
                 assertThat(updated.openAiPrompt).isEqualTo("custom prompt")
@@ -205,6 +209,17 @@ class SettingsViewModelTest {
                 assertThat(updated.targetLanguage).isEqualTo(Language.FRENCH)
                 cancelAndIgnoreRemainingEvents()
             }
+        }
+
+    @Test
+    fun `cards per gate change is saved through the preferences store`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+
+            viewModel.onCardsPerGateChange(12)
+            advanceUntilIdle()
+
+            coVerify { dayCountersStore.setCardsPerGate(12) }
         }
 
     @Test

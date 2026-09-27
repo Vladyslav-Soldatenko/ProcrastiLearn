@@ -9,4 +9,9 @@ data class OverlayUiState(
     val isLoading: Boolean = false,
     val ratingDelaySeconds: Int = 0,
     val ratingLockSecondsRemaining: Int = 0,
+    val requiredCards: Int = 1,
+    val completedCards: Int = 0,
+    val isSavingRating: Boolean = false,
+    val hasRatingSaveError: Boolean = false,
+    val hasNextCardLoadError: Boolean = false,
 )

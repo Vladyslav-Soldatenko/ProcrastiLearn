@@ -211,6 +211,9 @@
     <string name="settings_overlay_interval_headline">Mostrar sobreposição a cada X minutos enquanto o app bloqueado estiver aberto</string>
 
     <!-- Rating delay -->
+    <string name="settings_cards_per_gate_headline">Cartões por bloqueio</string>
+    <string name="settings_cards_per_gate_summary">Necessários antes do acesso: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">Cartões por bloqueio (1–100)</string>
     <string name="settings_rating_delay_title">Atraso na avaliação</string>
     <string name="settings_rating_delay_headline">Aguardar antes de poder avaliar uma carta</string>
     <string name="settings_rating_delay_off">Desativado</string>
@@ -369,4 +372,9 @@
         <item quantity="many">Parar de testar %1$d palavras no sentido inverso? O progresso reverso é mantido e restaurado se você reativar.</item>
         <item quantity="other">Parar de testar %1$d palavras no sentido inverso? O progresso reverso é mantido e restaurado se você reativar.</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">Não foi possível salvar a avaliação. Tente novamente.</string>
+    <string name="overlay_next_card_load_error">Não foi possível carregar o próximo cartão.</string>
+    <string name="overlay_next_card_retry">Tentar novamente</string>
+    <string name="overlay_next_card_loading">Carregando o próximo cartão…</string>
 </resources>

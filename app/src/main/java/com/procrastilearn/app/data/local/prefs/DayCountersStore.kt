@@ -39,6 +39,7 @@ class DayCountersStore
             val STUDY_DIRECTION_MODE = stringPreferencesKey("study_direction_mode")
             val RATING_DELAY_SECONDS = intPreferencesKey("rating_delay_seconds")
             val NEW_CARD_ORDER = stringPreferencesKey("new_card_order")
+            val CARDS_PER_GATE = intPreferencesKey("cards_per_gate")
         }
 
         fun read(): Flow<DayCounters> =
@@ -124,6 +125,9 @@ class DayCountersStore
                     newCardOrder =
                         runCatching { NewCardOrder.valueOf(p[K.NEW_CARD_ORDER] ?: NewCardOrder.SEQUENTIAL.name) }
                             .getOrDefault(NewCardOrder.SEQUENTIAL),
+                    cardsPerGate =
+                        (p[K.CARDS_PER_GATE] ?: DEFAULT_CARDS_PER_GATE)
+                            .coerceIn(MIN_CARDS_PER_GATE, MAX_CARDS_PER_GATE),
                 )
             }
 
@@ -167,12 +171,19 @@ class DayCountersStore
             ds.edit { it[K.RATING_DELAY_SECONDS] = value }
         }
 
+        suspend fun setCardsPerGate(value: Int) {
+            ds.edit { it[K.CARDS_PER_GATE] = value.coerceIn(MIN_CARDS_PER_GATE, MAX_CARDS_PER_GATE) }
+        }
+
         private companion object {
             const val DEFAULT_NEW_PER_DAY = 15
             const val DEFAULT_REVIEW_PER_DAY = 99
             const val DEFAULT_OVERLAY_INTERVAL_TIME = 0
             const val DEFAULT_RATING_DELAY_SECONDS = 0
+            const val DEFAULT_CARDS_PER_GATE = 1
             const val MIN_LIMIT = 0
+            const val MIN_CARDS_PER_GATE = 1
+            const val MAX_CARDS_PER_GATE = 100
             const val MAX_NEW_PER_DAY = 200
             const val MAX_REVIEW_PER_DAY = 2000
             const val MAX_OVERLAY_INTERVAL_MINUTES = 2000

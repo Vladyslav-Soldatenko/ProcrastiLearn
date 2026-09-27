@@ -209,6 +209,9 @@
     <string name="settings_overlay_interval_headline">Hiện lớp phủ sau mỗi X phút khi ứng dụng bị chặn đang mở</string>
 
     <!-- Rating delay -->
+    <string name="settings_cards_per_gate_headline">Thẻ cho mỗi lần chặn</string>
+    <string name="settings_cards_per_gate_summary">Cần đánh giá trước khi truy cập: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">Thẻ cho mỗi lần chặn (1–100)</string>
     <string name="settings_rating_delay_title">Độ trễ đánh giá</string>
     <string name="settings_rating_delay_headline">Chờ trước khi có thể đánh giá một thẻ</string>
     <string name="settings_rating_delay_off">Tắt</string>
@@ -351,4 +354,9 @@
     <plurals name="word_list_bulk_forward_only_confirm_message">
         <item quantity="other">Dừng kiểm tra %1$d từ theo chiều ngược? Tiến độ chiều ngược sẽ được giữ lại và khôi phục nếu bạn bật lại.</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">Không thể lưu đánh giá. Hãy thử lại.</string>
+    <string name="overlay_next_card_load_error">Không thể tải thẻ tiếp theo.</string>
+    <string name="overlay_next_card_retry">Thử lại</string>
+    <string name="overlay_next_card_loading">Đang tải thẻ tiếp theo…</string>
 </resources>

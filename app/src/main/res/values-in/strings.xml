@@ -209,6 +209,9 @@
     <string name="settings_overlay_interval_headline">Tampilkan overlay setiap X menit selama aplikasi yang diblokir terbuka</string>
 
     <!-- Rating delay -->
+    <string name="settings_cards_per_gate_headline">Kartu per gerbang</string>
+    <string name="settings_cards_per_gate_summary">Diperlukan sebelum akses: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">Kartu per gerbang (1–100)</string>
     <string name="settings_rating_delay_title">Jeda penilaian</string>
     <string name="settings_rating_delay_headline">Tunggu sebelum bisa menilai kartu</string>
     <string name="settings_rating_delay_off">Nonaktif</string>
@@ -353,4 +356,9 @@
     <plurals name="word_list_bulk_forward_only_confirm_message">
         <item quantity="other">Berhenti menguji %1$d kata secara terbalik? Progres arah terbalik tetap disimpan dan akan dipulihkan jika kamu mengaktifkannya lagi.</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">Penilaian tidak dapat disimpan. Coba lagi.</string>
+    <string name="overlay_next_card_load_error">Kartu berikutnya tidak dapat dimuat.</string>
+    <string name="overlay_next_card_retry">Coba lagi</string>
+    <string name="overlay_next_card_loading">Memuat kartu berikutnya…</string>
 </resources>

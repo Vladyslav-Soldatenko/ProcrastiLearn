@@ -210,6 +210,9 @@
     <string name="settings_overlay_interval_headline">Engellenen uygulama açıkken kaplamayı her X dakikada bir göster</string>
 
     <!-- Rating delay -->
+    <string name="settings_cards_per_gate_headline">Engel başına kart</string>
+    <string name="settings_cards_per_gate_summary">Erişimden önce gereken: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">Engel başına kart (1–100)</string>
     <string name="settings_rating_delay_title">Değerlendirme gecikmesi</string>
     <string name="settings_rating_delay_headline">Bir kartı değerlendirebilmeden önce bekle</string>
     <string name="settings_rating_delay_off">Kapalı</string>
@@ -361,4 +364,9 @@
         <item quantity="one">%1$d kelimenin ters yönde test edilmesi durdurulsun mu? Ters ilerleme korunur ve tekrar açtığında geri yüklenir.</item>
         <item quantity="other">%1$d kelimenin ters yönde test edilmesi durdurulsun mu? Ters ilerleme korunur ve tekrar açtığında geri yüklenir.</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">Değerlendirme kaydedilemedi. Tekrar deneyin.</string>
+    <string name="overlay_next_card_load_error">Sonraki kart yüklenemedi.</string>
+    <string name="overlay_next_card_retry">Yeniden dene</string>
+    <string name="overlay_next_card_loading">Sonraki kart yükleniyor…</string>
 </resources>
