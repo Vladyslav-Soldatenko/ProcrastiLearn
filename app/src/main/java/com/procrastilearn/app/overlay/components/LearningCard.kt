@@ -41,12 +41,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.procrastilearn.app.R
@@ -67,22 +63,6 @@ fun LearningCard(
     showTranslationButtonHeight: androidx.compose.ui.unit.Dp = 52.dp,
     addNavigationBarsPadding: Boolean = true,
 ) {
-    val titleAnnotated =
-        buildAnnotatedString {
-            append(state.vocabularyItem?.word ?: stringResource(R.string.learning_no_word))
-            if (state.vocabularyItem?.isNew == true) {
-                append(" ")
-                withStyle(
-                    SpanStyle(
-                        color = OverlayThemeTokens.colors.newBadgeColor,
-                        fontSize = 12.sp, // smaller than main title
-                        fontWeight = FontWeight.SemiBold, // a bit “elevated” emphasis
-                        baselineShift = BaselineShift.Superscript,
-                    ),
-                ) { append("NEW") }
-            }
-        }
-
     Card(
         modifier =
             modifier
@@ -99,17 +79,34 @@ fun LearningCard(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Title
-            Text(
-                text = titleAnnotated,
-                fontSize = 30.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = OverlayThemeTokens.colors.titleColor,
-                textAlign = TextAlign.Center,
+            Box(
                 modifier =
                     Modifier
                         .padding(top = 6.dp, bottom = 10.dp)
                         .fillMaxWidth(),
-            )
+            ) {
+                Text(
+                    text = state.vocabularyItem?.word ?: stringResource(R.string.learning_no_word),
+                    fontSize = if (state.showAnswer) 22.sp else 30.sp,
+                    lineHeight = if (state.showAnswer) 30.sp else 40.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = OverlayThemeTokens.colors.titleColor,
+                    textAlign = TextAlign.Center,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = if (state.vocabularyItem?.isNew == true) 40.dp else 0.dp),
+                )
+                if (state.vocabularyItem?.isNew == true) {
+                    Text(
+                        text = "NEW",
+                        color = OverlayThemeTokens.colors.newBadgeColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.align(Alignment.TopEnd),
+                    )
+                }
+            }
             // Translation area (middle). Scrollable when shown.
             val scrollState = rememberScrollState()
             LaunchedEffect(state.vocabularyItem?.id, state.showAnswer) {
