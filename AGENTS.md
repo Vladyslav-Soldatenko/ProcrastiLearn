@@ -4,7 +4,9 @@ These instructions apply to every AI agent working in this repository.
 
 ## Project Overview
 
-ProcrastiLearn is an Android app (Kotlin + Jetpack Compose) that blocks access to distracting apps with a flashcard overlay. Users must review a spaced-repetition vocabulary card before accessing gated apps. Optional OpenAI integration provides AI-generated translations.
+ProcrastiLearn is a local-first Android app that turns opening a distracting app into a vocabulary review opportunity. Users choose which apps to gate. When one comes to the foreground, an overlay asks them to recall, reveal, and rate scheduled flashcards before access resumes. The number of cards per gate is configurable, and an optional interval can bring the gate back while the user remains in that app.
+
+Users can also study directly in the Dojo, manage their vocabulary, and study cards forward, backward, or in both directions. FSRS schedules reviews; daily limits and study preferences control which cards are available. Vocabulary can be added manually, captured from selected text in another app, imported from Anki or app JSON, and exported to app JSON. Translation suggestions are optional and use a user-provided OpenAI key. Vocabulary, preferences, and review progress are stored on-device.
 
 ## Build and test instructions
 
@@ -16,17 +18,11 @@ For Google Play listing or release tasks, follow the [Google Play release guide]
 
 ## Architecture
 
-The app follows clean architecture with layer separation:
+The Android Accessibility service detects selected foreground apps and manages gate sessions. It hosts a Compose overlay outside the normal Activity UI; treat its lifecycle and dependency access accordingly.
 
-- **`data/`** - Repository implementations, Room database (DAOs, entities), DataStore preferences, OpenAI translation client
-- **`domain/`** - Business models, repository interfaces, use cases
-- **`ui/`** - ViewModels and Compose screens/components
-- **`overlay/`** - Flashcard overlay system that appears over gated apps
-- **`service/`** - Accessibility service for detecting foreground app changes
-- **`di/`** - Hilt dependency injection modules
-- **`navigation/`** - Compose navigation setup
+Compose screens and ViewModels present observable state. Domain models, repository contracts, and use cases express study operations. Data repositories connect those contracts to Room for vocabulary and review state, DataStore for preferences and counters, and integrations for translation and vocabulary transfer. Hilt supplies dependencies across these boundaries.
 
-Key dependencies: Room (persistence), Hilt (DI), FSRS library (spaced-repetition scheduling), OpenAI Java SDK.
+Preserve existing study progress when changing stored vocabulary or review state. Room schema changes need migrations, and the versioned JSON transfer format may need a compatible migration too.
 
 ## Coding Conventions
 
