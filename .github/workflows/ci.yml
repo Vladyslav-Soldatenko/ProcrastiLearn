@@ -133,8 +133,6 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
-            adb logcat -c
-            adb logcat -v threadtime > /tmp/logcat.txt &
             ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notPackage=com.procrastilearn.app.e2e.ai
 
       - name: Upload instrumented test reports
@@ -143,13 +141,6 @@ jobs:
         with:
           name: instrumented-test-reports
           path: app/build/reports/androidTests/
-
-      - name: Upload logcat
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: instrumented-logcat
-          path: /tmp/logcat.txt
 
   ai-e2e-tests:
     needs: verify
@@ -219,8 +210,6 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
-            adb logcat -c
-            adb logcat -v threadtime > /tmp/ai-logcat.txt &
             ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=com.procrastilearn.app.e2e.ai
 
       - name: Upload AI e2e test reports
@@ -229,10 +218,3 @@ jobs:
         with:
           name: ai-e2e-test-reports
           path: app/build/reports/androidTests/
-
-      - name: Upload AI e2e logcat
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ai-e2e-logcat
-          path: /tmp/ai-logcat.txt
