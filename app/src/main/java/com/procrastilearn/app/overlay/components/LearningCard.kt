@@ -78,35 +78,7 @@ fun LearningCard(
                     .paddingFromBaseline(top = 45.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Title
-            Box(
-                modifier =
-                    Modifier
-                        .padding(top = 6.dp, bottom = 10.dp)
-                        .fillMaxWidth(),
-            ) {
-                Text(
-                    text = state.vocabularyItem?.word ?: stringResource(R.string.learning_no_word),
-                    fontSize = if (state.showAnswer) 22.sp else 30.sp,
-                    lineHeight = if (state.showAnswer) 30.sp else 40.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = OverlayThemeTokens.colors.titleColor,
-                    textAlign = TextAlign.Center,
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = if (state.vocabularyItem?.isNew == true) 40.dp else 0.dp),
-                )
-                if (state.vocabularyItem?.isNew == true) {
-                    Text(
-                        text = "NEW",
-                        color = OverlayThemeTokens.colors.newBadgeColor,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.align(Alignment.TopEnd),
-                    )
-                }
-            }
+            LearningCardTitle(state)
             // Translation area (middle). Scrollable when shown.
             val scrollState = rememberScrollState()
             LaunchedEffect(state.vocabularyItem?.id, state.showAnswer) {
@@ -163,6 +135,38 @@ fun LearningCard(
                 ratingLockSecondsRemaining = ratingLockSecondsRemaining,
                 showTranslationButtonHeight = showTranslationButtonHeight,
                 addNavigationBarsPadding = addNavigationBarsPadding,
+            )
+        }
+    }
+}
+
+@Composable
+private fun LearningCardTitle(state: OverlayUiState) {
+    Box(
+        modifier =
+            Modifier
+                .padding(top = 6.dp, bottom = 10.dp)
+                .fillMaxWidth(),
+    ) {
+        Text(
+            text = state.vocabularyItem?.word ?: stringResource(R.string.learning_no_word),
+            fontSize = if (state.showAnswer) 22.sp else 30.sp,
+            lineHeight = if (state.showAnswer) 30.sp else 40.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = OverlayThemeTokens.colors.titleColor,
+            textAlign = TextAlign.Center,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = if (state.vocabularyItem?.isNew == true) 40.dp else 0.dp),
+        )
+        if (state.vocabularyItem?.isNew == true) {
+            Text(
+                text = "NEW",
+                color = OverlayThemeTokens.colors.newBadgeColor,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.align(Alignment.TopEnd),
             )
         }
     }

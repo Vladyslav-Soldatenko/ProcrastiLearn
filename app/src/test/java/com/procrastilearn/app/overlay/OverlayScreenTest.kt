@@ -403,7 +403,8 @@ class OverlayScreenTest {
         }
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("${sampleVocabularyItem.word} NEW").assertIsDisplayed()
+        composeTestRule.onNodeWithText(sampleVocabularyItem.word).assertIsDisplayed()
+        composeTestRule.onNodeWithText("NEW").assertIsDisplayed()
         composeTestRule.onNodeWithText(revealTranslationText).assertIsDisplayed()
     }
 
