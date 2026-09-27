@@ -132,12 +132,7 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: |
-            adb logcat -c
-            adb logcat -v threadtime > /tmp/logcat.txt &
-            logcat_pid=$!
-            trap 'kill "$logcat_pid" 2>/dev/null || true; wait "$logcat_pid" 2>/dev/null || true' EXIT
-            ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notPackage=com.procrastilearn.app.e2e.ai
+          script: bash .github/scripts/run-emulator-instrumented-tests.sh /tmp/logcat.txt -Pandroid.testInstrumentationRunnerArguments.notPackage=com.procrastilearn.app.e2e.ai
 
       - name: Upload instrumented test reports
         if: failure()
@@ -220,12 +215,7 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: |
-            adb logcat -c
-            adb logcat -v threadtime > /tmp/ai-logcat.txt &
-            logcat_pid=$!
-            trap 'kill "$logcat_pid" 2>/dev/null || true; wait "$logcat_pid" 2>/dev/null || true' EXIT
-            ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=com.procrastilearn.app.e2e.ai
+          script: bash .github/scripts/run-emulator-instrumented-tests.sh /tmp/ai-logcat.txt -Pandroid.testInstrumentationRunnerArguments.package=com.procrastilearn.app.e2e.ai
 
       - name: Upload AI e2e test reports
         if: failure()
