@@ -17,12 +17,10 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextReplacement
-import androidx.compose.ui.test.printToString
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.procrastilearn.app.MainActivity
@@ -576,7 +574,7 @@ class OverlayE2eTest {
 
     private fun selectTargetAppAsBlocked() {
         check(composeTestRule.nodeVisibleWithin(hasText(targetContext.string(R.string.nav_apps)), E2E_TIMEOUT_MS)) {
-            "Apps navigation unavailable: ${composeTestRule.onRoot(useUnmergedTree = true).printToString()}"
+            "Apps navigation unavailable"
         }
         composeTestRule
             .onNodeWithContentDescription(targetContext.string(R.string.nav_apps), useUnmergedTree = true)

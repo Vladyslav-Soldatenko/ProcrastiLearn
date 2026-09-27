@@ -51,7 +51,6 @@ const val E2E_DEFAULT_NEW_CARDS_PER_DAY = 15
 const val E2E_ANKI_IMPORT_TIMEOUT_MS = 50_000L
 const val E2E_ANKI_IMPORT_ROW_TIMEOUT_MS = 10_000L
 
-private const val ONBOARDING_STEP_TIMEOUT_MS = 1_500L
 private const val NODE_POLL_INTERVAL_MS = 100L
 private const val WORD_LIST_SEARCH_FIELD_TAG = "word_list_search_field"
 private const val WORD_LIST_ITEM_TAG_PREFIX = "word_list_item_"
@@ -127,41 +126,30 @@ fun ComposeTestRule.assertEventuallyDisplayed(
     }
 }
 
-private object OnboardingState {
-    @Volatile
-    var dismissed = false
-}
-
+@OptIn(ExperimentalTestApi::class)
 fun ComposeTestRule.dismissOnboardingIfPresent(context: Context) {
-    if (OnboardingState.dismissed) return
+    val notNowMatcher = hasText(context.getString(R.string.action_not_now))
+    val languageTitleMatcher = hasText(context.getString(R.string.language_selection_dialog_title))
+    val appsNavigationMatcher = hasText(context.getString(R.string.nav_apps))
+    waitUntil(E2E_TIMEOUT_MS) {
+        hasSemanticsNode(notNowMatcher) ||
+            hasSemanticsNode(languageTitleMatcher) ||
+            hasSemanticsNode(appsNavigationMatcher)
+    }
 
-    val notNow = context.getString(R.string.action_not_now)
     repeat(2) {
-        if (nodeVisibleWithin(hasText(notNow), ONBOARDING_STEP_TIMEOUT_MS)) {
-            val notNowNode = onNodeWithText(notNow, useUnmergedTree = true)
-            // ProminentA11yDisclosureScreen is a full-screen scrollable Column (not a compact
-            // AlertDialog like OverlayPermissionDialog, the other screen this loop can hit), so
-            // on small emulator viewports its "Not now" button can be below the fold: present in
-            // the semantics tree (nodeVisibleWithin finds it) but at screen coordinates
-            // performClick() can't actually hit without scrolling to it first. performScrollTo()
-            // throws when the node has no scrollable ancestor at all, which is exactly the case
-            // for OverlayPermissionDialog's button - it's already fully visible, so skip the
-            // scroll there instead of failing the test over it.
+        if (hasSemanticsNode(notNowMatcher)) {
+            val notNowNode = onNodeWithText(context.getString(R.string.action_not_now), useUnmergedTree = true)
             try {
                 notNowNode.performScrollTo()
             } catch (_: AssertionError) {
-                // No scrollable ancestor - already visible, nothing to scroll to.
             }
             notNowNode.performClick()
             waitForIdle()
         }
     }
 
-    val languageTitle = context.getString(R.string.language_selection_dialog_title)
-    if (!nodeVisibleWithin(hasText(languageTitle), ONBOARDING_STEP_TIMEOUT_MS)) {
-        OnboardingState.dismissed = true
-        return
-    }
+    if (!hasSemanticsNode(languageTitleMatcher)) return
 
     onNodeWithTag("language_selection_native_field", useUnmergedTree = true).performClick()
     waitForIdle()
@@ -179,9 +167,16 @@ fun ComposeTestRule.dismissOnboardingIfPresent(context: Context) {
 
     onNodeWithText(context.getString(R.string.action_continue), useUnmergedTree = true).performClick()
     waitForIdle()
-
-    OnboardingState.dismissed = true
 }
+
+private fun ComposeTestRule.hasSemanticsNode(matcher: SemanticsMatcher): Boolean =
+    try {
+        onAllNodes(matcher, useUnmergedTree = true)
+            .fetchSemanticsNodes(atLeastOneRootRequired = false)
+            .isNotEmpty()
+    } catch (_: IllegalStateException) {
+        false
+    }
 
 fun Context.string(
     @StringRes resId: Int,
