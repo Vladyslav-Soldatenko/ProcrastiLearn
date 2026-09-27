@@ -1,0 +1,5 @@
+Elige cuántas tarjetas quieres repasar antes de abrir una app bloqueada.
+Fija un intervalo máximo entre repasos programados.
+Selecciona palabras desde el menú de la lista de vocabulario.
+La app ya está disponible en neerlandés, tailandés, filipino, bengalí y malayo.
+Las palabras de las tarjetas de estudio se leen mejor.

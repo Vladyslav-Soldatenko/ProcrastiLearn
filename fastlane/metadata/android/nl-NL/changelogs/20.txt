@@ -1,0 +1,5 @@
+Kies hoeveel kaarten je herhaalt voordat je een geblokkeerde app opent.
+Stel een maximale tijd tussen geplande herhalingen in.
+Selecteer woorden via het menu in je woordenlijst.
+De app is nu ook beschikbaar in het Nederlands, Thais, Filipijns, Bengaals en Maleis.
+Woorden op leerkaarten zijn beter leesbaar.

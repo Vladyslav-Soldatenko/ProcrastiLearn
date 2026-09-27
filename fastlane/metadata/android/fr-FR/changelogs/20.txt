@@ -1,0 +1,5 @@
+Choisissez combien de cartes réviser avant d’ouvrir une appli bloquée.
+Fixez un délai maximal entre les révisions programmées.
+Sélectionnez des mots depuis le menu de la liste de vocabulaire.
+L’appli est aussi disponible en néerlandais, thaï, filipino, bengali et malais.
+Les mots sur les cartes sont plus faciles à lire.

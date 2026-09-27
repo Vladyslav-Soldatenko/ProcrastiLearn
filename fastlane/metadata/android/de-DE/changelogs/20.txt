@@ -1,0 +1,5 @@
+Lege fest, wie viele Karten du vor dem Öffnen einer gesperrten App wiederholen musst.
+Begrenze den Abstand zwischen geplanten Wiederholungen.
+Wähle Wörter über das Menü in deiner Vokabelliste aus.
+Die App ist jetzt auch auf Niederländisch, Thai, Filipino, Bengalisch und Malaiisch verfügbar.
+Wörter auf Lernkarten sind jetzt besser lesbar.

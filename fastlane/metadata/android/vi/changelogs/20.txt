@@ -1,0 +1,5 @@
+Chọn số thẻ cần ôn trước khi mở ứng dụng bị chặn.
+Đặt khoảng thời gian tối đa giữa các lần ôn tập theo lịch.
+Chọn từ ngay trong menu của danh sách từ vựng.
+Ứng dụng hiện có thêm tiếng Hà Lan, Thái, Filipino, Bengal và Mã Lai.
+Chữ trên thẻ học giờ dễ đọc hơn.

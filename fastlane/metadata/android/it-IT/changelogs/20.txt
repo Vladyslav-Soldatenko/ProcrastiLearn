@@ -1,0 +1,5 @@
+Scegli quante schede ripassare prima di aprire un'app bloccata.
+Imposta un intervallo massimo tra i ripassi programmati.
+Seleziona le parole dal menu dell'elenco vocaboli.
+L'app è ora disponibile anche in olandese, thailandese, filippino, bengalese e malese.
+Le parole sulle schede di studio sono più leggibili.

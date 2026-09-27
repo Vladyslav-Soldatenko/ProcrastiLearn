@@ -1,0 +1,5 @@
+Pilih jumlah kartu yang perlu diulas sebelum membuka aplikasi yang dibatasi.
+Atur batas waktu antarulasan terjadwal.
+Pilih kata lewat menu di daftar kosakata.
+Aplikasi kini tersedia dalam bahasa Belanda, Thai, Filipina, Bengali, dan Melayu.
+Kata-kata pada kartu belajar kini lebih mudah dibaca.

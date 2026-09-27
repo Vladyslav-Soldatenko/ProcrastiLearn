@@ -1,0 +1,5 @@
+Wybierz, ile fiszek chcesz powtórzyć przed otwarciem blokowanej aplikacji.
+Ustaw maksymalny odstęp między zaplanowanymi powtórkami.
+Zaznaczaj słowa z menu na liście słownictwa.
+Aplikacja jest też dostępna po niderlandzku, tajsku, filipińsku, bengalsku i malajsku.
+Słowa na fiszkach są teraz czytelniejsze.

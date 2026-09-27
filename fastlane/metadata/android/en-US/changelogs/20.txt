@@ -1,0 +1,5 @@
+Choose how many cards to review before opening a gated app.
+Set a maximum interval between scheduled reviews.
+Select words from the vocabulary list using the item menu.
+Use the app in Dutch, Thai, Filipino, Bengali, and Malay.
+Improved readability of words on study cards.

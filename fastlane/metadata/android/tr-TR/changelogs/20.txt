@@ -1,0 +1,5 @@
+Engellenen bir uygulamayı açmadan önce kaç kart tekrar edeceğinizi seçin.
+Planlanan tekrarlar arasındaki en uzun süreyi belirleyin.
+Kelime listesindeki menüden kelimeleri seçin.
+Uygulama artık Felemenkçe, Tayca, Filipince, Bengalce ve Malayca da kullanılabiliyor.
+Çalışma kartlarındaki kelimeler artık daha kolay okunuyor.

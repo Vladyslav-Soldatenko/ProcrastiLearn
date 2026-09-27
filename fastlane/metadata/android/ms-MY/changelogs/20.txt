@@ -1,0 +1,5 @@
+Pilih bilangan kad untuk diulang kaji sebelum membuka aplikasi yang disekat.
+Tetapkan sela masa maksimum antara ulang kaji berjadual.
+Pilih perkataan melalui menu dalam senarai kosa kata.
+Aplikasi kini turut tersedia dalam bahasa Belanda, Thai, Filipina, Bengali dan Melayu.
+Perkataan pada kad pembelajaran kini lebih mudah dibaca.

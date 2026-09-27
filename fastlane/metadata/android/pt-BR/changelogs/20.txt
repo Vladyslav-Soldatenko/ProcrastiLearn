@@ -1,0 +1,5 @@
+Escolha quantos cartões revisar antes de abrir um app bloqueado.
+Defina um intervalo máximo entre as revisões programadas.
+Selecione palavras pelo menu da lista de vocabulário.
+O app agora também está disponível em holandês, tailandês, filipino, bengali e malaio.
+As palavras nos cartões de estudo ficaram mais fáceis de ler.
