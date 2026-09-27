@@ -32,7 +32,6 @@ import com.procrastilearn.app.overlay.OverlayScreen
 import com.procrastilearn.app.overlay.OverlayViewModel
 import com.procrastilearn.app.utils.ServiceLifecycleOwner
 import dagger.hilt.android.EntryPointAccessors
-import java.lang.ref.WeakReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -41,6 +40,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 class OverlayAccessibilityService : AccessibilityService() {
     internal var windowManager: WindowManager? = null
