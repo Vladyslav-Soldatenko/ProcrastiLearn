@@ -211,6 +211,9 @@
     <string name="settings_overlay_interval_headline">Mostra l’overlay ogni X minuti mentre l’app bloccata è aperta</string>
 
     <!-- Rating delay -->
+    <string name="settings_cards_per_gate_headline">Carte per blocco</string>
+    <string name="settings_cards_per_gate_summary">Richieste prima dell’accesso: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">Carte per blocco (1–100)</string>
     <string name="settings_rating_delay_title">Ritardo di valutazione</string>
     <string name="settings_rating_delay_headline">Attendi prima di poter valutare una carta</string>
     <string name="settings_rating_delay_off">Disattivato</string>
@@ -369,4 +372,9 @@
         <item quantity="many">Interrompere il test di %1$d parole al contrario? Il progresso inverso viene mantenuto e ripristinato se lo riattivi.</item>
         <item quantity="other">Interrompere il test di %1$d parole al contrario? Il progresso inverso viene mantenuto e ripristinato se lo riattivi.</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">Impossibile salvare la valutazione. Riprova.</string>
+    <string name="overlay_next_card_load_error">Impossibile caricare la scheda successiva.</string>
+    <string name="overlay_next_card_retry">Riprova</string>
+    <string name="overlay_next_card_loading">Caricamento della scheda successiva…</string>
 </resources>

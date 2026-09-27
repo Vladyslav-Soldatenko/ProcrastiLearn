@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.AudioManager
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
+import androidx.lifecycle.ViewModelProvider
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
@@ -14,7 +15,10 @@ import com.procrastilearn.app.domain.repository.AppPreferencesRepository
 import com.procrastilearn.app.domain.repository.VocabularyStudyRepository
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
+import com.procrastilearn.app.overlay.OverlayViewModel
 import com.procrastilearn.app.utils.MainDispatcherRule
+import com.procrastilearn.app.utils.ServiceLifecycleOwner
+import io.github.openspacedrepetition.Rating
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -112,6 +116,11 @@ class OverlayAccessibilityServiceTest {
         ShadowSystemClock.advanceBy(Duration.ofMillis(DEBOUNCE_MILLIS))
     }
 
+    private fun activeOverlayViewModel(): OverlayViewModel {
+        val owner = ReflectionHelpers.getField<ServiceLifecycleOwner?>(service, "lifecycleOwner")!!
+        return ViewModelProvider(owner).get(OverlayViewModel::class.java)
+    }
+
     @Test
     fun `ignores events that are not window state changes`() {
         blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
@@ -206,6 +215,63 @@ class OverlayAccessibilityServiceTest {
     }
 
     @Test
+    fun `initial gate snapshots the configured cards per gate`() {
+        policyFlow.value = LearningPreferencesConfig(cardsPerGate = 3)
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+
+        dispatch(BLOCKED_PACKAGE)
+
+        assertThat(activeOverlayViewModel().uiState.value.requiredCards).isEqualTo(3)
+        assertThat(activeOverlayViewModel().uiState.value.completedCards).isEqualTo(0)
+    }
+
+    @Test
+    fun `interval gate snapshots the latest target into a fresh gate`() {
+        policyFlow.value = LearningPreferencesConfig(overlayInterval = 5, cardsPerGate = 2)
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        val initialViewModel = activeOverlayViewModel()
+
+        policyFlow.value = LearningPreferencesConfig(overlayInterval = 5, cardsPerGate = 4)
+        advanceUntilIdle()
+        assertThat(initialViewModel.uiState.value.requiredCards).isEqualTo(2)
+
+        ReflectionHelpers.callInstanceMethod<Unit>(service, "hideOverlay")
+        service.startIntervalTimer()
+        advanceTimeAndRun(Duration.ofMinutes(5).toMillis())
+
+        val intervalViewModel = activeOverlayViewModel()
+        assertThat(intervalViewModel.uiState.value.requiredCards).isEqualTo(4)
+        assertThat(intervalViewModel.uiState.value.completedCards).isEqualTo(0)
+        verify(exactly = 2) { windowManager.addView(any(), any()) }
+    }
+
+    @Test
+    fun `leaving and reopening a blocked app resets gate progress`() {
+        policyFlow.value = LearningPreferencesConfig(cardsPerGate = 3)
+        coEvery { getSaveDifficultyRatingUseCase(any(), any(), any()) } returns Result.success(Unit)
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        val firstViewModel = activeOverlayViewModel()
+
+        firstViewModel.onDifficultySelected(Rating.GOOD)
+        advanceUntilIdle()
+        assertThat(firstViewModel.uiState.value.completedCards).isEqualTo(1)
+
+        advanceRealClockPastDebounceWindow()
+        dispatch(LEGIT_PACKAGE)
+        advanceRealClockPastDebounceWindow()
+        dispatch(BLOCKED_PACKAGE)
+
+        val reopenedViewModel = activeOverlayViewModel()
+        assertThat(reopenedViewModel.uiState.value.requiredCards).isEqualTo(3)
+        assertThat(reopenedViewModel.uiState.value.completedCards).isEqualTo(0)
+    }
+
+    @Test
     fun `repeated events for the same active blocked app do not restart the session`() {
         blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
         advanceUntilIdle()
@@ -271,6 +337,23 @@ class OverlayAccessibilityServiceTest {
     }
 
     @Test
+    fun `no available items on an interval gate leaves the overlay hidden`() {
+        policyFlow.value = LearningPreferencesConfig(overlayInterval = 5, cardsPerGate = 2)
+        coEvery { getNextVocabularyItemUseCase() } returnsMany
+            listOf(Result.success(sampleItem), Result.failure(NoAvailableItemsException()))
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        ReflectionHelpers.callInstanceMethod<Unit>(service, "hideOverlay")
+
+        service.startIntervalTimer()
+        advanceTimeAndRun(Duration.ofMinutes(5).toMillis())
+
+        coVerify(exactly = 2) { getNextVocabularyItemUseCase() }
+        verify(exactly = 1) { windowManager.addView(any(), any()) }
+    }
+
+    @Test
     fun `generic failure loading a word keeps the overlay hidden`() {
         blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
         advanceUntilIdle()
@@ -279,6 +362,26 @@ class OverlayAccessibilityServiceTest {
         dispatch(BLOCKED_PACKAGE)
 
         verify(exactly = 0) { windowManager.addView(any(), any()) }
+    }
+
+    @Test
+    fun `generic first card load failure retries on the next blocked app event`() {
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        coEvery { getNextVocabularyItemUseCase() } returnsMany
+            listOf(Result.failure(RuntimeException("temporary")), Result.success(sampleItem))
+
+        dispatch(BLOCKED_PACKAGE)
+
+        verify(exactly = 0) { windowManager.addView(any(), any()) }
+        coVerify(exactly = 1) { getNextVocabularyItemUseCase() }
+
+        advanceRealClockPastDebounceWindow()
+        dispatch(BLOCKED_PACKAGE)
+
+        coVerify(exactly = 2) { getNextVocabularyItemUseCase() }
+        verify(exactly = 1) { windowManager.addView(any(), any()) }
+        assertThat(activeOverlayViewModel().uiState.value.vocabularyItem).isEqualTo(sampleItem)
     }
 
     @Test

@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -28,6 +29,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -61,6 +63,7 @@ fun LearningCard(
     onDifficultySelect: (Rating) -> Unit,
     ratingLockSecondsRemaining: Int,
     modifier: Modifier = Modifier,
+    onRetryNextCard: () -> Unit = {},
     showTranslationButtonHeight: androidx.compose.ui.unit.Dp = 52.dp,
     addNavigationBarsPadding: Boolean = true,
 ) {
@@ -156,9 +159,10 @@ fun LearningCard(
             if (!state.showAnswer) Spacer(modifier = Modifier.weight(1f))
 
             LearningCardFooter(
-                showAnswer = state.showAnswer,
+                state = state,
                 onToggleShowAnswer = onToggleShowAnswer,
                 onDifficultySelect = onDifficultySelect,
+                onRetryNextCard = onRetryNextCard,
                 ratingLockSecondsRemaining = ratingLockSecondsRemaining,
                 showTranslationButtonHeight = showTranslationButtonHeight,
                 addNavigationBarsPadding = addNavigationBarsPadding,
@@ -169,83 +173,185 @@ fun LearningCard(
 
 @Composable
 private fun LearningCardFooter(
-    showAnswer: Boolean,
+    state: OverlayUiState,
     onToggleShowAnswer: () -> Unit,
     onDifficultySelect: (Rating) -> Unit,
+    onRetryNextCard: () -> Unit,
     ratingLockSecondsRemaining: Int,
     showTranslationButtonHeight: androidx.compose.ui.unit.Dp,
     addNavigationBarsPadding: Boolean,
 ) {
-    if (!showAnswer) {
-        // Bottom: Show translation button
-        val buttonModifier =
-            if (addNavigationBarsPadding) {
-                Modifier
-                    .fillMaxWidth()
-                    .height(showTranslationButtonHeight)
-                    .navigationBarsPadding()
-            } else {
-                Modifier
-                    .fillMaxWidth()
-                    .height(showTranslationButtonHeight)
+    if (state.showAnswer) {
+        LearningCardRatingFooter(
+            state = state,
+            onDifficultySelect = onDifficultySelect,
+            onRetryNextCard = onRetryNextCard,
+            ratingLockSecondsRemaining = ratingLockSecondsRemaining,
+        )
+    } else {
+        LearningCardRevealFooter(
+            state = state,
+            onToggleShowAnswer = onToggleShowAnswer,
+            onRetryNextCard = onRetryNextCard,
+            showTranslationButtonHeight = showTranslationButtonHeight,
+            addNavigationBarsPadding = addNavigationBarsPadding,
+        )
+    }
+}
+
+@Composable
+private fun LearningCardRevealFooter(
+    state: OverlayUiState,
+    onToggleShowAnswer: () -> Unit,
+    onRetryNextCard: () -> Unit,
+    showTranslationButtonHeight: androidx.compose.ui.unit.Dp,
+    addNavigationBarsPadding: Boolean,
+) {
+    when {
+        state.isLoading && state.vocabularyItem != null -> {
+            NextCardLoadingStatus()
+        }
+
+        state.hasNextCardLoadError -> {
+            NextCardLoadErrorStatus(onRetryNextCard)
+        }
+
+        else -> {
+            val buttonModifier =
+                if (addNavigationBarsPadding) {
+                    Modifier
+                        .fillMaxWidth()
+                        .height(showTranslationButtonHeight)
+                        .navigationBarsPadding()
+                } else {
+                    Modifier
+                        .fillMaxWidth()
+                        .height(showTranslationButtonHeight)
+                }
+            OutlinedButton(
+                onClick = onToggleShowAnswer,
+                modifier = buttonModifier,
+                shape = RoundedCornerShape(14.dp),
+                colors =
+                    ButtonDefaults.outlinedButtonColors(
+                        contentColor = OverlayThemeTokens.colors.showButtonContent,
+                    ),
+            ) {
+                Text(
+                    stringResource(R.string.learning_show_translation),
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                )
             }
-        OutlinedButton(
-            onClick = onToggleShowAnswer,
-            modifier = buttonModifier,
-            shape = RoundedCornerShape(14.dp),
-            colors =
-                ButtonDefaults.outlinedButtonColors(
-                    contentColor = OverlayThemeTokens.colors.showButtonContent,
-                ),
-        ) {
+        }
+    }
+}
+
+@Composable
+private fun LearningCardRatingFooter(
+    state: OverlayUiState,
+    onDifficultySelect: (Rating) -> Unit,
+    onRetryNextCard: () -> Unit,
+    ratingLockSecondsRemaining: Int,
+) {
+    Column {
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 6.dp),
+            color = OverlayThemeTokens.colors.divider,
+            thickness = 1.dp,
+        )
+        if (state.hasRatingSaveError) {
             Text(
-                stringResource(R.string.learning_show_translation),
-                fontSize = 16.sp,
+                text = stringResource(R.string.overlay_rating_save_error),
+                color = OverlayThemeTokens.colors.helpText,
+                fontSize = 13.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().testTag("rating_save_error"),
+            )
+        }
+        if (state.isLoading && state.vocabularyItem != null) NextCardLoadingStatus()
+        if (state.hasNextCardLoadError) NextCardLoadErrorStatus(onRetryNextCard)
+        RatingLockStatus(ratingLockSecondsRemaining)
+        DifficultyButtons(
+            onDifficultySelect = onDifficultySelect,
+            enabled =
+                ratingLockSecondsRemaining == 0 &&
+                    !state.isSavingRating &&
+                    !state.isLoading &&
+                    !state.hasNextCardLoadError,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding(),
+        )
+    }
+}
+
+@Composable
+private fun RatingLockStatus(ratingLockSecondsRemaining: Int) {
+    Box(
+        modifier =
+            Modifier
+                .padding(top = 2.dp, bottom = 8.dp)
+                .fillMaxWidth()
+                .heightIn(min = 28.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (ratingLockSecondsRemaining > 0) {
+            Text(
+                text = ratingLockSecondsRemaining.toString(),
+                color = OverlayThemeTokens.colors.helpText,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.testTag("rating_lock_countdown"),
+            )
+        } else {
+            Text(
+                text = stringResource(R.string.learning_question),
+                color = OverlayThemeTokens.colors.helpText,
+                fontSize = 14.sp,
                 textAlign = TextAlign.Center,
             )
         }
-    } else {
-        // Bottom: divider + help + difficulty buttons (replaces the Show button)
-        Column {
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 6.dp),
-                color = OverlayThemeTokens.colors.divider,
-                thickness = 1.dp,
-            )
-            Box(
-                modifier =
-                    Modifier
-                        .padding(top = 2.dp, bottom = 8.dp)
-                        .fillMaxWidth()
-                        .heightIn(min = 28.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                if (ratingLockSecondsRemaining > 0) {
-                    Text(
-                        text = ratingLockSecondsRemaining.toString(),
-                        color = OverlayThemeTokens.colors.helpText,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.testTag("rating_lock_countdown"),
-                    )
-                } else {
-                    Text(
-                        text = stringResource(R.string.learning_question),
-                        color = OverlayThemeTokens.colors.helpText,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-            }
-            DifficultyButtons(
-                onDifficultySelect = onDifficultySelect,
-                enabled = ratingLockSecondsRemaining == 0,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .navigationBarsPadding(),
-            )
+    }
+}
+
+@Composable
+private fun NextCardLoadingStatus() {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(18.dp).testTag("next_card_loading_indicator"),
+            strokeWidth = 2.dp,
+        )
+        Text(
+            text = stringResource(R.string.overlay_next_card_loading),
+            color = OverlayThemeTokens.colors.helpText,
+            fontSize = 13.sp,
+            modifier = Modifier.padding(start = 8.dp),
+        )
+    }
+}
+
+@Composable
+private fun NextCardLoadErrorStatus(onRetryNextCard: () -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = stringResource(R.string.overlay_next_card_load_error),
+            color = OverlayThemeTokens.colors.helpText,
+            fontSize = 13.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth().testTag("next_card_load_error"),
+        )
+        OutlinedButton(
+            onClick = onRetryNextCard,
+            modifier = Modifier.testTag("next_card_retry"),
+        ) {
+            Text(text = stringResource(R.string.overlay_next_card_retry))
         }
     }
 }

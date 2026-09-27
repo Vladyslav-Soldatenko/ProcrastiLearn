@@ -156,6 +156,9 @@
 
     <string name="settings_overlay_interval_title">Tunjukkan tindanan setiap X minit</string>
     <string name="settings_overlay_interval_headline">Tunjukkan tindanan setiap X minit semasa apl disekat dibuka</string>
+    <string name="settings_cards_per_gate_headline">Kad setiap sekatan</string>
+    <string name="settings_cards_per_gate_summary">Diperlukan sebelum akses: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">Kad setiap sekatan (1–100)</string>
     <string name="settings_rating_delay_title">Kelewatan penilaian</string>
     <string name="settings_rating_delay_headline">Tunggu sebelum anda boleh menilai kad</string>
     <string name="settings_rating_delay_off">Mati</string>
@@ -271,4 +274,9 @@
     <plurals name="word_list_bulk_forward_only_confirm_message">
         <item quantity="other">Berhenti menguji %1$d perkataan secara songsang? Kemajuan songsang dikekalkan dan dipulihkan jika anda menghidupkannya semula.</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">Penilaian tidak dapat disimpan. Cuba lagi.</string>
+    <string name="overlay_next_card_load_error">Kad seterusnya tidak dapat dimuatkan.</string>
+    <string name="overlay_next_card_retry">Cuba lagi</string>
+    <string name="overlay_next_card_loading">Memuatkan kad seterusnya…</string>
 </resources>

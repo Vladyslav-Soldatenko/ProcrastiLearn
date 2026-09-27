@@ -8,6 +8,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
@@ -80,6 +81,14 @@ class DojoScreenTest {
 
         composeTestRule.onNodeWithText(sampleWord.word).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.learning_show_translation)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `does not show blocked app gate progress`() {
+        setContent(DojoUiState(vocabularyItem = sampleWord, isLoading = false))
+
+        composeTestRule.onNodeWithText("0/3").assertDoesNotExist()
+        composeTestRule.onNodeWithTag("gate_card_progress").assertDoesNotExist()
     }
 
     @Test

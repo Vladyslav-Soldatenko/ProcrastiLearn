@@ -211,6 +211,9 @@
     <string name="settings_overlay_interval_headline">Mostrar superposición cada X minutos mientras la app bloqueada esté abierta</string>
 
     <!-- Rating delay -->
+    <string name="settings_cards_per_gate_headline">Tarjetas por bloqueo</string>
+    <string name="settings_cards_per_gate_summary">Necesarias antes de acceder: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">Tarjetas por bloqueo (1–100)</string>
     <string name="settings_rating_delay_title">Retraso de valoración</string>
     <string name="settings_rating_delay_headline">Espera antes de poder valorar una tarjeta</string>
     <string name="settings_rating_delay_off">Desactivado</string>
@@ -369,4 +372,9 @@
         <item quantity="many">¿Dejar de practicar %1$d palabras en sentido inverso? El progreso inverso se conserva y se restaura si vuelves a activarlo.</item>
         <item quantity="other">¿Dejar de practicar %1$d palabras en sentido inverso? El progreso inverso se conserva y se restaura si vuelves a activarlo.</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">No se pudo guardar la calificación. Inténtalo de nuevo.</string>
+    <string name="overlay_next_card_load_error">No se pudo cargar la siguiente tarjeta.</string>
+    <string name="overlay_next_card_retry">Reintentar</string>
+    <string name="overlay_next_card_loading">Cargando la siguiente tarjeta…</string>
 </resources>

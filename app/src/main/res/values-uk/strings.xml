@@ -210,6 +210,9 @@
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">Показувати оверлей кожні X хвилин</string>
     <string name="settings_overlay_interval_headline">Показувати оверлей кожні X хвилин, поки відкрито заблокований додаток</string>
+    <string name="settings_cards_per_gate_headline">Карток за один шлюз</string>
+    <string name="settings_cards_per_gate_summary">Потрібно оцінити перед доступом: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">Карток за один шлюз (1–100)</string>
 
     <!-- Rating delay -->
     <string name="settings_rating_delay_title">Затримка оцінювання</string>
@@ -377,4 +380,9 @@
         <item quantity="many">Припинити перевіряти %1$d слів у зворотному напрямку? Прогрес у зворотному напрямку зберігається і відновлюється, якщо ви увімкнете це знову.</item>
         <item quantity="other">Припинити перевіряти %1$d слова у зворотному напрямку? Прогрес у зворотному напрямку зберігається і відновлюється, якщо ви увімкнете це знову.</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">Не вдалося зберегти оцінку. Спробуйте ще раз.</string>
+    <string name="overlay_next_card_load_error">Не вдалося завантажити наступну картку.</string>
+    <string name="overlay_next_card_retry">Спробувати ще раз</string>
+    <string name="overlay_next_card_loading">Завантаження наступної картки…</string>
 </resources>

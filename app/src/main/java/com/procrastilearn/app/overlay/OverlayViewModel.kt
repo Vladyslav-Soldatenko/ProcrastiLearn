@@ -50,13 +50,23 @@ class OverlayViewModel
          * "No word loaded" frame and relying on a later async update to repaint — which,
          * in a Service-hosted ComposeView, would not flush to screen until a touch event.
          */
-        fun seedInitialWord(item: VocabularyItem) {
+        fun seedInitialWord(
+            item: VocabularyItem,
+            requiredCards: Int = 1,
+        ) {
+            lockJob?.cancel()
             _uiState.update {
                 it.copy(
                     vocabularyItem = item,
                     isLoading = false,
                     showAnswer = false,
                     unlocked = false,
+                    requiredCards = requiredCards,
+                    completedCards = 0,
+                    isSavingRating = false,
+                    hasRatingSaveError = false,
+                    hasNextCardLoadError = false,
+                    ratingLockSecondsRemaining = 0,
                 )
             }
         }
@@ -80,15 +90,46 @@ class OverlayViewModel
             if (current.vocabularyItem == null) {
                 throw NoSuchElementException("current word is null")
             }
-            if (current.ratingLockSecondsRemaining > 0) return
+            if (current.unlocked || current.ratingLockSecondsRemaining > 0) {
+                return
+            }
+            if (current.isSavingRating || current.isLoading || current.hasNextCardLoadError) {
+                return
+            }
+
+            _uiState.update {
+                it.copy(
+                    isSavingRating = true,
+                    hasRatingSaveError = false,
+                )
+            }
 
             viewModelScope.launch {
-                saveDifficultyRating(current.vocabularyItem.id, rating, current.vocabularyItem.direction)
-                _uiState.update {
-                    it.copy(
-                        unlocked = true,
-                        showAnswer = false, // Reset for next time
-                    )
+                val result =
+                    saveDifficultyRating(current.vocabularyItem.id, rating, current.vocabularyItem.direction)
+                if (result.isSuccess) {
+                    val completedCards = _uiState.value.completedCards + 1
+                    val gateComplete = completedCards >= _uiState.value.requiredCards
+                    _uiState.update {
+                        it.copy(
+                            completedCards = completedCards,
+                            isSavingRating = false,
+                            isLoading = !gateComplete,
+                            hasRatingSaveError = false,
+                            hasNextCardLoadError = false,
+                            unlocked = gateComplete,
+                            showAnswer = false,
+                            ratingLockSecondsRemaining = 0,
+                        )
+                    }
+                    if (!gateComplete) loadNewWord(isNextCard = true, loadingStateAlreadySet = true)
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            isSavingRating = false,
+                            hasRatingSaveError = true,
+                        )
+                    }
                 }
             }
         }
@@ -103,6 +144,10 @@ class OverlayViewModel
                     ratingLockSecondsRemaining = 0,
                 )
             }
+        }
+
+        fun retryNextCard() {
+            if (_uiState.value.hasNextCardLoadError) loadNewWord(isNextCard = true)
         }
 
         private fun loadRatingDelay() {
@@ -126,9 +171,19 @@ class OverlayViewModel
                 }
         }
 
-        private fun loadNewWord() {
+        private fun loadNewWord(
+            isNextCard: Boolean = false,
+            loadingStateAlreadySet: Boolean = false,
+        ) {
             viewModelScope.launch {
-                _uiState.update { it.copy(isLoading = true) }
+                if (!loadingStateAlreadySet) {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = true,
+                            hasNextCardLoadError = false,
+                        )
+                    }
+                }
                 getNextVocabularyItem()
                     .onSuccess { item ->
                         _uiState.update {
@@ -137,6 +192,7 @@ class OverlayViewModel
                                 isLoading = false,
                                 showAnswer = false,
                                 unlocked = false,
+                                hasNextCardLoadError = false,
                             )
                         }
                     }.onFailure { exception ->
@@ -146,11 +202,15 @@ class OverlayViewModel
                                 it.copy(
                                     isLoading = false,
                                     unlocked = true,
+                                    hasNextCardLoadError = false,
                                 )
                             }
                         } else {
                             _uiState.update {
-                                it.copy(isLoading = false)
+                                it.copy(
+                                    isLoading = false,
+                                    hasNextCardLoadError = isNextCard,
+                                )
                             }
                         }
                     }

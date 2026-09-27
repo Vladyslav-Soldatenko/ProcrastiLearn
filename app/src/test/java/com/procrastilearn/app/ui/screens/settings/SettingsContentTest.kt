@@ -71,7 +71,10 @@ class SettingsContentTest {
         composeTestRule.onNodeWithText(string(R.string.settings_new_card_order_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_reviews_per_day_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).assertIsDisplayed()
-        composeTestRule.onNodeWithText(string(R.string.settings_language_pair_title)).assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_language_pair_title))
+            .performScrollTo()
+            .assertIsDisplayed()
         composeTestRule
             .onNodeWithText(string(R.string.settings_overlay_headline))
             .performScrollTo()
@@ -348,7 +351,10 @@ class SettingsContentTest {
     fun `language pair settings item shows configured pair`() {
         setContent(nativeLanguage = Language.ENGLISH, targetLanguage = Language.SPANISH)
 
-        composeTestRule.onNodeWithText(string(R.string.settings_language_pair_title)).assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_language_pair_title))
+            .performScrollTo()
+            .assertIsDisplayed()
         composeTestRule
             .onNodeWithText(
                 context.getString(
@@ -363,7 +369,10 @@ class SettingsContentTest {
     fun `language pair item opens language selection dialog`() {
         setContent()
 
-        composeTestRule.onNodeWithText(string(R.string.settings_language_pair_title)).performClick()
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_language_pair_title))
+            .performScrollTo()
+            .performClick()
 
         composeTestRule.onNodeWithText(string(R.string.language_selection_dialog_title)).assertIsDisplayed()
     }
@@ -381,7 +390,10 @@ class SettingsContentTest {
             },
         )
 
-        composeTestRule.onNodeWithText(string(R.string.settings_language_pair_title)).performClick()
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_language_pair_title))
+            .performScrollTo()
+            .performClick()
         composeTestRule.onNodeWithText(string(R.string.action_continue)).performClick()
 
         assertThat(changedNative).isEqualTo(Language.ENGLISH)
@@ -395,7 +407,10 @@ class SettingsContentTest {
         var callbackInvoked = false
         setContent(onLanguagePairChange = { _, _ -> callbackInvoked = true })
 
-        composeTestRule.onNodeWithText(string(R.string.settings_language_pair_title)).performClick()
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_language_pair_title))
+            .performScrollTo()
+            .performClick()
         composeTestRule.onNodeWithText(string(R.string.action_cancel)).performClick()
 
         assertThat(callbackInvoked).isFalse()
@@ -520,6 +535,47 @@ class SettingsContentTest {
     }
 
     @Test
+    fun `cards per gate row displays its current value`() {
+        setContent(cardsPerGate = 7)
+
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_cards_per_gate_headline))
+            .performScrollTo()
+            .assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_cards_per_gate_summary, 7))
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `cards per gate dialog confirms a value and rejects values outside one to one hundred`() {
+        var saved: Int? = null
+        setContent(onCardsPerGateChange = { saved = it })
+
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_cards_per_gate_headline))
+            .performScrollTo()
+            .performClick()
+
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("0")
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+        field.performTextClearance()
+        field.performTextInput("101")
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+        field.performTextClearance()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+        field.performTextInput("cards")
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+        field.performTextClearance()
+        field.performTextInput("100")
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsEnabled().performClick()
+
+        assertThat(saved).isEqualTo(100)
+    }
+
+    @Test
     fun `confirming overlay interval value invokes callback`() {
         var overlayInterval: Int? = null
         setContent(onOverlayIntervalChange = { overlayInterval = it })
@@ -605,6 +661,7 @@ class SettingsContentTest {
         maximumIntervalDays: Int = 365,
         overlayInterval: Int = 5,
         ratingDelaySeconds: Int = 0,
+        cardsPerGate: Int = 1,
         newCardOrder: NewCardOrder = NewCardOrder.SEQUENTIAL,
         openAiApiKey: String? = null,
         openAiPrompt: String = "Prompt",
@@ -624,6 +681,7 @@ class SettingsContentTest {
         onMaximumIntervalDaysChange: (Int) -> Unit = {},
         onOverlayIntervalChange: (Int) -> Unit = {},
         onRatingDelayChange: (Int) -> Unit = {},
+        onCardsPerGateChange: (Int) -> Unit = {},
         onNewCardOrderChange: (NewCardOrder) -> Unit = {},
         onOpenAiApiKeyChange: (String) -> Unit = {},
         onOpenAiPromptChange: (String) -> Unit = {},
@@ -649,6 +707,7 @@ class SettingsContentTest {
                             maximumIntervalDays = maximumIntervalDays,
                             overlayInterval = overlayInterval,
                             ratingDelaySeconds = ratingDelaySeconds,
+                            cardsPerGate = cardsPerGate,
                             newCardOrder = newCardOrder,
                         ),
                     studyCallbacks =
@@ -662,6 +721,7 @@ class SettingsContentTest {
                             onMaximumIntervalDaysChange = onMaximumIntervalDaysChange,
                             onOverlayIntervalChange = onOverlayIntervalChange,
                             onRatingDelayChange = onRatingDelayChange,
+                            onCardsPerGateChange = onCardsPerGateChange,
                             onNewCardOrderChange = onNewCardOrderChange,
                         ),
                     aiSettings =

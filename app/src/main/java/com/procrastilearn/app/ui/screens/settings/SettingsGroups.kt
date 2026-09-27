@@ -14,6 +14,7 @@ data class StudySettings(
     val reviewPerDay: Int,
     val maximumIntervalDays: Int,
     val overlayInterval: Int,
+    val cardsPerGate: Int,
     val ratingDelaySeconds: Int,
     val newCardOrder: NewCardOrder,
 )
@@ -27,6 +28,7 @@ data class StudySettingsCallbacks(
     val onReviewPerDayChange: (Int) -> Unit,
     val onMaximumIntervalDaysChange: (Int) -> Unit,
     val onOverlayIntervalChange: (Int) -> Unit,
+    val onCardsPerGateChange: (Int) -> Unit,
     val onRatingDelayChange: (Int) -> Unit,
     val onNewCardOrderChange: (NewCardOrder) -> Unit,
 )

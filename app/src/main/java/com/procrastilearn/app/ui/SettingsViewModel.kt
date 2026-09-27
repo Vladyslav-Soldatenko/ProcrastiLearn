@@ -34,6 +34,7 @@ data class SettingsUiState(
     val maximumIntervalDays: Int = 365,
     val overlayInterval: Int = 6,
     val ratingDelaySeconds: Int = 0,
+    val cardsPerGate: Int = 1,
     val newCardOrder: NewCardOrder = NewCardOrder.SEQUENTIAL,
     val openAiApiKey: String? = null,
     val openAiPrompt: String = OpenAiPromptDefaults.translationPrompt,
@@ -68,6 +69,7 @@ class SettingsViewModel
                         maximumIntervalDays = policy.maximumIntervalDays,
                         overlayInterval = policy.overlayInterval,
                         ratingDelaySeconds = policy.ratingDelaySeconds,
+                        cardsPerGate = policy.cardsPerGate,
                         newCardOrder = policy.newCardOrder,
                         openAiApiKey = apiKey,
                         openAiPrompt = prompt,
@@ -132,6 +134,10 @@ class SettingsViewModel
 
         fun onRatingDelayChange(value: Int) {
             viewModelScope.launch { dayCountersStore.setRatingDelaySeconds(value) }
+        }
+
+        fun onCardsPerGateChange(value: Int) {
+            viewModelScope.launch { dayCountersStore.setCardsPerGate(value) }
         }
 
         fun onNewCardOrderChange(order: NewCardOrder) {

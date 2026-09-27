@@ -4,8 +4,12 @@ import android.content.res.Configuration
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -14,10 +18,17 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.procrastilearn.app.R
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.overlay.components.LearningCard
 import com.procrastilearn.app.overlay.theme.OverlayTheme
@@ -42,7 +53,12 @@ fun OverlayScreen(
         if (uiState.unlocked) currentOnUnlock()
     }
 
-    OverlayScreen(uiState, viewModel::onToggleShowAnswer, viewModel::onDifficultySelected)
+    OverlayScreen(
+        uiState = uiState,
+        onToggleShowAnswer = viewModel::onToggleShowAnswer,
+        onDifficultySelect = viewModel::onDifficultySelected,
+        onRetryNextCard = viewModel::retryNextCard,
+    )
 }
 
 @Suppress("MagicNumber")
@@ -52,6 +68,7 @@ internal fun OverlayScreen(
     uiState: OverlayUiState,
     onToggleShowAnswer: () -> Unit,
     onDifficultySelect: (Rating) -> Unit,
+    onRetryNextCard: () -> Unit = {},
 ) {
     OverlayTheme {
         val backgroundGradient =
@@ -69,13 +86,51 @@ internal fun OverlayScreen(
                     .background(backgroundGradient),
             contentAlignment = Alignment.Center,
         ) {
-            LearningCard(
-                state = uiState,
-                onToggleShowAnswer = onToggleShowAnswer,
-                onDifficultySelect = onDifficultySelect,
-                ratingLockSecondsRemaining = uiState.ratingLockSecondsRemaining,
-                modifier = Modifier.safeDrawingPadding(),
-            )
+            if (uiState.requiredCards > 1) {
+                Column(
+                    modifier = Modifier.fillMaxSize().safeDrawingPadding(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text =
+                            stringResource(
+                                R.string.overlay_gate_progress,
+                                uiState.completedCards,
+                                uiState.requiredCards,
+                            ),
+                        color = OverlayThemeTokens.colors.titleColor,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        modifier =
+                            Modifier
+                                .padding(top = 8.dp, bottom = 8.dp)
+                                .testTag("gate_card_progress"),
+                    )
+                    Box(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        LearningCard(
+                            state = uiState,
+                            onToggleShowAnswer = onToggleShowAnswer,
+                            onDifficultySelect = onDifficultySelect,
+                            onRetryNextCard = onRetryNextCard,
+                            ratingLockSecondsRemaining = uiState.ratingLockSecondsRemaining,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                }
+            } else {
+                LearningCard(
+                    state = uiState,
+                    onToggleShowAnswer = onToggleShowAnswer,
+                    onDifficultySelect = onDifficultySelect,
+                    onRetryNextCard = onRetryNextCard,
+                    ratingLockSecondsRemaining = uiState.ratingLockSecondsRemaining,
+                    modifier = Modifier.safeDrawingPadding(),
+                )
+            }
         }
     }
 }

@@ -148,6 +148,9 @@
     </plurals>
     <string name="settings_overlay_interval_title">Ipakita ang overlay kada X minuto</string>
     <string name="settings_overlay_interval_headline">Ipakita ang overlay bawat X minuto habang bukas ang naka-block na app</string>
+    <string name="settings_cards_per_gate_headline">Mga card bawat gate</string>
+    <string name="settings_cards_per_gate_summary">Kailangan bago makapasok: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">Mga card bawat gate (1–100)</string>
     <string name="settings_rating_delay_title">Antala bago mag-rate</string>
     <string name="settings_rating_delay_headline">Maghintay bago mo ma-rate ang card</string>
     <string name="settings_rating_delay_off">Naka-off</string>
@@ -266,4 +269,9 @@
         <item quantity="one">Itigil ang pagsubok sa %1$d salita nang pabaliktad? Mananatili ang reverse progress at maibabalik kung muli mo itong i-on.</item>
         <item quantity="other">Itigil ang pagsubok sa %1$d salita nang pabaliktad? Mananatili ang reverse progress at maibabalik kung muli mo itong i-on.</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">Hindi na-save ang rating. Subukan muli.</string>
+    <string name="overlay_next_card_load_error">Hindi ma-load ang susunod na card.</string>
+    <string name="overlay_next_card_retry">Subukan muli</string>
+    <string name="overlay_next_card_loading">Nilo-load ang susunod na card…</string>
 </resources>

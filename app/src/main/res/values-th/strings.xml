@@ -154,6 +154,9 @@
     </plurals>
     <string name="settings_overlay_interval_title">แสดงหน้าต่างทับทุก X นาที</string>
     <string name="settings_overlay_interval_headline">แสดงหน้าต่างทับทุก X นาทีขณะที่เปิดแอปที่บล็อกไว้</string>
+    <string name="settings_cards_per_gate_headline">จำนวนการ์ดต่อด่าน</string>
+    <string name="settings_cards_per_gate_summary">ต้องให้คะแนนก่อนเข้าใช้: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">จำนวนการ์ดต่อด่าน (1–100)</string>
     <string name="settings_rating_delay_title">หน่วงเวลาก่อนให้คะแนน</string>
     <string name="settings_rating_delay_headline">รอก่อนจึงจะให้คะแนนบัตรคำได้</string>
     <string name="settings_rating_delay_off">ปิด</string>
@@ -266,4 +269,9 @@
     <plurals name="word_list_bulk_forward_only_confirm_message">
         <item quantity="other">หยุดทดสอบคำศัพท์ %1$d คำแบบย้อนกลับ? ความคืบหน้าแบบย้อนกลับจะยังคงอยู่และจะกลับมาเมื่อคุณเปิดใช้ใหม่</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">บันทึกคะแนนไม่ได้ โปรดลองอีกครั้ง</string>
+    <string name="overlay_next_card_load_error">โหลดการ์ดถัดไปไม่ได้</string>
+    <string name="overlay_next_card_retry">ลองอีกครั้ง</string>
+    <string name="overlay_next_card_loading">กำลังโหลดการ์ดถัดไป…</string>
 </resources>

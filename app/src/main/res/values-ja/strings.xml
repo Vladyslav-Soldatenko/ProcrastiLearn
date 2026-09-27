@@ -209,6 +209,9 @@
     <string name="settings_overlay_interval_headline">ブロック対象アプリを開いている間、X分ごとにオーバーレイを表示</string>
 
     <!-- Rating delay -->
+    <string name="settings_cards_per_gate_headline">ゲートごとのカード数</string>
+    <string name="settings_cards_per_gate_summary">アクセス前に必要: %1$d</string>
+    <string name="settings_cards_per_gate_dialog_title">ゲートごとのカード数（1～100）</string>
     <string name="settings_rating_delay_title">評価までの待機時間</string>
     <string name="settings_rating_delay_headline">カードを評価できるようになるまでの待機時間</string>
     <string name="settings_rating_delay_off">オフ</string>
@@ -353,4 +356,9 @@
     <plurals name="word_list_bulk_forward_only_confirm_message">
         <item quantity="other">%1$d件の単語の逆方向テストを停止しますか? 逆方向の進捗は保持され、再度オンにすると復元されます。</item>
     </plurals>
+    <string name="overlay_gate_progress">%1$d/%2$d</string>
+    <string name="overlay_rating_save_error">評価を保存できませんでした。もう一度お試しください。</string>
+    <string name="overlay_next_card_load_error">次のカードを読み込めませんでした。</string>
+    <string name="overlay_next_card_retry">再試行</string>
+    <string name="overlay_next_card_loading">次のカードを読み込み中…</string>
 </resources>

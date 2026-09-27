@@ -23,4 +23,5 @@ data class LearningPreferencesConfig(
     val studyDirectionMode: StudyDirectionMode = StudyDirectionMode.FORWARD,
     val ratingDelaySeconds: Int = 0,
     val newCardOrder: NewCardOrder = NewCardOrder.SEQUENTIAL,
+    val cardsPerGate: Int = 1,
 )

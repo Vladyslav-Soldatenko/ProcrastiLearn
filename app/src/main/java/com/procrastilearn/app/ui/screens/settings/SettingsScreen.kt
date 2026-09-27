@@ -54,6 +54,7 @@ import com.procrastilearn.app.ui.screens.settings.components.AboutUsDialog
 import com.procrastilearn.app.ui.screens.settings.components.AboutUsSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.AccessibilityPermissionItem
 import com.procrastilearn.app.ui.screens.settings.components.AddCardsForTodaySettingsItem
+import com.procrastilearn.app.ui.screens.settings.components.CardsPerGateSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ExportSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ImportSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.LanguagePairSettingsItem
@@ -85,6 +86,8 @@ import kotlinx.collections.immutable.toImmutableList
 import java.time.LocalDate
 
 private const val MAX_RATING_DELAY_SECONDS = 60
+private const val MIN_CARDS_PER_GATE = 1
+private const val MAX_CARDS_PER_GATE = 100
 
 sealed interface DialogState {
     object None : DialogState
@@ -104,6 +107,8 @@ sealed interface DialogState {
     object ReviewPerDay : DialogState
 
     object OverlayInterval : DialogState
+
+    object CardsPerGate : DialogState
 
     object RatingDelay : DialogState
 
@@ -201,6 +206,7 @@ fun SettingsScreen(
                     reviewPerDay = state.reviewPerDay,
                     maximumIntervalDays = state.maximumIntervalDays,
                     overlayInterval = state.overlayInterval,
+                    cardsPerGate = state.cardsPerGate,
                     ratingDelaySeconds = state.ratingDelaySeconds,
                     newCardOrder = state.newCardOrder,
                 ),
@@ -214,6 +220,7 @@ fun SettingsScreen(
                     onReviewPerDayChange = viewModel::onReviewPerDayChange,
                     onMaximumIntervalDaysChange = viewModel::onMaximumIntervalDaysChange,
                     onOverlayIntervalChange = viewModel::onOverlayIntervalChange,
+                    onCardsPerGateChange = viewModel::onCardsPerGateChange,
                     onRatingDelayChange = viewModel::onRatingDelayChange,
                     onNewCardOrderChange = viewModel::onNewCardOrderChange,
                 ),
@@ -281,6 +288,7 @@ internal fun SettingsContent(
     val reviewPerDay = studySettings.reviewPerDay
     val maximumIntervalDays = studySettings.maximumIntervalDays
     val overlayInterval = studySettings.overlayInterval
+    val cardsPerGate = studySettings.cardsPerGate
     val ratingDelaySeconds = studySettings.ratingDelaySeconds
     val newCardOrder = studySettings.newCardOrder
     val nativeLanguage = aiSettings.nativeLanguage
@@ -364,6 +372,13 @@ internal fun SettingsContent(
             ShowOverlayIntervalSettingsItem(
                 value = overlayInterval,
                 onClick = { dialogState = DialogState.OverlayInterval },
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            CardsPerGateSettingsItem(
+                value = cardsPerGate,
+                onClick = { dialogState = DialogState.CardsPerGate },
             )
 
             Spacer(Modifier.height(4.dp))
@@ -557,6 +572,19 @@ private fun SettingsDialogs(
                 onDismiss = dismiss,
             )
         }
+        DialogState.CardsPerGate -> {
+            NumberInputDialog(
+                title = stringResource(R.string.settings_cards_per_gate_dialog_title),
+                currentValue = studySettings.cardsPerGate,
+                minValue = MIN_CARDS_PER_GATE,
+                maxValue = MAX_CARDS_PER_GATE,
+                onValueConfirm = {
+                    studyCallbacks.onCardsPerGateChange(it)
+                    dismiss()
+                },
+                onDismiss = dismiss,
+            )
+        }
         DialogState.RatingDelay -> {
             NumberInputDialog(
                 title = stringResource(R.string.settings_rating_delay_title),
@@ -707,6 +735,7 @@ internal fun SettingsScreenAllGrantedPreview() {
                     reviewPerDay = 200,
                     maximumIntervalDays = 365,
                     overlayInterval = 6,
+                    cardsPerGate = 1,
                     ratingDelaySeconds = 0,
                     newCardOrder = NewCardOrder.SEQUENTIAL,
                 ),
@@ -720,6 +749,7 @@ internal fun SettingsScreenAllGrantedPreview() {
                     onReviewPerDayChange = {},
                     onMaximumIntervalDaysChange = {},
                     onOverlayIntervalChange = {},
+                    onCardsPerGateChange = {},
                     onRatingDelayChange = {},
                     onNewCardOrderChange = {},
                 ),

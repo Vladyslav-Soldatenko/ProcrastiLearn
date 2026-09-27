@@ -1,10 +1,15 @@
 package com.procrastilearn.app.overlay
 
 import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
@@ -222,6 +227,146 @@ class OverlayScreenTest {
     }
 
     @Test
+    fun `hides gate progress for a single card target`() {
+        composeTestRule.setContent {
+            OverlayScreen(
+                uiState =
+                    OverlayUiState(
+                        vocabularyItem = sampleVocabularyItem,
+                        requiredCards = 1,
+                    ),
+                onToggleShowAnswer = {},
+                onDifficultySelect = {},
+            )
+        }
+
+        composeTestRule.onNodeWithTag("gate_card_progress").assertDoesNotExist()
+    }
+
+    @Test
+    fun `shows completed gate progress only in the overlay`() {
+        var uiState by
+            mutableStateOf(
+                OverlayUiState(
+                    vocabularyItem = sampleVocabularyItem,
+                    requiredCards = 3,
+                    completedCards = 0,
+                ),
+            )
+
+        composeTestRule.setContent {
+            OverlayScreen(
+                uiState = uiState,
+                onToggleShowAnswer = {},
+                onDifficultySelect = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("0/3").assertIsDisplayed()
+
+        composeTestRule.runOnIdle {
+            uiState = uiState.copy(completedCards = 1)
+        }
+
+        composeTestRule.onNodeWithText("1/3").assertIsDisplayed()
+    }
+
+    @Test
+    fun `rating controls are disabled while a rating save is in progress`() {
+        composeTestRule.setContent {
+            OverlayScreen(
+                uiState =
+                    OverlayUiState(
+                        vocabularyItem = sampleVocabularyItem,
+                        showAnswer = true,
+                        isSavingRating = true,
+                    ),
+                onToggleShowAnswer = {},
+                onDifficultySelect = {},
+            )
+        }
+
+        ratingLabels().forEach { label -> composeTestRule.onNodeWithText(label).assertIsNotEnabled() }
+    }
+
+    @Test
+    fun `shows loading indicator without card actions while the next card is loading`() {
+        composeTestRule.setContent {
+            OverlayScreen(
+                uiState =
+                    OverlayUiState(
+                        vocabularyItem = sampleVocabularyItem,
+                        showAnswer = false,
+                        isLoading = true,
+                    ),
+                onToggleShowAnswer = {},
+                onDifficultySelect = {},
+            )
+        }
+
+        composeTestRule
+            .onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
+            .assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.learning_show_translation)).assertDoesNotExist()
+        ratingLabels().forEach { label -> composeTestRule.onNodeWithText(label).assertDoesNotExist() }
+        composeTestRule.onNodeWithText("Loading next card…").assertIsDisplayed()
+    }
+
+    @Test
+    fun `failed rating save keeps the word visible and shows an error`() {
+        composeTestRule.setContent {
+            OverlayScreen(
+                uiState =
+                    OverlayUiState(
+                        vocabularyItem = sampleVocabularyItem,
+                        showAnswer = true,
+                        requiredCards = 3,
+                        completedCards = 0,
+                        hasRatingSaveError = true,
+                    ),
+                onToggleShowAnswer = {},
+                onDifficultySelect = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText(sampleVocabularyItem.word).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Rating could not be saved. Try again.").assertIsDisplayed()
+        composeTestRule.onNodeWithText("0/3").assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.rating_good)).assertIsEnabled()
+    }
+
+    @Test
+    fun `next card load error offers retry in the reveal footer`() {
+        var retryCount = 0
+
+        composeTestRule.setContent {
+            OverlayScreen(
+                uiState =
+                    OverlayUiState(
+                        vocabularyItem = sampleVocabularyItem,
+                        showAnswer = false,
+                        requiredCards = 3,
+                        completedCards = 1,
+                        hasNextCardLoadError = true,
+                    ),
+                onToggleShowAnswer = {},
+                onDifficultySelect = {},
+                onRetryNextCard = { retryCount += 1 },
+            )
+        }
+
+        composeTestRule.onNodeWithText("Could not load the next card.").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Retry").assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.learning_show_translation)).assertDoesNotExist()
+        ratingLabels().forEach { label -> composeTestRule.onNodeWithText(label).assertDoesNotExist() }
+
+        composeTestRule.onNodeWithText("Retry").performClick()
+        composeTestRule.runOnIdle {
+            assertThat(retryCount).isEqualTo(1)
+        }
+    }
+
+    @Test
     fun `does not show countdown while the answer is hidden`() {
         composeTestRule.setContent {
             OverlayScreen(
@@ -283,4 +428,12 @@ class OverlayScreenTest {
         composeTestRule.onNodeWithText(noWordText).assertIsDisplayed()
         composeTestRule.onNodeWithText(noTranslationText, useUnmergedTree = true).assertIsDisplayed()
     }
+
+    private fun ratingLabels(): List<String> =
+        listOf(
+            context.getString(R.string.rating_again),
+            context.getString(R.string.rating_hard),
+            context.getString(R.string.rating_good),
+            context.getString(R.string.rating_easy),
+        )
 }
