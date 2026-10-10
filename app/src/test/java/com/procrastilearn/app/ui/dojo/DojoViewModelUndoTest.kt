@@ -9,6 +9,7 @@ import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.UndoResult
 import com.procrastilearn.app.domain.model.VocabularyItem
+import com.procrastilearn.app.domain.model.toStudySelectionPolicy
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
 import com.procrastilearn.app.domain.usecase.UndoLastRatingUseCase
@@ -22,6 +23,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -93,6 +95,7 @@ class DojoViewModelUndoTest {
 
         every { dayCountersStore.read() } returns countersFlow
         every { dayCountersStore.readPolicy() } returns policyFlow
+        every { dayCountersStore.readStudySelectionPolicy() } returns policyFlow.map { it.toStudySelectionPolicy() }
         coEvery { vocabularyStatsDao.countReviewsDue(any(), any(), any()) } returns 10
         every { vocabularyStatsDao.observeReviewsDueCount(any(), any(), any()) } returns dueCountFlow
         every { vocabularyStatsDao.observeNewTotalCount(any()) } returns newTotalCountFlow
@@ -113,6 +116,35 @@ class DojoViewModelUndoTest {
             undoLastRating,
             DojoCountersSource(vocabularyStatsDao, dayCountersStore, fakeTimeTicker),
         )
+
+    @Test
+    fun `gate settings retain undo restored card and reveal without another fetch`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val current = VocabularyItem(id = 1, word = "current", translation = "current", isNew = true)
+            val restored = VocabularyItem(id = 99, word = "restored", translation = "restored", isNew = false)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(current)
+            coEvery { undoLastRating.invoke() } returns
+                Result.success(UndoResult(item = restored, revertedRating = Rating.EASY))
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onUndo()
+            advanceUntilIdle()
+
+            val changes: List<(LearningPreferencesConfig) -> LearningPreferencesConfig> =
+                listOf(
+                    { it.copy(gateCooldownMinutes = 2) },
+                    { it.copy(overlayInterval = 10) },
+                    { it.copy(cardsPerGate = 3) },
+                    { it.copy(ratingDelaySeconds = 5) },
+                )
+            changes.forEach { change ->
+                policyFlow.value = change(policyFlow.value)
+                advanceUntilIdle()
+                assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(restored)
+                assertThat(viewModel.uiState.value.showAnswer).isTrue()
+                coVerify(exactly = 1) { getNextVocabularyItem.invoke() }
+            }
+        }
 
     @Test
     fun `restored word survives the reactive re-fetch triggered by a newTotalCount change`() =

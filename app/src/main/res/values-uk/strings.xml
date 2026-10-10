@@ -385,4 +385,16 @@
     <string name="overlay_next_card_load_error">Не вдалося завантажити наступну картку.</string>
     <string name="overlay_next_card_retry">Спробувати ще раз</string>
     <string name="overlay_next_card_loading">Завантаження наступної картки…</string>
+    <string name="settings_gate_cooldown_headline">Інтервал перевірки, хвилини</string>
+    <string name="settings_gate_cooldown_description">Після повторення карток перевірки перемикайтеся між заблокованими застосунками без нової перевірки протягом періоду очікування.</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">Пауза не може перевищувати інтервал повторних перевірок у %1$d хвилин.</string>
+    <string name="settings_gate_repeat_below_cooldown">Інтервал повторних перевірок має становити щонайменше %1$d хвилин або 0 для їх вимкнення.</string>
+    <string name="settings_gate_timing_range_error">Введіть число від 0 до %1$d хвилин.</string>
+    <string name="settings_gate_timing_save_failed">Не вдалося зберегти. Спробуйте ще раз.</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="one">%d хвилина</item>
+        <item quantity="few">%d хвилини</item>
+        <item quantity="many">%d хвилин</item>
+        <item quantity="other">%d хвилини</item>
+    </plurals>
 </resources>

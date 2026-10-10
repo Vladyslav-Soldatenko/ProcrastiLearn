@@ -10,6 +10,7 @@ import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.model.VocabularyItem
+import com.procrastilearn.app.domain.model.toStudySelectionPolicy
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
 import com.procrastilearn.app.domain.usecase.UndoLastRatingUseCase
@@ -24,6 +25,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -95,6 +97,7 @@ class DojoViewModelDueCountTest {
 
         every { dayCountersStore.read() } returns countersFlow
         every { dayCountersStore.readPolicy() } returns policyFlow
+        every { dayCountersStore.readStudySelectionPolicy() } returns policyFlow.map { it.toStudySelectionPolicy() }
         coEvery { vocabularyStatsDao.countReviewsDue(any(), any(), any()) } returns 10
         every { vocabularyStatsDao.observeReviewsDueCount(any(), any(), any()) } returns dueCountFlow
         every { vocabularyStatsDao.observeNewTotalCount(any()) } returns newTotalCountFlow

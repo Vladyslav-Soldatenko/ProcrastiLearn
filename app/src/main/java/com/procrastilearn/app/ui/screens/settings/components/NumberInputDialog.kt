@@ -32,8 +32,14 @@ fun NumberInputDialog(
     minValue: Int = 0,
     maxValue: Int = Int.MAX_VALUE,
     description: String? = null,
+    validateValue: (Int) -> String? = { null },
+    saveError: String? = null,
+    isSaving: Boolean = false,
 ) {
     var textValue by remember { mutableStateOf(currentValue.toString()) }
+    val currentInput = textValue.toIntOrNull()
+    val validationError = currentInput?.let(validateValue)
+    val error = validationError ?: saveError
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -53,6 +59,9 @@ fun NumberInputDialog(
         text = {
             OutlinedTextField(
                 value = textValue,
+                enabled = !isSaving,
+                isError = error != null,
+                supportingText = error?.let { { Text(it) } },
                 onValueChange = { newValue ->
                     if (newValue.all { it.isDigit() }) {
                         textValue = newValue
@@ -67,12 +76,12 @@ fun NumberInputDialog(
             )
         },
         confirmButton = {
-            val currentInput = textValue.toIntOrNull()
             TextButton(
-                enabled = currentInput != null && currentInput in minValue..maxValue,
+                enabled =
+                    !isSaving && currentInput != null && currentInput in minValue..maxValue && validationError == null,
                 onClick = {
                     textValue.toIntOrNull()?.let { value ->
-                        if (value in minValue..maxValue) {
+                        if (!isSaving && value in minValue..maxValue && validateValue(value) == null) {
                             onValueConfirm(value)
                         }
                     }

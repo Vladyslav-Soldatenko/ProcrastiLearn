@@ -377,4 +377,15 @@
     <string name="overlay_next_card_load_error">Impossible de charger la carte suivante.</string>
     <string name="overlay_next_card_retry">Réessayer</string>
     <string name="overlay_next_card_loading">Chargement de la carte suivante…</string>
+    <string name="settings_gate_cooldown_headline">Délai du contrôle, minutes</string>
+    <string name="settings_gate_cooldown_description">Après avoir révisé les cartes du contrôle, passez entre les applications bloquées sans nouveau contrôle pendant la période de pause.</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">La pause ne peut pas dépasser l’intervalle de contrôle répété de %1$d minutes.</string>
+    <string name="settings_gate_repeat_below_cooldown">L’intervalle de contrôle répété doit être d’au moins %1$d minutes, ou 0 pour le désactiver.</string>
+    <string name="settings_gate_timing_range_error">Saisissez un nombre entre 0 et %1$d minutes.</string>
+    <string name="settings_gate_timing_save_failed">Enregistrement impossible. Réessayez.</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="many">%d minutes</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
 </resources>

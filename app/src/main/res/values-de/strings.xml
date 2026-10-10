@@ -369,4 +369,14 @@
     <string name="overlay_next_card_load_error">Die nächste Karte konnte nicht geladen werden.</string>
     <string name="overlay_next_card_retry">Erneut versuchen</string>
     <string name="overlay_next_card_loading">Nächste Karte wird geladen…</string>
+    <string name="settings_gate_cooldown_headline">Gate-Abklingzeit, Minuten</string>
+    <string name="settings_gate_cooldown_description">Wechsle nach dem Lernen der Abfragekarten während der Abkühlzeit ohne weitere Abfrage zwischen blockierten Apps.</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">Die Pause darf das Wiederholungsintervall von %1$d Minuten nicht überschreiten.</string>
+    <string name="settings_gate_repeat_below_cooldown">Das Wiederholungsintervall muss mindestens %1$d Minuten betragen, oder 0 zum Ausschalten.</string>
+    <string name="settings_gate_timing_range_error">Gib eine Zahl von 0 bis %1$d Minuten ein.</string>
+    <string name="settings_gate_timing_save_failed">Speichern fehlgeschlagen. Versuche es erneut.</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="one">%d Minute</item>
+        <item quantity="other">%d Minuten</item>
+    </plurals>
 </resources>

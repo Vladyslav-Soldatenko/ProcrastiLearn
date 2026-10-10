@@ -5,18 +5,26 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.domain.model.DEFAULT_MAXIMUM_INTERVAL_DAYS
+import com.procrastilearn.app.domain.model.GateTimingChangeResult
+import com.procrastilearn.app.domain.model.GateTimingSettings
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
+import com.procrastilearn.app.domain.model.MAX_GATE_TIMING_MINUTES
 import com.procrastilearn.app.domain.model.MAX_MAXIMUM_INTERVAL_DAYS
 import com.procrastilearn.app.domain.model.MIN_MAXIMUM_INTERVAL_DAYS
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
+import com.procrastilearn.app.domain.model.StudySelectionPolicy
+import com.procrastilearn.app.domain.model.toStudySelectionPolicy
+import com.procrastilearn.app.domain.model.validateGateTiming
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@Suppress("TooManyFunctions")
 class DayCountersStore
     @Inject
     constructor(
@@ -40,6 +48,7 @@ class DayCountersStore
             val RATING_DELAY_SECONDS = intPreferencesKey("rating_delay_seconds")
             val NEW_CARD_ORDER = stringPreferencesKey("new_card_order")
             val CARDS_PER_GATE = intPreferencesKey("cards_per_gate")
+            val GATE_COOLDOWN_MINUTES = intPreferencesKey("gate_cooldown_minutes")
         }
 
         fun read(): Flow<DayCounters> =
@@ -108,6 +117,7 @@ class DayCountersStore
 
         fun readPolicy(): Flow<LearningPreferencesConfig> =
             ds.data.map { p ->
+                val gateTiming = decodeGateTiming(p)
                 val mixName = p[K.MIX_MODE] ?: MixMode.MIX.name
                 val directionName = p[K.STUDY_DIRECTION_MODE] ?: StudyDirectionMode.BIDIRECTIONAL.name
                 LearningPreferencesConfig(
@@ -116,7 +126,8 @@ class DayCountersStore
                     maximumIntervalDays =
                         (p[K.MAXIMUM_INTERVAL_DAYS] ?: DEFAULT_MAXIMUM_INTERVAL_DAYS)
                             .coerceIn(MIN_MAXIMUM_INTERVAL_DAYS, MAX_MAXIMUM_INTERVAL_DAYS),
-                    overlayInterval = p[K.OVERLAY_INTERVAL_TIME] ?: DEFAULT_OVERLAY_INTERVAL_TIME,
+                    overlayInterval = gateTiming.repeatIntervalMinutes,
+                    gateCooldownMinutes = gateTiming.cooldownMinutes,
                     mixMode = runCatching { MixMode.valueOf(mixName) }.getOrDefault(MixMode.MIX),
                     studyDirectionMode =
                         runCatching { StudyDirectionMode.valueOf(directionName) }
@@ -130,6 +141,11 @@ class DayCountersStore
                             .coerceIn(MIN_CARDS_PER_GATE, MAX_CARDS_PER_GATE),
                 )
             }
+
+        fun readGateTiming(): Flow<GateTimingSettings> = ds.data.map(::decodeGateTiming).distinctUntilChanged()
+
+        fun readStudySelectionPolicy(): Flow<StudySelectionPolicy> =
+            readPolicy().map(LearningPreferencesConfig::toStudySelectionPolicy).distinctUntilChanged()
 
         suspend fun setMixMode(mode: MixMode) {
             ds.edit { it[K.MIX_MODE] = mode.name }
@@ -161,9 +177,11 @@ class DayCountersStore
             }
         }
 
-        suspend fun setOverlayInterval(value: Int) {
-            ds.edit { it[K.OVERLAY_INTERVAL_TIME] = value.coerceIn(MIN_LIMIT, MAX_OVERLAY_INTERVAL_MINUTES) }
-        }
+        suspend fun setOverlayInterval(value: Int): GateTimingChangeResult =
+            setGateTiming { it.copy(repeatIntervalMinutes = value) }
+
+        suspend fun setGateCooldownMinutes(value: Int): GateTimingChangeResult =
+            setGateTiming { it.copy(cooldownMinutes = value) }
 
         suspend fun setRatingDelaySeconds(value: Int) {
             // Range validation happens in the settings dialog (NumberInputDialog min/maxValue);
@@ -175,10 +193,39 @@ class DayCountersStore
             ds.edit { it[K.CARDS_PER_GATE] = value.coerceIn(MIN_CARDS_PER_GATE, MAX_CARDS_PER_GATE) }
         }
 
+        private fun decodeGateTiming(preferences: androidx.datastore.preferences.core.Preferences): GateTimingSettings {
+            val repeat =
+                (preferences[K.OVERLAY_INTERVAL_TIME] ?: DEFAULT_OVERLAY_INTERVAL_TIME)
+                    .coerceIn(MIN_LIMIT, MAX_OVERLAY_INTERVAL_MINUTES)
+            val cooldown =
+                (preferences[K.GATE_COOLDOWN_MINUTES] ?: DEFAULT_GATE_COOLDOWN_MINUTES)
+                    .coerceIn(MIN_LIMIT, MAX_OVERLAY_INTERVAL_MINUTES)
+            return GateTimingSettings(
+                cooldownMinutes = if (repeat > 0) cooldown.coerceAtMost(repeat) else cooldown,
+                repeatIntervalMinutes = repeat,
+            )
+        }
+
+        private suspend fun setGateTiming(update: (GateTimingSettings) -> GateTimingSettings): GateTimingChangeResult {
+            var result: GateTimingChangeResult = GateTimingChangeResult.Applied
+            ds.edit { preferences ->
+                val candidate = update(decodeGateTiming(preferences))
+                val error = validateGateTiming(candidate)
+                if (error != null) {
+                    result = GateTimingChangeResult.Rejected(error)
+                } else {
+                    preferences[K.GATE_COOLDOWN_MINUTES] = candidate.cooldownMinutes
+                    preferences[K.OVERLAY_INTERVAL_TIME] = candidate.repeatIntervalMinutes
+                }
+            }
+            return result
+        }
+
         private companion object {
             const val DEFAULT_NEW_PER_DAY = 15
             const val DEFAULT_REVIEW_PER_DAY = 99
             const val DEFAULT_OVERLAY_INTERVAL_TIME = 0
+            const val DEFAULT_GATE_COOLDOWN_MINUTES = 0
             const val DEFAULT_RATING_DELAY_SECONDS = 0
             const val DEFAULT_CARDS_PER_GATE = 1
             const val MIN_LIMIT = 0
@@ -186,6 +233,6 @@ class DayCountersStore
             const val MAX_CARDS_PER_GATE = 100
             const val MAX_NEW_PER_DAY = 200
             const val MAX_REVIEW_PER_DAY = 2000
-            const val MAX_OVERLAY_INTERVAL_MINUTES = 2000
+            const val MAX_OVERLAY_INTERVAL_MINUTES = MAX_GATE_TIMING_MINUTES
         }
     }

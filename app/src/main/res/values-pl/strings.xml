@@ -383,4 +383,16 @@
     <string name="overlay_next_card_load_error">Nie udało się wczytać następnej karty.</string>
     <string name="overlay_next_card_retry">Spróbuj ponownie</string>
     <string name="overlay_next_card_loading">Wczytywanie następnej karty…</string>
+    <string name="settings_gate_cooldown_headline">Czas oczekiwania bramki, minuty</string>
+    <string name="settings_gate_cooldown_description">Po powtórzeniu kart bramki przełączaj się między zablokowanymi aplikacjami bez kolejnej bramki w okresie przerwy.</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">Przerwa nie może przekraczać odstępu między powtarzanymi bramkami wynoszącego %1$d minut.</string>
+    <string name="settings_gate_repeat_below_cooldown">Odstęp między powtarzanymi bramkami musi wynosić co najmniej %1$d minut albo 0, aby je wyłączyć.</string>
+    <string name="settings_gate_timing_range_error">Wpisz liczbę od 0 do %1$d minut.</string>
+    <string name="settings_gate_timing_save_failed">Nie udało się zapisać. Spróbuj ponownie.</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="one">%d minuta</item>
+        <item quantity="few">%d minuty</item>
+        <item quantity="many">%d minut</item>
+        <item quantity="other">%d minuty</item>
+    </plurals>
 </resources>

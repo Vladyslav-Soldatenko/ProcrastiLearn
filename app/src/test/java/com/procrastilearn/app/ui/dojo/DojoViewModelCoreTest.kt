@@ -8,8 +8,11 @@ import com.procrastilearn.app.data.repository.NoAvailableItemsException
 import com.procrastilearn.app.data.time.TimeTicker
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
+import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirection
+import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.model.VocabularyItem
+import com.procrastilearn.app.domain.model.toStudySelectionPolicy
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
 import com.procrastilearn.app.domain.usecase.UndoLastRatingUseCase
@@ -22,7 +25,10 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -94,6 +100,8 @@ class DojoViewModelCoreTest {
 
         every { dayCountersStore.read() } returns countersFlow
         every { dayCountersStore.readPolicy() } returns policyFlow
+        every { dayCountersStore.readStudySelectionPolicy() } returns
+            policyFlow.map { it.toStudySelectionPolicy() }.distinctUntilChanged()
         coEvery { vocabularyStatsDao.countReviewsDue(any(), any(), any()) } returns 10
         every { vocabularyStatsDao.observeReviewsDueCount(any(), any(), any()) } returns dueCountFlow
         every { vocabularyStatsDao.observeNewTotalCount(any()) } returns newTotalCountFlow
@@ -114,6 +122,88 @@ class DojoViewModelCoreTest {
             undoLastRating,
             DojoCountersSource(vocabularyStatsDao, dayCountersStore, fakeTimeTicker),
         )
+
+    @Test
+    fun `gate timing and presentation settings retain the revealed card without fetching`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val current = VocabularyItem(id = 1, word = "current", translation = "current", isNew = true)
+            val replacement = VocabularyItem(id = 2, word = "replacement", translation = "replacement", isNew = true)
+            coEvery { getNextVocabularyItem.invoke() } returnsMany
+                listOf(Result.success(current), Result.success(replacement))
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onToggleShowAnswer()
+            advanceUntilIdle()
+
+            val changes: List<(LearningPreferencesConfig) -> LearningPreferencesConfig> =
+                listOf(
+                    { it.copy(gateCooldownMinutes = 2) },
+                    { it.copy(overlayInterval = 10) },
+                    { it.copy(cardsPerGate = 3) },
+                    { it.copy(ratingDelaySeconds = 5) },
+                )
+            changes.forEach { change ->
+                policyFlow.value = change(policyFlow.value)
+                advanceUntilIdle()
+                assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(current)
+                assertThat(viewModel.uiState.value.showAnswer).isTrue()
+                coVerify(exactly = 1) { getNextVocabularyItem.invoke() }
+            }
+        }
+
+    @Test
+    fun `duplicate counter emission after a timing setting change retains the revealed card`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val counters = countersFlow.value
+            val duplicateCounters = MutableSharedFlow<DayCounters>(replay = 1)
+            duplicateCounters.emit(counters)
+            every { dayCountersStore.read() } returns duplicateCounters
+            val current = VocabularyItem(id = 1, word = "current", translation = "current", isNew = true)
+            val replacement = VocabularyItem(id = 2, word = "replacement", translation = "replacement", isNew = true)
+            coEvery { getNextVocabularyItem.invoke() } returnsMany
+                listOf(Result.success(current), Result.success(replacement))
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            viewModel.onToggleShowAnswer()
+            policyFlow.value = policyFlow.value.copy(gateCooldownMinutes = 2)
+            duplicateCounters.emit(counters)
+            advanceUntilIdle()
+
+            assertThat(viewModel.uiState.value.vocabularyItem).isEqualTo(current)
+            assertThat(viewModel.uiState.value.showAnswer).isTrue()
+            coVerify(exactly = 1) { getNextVocabularyItem.invoke() }
+        }
+
+    @Test
+    fun `study policy changes still refresh the displayed card`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            var fetchCount = 0
+            coEvery { getNextVocabularyItem.invoke() } answers {
+                fetchCount++
+                Result.success(
+                    VocabularyItem(id = fetchCount.toLong(), word = "word", translation = "word", isNew = true),
+                )
+            }
+            val viewModel = buildViewModel()
+            advanceUntilIdle()
+            val changes: List<(LearningPreferencesConfig) -> LearningPreferencesConfig> =
+                listOf(
+                    { it.copy(newPerDay = 21) },
+                    { it.copy(reviewPerDay = 101) },
+                    { it.copy(maximumIntervalDays = 100) },
+                    { it.copy(mixMode = MixMode.NEW_FIRST) },
+                    { it.copy(studyDirectionMode = StudyDirectionMode.BACKWARD) },
+                    { it.copy(newCardOrder = NewCardOrder.RANDOM) },
+                )
+            changes.forEachIndexed { index, change ->
+                policyFlow.value = change(policyFlow.value)
+                advanceUntilIdle()
+                assertThat(
+                    viewModel.uiState.value.vocabularyItem
+                        ?.id,
+                ).isEqualTo((index + 2).toLong())
+            }
+        }
 
     @Test
     fun `initial state loads word and correct stats`() =

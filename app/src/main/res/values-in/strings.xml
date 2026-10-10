@@ -361,4 +361,13 @@
     <string name="overlay_next_card_load_error">Kartu berikutnya tidak dapat dimuat.</string>
     <string name="overlay_next_card_retry">Coba lagi</string>
     <string name="overlay_next_card_loading">Memuat kartu berikutnya…</string>
+    <string name="settings_gate_cooldown_headline">Jeda gerbang, menit</string>
+    <string name="settings_gate_cooldown_description">Setelah meninjau kartu gerbang, beralihlah di antara aplikasi yang diblokir tanpa gerbang lain selama masa jeda.</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">Jeda tidak boleh melebihi interval gerbang berulang sebesar %1$d menit.</string>
+    <string name="settings_gate_repeat_below_cooldown">Interval gerbang berulang harus minimal %1$d menit, atau 0 untuk menonaktifkannya.</string>
+    <string name="settings_gate_timing_range_error">Masukkan angka dari 0 hingga %1$d menit.</string>
+    <string name="settings_gate_timing_save_failed">Tidak dapat menyimpan. Coba lagi.</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="other">%d menit</item>
+    </plurals>
 </resources>

@@ -19,7 +19,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -139,6 +138,8 @@ class OverlayViewModelTest {
             val state = viewModel.uiState.value
             assertThat(state.vocabularyItem).isNull()
             assertThat(state.unlocked).isTrue()
+            assertThat(state.completion)
+                .isEqualTo(GateCompletion(0))
             assertThat(state.isLoading).isFalse()
             coVerify(exactly = 1) { getNextVocabularyItem.invoke() }
         }
@@ -557,211 +558,54 @@ class OverlayViewModelTest {
         }
 
     @Test
-    fun `onOverlayOpened loads the configured rating delay even when the word was already seeded`() =
+    fun `final saved rating creates a typed target completion`() =
         runTest(mainDispatcherRule.testDispatcher) {
-            policyFlow.value = LearningPreferencesConfig(ratingDelaySeconds = 7)
-            val item = VocabularyItem(id = 9, word = "Buch", translation = "book", isNew = false)
-
-            val viewModel = buildViewModel()
-            viewModel.seedInitialWord(item)
-
-            viewModel.onOverlayOpened()
-            advanceUntilIdle()
-
-            assertThat(viewModel.uiState.value.ratingDelaySeconds).isEqualTo(7)
-            coVerify(exactly = 0) { getNextVocabularyItem.invoke() }
-        }
-
-    @Test
-    fun `zero rating delay leaves rating unlocked immediately on reveal`() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            val item = VocabularyItem(id = 1, word = "eins", translation = "one", isNew = false)
-            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+            val item = VocabularyItem(id = 11, word = "elf", translation = "eleven", isNew = false)
             coEvery { saveDifficultyRating.invoke(any(), any(), any()) } returns Result.success(Unit)
-
             val viewModel = buildViewModel()
-            viewModel.onOverlayOpened()
-            advanceUntilIdle()
-
-            viewModel.onToggleShowAnswer()
-
-            assertThat(viewModel.uiState.value.ratingLockSecondsRemaining).isEqualTo(0)
+            viewModel.seedInitialWord(item, requiredCards = 1)
 
             viewModel.onDifficultySelected(Rating.GOOD)
             advanceUntilIdle()
 
-            assertThat(viewModel.uiState.value.unlocked).isTrue()
-            coVerify(exactly = 1) { saveDifficultyRating.invoke(item.id, Rating.GOOD, item.direction) }
+            assertThat(viewModel.uiState.value.completion)
+                .isEqualTo(GateCompletion(1))
         }
 
     @Test
-    fun `revealing with a configured delay locks rating synchronously before any time passes`() =
+    fun `second saved rating creates a typed two card target completion`() =
         runTest(mainDispatcherRule.testDispatcher) {
-            policyFlow.value = LearningPreferencesConfig(ratingDelaySeconds = 5)
-            val item = VocabularyItem(id = 2, word = "zwei", translation = "two", isNew = false)
-            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
-
+            val first = VocabularyItem(id = 13, word = "dreizehn", translation = "thirteen", isNew = false)
+            val second = VocabularyItem(id = 14, word = "vierzehn", translation = "fourteen", isNew = false)
+            coEvery { saveDifficultyRating.invoke(any(), any(), any()) } returns Result.success(Unit)
+            coEvery { getNextVocabularyItem.invoke() } returns Result.success(second)
             val viewModel = buildViewModel()
-            viewModel.onOverlayOpened()
+            viewModel.seedInitialWord(first, requiredCards = 2)
+
+            viewModel.onDifficultySelected(Rating.GOOD)
             advanceUntilIdle()
-
-            viewModel.onToggleShowAnswer()
-
-            assertThat(viewModel.uiState.value.ratingLockSecondsRemaining).isEqualTo(5)
-        }
-
-    @Test
-    fun `countdown ticks down to zero one second at a time`() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            policyFlow.value = LearningPreferencesConfig(ratingDelaySeconds = 3)
-            val item = VocabularyItem(id = 3, word = "drei", translation = "three", isNew = false)
-            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
-
-            val viewModel = buildViewModel()
-            viewModel.onOverlayOpened()
-            advanceUntilIdle()
-            viewModel.onToggleShowAnswer()
-
-            assertThat(viewModel.uiState.value.ratingLockSecondsRemaining).isEqualTo(3)
-
-            advanceTimeBy(1_000)
-            runCurrent()
-            assertThat(viewModel.uiState.value.ratingLockSecondsRemaining).isEqualTo(2)
-
-            advanceTimeBy(1_000)
-            runCurrent()
-            assertThat(viewModel.uiState.value.ratingLockSecondsRemaining).isEqualTo(1)
-
-            advanceTimeBy(1_000)
-            runCurrent()
-            assertThat(viewModel.uiState.value.ratingLockSecondsRemaining).isEqualTo(0)
-        }
-
-    @Test
-    fun `countdown never goes negative once it reaches zero`() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            policyFlow.value = LearningPreferencesConfig(ratingDelaySeconds = 1)
-            val item = VocabularyItem(id = 4, word = "vier", translation = "four", isNew = false)
-            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
-
-            val viewModel = buildViewModel()
-            viewModel.onOverlayOpened()
-            advanceUntilIdle()
-            viewModel.onToggleShowAnswer()
-
-            advanceTimeBy(10_000)
-            advanceUntilIdle()
-
-            assertThat(viewModel.uiState.value.ratingLockSecondsRemaining).isEqualTo(0)
-        }
-
-    @Test
-    fun `rating while locked does not save or unlock`() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            policyFlow.value = LearningPreferencesConfig(ratingDelaySeconds = 5)
-            val item = VocabularyItem(id = 5, word = "fünf", translation = "five", isNew = false)
-            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
-
-            val viewModel = buildViewModel()
-            viewModel.onOverlayOpened()
-            advanceUntilIdle()
-            viewModel.onToggleShowAnswer()
+            assertThat(viewModel.uiState.value.completion).isNull()
 
             viewModel.onDifficultySelected(Rating.EASY)
+            advanceUntilIdle()
 
-            val state = viewModel.uiState.value
-            assertThat(state.unlocked).isFalse()
-            assertThat(state.ratingLockSecondsRemaining).isEqualTo(5)
-            coVerify(exactly = 0) { saveDifficultyRating.invoke(any(), any(), any()) }
+            assertThat(viewModel.uiState.value.completion)
+                .isEqualTo(GateCompletion(2))
         }
 
     @Test
-    fun `rating after the countdown expires saves and unlocks normally`() =
+    fun `queue exhaustion after a saved rating creates typed exhaustion completion`() =
         runTest(mainDispatcherRule.testDispatcher) {
-            policyFlow.value = LearningPreferencesConfig(ratingDelaySeconds = 2)
-            val item = VocabularyItem(id = 6, word = "sechs", translation = "six", isNew = false)
-            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
+            val item = VocabularyItem(id = 12, word = "zwolf", translation = "twelve", isNew = false)
             coEvery { saveDifficultyRating.invoke(any(), any(), any()) } returns Result.success(Unit)
-
+            coEvery { getNextVocabularyItem.invoke() } returns Result.failure(NoAvailableItemsException())
             val viewModel = buildViewModel()
-            viewModel.onOverlayOpened()
-            advanceUntilIdle()
-            viewModel.onToggleShowAnswer()
-
-            advanceTimeBy(2_000)
-            advanceUntilIdle()
-            assertThat(viewModel.uiState.value.ratingLockSecondsRemaining).isEqualTo(0)
+            viewModel.seedInitialWord(item, requiredCards = 2)
 
             viewModel.onDifficultySelected(Rating.GOOD)
             advanceUntilIdle()
 
-            val state = viewModel.uiState.value
-            assertThat(state.unlocked).isTrue()
-            coVerify(exactly = 1) { saveDifficultyRating.invoke(item.id, Rating.GOOD, item.direction) }
-        }
-
-    @Test
-    fun `un-revealing cancels the countdown and resets remaining to zero`() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            policyFlow.value = LearningPreferencesConfig(ratingDelaySeconds = 10)
-            val item = VocabularyItem(id = 7, word = "sieben", translation = "seven", isNew = false)
-            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
-
-            val viewModel = buildViewModel()
-            viewModel.onOverlayOpened()
-            advanceUntilIdle()
-            viewModel.onToggleShowAnswer()
-            advanceTimeBy(3_000)
-            runCurrent()
-            assertThat(viewModel.uiState.value.ratingLockSecondsRemaining).isEqualTo(7)
-
-            viewModel.onToggleShowAnswer()
-
-            assertThat(viewModel.uiState.value.showAnswer).isFalse()
-            assertThat(viewModel.uiState.value.ratingLockSecondsRemaining).isEqualTo(0)
-
-            // Advancing further must not resurrect the cancelled countdown.
-            advanceTimeBy(5_000)
-            advanceUntilIdle()
-            assertThat(viewModel.uiState.value.ratingLockSecondsRemaining).isEqualTo(0)
-        }
-
-    @Test
-    fun `re-revealing restarts the full countdown from the configured value`() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            policyFlow.value = LearningPreferencesConfig(ratingDelaySeconds = 4)
-            val item = VocabularyItem(id = 8, word = "acht", translation = "eight", isNew = false)
-            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
-
-            val viewModel = buildViewModel()
-            viewModel.onOverlayOpened()
-            advanceUntilIdle()
-
-            viewModel.onToggleShowAnswer()
-            advanceTimeBy(3_000)
-            runCurrent()
-            assertThat(viewModel.uiState.value.ratingLockSecondsRemaining).isEqualTo(1)
-
-            viewModel.onToggleShowAnswer() // hide
-            viewModel.onToggleShowAnswer() // reveal again
-
-            assertThat(viewModel.uiState.value.ratingLockSecondsRemaining).isEqualTo(4)
-        }
-
-    @Test
-    fun `a failing policy read fails open with no delay`() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            every { dayCountersStore.readPolicy() } returns flow { throw IllegalStateException("boom") }
-            val item = VocabularyItem(id = 10, word = "neun", translation = "nine", isNew = false)
-            coEvery { getNextVocabularyItem.invoke() } returns Result.success(item)
-
-            val viewModel = buildViewModel()
-            viewModel.onOverlayOpened()
-            advanceUntilIdle()
-
-            assertThat(viewModel.uiState.value.ratingDelaySeconds).isEqualTo(0)
-
-            viewModel.onToggleShowAnswer()
-            assertThat(viewModel.uiState.value.ratingLockSecondsRemaining).isEqualTo(0)
+            assertThat(viewModel.uiState.value.completion)
+                .isEqualTo(GateCompletion(1))
         }
 }

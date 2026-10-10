@@ -1,6 +1,7 @@
 package com.procrastilearn.app.ui
 
 import android.content.Context
+import android.content.ContextWrapper
 import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
@@ -17,7 +18,11 @@ import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
+import com.procrastilearn.app.data.local.prefs.StudyPreferencesDataStore
 import com.procrastilearn.app.data.local.prefs.TranslationPreferences
+import com.procrastilearn.app.domain.model.GateTimingChangeResult
+import com.procrastilearn.app.domain.model.GateTimingField
+import com.procrastilearn.app.domain.model.GateTimingValidationError
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.LanguagePair
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
@@ -38,6 +43,7 @@ import io.mockk.slot
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -46,15 +52,21 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.io.File
+import java.io.IOException
 
 @RunWith(RobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("LargeClass")
 class SettingsViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
+
+    @get:Rule
+    val temporaryFolder = TemporaryFolder()
 
     private lateinit var appContext: Context
     private lateinit var dayCountersStore: DayCountersStore
@@ -141,6 +153,145 @@ class SettingsViewModelTest {
         )
 
     @Test
+    fun `accepted and rejected timing edits drive summaries only from persisted preferences`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val root = temporaryFolder.newFolder("timing-store")
+            val storeContext =
+                object : ContextWrapper(appContext) {
+                    override fun getFilesDir(): File = root
+
+                    override fun getApplicationContext(): Context = this
+                }
+            dayCountersStore = DayCountersStore(StudyPreferencesDataStore(storeContext))
+            dayCountersStore.setGateCooldownMinutes(2)
+            dayCountersStore.setOverlayInterval(5)
+            val viewModel = buildViewModel()
+
+            viewModel.uiState.test {
+                awaitItem()
+                assertThat(awaitItem().overlayInterval).isEqualTo(5)
+                viewModel.onGateCooldownChange(6)
+                assertThat(viewModel.gateTimingSaveState.first { it is GateTimingSaveState.Rejected })
+                    .isEqualTo(
+                        GateTimingSaveState.Rejected(
+                            GateTimingField.COOLDOWN,
+                            GateTimingValidationError.CooldownExceedsRepeat(6, 5),
+                        ),
+                    )
+                assertThat(viewModel.uiState.value.gateCooldownMinutes).isEqualTo(2)
+                assertThat(dayCountersStore.readPolicy().first().overlayInterval).isEqualTo(5)
+
+                viewModel.clearGateTimingSaveState()
+                viewModel.onOverlayIntervalChange(1)
+                assertThat(viewModel.gateTimingSaveState.first { it is GateTimingSaveState.Rejected })
+                    .isEqualTo(
+                        GateTimingSaveState.Rejected(
+                            GateTimingField.REPEAT_INTERVAL,
+                            GateTimingValidationError.CooldownExceedsRepeat(2, 1),
+                        ),
+                    )
+                assertThat(viewModel.uiState.value.overlayInterval).isEqualTo(5)
+
+                viewModel.clearGateTimingSaveState()
+                viewModel.onGateCooldownChange(5)
+                assertThat(awaitItem().gateCooldownMinutes).isEqualTo(5)
+                assertThat(viewModel.gateTimingSaveState.first { it is GateTimingSaveState.Saved })
+                    .isEqualTo(GateTimingSaveState.Saved(GateTimingField.COOLDOWN))
+
+                viewModel.clearGateTimingSaveState()
+                viewModel.onOverlayIntervalChange(0)
+                val persisted = awaitItem()
+                assertThat(persisted.overlayInterval).isEqualTo(0)
+                assertThat(persisted.gateCooldownMinutes).isEqualTo(5)
+                assertThat(viewModel.gateTimingSaveState.first { it is GateTimingSaveState.Saved })
+                    .isEqualTo(GateTimingSaveState.Saved(GateTimingField.REPEAT_INTERVAL))
+
+                viewModel.clearGateTimingSaveState()
+                viewModel.onOverlayIntervalChange(5)
+                assertThat(awaitItem().overlayInterval).isEqualTo(5)
+                assertThat(viewModel.gateTimingSaveState.first { it is GateTimingSaveState.Saved })
+                    .isEqualTo(GateTimingSaveState.Saved(GateTimingField.REPEAT_INTERVAL))
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `gate timing save reports saving and suppresses duplicate submissions`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val completion = CompletableDeferred<GateTimingChangeResult>()
+            coEvery { dayCountersStore.setGateCooldownMinutes(2) } coAnswers { completion.await() }
+            val viewModel = buildViewModel()
+
+            viewModel.onGateCooldownChange(2)
+            viewModel.onGateCooldownChange(3)
+            advanceUntilIdle()
+
+            assertThat(viewModel.gateTimingSaveState.value)
+                .isEqualTo(GateTimingSaveState.Saving(GateTimingField.COOLDOWN))
+            coVerify(exactly = 1) { dayCountersStore.setGateCooldownMinutes(2) }
+            coVerify(exactly = 0) { dayCountersStore.setGateCooldownMinutes(3) }
+
+            completion.complete(GateTimingChangeResult.Applied)
+            advanceUntilIdle()
+            assertThat(viewModel.gateTimingSaveState.value)
+                .isEqualTo(GateTimingSaveState.Saved(GateTimingField.COOLDOWN))
+        }
+
+    @Test
+    fun `closing a dialog prevents its old save completion reaching a newly opened dialog`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val completion = CompletableDeferred<GateTimingChangeResult>()
+            coEvery { dayCountersStore.setGateCooldownMinutes(2) } coAnswers { completion.await() }
+            val viewModel = buildViewModel()
+            viewModel.onGateCooldownChange(2)
+            advanceUntilIdle()
+
+            viewModel.clearGateTimingSaveState()
+            completion.complete(GateTimingChangeResult.Applied)
+            advanceUntilIdle()
+
+            assertThat(viewModel.gateTimingSaveState.value).isEqualTo(GateTimingSaveState.Idle)
+        }
+
+    @Test
+    fun `rejected timing saves expose the field and store validation error`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val error = GateTimingValidationError.CooldownExceedsRepeat(6, 5)
+            coEvery { dayCountersStore.setGateCooldownMinutes(6) } returns GateTimingChangeResult.Rejected(error)
+            coEvery { dayCountersStore.setOverlayInterval(5) } returns GateTimingChangeResult.Rejected(error)
+            val viewModel = buildViewModel()
+
+            viewModel.onGateCooldownChange(6)
+            advanceUntilIdle()
+            assertThat(viewModel.gateTimingSaveState.value)
+                .isEqualTo(GateTimingSaveState.Rejected(GateTimingField.COOLDOWN, error))
+
+            viewModel.clearGateTimingSaveState()
+            viewModel.onOverlayIntervalChange(5)
+            advanceUntilIdle()
+            assertThat(viewModel.gateTimingSaveState.value)
+                .isEqualTo(GateTimingSaveState.Rejected(GateTimingField.REPEAT_INTERVAL, error))
+        }
+
+    @Test
+    fun `timing storage failure is surfaced and permits retry`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            coEvery { dayCountersStore.setOverlayInterval(10) } throws IOException("disk full")
+            val viewModel = buildViewModel()
+
+            viewModel.onOverlayIntervalChange(10)
+            advanceUntilIdle()
+            assertThat(viewModel.gateTimingSaveState.value)
+                .isEqualTo(GateTimingSaveState.Failed(GateTimingField.REPEAT_INTERVAL))
+
+            coEvery { dayCountersStore.setOverlayInterval(10) } returns GateTimingChangeResult.Applied
+            viewModel.onOverlayIntervalChange(10)
+            advanceUntilIdle()
+            assertThat(viewModel.gateTimingSaveState.value)
+                .isEqualTo(GateTimingSaveState.Saved(GateTimingField.REPEAT_INTERVAL))
+        }
+
+    @Test
     fun `import options surface parser metadata`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
@@ -168,6 +319,7 @@ class SettingsViewModelTest {
                 assertThat(hydrated.reviewPerDay).isEqualTo(150)
                 assertThat(hydrated.maximumIntervalDays).isEqualTo(730)
                 assertThat(hydrated.overlayInterval).isEqualTo(10)
+                assertThat(hydrated.gateCooldownMinutes).isEqualTo(0)
                 assertThat(hydrated.ratingDelaySeconds).isEqualTo(4)
                 assertThat(hydrated.cardsPerGate).isEqualTo(4)
                 assertThat(hydrated.newCardOrder).isEqualTo(NewCardOrder.SEQUENTIAL)
@@ -401,7 +553,7 @@ class SettingsViewModelTest {
     fun `onOverlayIntervalChange delegates to store`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = buildViewModel()
-            coEvery { dayCountersStore.setOverlayInterval(any()) } returns Unit
+            coEvery { dayCountersStore.setOverlayInterval(any()) } returns GateTimingChangeResult.Applied
 
             viewModel.onOverlayIntervalChange(9)
             advanceUntilIdle()

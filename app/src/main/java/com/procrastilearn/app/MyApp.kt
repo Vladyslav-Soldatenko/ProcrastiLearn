@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.appfunctions.service.AppFunctionConfiguration
 import com.procrastilearn.app.appfunctions.VocabularyFunctions
 import com.procrastilearn.app.data.sync.PendingWordSyncManager
+import com.procrastilearn.app.service.OwnActivityForegroundStore
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -19,6 +20,10 @@ class MyApp :
     @Suppress("LateinitUsage") // Hilt field injection into Application has no constructor path
     lateinit var pendingWordSyncManager: PendingWordSyncManager
 
+    @Inject
+    @Suppress("LateinitUsage")
+    lateinit var ownActivityForegroundStore: OwnActivityForegroundStore
+
     override val appFunctionConfiguration: AppFunctionConfiguration
         get() =
             AppFunctionConfiguration
@@ -28,6 +33,7 @@ class MyApp :
 
     override fun onCreate() {
         super.onCreate()
+        ownActivityForegroundStore.register(this)
         pendingWordSyncManager.start()
     }
 }

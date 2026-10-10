@@ -30,4 +30,6 @@ interface ServiceEntryPoint {
     fun checkVocabularyAvailabilityUseCase(): CheckVocabularyAvailabilityUseCase
 
     fun dayCountersStore(): DayCountersStore
+
+    fun ownActivityForegroundStore(): OwnActivityForegroundStore
 }

@@ -1,9 +1,12 @@
 package com.procrastilearn.app.ui.screens.settings.components
 
 import android.content.Context
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -51,6 +54,74 @@ class NumberInputDialogTest {
         onValueConfirm = mockk(relaxed = true)
         onDismiss = mockk(relaxed = true)
         context = ApplicationProvider.getApplicationContext()
+    }
+
+    @Test
+    fun `custom validation uses live other setting and preserves the input`() {
+        val interval = mutableIntStateOf(5)
+        composeTestRule.setContent {
+            MyApplicationTheme {
+                NumberInputDialog(
+                    title = "Cooldown",
+                    currentValue = 6,
+                    maxValue = 2000,
+                    onValueConfirm = onValueConfirm,
+                    onDismiss = onDismiss,
+                    validateValue = { if (interval.intValue > 0 && it > interval.intValue) "Too long" else null },
+                )
+            }
+        }
+        composeTestRule.onNodeWithText("Too long").assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+
+        composeTestRule.runOnIdle { interval.intValue = 6 }
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsEnabled()
+        composeTestRule.onNode(hasSetTextAction()).assertTextEquals("6")
+    }
+
+    @Test
+    fun `save failure retains the entered value while retry stays available`() {
+        val saving = mutableStateOf(false)
+        val error = mutableStateOf<String?>(null)
+        composeTestRule.setContent {
+            MyApplicationTheme {
+                NumberInputDialog(
+                    title = "Save",
+                    currentValue = 2,
+                    onValueConfirm = {
+                        saving.value = true
+                        onValueConfirm(it)
+                    },
+                    onDismiss = onDismiss,
+                    isSaving = saving.value,
+                    saveError = error.value,
+                )
+            }
+        }
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("8")
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick().assertIsNotEnabled()
+        composeTestRule.runOnIdle {
+            saving.value = false
+            error.value = "Could not save"
+        }
+        field.assertTextContains("8")
+        composeTestRule.onNodeWithText("Could not save").assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsEnabled()
+    }
+
+    @Test
+    fun `timing input accepts two thousand but rejects overflow and two thousand one`() {
+        setContent(title = "Timing", currentValue = 2000, minValue = 0, maxValue = 2000)
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsEnabled()
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("2001")
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+        field.performTextClearance()
+        field.performTextInput("999999999999999999999999")
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
     }
 
     @Test

@@ -359,4 +359,13 @@
     <string name="overlay_next_card_load_error">Không thể tải thẻ tiếp theo.</string>
     <string name="overlay_next_card_retry">Thử lại</string>
     <string name="overlay_next_card_loading">Đang tải thẻ tiếp theo…</string>
+    <string name="settings_gate_cooldown_headline">Thời gian chờ cổng, phút</string>
+    <string name="settings_gate_cooldown_description">Sau khi ôn các thẻ tại cổng, chuyển giữa các ứng dụng bị chặn mà không cần cổng khác trong thời gian chờ.</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">Thời gian nghỉ không được vượt quá khoảng cách cổng lặp lại là %1$d phút.</string>
+    <string name="settings_gate_repeat_below_cooldown">Khoảng cách cổng lặp lại phải ít nhất %1$d phút, hoặc 0 để tắt.</string>
+    <string name="settings_gate_timing_range_error">Nhập số từ 0 đến %1$d phút.</string>
+    <string name="settings_gate_timing_save_failed">Không thể lưu. Hãy thử lại.</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="other">%d phút</item>
+    </plurals>
 </resources>

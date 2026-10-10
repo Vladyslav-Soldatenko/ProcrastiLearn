@@ -1,7 +1,13 @@
 package com.procrastilearn.app.service
 
+import android.app.Activity
+import android.app.KeyguardManager
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioManager
+import android.os.PowerManager
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import androidx.lifecycle.ViewModelProvider
@@ -15,6 +21,7 @@ import com.procrastilearn.app.domain.repository.AppPreferencesRepository
 import com.procrastilearn.app.domain.repository.VocabularyStudyRepository
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
+import com.procrastilearn.app.overlay.GateCompletion
 import com.procrastilearn.app.overlay.OverlayViewModel
 import com.procrastilearn.app.utils.MainDispatcherRule
 import com.procrastilearn.app.utils.ServiceLifecycleOwner
@@ -24,8 +31,12 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.withContext
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -44,6 +55,7 @@ private const val DEBOUNCE_MILLIS = 100L
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
+@Suppress("LargeClass")
 class OverlayAccessibilityServiceTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -62,6 +74,7 @@ class OverlayAccessibilityServiceTest {
     private val sampleItem = VocabularyItem(id = 1L, word = "Haus", translation = "House", isNew = false)
 
     private lateinit var service: OverlayAccessibilityService
+    private val ownActivityForegroundStore = OwnActivityForegroundStore()
 
     @Before
     fun setUp() {
@@ -70,6 +83,12 @@ class OverlayAccessibilityServiceTest {
         every { dayCountersStore.readPolicy() } returns policyFlow
         coEvery { getNextVocabularyItemUseCase() } returns Result.success(sampleItem)
 
+        createService()
+
+        connectService()
+    }
+
+    private fun createService() {
         service = Robolectric.buildService(OverlayAccessibilityService::class.java).create().get()
         service.windowManager = windowManager
         service.appPreferencesRepository = appPreferencesRepository
@@ -77,8 +96,7 @@ class OverlayAccessibilityServiceTest {
         service.getNextVocabularyItemUseCase = getNextVocabularyItemUseCase
         service.getSaveDifficultyRatingUseCase = getSaveDifficultyRatingUseCase
         service.dayCountersStore = dayCountersStore
-
-        connectService()
+        service.ownActivityForegroundStore = ownActivityForegroundStore
     }
 
     private fun connectService() {
@@ -86,9 +104,10 @@ class OverlayAccessibilityServiceTest {
         advanceUntilIdle()
     }
 
-    private fun advanceUntilIdle() = mainDispatcherRule.testDispatcher.scheduler.advanceUntilIdle()
+    private fun advanceUntilIdle() = mainDispatcherRule.testDispatcher.scheduler.runCurrent()
 
     private fun advanceTimeAndRun(millis: Long) {
+        ShadowSystemClock.advanceBy(Duration.ofMillis(millis))
         mainDispatcherRule.testDispatcher.scheduler.advanceTimeBy(millis)
         mainDispatcherRule.testDispatcher.scheduler.runCurrent()
     }
@@ -119,6 +138,25 @@ class OverlayAccessibilityServiceTest {
     private fun activeOverlayViewModel(): OverlayViewModel {
         val owner = ReflectionHelpers.getField<ServiceLifecycleOwner?>(service, "lifecycleOwner")!!
         return ViewModelProvider(owner).get(OverlayViewModel::class.java)
+    }
+
+    private fun completionCallback(): (GateCompletion) -> Unit =
+        ReflectionHelpers.getField(service, "gateCompletionCallback")
+
+    private fun completeOverlay() {
+        completionCallback()(GateCompletion(1))
+        advanceUntilIdle()
+    }
+
+    private fun makePackageLaunchable(pkg: String) {
+        val component = ComponentName(pkg, "$pkg.MainActivity")
+        val packageManager = shadowOf(service.packageManager)
+        packageManager.addActivityIfNotPresent(component)
+        packageManager.addIntentFilterForActivity(
+            component,
+            IntentFilter(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_LAUNCHER) },
+        )
+        assertThat(service.packageManager.getLaunchIntentForPackage(pkg)).isNotNull()
     }
 
     @Test
@@ -180,7 +218,7 @@ class OverlayAccessibilityServiceTest {
     }
 
     @Test
-    fun `rapid duplicate events within debounce window are dropped`() {
+    fun `rapid departure cancels the overlay without global debounce`() {
         blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
         advanceUntilIdle()
         dispatch(BLOCKED_PACKAGE)
@@ -189,12 +227,149 @@ class OverlayAccessibilityServiceTest {
         service.onAccessibilityEvent(eventFor(LEGIT_PACKAGE))
         advanceUntilIdle()
 
-        verify(exactly = 0) { windowManager.removeView(any()) }
+        verify(exactly = 1) { windowManager.removeView(any()) }
 
         advanceRealClockPastDebounceWindow()
         dispatch(LEGIT_PACKAGE)
 
         verify(exactly = 1) { windowManager.removeView(any()) }
+    }
+
+    @Test
+    fun `removing the foreground package cancels its overlay immediately`() {
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+
+        blockedAppsFlow.value = emptySet()
+        advanceUntilIdle()
+
+        verify(exactly = 1) { windowManager.removeView(any()) }
+    }
+
+    @Test
+    fun `rapid app switch rejects a cancelled first card that returns late`() {
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE, OTHER_BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        val lateItem = CompletableDeferred<Result<VocabularyItem>>()
+        coEvery { getNextVocabularyItemUseCase() } coAnswers {
+            withContext(NonCancellable) { lateItem.await() }
+        } andThen Result.success(sampleItem.copy(id = 2L))
+
+        dispatch(BLOCKED_PACKAGE)
+        dispatch(OTHER_BLOCKED_PACKAGE)
+        lateItem.complete(Result.success(sampleItem))
+        advanceUntilIdle()
+
+        verify(exactly = 1) { windowManager.addView(any(), any()) }
+        assertThat(
+            activeOverlayViewModel()
+                .uiState.value.vocabularyItem
+                ?.id,
+        ).isEqualTo(2L)
+    }
+
+    @Test
+    fun `departure rejects a first card that ignores cancellation`() {
+        assertLateLoadCannotAttach { dispatch(LEGIT_PACKAGE) }
+    }
+
+    @Test
+    fun `disable rejects a first card that ignores cancellation`() {
+        assertLateLoadCannotAttach { enabledFlow.value = false }
+    }
+
+    @Test
+    fun `membership removal rejects a first card that ignores cancellation`() {
+        assertLateLoadCannotAttach { blockedAppsFlow.value = emptySet() }
+    }
+
+    @Test
+    fun `screen off rejects a first card that ignores cancellation`() {
+        assertLateLoadCannotAttach {
+            service.sendBroadcast(Intent(Intent.ACTION_SCREEN_OFF))
+            shadowOf(android.os.Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun `destruction rejects a first card that ignores cancellation`() {
+        assertLateLoadCannotAttach { service.onDestroy() }
+    }
+
+    private fun assertLateLoadCannotAttach(invalidate: () -> Unit) {
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        val result = CompletableDeferred<Result<VocabularyItem>>()
+        coEvery { getNextVocabularyItemUseCase() } coAnswers { withContext(NonCancellable) { result.await() } }
+        dispatch(BLOCKED_PACKAGE)
+        invalidate()
+        advanceUntilIdle()
+
+        result.complete(Result.success(sampleItem))
+        advanceUntilIdle()
+
+        verify(exactly = 0) { windowManager.addView(any(), any()) }
+    }
+
+    @Test
+    fun `first app event waits for every initial preference value`() {
+        service.onDestroy()
+        val blocked = MutableSharedFlow<Set<String>>(replay = 1)
+        val enabled = MutableSharedFlow<Boolean>(replay = 1)
+        val policy = MutableSharedFlow<LearningPreferencesConfig>(replay = 1)
+        every { appPreferencesRepository.getBlockedApps() } returns blocked
+        every { appPreferencesRepository.isProcrastilearnEnabled() } returns enabled
+        every { dayCountersStore.readPolicy() } returns policy
+        createService()
+        connectService()
+        dispatch(BLOCKED_PACKAGE)
+        blocked.tryEmit(setOf(BLOCKED_PACKAGE))
+        enabled.tryEmit(true)
+        advanceUntilIdle()
+        coVerify(exactly = 0) { getNextVocabularyItemUseCase() }
+
+        policy.tryEmit(LearningPreferencesConfig())
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { getNextVocabularyItemUseCase() }
+        verify(exactly = 1) { windowManager.addView(any(), any()) }
+    }
+
+    @Test
+    fun `locked device prevents initial card loading`() {
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        shadowOf(service.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).setKeyguardLocked(true)
+
+        dispatch(BLOCKED_PACKAGE)
+
+        coVerify(exactly = 0) { getNextVocabularyItemUseCase() }
+    }
+
+    @Test
+    fun `noninteractive device prevents initial card loading`() {
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        shadowOf(service.getSystemService(Context.POWER_SERVICE) as PowerManager).turnScreenOn(false)
+
+        dispatch(BLOCKED_PACKAGE)
+
+        coVerify(exactly = 0) { getNextVocabularyItemUseCase() }
+    }
+
+    @Test
+    fun `device locking during loading prevents final attachment`() {
+        assertLateLoadCannotAttach {
+            shadowOf(service.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).setKeyguardLocked(true)
+        }
+    }
+
+    @Test
+    fun `device becoming noninteractive during loading prevents final attachment`() {
+        assertLateLoadCannotAttach {
+            shadowOf(service.getSystemService(Context.POWER_SERVICE) as PowerManager).turnScreenOn(false)
+        }
     }
 
     @Test
@@ -238,8 +413,7 @@ class OverlayAccessibilityServiceTest {
         advanceUntilIdle()
         assertThat(initialViewModel.uiState.value.requiredCards).isEqualTo(2)
 
-        ReflectionHelpers.callInstanceMethod<Unit>(service, "hideOverlay")
-        service.startIntervalTimer()
+        completeOverlay()
         advanceTimeAndRun(Duration.ofMinutes(5).toMillis())
 
         val intervalViewModel = activeOverlayViewModel()
@@ -329,7 +503,7 @@ class OverlayAccessibilityServiceTest {
         verify(exactly = 0) { windowManager.addView(any(), any()) }
 
         coEvery { getNextVocabularyItemUseCase() } returns Result.success(sampleItem)
-        advanceRealClockPastDebounceWindow()
+        advanceTimeAndRun(1_000)
         dispatch(BLOCKED_PACKAGE)
 
         coVerify(exactly = 2) { getNextVocabularyItemUseCase() }
@@ -344,9 +518,7 @@ class OverlayAccessibilityServiceTest {
         blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
         advanceUntilIdle()
         dispatch(BLOCKED_PACKAGE)
-        ReflectionHelpers.callInstanceMethod<Unit>(service, "hideOverlay")
-
-        service.startIntervalTimer()
+        completeOverlay()
         advanceTimeAndRun(Duration.ofMinutes(5).toMillis())
 
         coVerify(exactly = 2) { getNextVocabularyItemUseCase() }
@@ -376,7 +548,7 @@ class OverlayAccessibilityServiceTest {
         verify(exactly = 0) { windowManager.addView(any(), any()) }
         coVerify(exactly = 1) { getNextVocabularyItemUseCase() }
 
-        advanceRealClockPastDebounceWindow()
+        advanceTimeAndRun(1_000)
         dispatch(BLOCKED_PACKAGE)
 
         coVerify(exactly = 2) { getNextVocabularyItemUseCase() }
@@ -437,55 +609,50 @@ class OverlayAccessibilityServiceTest {
     }
 
     @Test
-    fun `startIntervalTimer does nothing when interval is zero`() {
+    fun `reviewed release with interval zero schedules no repeat`() {
         policyFlow.value = LearningPreferencesConfig(overlayInterval = 0)
         advanceUntilIdle()
         blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
         advanceUntilIdle()
         dispatch(BLOCKED_PACKAGE)
-        ReflectionHelpers.callInstanceMethod<Unit>(service, "hideOverlay")
-
-        service.startIntervalTimer()
+        completeOverlay()
         advanceTimeAndRun(Duration.ofDays(1).toMillis())
 
         coVerify(exactly = 1) { getNextVocabularyItemUseCase() }
     }
 
     @Test
-    fun `startIntervalTimer does nothing while the overlay is still showing`() {
+    fun `visible overlay never schedules a repeat`() {
         policyFlow.value = LearningPreferencesConfig(overlayInterval = 5)
         advanceUntilIdle()
         blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
         advanceUntilIdle()
         dispatch(BLOCKED_PACKAGE)
 
-        // Overlay is still showing (no hideOverlay call), so the guard should block scheduling.
-        service.startIntervalTimer()
         advanceTimeAndRun(Duration.ofMinutes(10).toMillis())
 
         coVerify(exactly = 1) { getNextVocabularyItemUseCase() }
     }
 
     @Test
-    fun `startIntervalTimer does nothing when ProcrastiLearn is disabled`() {
+    fun `disabling cancels a scheduled repeat`() {
         policyFlow.value = LearningPreferencesConfig(overlayInterval = 5)
         advanceUntilIdle()
         blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
         advanceUntilIdle()
         dispatch(BLOCKED_PACKAGE)
-        ReflectionHelpers.callInstanceMethod<Unit>(service, "hideOverlay")
+        completeOverlay()
 
         enabledFlow.value = false
         advanceUntilIdle()
 
-        service.startIntervalTimer()
         advanceTimeAndRun(Duration.ofMinutes(10).toMillis())
 
         coVerify(exactly = 1) { getNextVocabularyItemUseCase() }
     }
 
     @Test
-    fun `startIntervalTimer re-shows the overlay with a fresh word once the interval elapses`() {
+    fun `reviewed release shows a fresh gate once the interval elapses`() {
         policyFlow.value = LearningPreferencesConfig(overlayInterval = 5)
         advanceUntilIdle()
         blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
@@ -493,12 +660,7 @@ class OverlayAccessibilityServiceTest {
         dispatch(BLOCKED_PACKAGE)
         verify(exactly = 1) { windowManager.addView(any(), any()) }
 
-        // Simulate the user having answered: the overlay is hidden but the gate session
-        // (gateActive/gatedPackage) is still logically open, exactly as production leaves it
-        // between OverlayScreen's onUnlock callback and the timer firing again.
-        ReflectionHelpers.callInstanceMethod<Unit>(service, "hideOverlay")
-
-        service.startIntervalTimer()
+        completeOverlay()
         advanceTimeAndRun(Duration.ofMinutes(5).toMillis())
 
         coVerify(exactly = 2) { getNextVocabularyItemUseCase() }
@@ -512,8 +674,7 @@ class OverlayAccessibilityServiceTest {
         blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
         advanceUntilIdle()
         dispatch(BLOCKED_PACKAGE)
-        ReflectionHelpers.callInstanceMethod<Unit>(service, "hideOverlay")
-        service.startIntervalTimer()
+        completeOverlay()
 
         advanceRealClockPastDebounceWindow()
         dispatch(LEGIT_PACKAGE)
@@ -539,5 +700,287 @@ class OverlayAccessibilityServiceTest {
         service.onDestroy()
 
         verify(exactly = 0) { windowManager.removeView(any()) }
+    }
+
+    @Test
+    fun `cooldown bypass neither loads attaches launches nor requests audio focus`() {
+        policyFlow.value = LearningPreferencesConfig(gateCooldownMinutes = 2, overlayInterval = 5)
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE, OTHER_BLOCKED_PACKAGE)
+        makePackageLaunchable(BLOCKED_PACKAGE)
+        makePackageLaunchable(OTHER_BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        completeOverlay()
+        assertThat(shadowOf(service).nextStartedActivity?.component?.packageName).isEqualTo(BLOCKED_PACKAGE)
+        val audio = shadowOf(service.getSystemService(Context.AUDIO_SERVICE) as AudioManager)
+        val previousFocus = audio.lastAudioFocusRequest
+
+        advanceTimeAndRun(30_000)
+        dispatch(OTHER_BLOCKED_PACKAGE)
+        advanceTimeAndRun(30_000)
+        dispatch(BLOCKED_PACKAGE)
+
+        coVerify(exactly = 1) { getNextVocabularyItemUseCase() }
+        verify(exactly = 1) { windowManager.addView(any(), any()) }
+        assertThat(audio.lastAudioFocusRequest).isSameInstanceAs(previousFocus)
+        assertThat(shadowOf(service).nextStartedActivity).isNull()
+
+        advanceTimeAndRun(239_999)
+        coVerify(exactly = 1) { getNextVocabularyItemUseCase() }
+        advanceTimeAndRun(1)
+        coVerify(exactly = 2) { getNextVocabularyItemUseCase() }
+    }
+
+    @Test
+    fun `cooldown expiry while staying in admitted app causes no entry gate`() {
+        policyFlow.value = LearningPreferencesConfig(gateCooldownMinutes = 1)
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        completeOverlay()
+
+        advanceTimeAndRun(60_000)
+        dispatch(BLOCKED_PACKAGE)
+
+        coVerify(exactly = 1) { getNextVocabularyItemUseCase() }
+    }
+
+    @Test
+    fun `empty repeat recovers at the next interval without immediate loop`() {
+        policyFlow.value = LearningPreferencesConfig(overlayInterval = 1)
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        completeOverlay()
+        coEvery { getNextVocabularyItemUseCase() } returnsMany
+            listOf(Result.failure(NoAvailableItemsException()), Result.success(sampleItem))
+
+        advanceTimeAndRun(60_000)
+        coVerify(exactly = 2) { getNextVocabularyItemUseCase() }
+        advanceTimeAndRun(59_999)
+        coVerify(exactly = 2) { getNextVocabularyItemUseCase() }
+        advanceTimeAndRun(1)
+
+        coVerify(exactly = 3) { getNextVocabularyItemUseCase() }
+        verify(exactly = 2) { windowManager.addView(any(), any()) }
+    }
+
+    @Test
+    fun `empty entry retries are bounded to one second`() {
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        coEvery { getNextVocabularyItemUseCase() } returns Result.failure(NoAvailableItemsException())
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        advanceTimeAndRun(999)
+        dispatch(BLOCKED_PACKAGE)
+        coVerify(exactly = 1) { getNextVocabularyItemUseCase() }
+        advanceTimeAndRun(1)
+        dispatch(BLOCKED_PACKAGE)
+        coVerify(exactly = 2) { getNextVocabularyItemUseCase() }
+    }
+
+    @Test
+    fun `interval changes reschedule from release and zero cancels`() {
+        policyFlow.value = LearningPreferencesConfig(overlayInterval = 5)
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        completeOverlay()
+        advanceTimeAndRun(60_000)
+        policyFlow.value = LearningPreferencesConfig(overlayInterval = 2)
+        advanceUntilIdle()
+        advanceTimeAndRun(59_999)
+        coVerify(exactly = 1) { getNextVocabularyItemUseCase() }
+        advanceTimeAndRun(1)
+        coVerify(exactly = 2) { getNextVocabularyItemUseCase() }
+        completeOverlay()
+        policyFlow.value = LearningPreferencesConfig(overlayInterval = 0)
+        advanceUntilIdle()
+        advanceTimeAndRun(300_000)
+        coVerify(exactly = 2) { getNextVocabularyItemUseCase() }
+    }
+
+    @Test
+    fun `equal cooldown and repeat deadline produce one gate with an entry race`() {
+        policyFlow.value = LearningPreferencesConfig(gateCooldownMinutes = 1, overlayInterval = 1)
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE, OTHER_BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        completeOverlay()
+        ShadowSystemClock.advanceBy(Duration.ofMillis(60_000))
+        mainDispatcherRule.testDispatcher.scheduler.advanceTimeBy(60_000)
+        dispatch(OTHER_BLOCKED_PACKAGE)
+
+        verify(exactly = 2) { windowManager.addView(any(), any()) }
+    }
+
+    @Test
+    fun `cancelled old completion cannot release a new app gate`() {
+        makePackageLaunchable(BLOCKED_PACKAGE)
+        makePackageLaunchable(OTHER_BLOCKED_PACKAGE)
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE, OTHER_BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        val staleCallback = completionCallback()
+        dispatch(OTHER_BLOCKED_PACKAGE)
+
+        staleCallback(GateCompletion(1))
+        advanceUntilIdle()
+
+        verify(exactly = 1) { windowManager.removeView(any()) }
+        assertThat(activeOverlayViewModel().uiState.value.vocabularyItem).isEqualTo(sampleItem)
+        assertThat(shadowOf(service).nextStartedActivity).isNull()
+    }
+
+    @Test
+    fun `failed attachment leaves no focus overlay or cooldown`() {
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        every { windowManager.addView(any(), any()) } throws WindowManager.BadTokenException("bad token")
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+
+        assertThat(ReflectionHelpers.getField<android.view.View?>(service, "overlayView")).isNull()
+        assertThat(ReflectionHelpers.getField<Any?>(service, "focusRequest")).isNull()
+        assertThat(
+            ReflectionHelpers.getField<GateSessionController>(service, "controller").state.lastReviewedReleaseElapsedMs,
+        ).isNull()
+    }
+
+    @Test
+    fun `screen unlock requires a fresh actual app event`() {
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        service.sendBroadcast(Intent(Intent.ACTION_SCREEN_OFF))
+        shadowOf(android.os.Looper.getMainLooper()).idle()
+        advanceUntilIdle()
+        service.sendBroadcast(Intent(Intent.ACTION_USER_PRESENT))
+        shadowOf(android.os.Looper.getMainLooper()).idle()
+        advanceUntilIdle()
+        dispatch("com.android.systemui")
+        coVerify(exactly = 1) { getNextVocabularyItemUseCase() }
+
+        dispatch(BLOCKED_PACKAGE)
+
+        coVerify(exactly = 2) { getNextVocabularyItemUseCase() }
+        verify(exactly = 1) { windowManager.removeView(any()) }
+    }
+
+    @Test
+    fun `own compose overlay events preserve an active gate`() {
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+
+        dispatch(service.packageName, "androidx.compose.ui.platform.ComposeView")
+        dispatch("com.android.systemui")
+        dispatch("com.google.android.inputmethod.latin")
+
+        verify(exactly = 0) { windowManager.removeView(any()) }
+        coVerify(exactly = 1) { getNextVocabularyItemUseCase() }
+    }
+
+    @Test
+    fun `own activity resume cancels gate and forbids attachment until pause`() {
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        val activity = mockk<Activity>()
+
+        ownActivityForegroundStore.onActivityResumed(activity)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        verify(exactly = 1) { windowManager.removeView(any()) }
+        coVerify(exactly = 1) { getNextVocabularyItemUseCase() }
+        ownActivityForegroundStore.onActivityPaused(activity)
+        advanceUntilIdle()
+        coVerify(exactly = 1) { getNextVocabularyItemUseCase() }
+        dispatch(BLOCKED_PACKAGE)
+        coVerify(exactly = 2) { getNextVocabularyItemUseCase() }
+    }
+
+    @Test
+    fun `own activity package event corroborates real departure`() {
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+
+        dispatch(service.packageName, "com.procrastilearn.app.MainActivity")
+
+        verify(exactly = 1) { windowManager.removeView(any()) }
+    }
+
+    @Test
+    fun `own activity resume rejects a first card that ignores cancellation`() {
+        assertLateLoadCannotAttach { ownActivityForegroundStore.onActivityResumed(mockk<Activity>()) }
+    }
+
+    @Test
+    fun `attempt snapshots target before first card loading`() {
+        policyFlow.value = LearningPreferencesConfig(cardsPerGate = 3)
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        val result = CompletableDeferred<Result<VocabularyItem>>()
+        coEvery { getNextVocabularyItemUseCase() } coAnswers { result.await() }
+        dispatch(BLOCKED_PACKAGE)
+        policyFlow.value = LearningPreferencesConfig(cardsPerGate = 4)
+        advanceUntilIdle()
+
+        result.complete(Result.success(sampleItem))
+        advanceUntilIdle()
+
+        assertThat(activeOverlayViewModel().uiState.value.requiredCards).isEqualTo(3)
+    }
+
+    @Test
+    fun `departure during repeat loading rejects a late first card`() {
+        policyFlow.value = LearningPreferencesConfig(overlayInterval = 1)
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        completeOverlay()
+        val result = CompletableDeferred<Result<VocabularyItem>>()
+        coEvery { getNextVocabularyItemUseCase() } coAnswers { withContext(NonCancellable) { result.await() } }
+        advanceTimeAndRun(60_000)
+        dispatch(LEGIT_PACKAGE)
+
+        result.complete(Result.success(sampleItem))
+        advanceUntilIdle()
+
+        verify(exactly = 1) { windowManager.addView(any(), any()) }
+    }
+
+    @Test
+    fun `unrelated policy emissions leave the repeat timer unchanged`() {
+        policyFlow.value = LearningPreferencesConfig(overlayInterval = 5)
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        completeOverlay()
+        val controller = ReflectionHelpers.getField<GateSessionController>(service, "controller")
+        val revision = controller.state.timerRevision
+        val deadline = controller.state.nextRepeatDeadlineElapsedMs
+
+        policyFlow.value = policyFlow.value.copy(newPerDay = 40, ratingDelaySeconds = 2)
+        advanceUntilIdle()
+
+        assertThat(controller.state.timerRevision).isEqualTo(revision)
+        assertThat(controller.state.nextRepeatDeadlineElapsedMs).isEqualTo(deadline)
+    }
+
+    @Test
+    fun `reviewed release timestamp is captured after view removal`() {
+        blockedAppsFlow.value = setOf(BLOCKED_PACKAGE)
+        advanceUntilIdle()
+        dispatch(BLOCKED_PACKAGE)
+        val beforeRemoval = android.os.SystemClock.elapsedRealtime()
+        every { windowManager.removeView(any()) } answers {
+            ShadowSystemClock.advanceBy(Duration.ofMillis(500))
+        }
+
+        completeOverlay()
+
+        val controller = ReflectionHelpers.getField<GateSessionController>(service, "controller")
+        assertThat(controller.state.lastReviewedReleaseElapsedMs).isEqualTo(beforeRemoval + 500)
     }
 }

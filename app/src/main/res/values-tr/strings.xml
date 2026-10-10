@@ -369,4 +369,14 @@
     <string name="overlay_next_card_load_error">Sonraki kart yüklenemedi.</string>
     <string name="overlay_next_card_retry">Yeniden dene</string>
     <string name="overlay_next_card_loading">Sonraki kart yükleniyor…</string>
+    <string name="settings_gate_cooldown_headline">Geçit bekleme süresi, dakika</string>
+    <string name="settings_gate_cooldown_description">Geçit kartlarını tekrar ettikten sonra bekleme süresi boyunca başka bir geçit olmadan engellenen uygulamalar arasında geçiş yapın.</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">Bekleme süresi, %1$d dakikalık tekrarlanan geçit aralığını aşamaz.</string>
+    <string name="settings_gate_repeat_below_cooldown">Tekrarlanan geçit aralığı en az %1$d dakika veya kapatmak için 0 olmalıdır.</string>
+    <string name="settings_gate_timing_range_error">0 ile %1$d dakika arasında bir sayı girin.</string>
+    <string name="settings_gate_timing_save_failed">Kaydedilemedi. Tekrar deneyin.</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="one">%d dakika</item>
+        <item quantity="other">%d dakika</item>
+    </plurals>
 </resources>

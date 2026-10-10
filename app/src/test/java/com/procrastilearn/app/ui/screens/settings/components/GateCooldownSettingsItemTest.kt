@@ -29,7 +29,7 @@ import org.robolectric.annotation.Config
     manifest = Config.NONE,
     qualifiers = "xlarge",
 )
-class ShowOverlayIntervalSettingsItemTest {
+class GateCooldownSettingsItemTest {
     private val composeTestRule = createComposeRule()
 
     @get:Rule
@@ -48,7 +48,7 @@ class ShowOverlayIntervalSettingsItemTest {
     }
 
     @Test
-    fun `zero interval displays off`() {
+    fun `zero cooldown displays off`() {
         setContent(0)
 
         composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_off)).assertIsDisplayed()
@@ -58,13 +58,8 @@ class ShowOverlayIntervalSettingsItemTest {
     fun `displays singular minute`() {
         setContent(1)
 
-        composeTestRule
-            .onNodeWithText(string(R.string.settings_overlay_interval_headline))
-            .assertIsDisplayed()
-
-        composeTestRule
-            .onNodeWithText(plural(R.plurals.overlay_minutes_interval, 1), substring = true)
-            .assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.settings_gate_cooldown_headline)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(plural(R.plurals.gate_cooldown_minutes, 1), substring = true).assertIsDisplayed()
 
         verify { onClick wasNot called }
     }
@@ -75,7 +70,7 @@ class ShowOverlayIntervalSettingsItemTest {
         setContent(value)
 
         composeTestRule
-            .onNodeWithText(plural(R.plurals.overlay_minutes_interval, value), substring = true)
+            .onNodeWithText(plural(R.plurals.gate_cooldown_minutes, value), substring = true)
             .assertIsDisplayed()
     }
 
@@ -84,7 +79,7 @@ class ShowOverlayIntervalSettingsItemTest {
         setContent(5)
 
         composeTestRule
-            .onNodeWithText(string(R.string.settings_overlay_interval_headline))
+            .onNodeWithText(string(R.string.settings_gate_cooldown_headline))
             .assertHasClickAction()
             .performClick()
 
@@ -98,7 +93,7 @@ class ShowOverlayIntervalSettingsItemTest {
 
         composeTestRule
             .onNode(
-                hasText(plural(R.plurals.overlay_minutes_interval, value), substring = true),
+                hasText(plural(R.plurals.gate_cooldown_minutes, value), substring = true),
                 useUnmergedTree = true,
             ).performClick()
 
@@ -108,7 +103,7 @@ class ShowOverlayIntervalSettingsItemTest {
     private fun setContent(value: Int) {
         composeTestRule.setContent {
             MyApplicationTheme {
-                ShowOverlayIntervalSettingsItem(value = value, onClick = onClick)
+                GateCooldownSettingsItem(value = value, onClick = onClick)
             }
         }
     }

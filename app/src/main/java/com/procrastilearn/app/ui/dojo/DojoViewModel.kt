@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.procrastilearn.app.data.counter.DayCounters
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.repository.NoAvailableItemsException
-import com.procrastilearn.app.domain.model.LearningPreferencesConfig
+import com.procrastilearn.app.domain.model.StudySelectionPolicy
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.usecase.GetNextVocabularyItemUseCase
 import com.procrastilearn.app.domain.usecase.SaveDifficultyRatingUseCase
@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -43,12 +44,14 @@ class DojoViewModel
         private var pendingRestoredItem: VocabularyItem? = null
 
         private val undoCount = undoLastRating.observeUndoCount()
+        private val counters = dayCountersStore.read().distinctUntilChanged()
+        private val studyPolicy = dayCountersStore.readStudySelectionPolicy()
 
         private val baseState =
             combine(
                 flashcardState,
-                dayCountersStore.read(),
-                dayCountersStore.readPolicy(),
+                counters,
+                studyPolicy,
                 dojoCounters.reviewsDueAndSkippedCount,
                 dojoCounters.newTotalCount,
             ) { flashcard, counters, policy, dueAndSkipped, newTotal ->
@@ -90,9 +93,9 @@ class DojoViewModel
             viewModelScope.launch {
                 combine(
                     dojoCounters.reviewsDueAndSkippedCount,
-                    dayCountersStore.read(),
-                    dayCountersStore.readPolicy(),
-                    dojoCounters.newTotalCount,
+                    counters,
+                    studyPolicy,
+                    dojoCounters.newTotalCount.distinctUntilChanged(),
                 ) { due, counters, policy, newTotal -> DueCountersSnapshot(due, counters, policy, newTotal) }
                     .drop(1)
                     .collect { loadNextWord() }
@@ -198,7 +201,7 @@ class DojoViewModel
         private data class DueCountersSnapshot(
             val dueAndSkipped: Pair<Int, Int>,
             val counters: DayCounters,
-            val policy: LearningPreferencesConfig,
+            val policy: StudySelectionPolicy,
             val newTotal: Int,
         )
     }

@@ -7,6 +7,7 @@ import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -57,5 +58,20 @@ class GetNextVocabularyItemUseCaseTest {
             assertThat(result.isFailure).isTrue()
             assertThat(result.exceptionOrNull()).isEqualTo(error)
             coVerify(exactly = 1) { repository.getNextVocabularyItem() }
+        }
+
+    @Test
+    fun `invoke propagates cancellation from repository`() =
+        runTest {
+            coEvery { repository.getNextVocabularyItem() } throws CancellationException()
+
+            var cancellation: CancellationException? = null
+            try {
+                useCase()
+            } catch (exception: CancellationException) {
+                cancellation = exception
+            }
+
+            assertThat(cancellation).isNotNull()
         }
 }

@@ -287,4 +287,14 @@
     <string name="overlay_next_card_load_error">পরবর্তী কার্ড লোড করা যায়নি।</string>
     <string name="overlay_next_card_retry">আবার চেষ্টা করুন</string>
     <string name="overlay_next_card_loading">পরবর্তী কার্ড লোড হচ্ছে…</string>
+    <string name="settings_gate_cooldown_headline">গেট কুলডাউন, মিনিট</string>
+    <string name="settings_gate_cooldown_description">গেটের কার্ড পর্যালোচনার পরে কুলডাউন চলাকালে আরেকটি গেট ছাড়াই ব্লক করা অ্যাপগুলোর মধ্যে বদলান।</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">বিরতি পুনরাবৃত্ত গেটের %1$d মিনিটের ব্যবধানের বেশি হতে পারে না।</string>
+    <string name="settings_gate_repeat_below_cooldown">পুনরাবৃত্ত গেটের ব্যবধান কমপক্ষে %1$d মিনিট হতে হবে, অথবা বন্ধ করতে 0 দিন।</string>
+    <string name="settings_gate_timing_range_error">0 থেকে %1$d মিনিটের মধ্যে একটি সংখ্যা লিখুন।</string>
+    <string name="settings_gate_timing_save_failed">সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="one">%d মিনিট</item>
+        <item quantity="other">%d মিনিট</item>
+    </plurals>
 </resources>

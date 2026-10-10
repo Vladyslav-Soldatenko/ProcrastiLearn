@@ -19,9 +19,35 @@ data class LearningPreferencesConfig(
     val reviewPerDay: Int = 200,
     val maximumIntervalDays: Int = DEFAULT_MAXIMUM_INTERVAL_DAYS,
     val mixMode: MixMode = MixMode.MIX, // MIX | REVIEWS_FIRST | NEW_FIRST
-    val overlayInterval: Int = 6,
+    val overlayInterval: Int = 0,
+    val gateCooldownMinutes: Int = 0,
     val studyDirectionMode: StudyDirectionMode = StudyDirectionMode.FORWARD,
     val ratingDelaySeconds: Int = 0,
     val newCardOrder: NewCardOrder = NewCardOrder.SEQUENTIAL,
     val cardsPerGate: Int = 1,
 )
+
+data class StudySelectionPolicy(
+    val newPerDay: Int,
+    val reviewPerDay: Int,
+    val maximumIntervalDays: Int,
+    val mixMode: MixMode,
+    val studyDirectionMode: StudyDirectionMode,
+    val newCardOrder: NewCardOrder,
+)
+
+fun LearningPreferencesConfig.toStudySelectionPolicy(): StudySelectionPolicy =
+    StudySelectionPolicy(
+        newPerDay = newPerDay,
+        reviewPerDay = reviewPerDay,
+        maximumIntervalDays = maximumIntervalDays,
+        mixMode = mixMode,
+        studyDirectionMode = studyDirectionMode,
+        newCardOrder = newCardOrder,
+    )
+
+fun LearningPreferencesConfig.toGateTimingSettings(): GateTimingSettings =
+    GateTimingSettings(
+        cooldownMinutes = gateCooldownMinutes,
+        repeatIntervalMinutes = overlayInterval,
+    )

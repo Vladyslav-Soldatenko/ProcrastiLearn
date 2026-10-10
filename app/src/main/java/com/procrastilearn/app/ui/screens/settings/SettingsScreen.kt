@@ -56,6 +56,8 @@ import com.procrastilearn.app.ui.screens.settings.components.AccessibilityPermis
 import com.procrastilearn.app.ui.screens.settings.components.AddCardsForTodaySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.CardsPerGateSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ExportSettingsItem
+import com.procrastilearn.app.ui.screens.settings.components.GateCooldownSettingsItem
+import com.procrastilearn.app.ui.screens.settings.components.GateTimingNumberDialog
 import com.procrastilearn.app.ui.screens.settings.components.ImportSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.LanguagePairSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.MaximumIntervalSettingsItem
@@ -107,6 +109,8 @@ sealed interface DialogState {
     object ReviewPerDay : DialogState
 
     object OverlayInterval : DialogState
+
+    object GateCooldown : DialogState
 
     object CardsPerGate : DialogState
 
@@ -206,6 +210,7 @@ fun SettingsScreen(
                     reviewPerDay = state.reviewPerDay,
                     maximumIntervalDays = state.maximumIntervalDays,
                     overlayInterval = state.overlayInterval,
+                    gateCooldownMinutes = state.gateCooldownMinutes,
                     cardsPerGate = state.cardsPerGate,
                     ratingDelaySeconds = state.ratingDelaySeconds,
                     newCardOrder = state.newCardOrder,
@@ -219,7 +224,7 @@ fun SettingsScreen(
                     onAddCardsForToday = viewModel::onAddCardsForToday,
                     onReviewPerDayChange = viewModel::onReviewPerDayChange,
                     onMaximumIntervalDaysChange = viewModel::onMaximumIntervalDaysChange,
-                    onOverlayIntervalChange = viewModel::onOverlayIntervalChange,
+                    onGateTimingSave = viewModel::saveGateTiming,
                     onCardsPerGateChange = viewModel::onCardsPerGateChange,
                     onRatingDelayChange = viewModel::onRatingDelayChange,
                     onNewCardOrderChange = viewModel::onNewCardOrderChange,
@@ -288,6 +293,7 @@ internal fun SettingsContent(
     val reviewPerDay = studySettings.reviewPerDay
     val maximumIntervalDays = studySettings.maximumIntervalDays
     val overlayInterval = studySettings.overlayInterval
+    val gateCooldownMinutes = studySettings.gateCooldownMinutes
     val cardsPerGate = studySettings.cardsPerGate
     val ratingDelaySeconds = studySettings.ratingDelaySeconds
     val newCardOrder = studySettings.newCardOrder
@@ -372,6 +378,13 @@ internal fun SettingsContent(
             ShowOverlayIntervalSettingsItem(
                 value = overlayInterval,
                 onClick = { dialogState = DialogState.OverlayInterval },
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            GateCooldownSettingsItem(
+                value = gateCooldownMinutes,
+                onClick = { dialogState = DialogState.GateCooldown },
             )
 
             Spacer(Modifier.height(4.dp))
@@ -560,15 +573,11 @@ private fun SettingsDialogs(
                 onDismiss = dismiss,
             )
         }
-        DialogState.OverlayInterval -> {
-            NumberInputDialog(
-                title = stringResource(R.string.settings_overlay_interval_title),
-                currentValue = studySettings.overlayInterval,
-                minValue = 0,
-                onValueConfirm = {
-                    studyCallbacks.onOverlayIntervalChange(it)
-                    dismiss()
-                },
+        DialogState.OverlayInterval, DialogState.GateCooldown -> {
+            GateTimingNumberDialog(
+                dialogState = dialogState,
+                studySettings = studySettings,
+                studyCallbacks = studyCallbacks,
                 onDismiss = dismiss,
             )
         }
@@ -735,6 +744,7 @@ internal fun SettingsScreenAllGrantedPreview() {
                     reviewPerDay = 200,
                     maximumIntervalDays = 365,
                     overlayInterval = 6,
+                    gateCooldownMinutes = 0,
                     cardsPerGate = 1,
                     ratingDelaySeconds = 0,
                     newCardOrder = NewCardOrder.SEQUENTIAL,
@@ -748,7 +758,7 @@ internal fun SettingsScreenAllGrantedPreview() {
                     onAddCardsForToday = {},
                     onReviewPerDayChange = {},
                     onMaximumIntervalDaysChange = {},
-                    onOverlayIntervalChange = {},
+                    onGateTimingSave = { _, _, _ -> },
                     onCardsPerGateChange = {},
                     onRatingDelayChange = {},
                     onNewCardOrderChange = {},

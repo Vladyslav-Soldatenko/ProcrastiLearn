@@ -19,19 +19,19 @@ import androidx.compose.ui.unit.dp
 import com.procrastilearn.app.R
 
 @Composable
-fun ShowOverlayIntervalSettingsItem(
+fun GateCooldownSettingsItem(
     value: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     ListItem(
-        headlineContent = { Text(stringResource(R.string.settings_overlay_interval_headline)) },
+        headlineContent = { Text(stringResource(R.string.settings_gate_cooldown_headline)) },
         supportingContent = {
             Text(
                 if (value == 0) {
                     stringResource(R.string.settings_rating_delay_off)
                 } else {
-                    pluralStringResource(R.plurals.overlay_minutes_interval, value, value)
+                    pluralStringResource(R.plurals.gate_cooldown_minutes, value, value)
                 },
                 style = MaterialTheme.typography.bodySmall,
             )
@@ -52,8 +52,8 @@ fun ShowOverlayIntervalSettingsItem(
         },
         modifier =
             modifier
-                .testTag("gate_repeat_interval_setting")
-                .clickable { onClick() }
+                .testTag("gate_cooldown_setting")
+                .clickable(onClick = onClick)
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth(),
     )

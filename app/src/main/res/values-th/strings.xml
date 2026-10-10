@@ -274,4 +274,13 @@
     <string name="overlay_next_card_load_error">โหลดการ์ดถัดไปไม่ได้</string>
     <string name="overlay_next_card_retry">ลองอีกครั้ง</string>
     <string name="overlay_next_card_loading">กำลังโหลดการ์ดถัดไป…</string>
+    <string name="settings_gate_cooldown_headline">ช่วงพักระหว่างด่าน, นาที</string>
+    <string name="settings_gate_cooldown_description">หลังทบทวนการ์ดของด่านแล้ว ให้สลับระหว่างแอปที่บล็อกไว้ได้โดยไม่ต้องผ่านด่านอีกในช่วงคูลดาวน์</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">ช่วงพักต้องไม่เกินระยะห่างของด่านซ้ำ %1$d นาที</string>
+    <string name="settings_gate_repeat_below_cooldown">ระยะห่างของด่านซ้ำต้องอย่างน้อย %1$d นาที หรือ 0 เพื่อปิด</string>
+    <string name="settings_gate_timing_range_error">ป้อนตัวเลขตั้งแต่ 0 ถึง %1$d นาที</string>
+    <string name="settings_gate_timing_save_failed">บันทึกไม่ได้ ลองอีกครั้ง</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="other">%d นาที</item>
+    </plurals>
 </resources>

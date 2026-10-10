@@ -8,18 +8,20 @@ There's Anki on your phone, there's Duolingo, and you do mean to get around to t
 ProcrastiLearn is an Android (Kotlin + Jetpack Compose) app that turns distracting moments into spaced-repetition reps. Pick the apps you tend to open mindlessly; when you launch one, a full-screen overlay asks you to review a configurable number of cards before you continue. Optional OpenAI-powered translation suggestions (your API key required) make adding new words faster.
 
 ## How It Works
+
 - Select apps to gate in `Apps`. Opening one starts a study session when cards are available.
 - Recall each card, reveal its answer, and rate it Again, Hard, Good, or Easy. After the configured number of cards, the app you opened comes back to the front.
 - Set an optional interval to bring the overlay back while you remain in a gated app. You can also study without opening another app in the `Dojo` tab.
 - FSRS schedules reviews. Daily new/review limits, card order, mix mode, and study direction control which cards appear.
 
 ## Features
+
 - 📱 Gate selected apps using Accessibility and overlay permissions; choose how many cards to review per gate.
 - 🧠 Practice in the Dojo, check today's available cards, and undo a rating. Study cards forward, backward, or in both directions.
 - ➕ Add words manually or request an AI translation with your OpenAI key, language pair, and editable prompts. If you're offline, you can queue a word for translation when connectivity returns. Currently GPT-5.6-luna is used, which means that you can add hundreds of words for a few cents.
 - 📂 Import Anki `.apkg` decks or ProcrastiLearn JSON exports; export your vocabulary and study progress to JSON.
 - 📋 Search, reorder, edit, delete, and reset progress in the word list. Select text in another app and choose “ProcrastiLearn this” to bring it into Add Word.
-- ⚙️ Configure daily limits, study order, overlay interval, and a master switch for gating.
+- ⚙️ Configure daily limits, study order, gate cooldown, repeated-gate interval, and a master switch for gating.
 
 ## User Setup
 1) Permissions: grant overlay (“draw over other apps”) and Accessibility when prompted on first launch. Accessibility permission is needed only to check what app is currently in foreground.

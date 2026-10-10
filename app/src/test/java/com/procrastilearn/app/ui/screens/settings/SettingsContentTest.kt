@@ -1,9 +1,13 @@
 package com.procrastilearn.app.ui.screens.settings
 
 import android.content.Context
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -14,12 +18,15 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.R
+import com.procrastilearn.app.domain.model.GateTimingField
+import com.procrastilearn.app.domain.model.GateTimingValidationError
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import com.procrastilearn.app.testing.ComponentActivityRegistrationRule
+import com.procrastilearn.app.ui.GateTimingSaveState
 import com.procrastilearn.app.ui.theme.MyApplicationTheme
 import kotlinx.collections.immutable.toImmutableList
 import org.junit.Before
@@ -37,6 +44,7 @@ import org.robolectric.annotation.Config
     manifest = Config.NONE,
     qualifiers = "xlarge",
 )
+@Suppress("LargeClass")
 class SettingsContentTest {
     private val composeTestRule = createComposeRule()
 
@@ -70,7 +78,11 @@ class SettingsContentTest {
         composeTestRule.onNodeWithText(string(R.string.settings_new_cards_per_day_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_new_card_order_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(R.string.settings_reviews_per_day_title)).assertIsDisplayed()
-        composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(
+                string(R.string.settings_rating_delay_headline),
+            ).performScrollTo()
+            .assertIsDisplayed()
         composeTestRule
             .onNodeWithText(string(R.string.settings_language_pair_title))
             .performScrollTo()
@@ -307,7 +319,7 @@ class SettingsContentTest {
         var ratingDelay: Int? = null
         setContent(onRatingDelayChange = { ratingDelay = it })
 
-        composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).performScrollTo().performClick()
 
         val field = composeTestRule.onNode(hasSetTextAction())
         field.performTextClearance()
@@ -325,7 +337,7 @@ class SettingsContentTest {
         var ratingDelay: Int? = null
         setContent(onRatingDelayChange = { ratingDelay = it })
 
-        composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.settings_rating_delay_headline)).performScrollTo().performClick()
 
         val field = composeTestRule.onNode(hasSetTextAction())
         field.performTextClearance()
@@ -576,6 +588,126 @@ class SettingsContentTest {
     }
 
     @Test
+    fun `cooldown dialog validates the live repeat interval and permits equality`() {
+        val interval = mutableIntStateOf(5)
+        setContent(overlayIntervalValue = { interval.intValue }, gateCooldownMinutes = 2)
+        composeTestRule
+            .onNodeWithText(
+                string(R.string.settings_gate_cooldown_headline),
+            ).performScrollTo()
+            .performClick()
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("6")
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.settings_gate_cooldown_exceeds_repeat, 5))
+            .assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+
+        composeTestRule.runOnIdle { interval.intValue = 6 }
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsEnabled()
+        field.assertTextEquals("6")
+    }
+
+    @Test
+    fun `repeat dialog permits off with positive cooldown and validates its lower bound`() {
+        val cooldown = mutableIntStateOf(2)
+        setContent(gateCooldownValue = { cooldown.intValue })
+        composeTestRule
+            .onNodeWithText(
+                string(R.string.settings_overlay_interval_headline),
+            ).performScrollTo()
+            .performClick()
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("1")
+        composeTestRule
+            .onNodeWithText(
+                context.getString(R.string.settings_gate_repeat_below_cooldown, 2),
+            ).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+        field.performTextClearance()
+        field.performTextInput("0")
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsEnabled()
+        field.performTextClearance()
+        field.performTextInput("2")
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsEnabled()
+        composeTestRule.runOnIdle { cooldown.intValue = 3 }
+        composeTestRule
+            .onNodeWithText(
+                context.getString(R.string.settings_gate_repeat_below_cooldown, 3),
+            ).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+        field.performTextClearance()
+        field.performTextInput("2001")
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+    }
+
+    @Test
+    fun `storage rejection keeps the cooldown entry and displays the stored interval error`() {
+        val saveState = mutableStateOf<GateTimingSaveState>(GateTimingSaveState.Idle)
+        setContent(
+            gateCooldownMinutes = 2,
+            gateTimingSaveState = { saveState.value },
+            onGateCooldownChange = {
+                saveState.value =
+                    GateTimingSaveState.Rejected(
+                        GateTimingField.COOLDOWN,
+                        GateTimingValidationError.CooldownExceedsRepeat(it, 3),
+                    )
+            },
+        )
+        composeTestRule
+            .onNodeWithText(
+                string(R.string.settings_gate_cooldown_headline),
+            ).performScrollTo()
+            .performClick()
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("4")
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+
+        field.assertTextContains("4")
+        composeTestRule
+            .onNodeWithText(
+                context.getString(R.string.settings_gate_cooldown_exceeds_repeat, 3),
+            ).assertIsDisplayed()
+    }
+
+    @Test
+    fun `timing dialog stays open through saving failure and unrelated success until matching success`() {
+        val saveState = mutableStateOf<GateTimingSaveState>(GateTimingSaveState.Idle)
+        var value: Int? = null
+        setContent(
+            gateTimingSaveState = { saveState.value },
+            onOverlayIntervalChange = {
+                value = it
+                saveState.value = GateTimingSaveState.Saving(GateTimingField.REPEAT_INTERVAL)
+            },
+        )
+        composeTestRule
+            .onNodeWithText(
+                string(R.string.settings_overlay_interval_headline),
+            ).performScrollTo()
+            .performClick()
+        val field = composeTestRule.onNode(hasSetTextAction())
+        field.performTextClearance()
+        field.performTextInput("8")
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).performClick()
+        assertThat(value).isEqualTo(8)
+        composeTestRule.onNodeWithText(string(R.string.action_ok)).assertIsNotEnabled()
+        composeTestRule.onNodeWithText("8").assertIsDisplayed()
+
+        composeTestRule.runOnIdle { saveState.value = GateTimingSaveState.Failed(GateTimingField.REPEAT_INTERVAL) }
+        field.assertTextContains("8")
+        composeTestRule.onNodeWithText(string(R.string.settings_gate_timing_save_failed)).assertIsDisplayed()
+        composeTestRule.runOnIdle { saveState.value = GateTimingSaveState.Saved(GateTimingField.COOLDOWN) }
+        field.assertTextContains("8")
+        composeTestRule.runOnIdle { saveState.value = GateTimingSaveState.Saved(GateTimingField.REPEAT_INTERVAL) }
+        composeTestRule.onNode(hasSetTextAction()).assertDoesNotExist()
+    }
+
+    @Test
     fun `confirming overlay interval value invokes callback`() {
         var overlayInterval: Int? = null
         setContent(onOverlayIntervalChange = { overlayInterval = it })
@@ -651,6 +783,7 @@ class SettingsContentTest {
         assertThat(reversePrompt).isEqualTo("Reverse prompt")
     }
 
+    @Suppress("LongMethod")
     private fun setContent(
         mixMode: MixMode = MixMode.MIX,
         studyDirectionMode: StudyDirectionMode = StudyDirectionMode.FORWARD,
@@ -660,6 +793,10 @@ class SettingsContentTest {
         reviewPerDay: Int = 50,
         maximumIntervalDays: Int = 365,
         overlayInterval: Int = 5,
+        overlayIntervalValue: () -> Int = { overlayInterval },
+        gateCooldownMinutes: Int = 0,
+        gateCooldownValue: () -> Int = { gateCooldownMinutes },
+        gateTimingSaveState: () -> GateTimingSaveState = { GateTimingSaveState.Idle },
         ratingDelaySeconds: Int = 0,
         cardsPerGate: Int = 1,
         newCardOrder: NewCardOrder = NewCardOrder.SEQUENTIAL,
@@ -680,6 +817,7 @@ class SettingsContentTest {
         onReviewPerDayChange: (Int) -> Unit = {},
         onMaximumIntervalDaysChange: (Int) -> Unit = {},
         onOverlayIntervalChange: (Int) -> Unit = {},
+        onGateCooldownChange: (Int) -> Unit = {},
         onRatingDelayChange: (Int) -> Unit = {},
         onCardsPerGateChange: (Int) -> Unit = {},
         onNewCardOrderChange: (NewCardOrder) -> Unit = {},
@@ -705,7 +843,9 @@ class SettingsContentTest {
                             availableToAddToday = availableToAddToday,
                             reviewPerDay = reviewPerDay,
                             maximumIntervalDays = maximumIntervalDays,
-                            overlayInterval = overlayInterval,
+                            overlayInterval = overlayIntervalValue(),
+                            gateCooldownMinutes = gateCooldownValue(),
+                            gateTimingSaveState = gateTimingSaveState(),
                             ratingDelaySeconds = ratingDelaySeconds,
                             cardsPerGate = cardsPerGate,
                             newCardOrder = newCardOrder,
@@ -720,6 +860,7 @@ class SettingsContentTest {
                             onReviewPerDayChange = onReviewPerDayChange,
                             onMaximumIntervalDaysChange = onMaximumIntervalDaysChange,
                             onOverlayIntervalChange = onOverlayIntervalChange,
+                            onGateCooldownChange = onGateCooldownChange,
                             onRatingDelayChange = onRatingDelayChange,
                             onCardsPerGateChange = onCardsPerGateChange,
                             onNewCardOrderChange = onNewCardOrderChange,

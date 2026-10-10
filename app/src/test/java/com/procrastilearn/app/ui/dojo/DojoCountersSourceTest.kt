@@ -8,12 +8,14 @@ import com.procrastilearn.app.data.time.TimeTicker
 import com.procrastilearn.app.domain.model.LearningPreferencesConfig
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.StudyDirectionMode
+import com.procrastilearn.app.domain.model.toStudySelectionPolicy
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -51,6 +53,7 @@ class DojoCountersSourceTest {
         liveNow = baseNow
 
         every { dayCountersStore.readPolicy() } returns policyFlow
+        every { dayCountersStore.readStudySelectionPolicy() } returns policyFlow.map { it.toStudySelectionPolicy() }
     }
 
     private fun buildSource(): DojoCountersSource =

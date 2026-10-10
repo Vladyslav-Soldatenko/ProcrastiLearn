@@ -279,4 +279,13 @@
     <string name="overlay_next_card_load_error">Kad seterusnya tidak dapat dimuatkan.</string>
     <string name="overlay_next_card_retry">Cuba lagi</string>
     <string name="overlay_next_card_loading">Memuatkan kad seterusnya…</string>
+    <string name="settings_gate_cooldown_headline">Tempoh jeda gerbang, minit</string>
+    <string name="settings_gate_cooldown_description">Selepas mengulang kaji kad gerbang, beralih antara aplikasi yang disekat tanpa gerbang lain sepanjang tempoh bertenang.</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">Tempoh rehat tidak boleh melebihi sela gerbang berulang sebanyak %1$d minit.</string>
+    <string name="settings_gate_repeat_below_cooldown">Sela gerbang berulang mestilah sekurang-kurangnya %1$d minit, atau 0 untuk mematikannya.</string>
+    <string name="settings_gate_timing_range_error">Masukkan nombor dari 0 hingga %1$d minit.</string>
+    <string name="settings_gate_timing_save_failed">Tidak dapat menyimpan. Cuba lagi.</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="other">%d minit</item>
+    </plurals>
 </resources>

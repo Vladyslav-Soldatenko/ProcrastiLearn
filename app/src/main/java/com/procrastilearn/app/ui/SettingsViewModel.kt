@@ -10,12 +10,17 @@ import com.procrastilearn.app.data.local.dao.VocabularyStatsDao
 import com.procrastilearn.app.data.local.prefs.DayCountersStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPromptDefaults
 import com.procrastilearn.app.data.local.prefs.TranslationPreferences
+import com.procrastilearn.app.domain.model.GateTimingChangeResult
+import com.procrastilearn.app.domain.model.GateTimingField
+import com.procrastilearn.app.domain.model.GateTimingValidationError
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -32,7 +37,8 @@ data class SettingsUiState(
     val newPerDay: Int = 10,
     val reviewPerDay: Int = 100,
     val maximumIntervalDays: Int = 365,
-    val overlayInterval: Int = 6,
+    val overlayInterval: Int = 0,
+    val gateCooldownMinutes: Int = 0,
     val ratingDelaySeconds: Int = 0,
     val cardsPerGate: Int = 1,
     val newCardOrder: NewCardOrder = NewCardOrder.SEQUENTIAL,
@@ -43,7 +49,39 @@ data class SettingsUiState(
     val targetLanguage: Language = Language.RUSSIAN,
 )
 
+sealed interface GateTimingSaveState {
+    data object Idle : GateTimingSaveState
+
+    data class Saving(
+        val field: GateTimingField,
+    ) : GateTimingSaveState
+
+    data class Saved(
+        val field: GateTimingField,
+    ) : GateTimingSaveState
+
+    data class Rejected(
+        val field: GateTimingField,
+        val error: GateTimingValidationError,
+    ) : GateTimingSaveState
+
+    data class Failed(
+        val field: GateTimingField,
+    ) : GateTimingSaveState
+}
+
+sealed interface GateTimingSaveResult {
+    data object Saved : GateTimingSaveResult
+
+    data class Rejected(
+        val error: GateTimingValidationError,
+    ) : GateTimingSaveResult
+
+    data object Failed : GateTimingSaveResult
+}
+
 @HiltViewModel
+@Suppress("TooManyFunctions")
 class SettingsViewModel
     @Inject
     constructor(
@@ -52,6 +90,8 @@ class SettingsViewModel
         private val vocabularyStatsDao: VocabularyStatsDao,
         private val transferManager: VocabularyTransferManager,
     ) : ViewModel() {
+        private val legacyGateTimingSaves = GateTimingSaves(viewModelScope)
+        val gateTimingSaveState: StateFlow<GateTimingSaveState> = legacyGateTimingSaves.state
         val uiState: StateFlow<SettingsUiState> =
             kotlinx.coroutines.flow
                 .combine(
@@ -68,6 +108,7 @@ class SettingsViewModel
                         reviewPerDay = policy.reviewPerDay,
                         maximumIntervalDays = policy.maximumIntervalDays,
                         overlayInterval = policy.overlayInterval,
+                        gateCooldownMinutes = policy.gateCooldownMinutes,
                         ratingDelaySeconds = policy.ratingDelaySeconds,
                         cardsPerGate = policy.cardsPerGate,
                         newCardOrder = policy.newCardOrder,
@@ -128,9 +169,43 @@ class SettingsViewModel
             viewModelScope.launch { dayCountersStore.setMaximumIntervalDays(value) }
         }
 
-        fun onOverlayIntervalChange(value: Int) {
-            viewModelScope.launch { dayCountersStore.setOverlayInterval(value) }
+        fun saveGateTiming(
+            field: GateTimingField,
+            value: Int,
+            onResult: (GateTimingSaveResult) -> Unit,
+        ) {
+            viewModelScope.launch {
+                val result =
+                    try {
+                        val persisted =
+                            if (field == GateTimingField.COOLDOWN) {
+                                dayCountersStore.setGateCooldownMinutes(value)
+                            } else {
+                                dayCountersStore.setOverlayInterval(value)
+                            }
+                        when (persisted) {
+                            GateTimingChangeResult.Applied -> GateTimingSaveResult.Saved
+                            is GateTimingChangeResult.Rejected ->
+                                GateTimingSaveResult.Rejected(persisted.error)
+                        }
+                    } catch (error: CancellationException) {
+                        throw error
+                    } catch (_: Exception) {
+                        GateTimingSaveResult.Failed
+                    }
+                onResult(result)
+            }
         }
+
+        fun onOverlayIntervalChange(value: Int) {
+            legacyGateTimingSaves.save(GateTimingField.REPEAT_INTERVAL) { dayCountersStore.setOverlayInterval(value) }
+        }
+
+        fun onGateCooldownChange(value: Int) {
+            legacyGateTimingSaves.save(GateTimingField.COOLDOWN) { dayCountersStore.setGateCooldownMinutes(value) }
+        }
+
+        fun clearGateTimingSaveState() = legacyGateTimingSaves.clear()
 
         fun onRatingDelayChange(value: Int) {
             viewModelScope.launch { dayCountersStore.setRatingDelaySeconds(value) }
@@ -192,3 +267,43 @@ class SettingsViewModel
             }
         }
     }
+
+private class GateTimingSaves(
+    private val scope: CoroutineScope,
+) {
+    private val mutableState = MutableStateFlow<GateTimingSaveState>(GateTimingSaveState.Idle)
+    val state: StateFlow<GateTimingSaveState> = mutableState
+    private var inFlight = false
+    private var generation = 0L
+
+    fun clear() {
+        generation++
+        if (!inFlight) mutableState.value = GateTimingSaveState.Idle
+    }
+
+    fun save(
+        field: GateTimingField,
+        persist: suspend () -> GateTimingChangeResult,
+    ) {
+        if (inFlight) return
+        inFlight = true
+        val saveGeneration = generation
+        mutableState.value = GateTimingSaveState.Saving(field)
+        scope.launch {
+            try {
+                mutableState.value =
+                    when (val result = persist()) {
+                        GateTimingChangeResult.Applied -> GateTimingSaveState.Saved(field)
+                        is GateTimingChangeResult.Rejected -> GateTimingSaveState.Rejected(field, result.error)
+                    }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                mutableState.value = GateTimingSaveState.Failed(field)
+            } finally {
+                inFlight = false
+                if (saveGeneration != generation) mutableState.value = GateTimingSaveState.Idle
+            }
+        }
+    }
+}

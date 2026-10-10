@@ -1,9 +1,12 @@
 package com.procrastilearn.app.ui.screens.settings
 
+import com.procrastilearn.app.domain.model.GateTimingField
 import com.procrastilearn.app.domain.model.Language
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
+import com.procrastilearn.app.ui.GateTimingSaveResult
+import com.procrastilearn.app.ui.GateTimingSaveState
 
 data class StudySettings(
     val mixMode: MixMode,
@@ -14,9 +17,11 @@ data class StudySettings(
     val reviewPerDay: Int,
     val maximumIntervalDays: Int,
     val overlayInterval: Int,
+    val gateCooldownMinutes: Int,
     val cardsPerGate: Int,
     val ratingDelaySeconds: Int,
     val newCardOrder: NewCardOrder,
+    val gateTimingSaveState: GateTimingSaveState = GateTimingSaveState.Idle,
 )
 
 data class StudySettingsCallbacks(
@@ -27,10 +32,13 @@ data class StudySettingsCallbacks(
     val onAddCardsForToday: (Int) -> Unit,
     val onReviewPerDayChange: (Int) -> Unit,
     val onMaximumIntervalDaysChange: (Int) -> Unit,
-    val onOverlayIntervalChange: (Int) -> Unit,
+    val onGateTimingSave: ((GateTimingField, Int, (GateTimingSaveResult) -> Unit) -> Unit)? = null,
+    val onOverlayIntervalChange: (Int) -> Unit = {},
+    val onGateCooldownChange: (Int) -> Unit = {},
     val onCardsPerGateChange: (Int) -> Unit,
     val onRatingDelayChange: (Int) -> Unit,
     val onNewCardOrderChange: (NewCardOrder) -> Unit,
+    val clearGateTimingSaveState: () -> Unit = {},
 )
 
 data class AiSettings(

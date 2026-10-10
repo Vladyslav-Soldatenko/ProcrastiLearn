@@ -330,4 +330,13 @@
     <string name="overlay_next_card_load_error">无法加载下一张卡片。</string>
     <string name="overlay_next_card_retry">重试</string>
     <string name="overlay_next_card_loading">正在加载下一张卡片…</string>
+    <string name="settings_gate_cooldown_headline">关卡冷却时间（分钟）</string>
+    <string name="settings_gate_cooldown_description">复习完关卡卡片后，在冷却期间无需再次通过关卡即可在被阻止的应用之间切换。</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">冷却时间不能超过重复关卡的间隔（%1$d 分钟）。</string>
+    <string name="settings_gate_repeat_below_cooldown">重复关卡间隔必须至少为 %1$d 分钟，设为 0 可关闭。</string>
+    <string name="settings_gate_timing_range_error">请输入 0 到 %1$d 分钟之间的数字。</string>
+    <string name="settings_gate_timing_save_failed">无法保存，请重试。</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="other">%d 分钟</item>
+    </plurals>
 </resources>

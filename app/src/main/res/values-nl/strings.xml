@@ -34,4 +34,14 @@
     <string name="overlay_next_card_load_error">De volgende kaart kon niet worden geladen.</string>
     <string name="overlay_next_card_retry">Opnieuw proberen</string>
     <string name="overlay_next_card_loading">Volgende kaart laden…</string>
+    <string name="settings_gate_cooldown_headline">Wachttijd toegangstoets, minuten</string>
+    <string name="settings_gate_cooldown_description">Wissel na het oefenen van de toetskaarten tijdens de afkoelperiode tussen geblokkeerde apps zonder nieuwe toets.</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">De pauze mag het herhalingsinterval van %1$d minuten niet overschrijden.</string>
+    <string name="settings_gate_repeat_below_cooldown">Het herhalingsinterval moet minimaal %1$d minuten zijn, of 0 om het uit te schakelen.</string>
+    <string name="settings_gate_timing_range_error">Voer een getal van 0 tot %1$d minuten in.</string>
+    <string name="settings_gate_timing_save_failed">Opslaan mislukt. Probeer opnieuw.</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="one">%d minuut</item>
+        <item quantity="other">%d minuten</item>
+    </plurals>
 </resources>

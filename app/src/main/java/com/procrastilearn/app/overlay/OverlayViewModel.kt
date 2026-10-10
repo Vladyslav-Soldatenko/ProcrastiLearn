@@ -60,7 +60,7 @@ class OverlayViewModel
                     vocabularyItem = item,
                     isLoading = false,
                     showAnswer = false,
-                    unlocked = false,
+                    completion = null,
                     requiredCards = requiredCards,
                     completedCards = 0,
                     isSavingRating = false,
@@ -85,6 +85,7 @@ class OverlayViewModel
             }
         }
 
+        @Suppress("CognitiveComplexMethod")
         fun onDifficultySelected(rating: Rating) {
             val current = _uiState.value
             if (current.vocabularyItem == null) {
@@ -117,7 +118,12 @@ class OverlayViewModel
                             isLoading = !gateComplete,
                             hasRatingSaveError = false,
                             hasNextCardLoadError = false,
-                            unlocked = gateComplete,
+                            completion =
+                                if (gateComplete) {
+                                    GateCompletion(completedCards)
+                                } else {
+                                    null
+                                },
                             showAnswer = false,
                             ratingLockSecondsRemaining = 0,
                         )
@@ -139,7 +145,7 @@ class OverlayViewModel
             lockJob?.cancel()
             _uiState.update {
                 it.copy(
-                    unlocked = false,
+                    completion = null,
                     showAnswer = false,
                     ratingLockSecondsRemaining = 0,
                 )
@@ -191,7 +197,7 @@ class OverlayViewModel
                                 vocabularyItem = item,
                                 isLoading = false,
                                 showAnswer = false,
-                                unlocked = false,
+                                completion = null,
                                 hasNextCardLoadError = false,
                             )
                         }
@@ -201,7 +207,8 @@ class OverlayViewModel
                             _uiState.update {
                                 it.copy(
                                     isLoading = false,
-                                    unlocked = true,
+                                    completion =
+                                        GateCompletion(_uiState.value.completedCards),
                                     hasNextCardLoadError = false,
                                 )
                             }

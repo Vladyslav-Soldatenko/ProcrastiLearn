@@ -5,7 +5,7 @@ import com.procrastilearn.app.domain.model.VocabularyItem
 data class OverlayUiState(
     val vocabularyItem: VocabularyItem? = null,
     val showAnswer: Boolean = false,
-    val unlocked: Boolean = false,
+    val completion: GateCompletion? = null,
     val isLoading: Boolean = false,
     val ratingDelaySeconds: Int = 0,
     val ratingLockSecondsRemaining: Int = 0,
@@ -15,3 +15,6 @@ data class OverlayUiState(
     val hasRatingSaveError: Boolean = false,
     val hasNextCardLoadError: Boolean = false,
 )
+
+val OverlayUiState.unlocked: Boolean
+    get() = completion != null

@@ -361,4 +361,13 @@
     <string name="overlay_next_card_load_error">次のカードを読み込めませんでした。</string>
     <string name="overlay_next_card_retry">再試行</string>
     <string name="overlay_next_card_loading">次のカードを読み込み中…</string>
+    <string name="settings_gate_cooldown_headline">ゲートのクールダウン（分）</string>
+    <string name="settings_gate_cooldown_description">ゲートのカードを復習した後、クールダウン中は次のゲートなしでブロックしたアプリ間を切り替えられます。</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">クールダウンは繰り返しゲートの間隔（%1$d分）を超えることはできません。</string>
+    <string name="settings_gate_repeat_below_cooldown">繰り返しゲートの間隔は%1$d分以上にするか、0にしてオフにしてください。</string>
+    <string name="settings_gate_timing_range_error">0から%1$d分までの数値を入力してください。</string>
+    <string name="settings_gate_timing_save_failed">保存できませんでした。もう一度お試しください。</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="other">%d分</item>
+    </plurals>
 </resources>

@@ -209,6 +209,12 @@
     <!-- Overlay interval -->
     <string name="settings_overlay_interval_title">Show overlay every X minutes</string>
     <string name="settings_overlay_interval_headline">Show overlay each X minutes while blocked app is open</string>
+    <string name="settings_gate_cooldown_headline">Gate cooldown, minutes</string>
+    <string name="settings_gate_cooldown_description">After reviewing gate cards, switch between blocked apps without another gate during cooldown period.</string>
+    <string name="settings_gate_cooldown_exceeds_repeat" tools:ignore="PluralsCandidate">Cooldown cannot exceed the repeated-gate interval of %1$d minutes.</string>
+    <string name="settings_gate_repeat_below_cooldown" tools:ignore="PluralsCandidate">Repeated-gate interval must be at least %1$d minutes, or 0 to turn it off.</string>
+    <string name="settings_gate_timing_range_error" tools:ignore="PluralsCandidate">Enter a number from 0 to %1$d minutes.</string>
+    <string name="settings_gate_timing_save_failed">Could not save. Try again.</string>
 
     <string name="settings_cards_per_gate_headline">Cards per gate</string>
     <string name="settings_cards_per_gate_summary">Required before access: %1$d</string>
@@ -348,6 +354,10 @@
     <plurals name="overlay_minutes_interval">
         <item quantity="one">Every %d minute</item>
         <item quantity="other">Every %d minutes</item>
+    </plurals>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
     </plurals>
     <plurals name="rating_delay_seconds">
         <item quantity="one">%d second</item>

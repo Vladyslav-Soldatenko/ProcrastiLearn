@@ -36,12 +36,13 @@ import com.procrastilearn.app.overlay.theme.OverlayThemeTokens
 import io.github.openspacedrepetition.Rating
 
 @Composable
+@Suppress("ParameterNaming")
 fun OverlayScreen(
-    onUnlock: () -> Unit,
+    onGateCompleted: (GateCompletion) -> Unit,
     viewModel: OverlayViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val currentOnUnlock by rememberUpdatedState(onUnlock)
+    val currentOnGateCompleted by rememberUpdatedState(onGateCompleted)
 
     // Initial load
     LaunchedEffect(Unit) {
@@ -49,8 +50,8 @@ fun OverlayScreen(
     }
 
     // When unlocked, tell the service to remove the overlay
-    LaunchedEffect(uiState.unlocked) {
-        if (uiState.unlocked) currentOnUnlock()
+    LaunchedEffect(uiState.completion) {
+        uiState.completion?.let(currentOnGateCompleted)
     }
 
     OverlayScreen(
@@ -149,19 +150,16 @@ internal class OverlayUiStateProvider : PreviewParameterProvider<OverlayUiState>
             OverlayUiState(
                 vocabularyItem = sampleWord,
                 showAnswer = false,
-                unlocked = false,
                 isLoading = false,
             ),
             OverlayUiState(
                 vocabularyItem = sampleWord.copy(isNew = true),
                 showAnswer = true,
-                unlocked = false,
                 isLoading = false,
             ),
             OverlayUiState(
                 vocabularyItem = sampleWord,
                 showAnswer = true,
-                unlocked = false,
                 isLoading = false,
                 ratingDelaySeconds = 5,
                 ratingLockSecondsRemaining = 3,
@@ -169,7 +167,6 @@ internal class OverlayUiStateProvider : PreviewParameterProvider<OverlayUiState>
             OverlayUiState(
                 vocabularyItem = null,
                 showAnswer = false,
-                unlocked = false,
                 isLoading = true,
             ),
         )

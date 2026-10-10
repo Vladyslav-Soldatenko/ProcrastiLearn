@@ -377,4 +377,15 @@
     <string name="overlay_next_card_load_error">Impossibile caricare la scheda successiva.</string>
     <string name="overlay_next_card_retry">Riprova</string>
     <string name="overlay_next_card_loading">Caricamento della scheda successiva…</string>
+    <string name="settings_gate_cooldown_headline">Attesa del controllo, minuti</string>
+    <string name="settings_gate_cooldown_description">Dopo aver ripassato le schede del controllo, passa tra le app bloccate senza un altro controllo durante la pausa.</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">La pausa non può superare l’intervallo dei controlli ripetuti di %1$d minuti.</string>
+    <string name="settings_gate_repeat_below_cooldown">L’intervallo dei controlli ripetuti deve essere di almeno %1$d minuti, oppure 0 per disattivarlo.</string>
+    <string name="settings_gate_timing_range_error">Inserisci un numero da 0 a %1$d minuti.</string>
+    <string name="settings_gate_timing_save_failed">Impossibile salvare. Riprova.</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="one">%d minuto</item>
+        <item quantity="many">%d minuti</item>
+        <item quantity="other">%d minuti</item>
+    </plurals>
 </resources>

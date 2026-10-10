@@ -274,4 +274,14 @@
     <string name="overlay_next_card_load_error">Hindi ma-load ang susunod na card.</string>
     <string name="overlay_next_card_retry">Subukan muli</string>
     <string name="overlay_next_card_loading">Nilo-load ang susunod na card…</string>
+    <string name="settings_gate_cooldown_headline">Cooldown ng gate, minuto</string>
+    <string name="settings_gate_cooldown_description">Pagkatapos suriin ang mga gate card, lumipat sa pagitan ng mga naka-block na app nang walang panibagong gate habang may cooldown.</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">Hindi maaaring lumampas ang cooldown sa pagitan ng paulit-ulit na gate na %1$d minuto.</string>
+    <string name="settings_gate_repeat_below_cooldown">Dapat hindi bababa sa %1$d minuto ang pagitan ng paulit-ulit na gate, o 0 upang i-off ito.</string>
+    <string name="settings_gate_timing_range_error">Maglagay ng numero mula 0 hanggang %1$d minuto.</string>
+    <string name="settings_gate_timing_save_failed">Hindi na-save. Subukang muli.</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="one">%d minuto</item>
+        <item quantity="other">%d minuto</item>
+    </plurals>
 </resources>

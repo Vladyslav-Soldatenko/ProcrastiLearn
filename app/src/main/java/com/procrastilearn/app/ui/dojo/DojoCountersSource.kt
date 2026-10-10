@@ -29,7 +29,7 @@ class DojoCountersSource
         private val nowSource = merge(timeTicker.nowTicks(), refreshRequests.map { timeTicker.now() })
 
         val reviewsDueAndSkippedCount: Flow<Pair<Int, Int>> =
-            combine(nowSource, dayCountersStore.readPolicy()) { now, policy -> now to policy }
+            combine(nowSource, dayCountersStore.readStudySelectionPolicy()) { now, policy -> now to policy }
                 .flatMapLatest { (now, policy) ->
                     val due =
                         vocabularyStatsDao.observeReviewsDueCount(
@@ -47,7 +47,7 @@ class DojoCountersSource
                 }.distinctUntilChanged()
 
         val newTotalCount: Flow<Int> =
-            dayCountersStore.readPolicy().flatMapLatest { policy ->
+            dayCountersStore.readStudySelectionPolicy().flatMapLatest { policy ->
                 vocabularyStatsDao.observeNewTotalCount(requireBidirectional = policy.studyDirectionMode.isBackwardOnly)
             }
 

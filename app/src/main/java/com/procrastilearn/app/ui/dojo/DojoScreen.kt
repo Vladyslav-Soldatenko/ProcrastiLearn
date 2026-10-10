@@ -160,7 +160,6 @@ private fun DojoContent(
                 OverlayUiState(
                     vocabularyItem = uiState.vocabularyItem,
                     showAnswer = uiState.showAnswer,
-                    unlocked = false,
                     isLoading = false,
                 )
             Box(

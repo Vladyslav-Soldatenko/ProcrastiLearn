@@ -8,10 +8,16 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.procrastilearn.app.data.counter.DayCounters
+import com.procrastilearn.app.domain.model.GateTimingChangeResult
+import com.procrastilearn.app.domain.model.GateTimingSettings
+import com.procrastilearn.app.domain.model.GateTimingValidationError
 import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -61,6 +67,80 @@ class DayCountersStoreTest {
             assertThat(policy.ratingDelaySeconds).isEqualTo(0)
             assertThat(policy.newCardOrder).isEqualTo(NewCardOrder.SEQUENTIAL)
             assertThat(policy.cardsPerGate).isEqualTo(1)
+            assertThat(policy.gateCooldownMinutes).isEqualTo(0)
+            assertThat(policy.overlayInterval).isEqualTo(0)
+            assertThat(store.readGateTiming().first()).isEqualTo(GateTimingSettings())
+        }
+
+    @Test
+    fun gateTimingPersistsAndRejectsIncompatibleEditsWithoutChangingEitherValue() =
+        runTest {
+            assertThat(store.setGateCooldownMinutes(2)).isEqualTo(GateTimingChangeResult.Applied)
+            assertThat(store.setOverlayInterval(5)).isEqualTo(GateTimingChangeResult.Applied)
+
+            assertThat(store.setGateCooldownMinutes(6))
+                .isEqualTo(
+                    GateTimingChangeResult.Rejected(
+                        GateTimingValidationError.CooldownExceedsRepeat(6, 5),
+                    ),
+                )
+            assertThat(store.setOverlayInterval(1))
+                .isEqualTo(
+                    GateTimingChangeResult.Rejected(
+                        GateTimingValidationError.CooldownExceedsRepeat(2, 1),
+                    ),
+                )
+            assertThat(store.readGateTiming().first()).isEqualTo(GateTimingSettings(2, 5))
+
+            val reopened = DayCountersStore(studyPreferences)
+            assertThat(reopened.readGateTiming().first()).isEqualTo(GateTimingSettings(2, 5))
+        }
+
+    @Test
+    fun gateTimingAllowsTurningRepeatsOffWhileCooldownRemainsPositive() =
+        runTest {
+            assertThat(store.setGateCooldownMinutes(20)).isEqualTo(GateTimingChangeResult.Applied)
+            assertThat(store.setOverlayInterval(20)).isEqualTo(GateTimingChangeResult.Applied)
+            assertThat(store.setOverlayInterval(0)).isEqualTo(GateTimingChangeResult.Applied)
+
+            assertThat(store.readGateTiming().first()).isEqualTo(GateTimingSettings(20, 0))
+        }
+
+    @Test
+    fun concurrentGateTimingWritesKeepOnlyOneCompatibleCandidate() =
+        runTest {
+            val results =
+                coroutineScope {
+                    awaitAll(
+                        async { store.setGateCooldownMinutes(10) },
+                        async { store.setOverlayInterval(5) },
+                    )
+                }
+
+            assertThat(store.readGateTiming().first()).isIn(setOf(GateTimingSettings(10, 0), GateTimingSettings(0, 5)))
+            assertThat(results.count { it is GateTimingChangeResult.Rejected }).isEqualTo(1)
+        }
+
+    @Test
+    fun malformedGateTimingIsNormalizedCoherentlyWithoutWritingBack() =
+        runTest {
+            val cooldownKey = intPreferencesKey("gate_cooldown_minutes")
+            val repeatKey = intPreferencesKey("overlay_interval_time")
+            studyPreferences.ds.edit {
+                it[cooldownKey] = 20
+                it[repeatKey] = 5
+            }
+
+            assertThat(store.readGateTiming().first()).isEqualTo(GateTimingSettings(5, 5))
+            assertThat(store.readPolicy().first().gateCooldownMinutes).isEqualTo(5)
+            assertThat(studyPreferences.ds.data.first()[cooldownKey]).isEqualTo(20)
+            assertThat(studyPreferences.ds.data.first()[repeatKey]).isEqualTo(5)
+
+            studyPreferences.ds.edit {
+                it[cooldownKey] = -1
+                it[repeatKey] = 2001
+            }
+            assertThat(store.readGateTiming().first()).isEqualTo(GateTimingSettings(0, 2000))
         }
 
     @Test
@@ -301,17 +381,17 @@ class DayCountersStoreTest {
             store.setMixMode(MixMode.NEW_FIRST)
             store.setNewPerDay(500)
             store.setReviewPerDay(5000)
-            store.setOverlayInterval(5000)
+            assertThat(store.setOverlayInterval(5000)).isInstanceOf(GateTimingChangeResult.Rejected::class.java)
 
             var policy = store.readPolicy().first()
             assertThat(policy.newPerDay).isEqualTo(200)
             assertThat(policy.reviewPerDay).isEqualTo(2000)
-            assertThat(policy.overlayInterval).isEqualTo(2000)
+            assertThat(policy.overlayInterval).isEqualTo(0)
             assertThat(policy.mixMode).isEqualTo(MixMode.NEW_FIRST)
 
             store.setNewPerDay(-5)
             store.setReviewPerDay(-10)
-            store.setOverlayInterval(-1)
+            assertThat(store.setOverlayInterval(-1)).isInstanceOf(GateTimingChangeResult.Rejected::class.java)
 
             policy = store.readPolicy().first()
             assertThat(policy.newPerDay).isEqualTo(0)

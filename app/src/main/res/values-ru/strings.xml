@@ -371,4 +371,16 @@
     <string name="overlay_next_card_load_error">Не удалось загрузить следующую карточку.</string>
     <string name="overlay_next_card_retry">Повторить</string>
     <string name="overlay_next_card_loading">Загрузка следующей карточки…</string>
+    <string name="settings_gate_cooldown_headline">Интервал проверки, минуты</string>
+    <string name="settings_gate_cooldown_description">После повторения карточек проверки переключайтесь между заблокированными приложениями без новой проверки во время периода ожидания.</string>
+    <string name="settings_gate_cooldown_exceeds_repeat">Пауза не может превышать интервал повторных проверок в %1$d минут.</string>
+    <string name="settings_gate_repeat_below_cooldown">Интервал повторных проверок должен быть не менее %1$d минут или 0 для их отключения.</string>
+    <string name="settings_gate_timing_range_error">Введите число от 0 до %1$d минут.</string>
+    <string name="settings_gate_timing_save_failed">Не удалось сохранить. Попробуйте снова.</string>
+    <plurals name="gate_cooldown_minutes">
+        <item quantity="one">%d минута</item>
+        <item quantity="few">%d минуты</item>
+        <item quantity="many">%d минут</item>
+        <item quantity="other">%d минуты</item>
+    </plurals>
 </resources>

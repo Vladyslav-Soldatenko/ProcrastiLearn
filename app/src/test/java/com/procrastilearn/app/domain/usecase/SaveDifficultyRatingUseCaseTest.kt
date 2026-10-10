@@ -10,6 +10,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.just
 import io.mockk.mockk
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -72,5 +73,20 @@ class SaveDifficultyRatingUseCaseTest {
             assertThat(result.isFailure).isTrue()
             assertThat(result.exceptionOrNull()).isEqualTo(error)
             coVerify(exactly = 1) { repository.reviewVocabularyItem(99L, Rating.HARD) }
+        }
+
+    @Test
+    fun `invoke propagates cancellation from repository`() =
+        runTest {
+            coEvery { repository.reviewVocabularyItem(any(), any(), any()) } throws CancellationException()
+
+            var cancellation: CancellationException? = null
+            try {
+                useCase(1L, Rating.GOOD)
+            } catch (exception: CancellationException) {
+                cancellation = exception
+            }
+
+            assertThat(cancellation).isNotNull()
         }
 }
