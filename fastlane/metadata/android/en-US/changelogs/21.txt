@@ -1,0 +1,2 @@
+Set a cooldown so switching between blocked apps after a review doesn’t trigger another gate.
+Choose whether the review overlay asks other apps to pause background audio.

@@ -1,0 +1,2 @@
+Magtakda ng pagitan pagkatapos mag-review para hindi agad mag-trigger ng panibagong review kapag lumipat sa ibang naka-block na app.
+Piliin kung hihilingin ng review overlay sa ibang app na i-pause ang background audio.

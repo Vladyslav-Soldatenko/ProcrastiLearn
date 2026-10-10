@@ -1,0 +1,2 @@
+Définissez un délai après une révision pour passer d’une appli bloquée à une autre sans déclencher aussitôt une nouvelle révision.
+Choisissez si l’écran de révision demande aux autres applis de mettre leur audio en pause.

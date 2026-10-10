@@ -1,0 +1,2 @@
+Stelle nach dem Wiederholen der Karten eine Wartezeit ein, damit beim Wechsel zwischen gesperrten Apps nicht sofort erneut eine Sperre erscheint.
+Wähle, ob das Wiederholungsfenster andere Apps auffordert, Audio im Hintergrund zu pausieren.

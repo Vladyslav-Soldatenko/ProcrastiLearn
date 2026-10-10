@@ -47,8 +47,8 @@ android {
     minSdk = 30
     //noinspection OldTargetApi
     targetSdk = 36
-    versionCode = 20
-    versionName = "1.4.5"
+    versionCode = 21
+    versionName = "1.4.6"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     testInstrumentationRunnerArguments["OPENAI_API_KEY"] = openAiApiKeyForTests
   }

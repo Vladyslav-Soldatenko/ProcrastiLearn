@@ -1,0 +1,2 @@
+Tekrardan sonra bir bekleme süresi belirleyin; böylece engellenen uygulamalar arasında geçerken hemen yeniden inceleme gerekmez.
+Diğer uygulamalardan arka plan sesini duraklatmalarını isteyip istemeyeceğinizi seçin.

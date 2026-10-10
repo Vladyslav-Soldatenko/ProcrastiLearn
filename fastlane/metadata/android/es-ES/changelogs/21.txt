@@ -1,0 +1,2 @@
+Configura un tiempo de espera tras el repaso para cambiar entre apps bloqueadas sin activar otro bloqueo de inmediato.
+Elige si la pantalla de repaso pide a otras apps que pausen el audio en segundo plano.

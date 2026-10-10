@@ -1,0 +1,2 @@
+Đặt khoảng nghỉ sau khi ôn tập để chuyển giữa các ứng dụng bị chặn mà không bị yêu cầu ôn tập lại ngay.
+Chọn xem lớp phủ ôn tập có yêu cầu ứng dụng khác tạm dừng âm thanh nền hay không.

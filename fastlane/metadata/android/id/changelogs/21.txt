@@ -1,0 +1,2 @@
+Atur jeda setelah mengulas kartu agar berpindah antar aplikasi yang diblokir tidak langsung memicu ulasan lagi.
+Pilih apakah overlay ulasan meminta aplikasi lain menjeda audio latar.

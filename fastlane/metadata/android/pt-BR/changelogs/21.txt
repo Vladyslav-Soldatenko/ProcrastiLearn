@@ -1,0 +1,2 @@
+Defina um intervalo após a revisão para alternar entre apps bloqueados sem acionar outro bloqueio imediatamente.
+Escolha se a tela de revisão pede que outros apps pausem o áudio em segundo plano.

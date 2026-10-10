@@ -1,0 +1,2 @@
+Imposta un tempo di attesa dopo il ripasso, così puoi passare da un'app bloccata all'altra senza avviare subito un altro ripasso.
+Scegli se la schermata di ripasso deve chiedere alle altre app di mettere in pausa l'audio in background.

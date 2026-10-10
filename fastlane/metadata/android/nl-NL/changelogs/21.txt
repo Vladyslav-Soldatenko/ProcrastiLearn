@@ -1,0 +1,2 @@
+Stel na een herhaling een wachttijd in, zodat je tussen geblokkeerde apps kunt wisselen zonder dat er meteen opnieuw een blokkade verschijnt.
+Kies of het herhalingsscherm andere apps vraagt om audio op de achtergrond te pauzeren.

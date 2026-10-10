@@ -1,0 +1,2 @@
+Ustaw przerwę po powtórce, aby przełączanie między zablokowanymi aplikacjami nie uruchamiało od razu kolejnej blokady.
+Wybierz, czy ekran powtórki ma prosić inne aplikacje o wstrzymanie odtwarzania dźwięku w tle.
