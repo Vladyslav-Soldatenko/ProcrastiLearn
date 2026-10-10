@@ -397,4 +397,6 @@
         <item quantity="many">%d хвилин</item>
         <item quantity="other">%d хвилини</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">Запитувати призупинення фонового звуку</string>
+    <string name="settings_pause_background_audio_summary">Запитує в інших програм призупинення звуку, поки показано картку для повторення. Незалежно від цього налаштування програми можуть продовжувати відтворення або зупинити звук.</string>
 </resources>

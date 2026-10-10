@@ -7,6 +7,8 @@ interface AppPreferencesRepository {
 
     fun isProcrastilearnEnabled(): Flow<Boolean>
 
+    fun pauseBackgroundAudio(): Flow<Boolean>
+
     suspend fun addBlockedApp(packageName: String)
 
     suspend fun removeBlockedApp(packageName: String)
@@ -18,4 +20,6 @@ interface AppPreferencesRepository {
     suspend fun toggleApp(packageName: String)
 
     suspend fun setProcrastilearnEnabled(enabled: Boolean)
+
+    suspend fun setPauseBackgroundAudio(enabled: Boolean)
 }

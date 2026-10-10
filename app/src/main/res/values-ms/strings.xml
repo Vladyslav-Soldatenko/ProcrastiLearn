@@ -288,4 +288,6 @@
     <plurals name="gate_cooldown_minutes">
         <item quantity="other">%d minit</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">Minta audio latar belakang dijeda</string>
+    <string name="settings_pause_background_audio_summary">Meminta aplikasi lain menjeda audio semasa tindanan ulang kaji dipaparkan. Aplikasi boleh terus memainkan atau menghentikan audio tanpa mengira tetapan ini.</string>
 </resources>

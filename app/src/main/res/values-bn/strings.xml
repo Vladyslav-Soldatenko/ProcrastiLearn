@@ -297,4 +297,6 @@
         <item quantity="one">%d মিনিট</item>
         <item quantity="other">%d মিনিট</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">পেছনের অডিও থামানোর অনুরোধ</string>
+    <string name="settings_pause_background_audio_summary">রিভিউ ওভারলে দেখানোর সময় অন্য অ্যাপকে অডিও থামাতে অনুরোধ করে। এই সেটিং নির্বিশেষে অ্যাপ অডিও চালিয়ে যেতে বা বন্ধ করতে পারে।</string>
 </resources>

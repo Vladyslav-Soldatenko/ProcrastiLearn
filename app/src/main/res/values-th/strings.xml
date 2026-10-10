@@ -283,4 +283,6 @@
     <plurals name="gate_cooldown_minutes">
         <item quantity="other">%d นาที</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">ขอให้หยุดเสียงเบื้องหลังชั่วคราว</string>
+    <string name="settings_pause_background_audio_summary">ขอให้แอปอื่นหยุดเสียงชั่วคราวขณะกำลังแสดงหน้าทบทวน แอปอาจเล่นต่อหรือหยุดเสียงได้ ไม่ว่าการตั้งค่านี้จะเป็นอย่างไร</string>
 </resources>

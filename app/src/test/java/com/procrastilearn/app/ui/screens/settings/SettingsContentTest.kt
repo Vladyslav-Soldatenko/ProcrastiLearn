@@ -10,6 +10,7 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -560,6 +561,20 @@ class SettingsContentTest {
     }
 
     @Test
+    fun `background audio pause switch displays state and invokes callback`() {
+        var enabled: Boolean? = null
+        setContent(pauseBackgroundAudio = true, onPauseBackgroundAudioChange = { enabled = it })
+
+        composeTestRule
+            .onNodeWithText(string(R.string.settings_pause_background_audio_headline))
+            .performScrollTo()
+            .assertIsDisplayed()
+        composeTestRule.onNodeWithTag("pause_background_audio").performClick()
+
+        assertThat(enabled).isFalse()
+    }
+
+    @Test
     fun `cards per gate dialog confirms a value and rejects values outside one to one hundred`() {
         var saved: Int? = null
         setContent(onCardsPerGateChange = { saved = it })
@@ -799,6 +814,7 @@ class SettingsContentTest {
         gateTimingSaveState: () -> GateTimingSaveState = { GateTimingSaveState.Idle },
         ratingDelaySeconds: Int = 0,
         cardsPerGate: Int = 1,
+        pauseBackgroundAudio: Boolean = true,
         newCardOrder: NewCardOrder = NewCardOrder.SEQUENTIAL,
         openAiApiKey: String? = null,
         openAiPrompt: String = "Prompt",
@@ -820,6 +836,7 @@ class SettingsContentTest {
         onGateCooldownChange: (Int) -> Unit = {},
         onRatingDelayChange: (Int) -> Unit = {},
         onCardsPerGateChange: (Int) -> Unit = {},
+        onPauseBackgroundAudioChange: (Boolean) -> Unit = {},
         onNewCardOrderChange: (NewCardOrder) -> Unit = {},
         onOpenAiApiKeyChange: (String) -> Unit = {},
         onOpenAiPromptChange: (String) -> Unit = {},
@@ -848,6 +865,7 @@ class SettingsContentTest {
                             gateTimingSaveState = gateTimingSaveState(),
                             ratingDelaySeconds = ratingDelaySeconds,
                             cardsPerGate = cardsPerGate,
+                            pauseBackgroundAudio = pauseBackgroundAudio,
                             newCardOrder = newCardOrder,
                         ),
                     studyCallbacks =
@@ -863,6 +881,7 @@ class SettingsContentTest {
                             onGateCooldownChange = onGateCooldownChange,
                             onRatingDelayChange = onRatingDelayChange,
                             onCardsPerGateChange = onCardsPerGateChange,
+                            onPauseBackgroundAudioChange = onPauseBackgroundAudioChange,
                             onNewCardOrderChange = onNewCardOrderChange,
                         ),
                     aiSettings =

@@ -379,4 +379,6 @@
         <item quantity="one">%d dakika</item>
         <item quantity="other">%d dakika</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">Arka plan sesini duraklatmayı iste</string>
+    <string name="settings_pause_background_audio_summary">Tekrar katmanı gösterilirken diğer uygulamalardan sesi duraklatmasını ister. Uygulamalar bu ayardan bağımsız olarak sesi çalmaya devam edebilir veya durdurabilir.</string>
 </resources>

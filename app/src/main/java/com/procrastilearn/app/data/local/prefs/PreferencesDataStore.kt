@@ -38,6 +38,12 @@ class PreferencesDataStore
                     preferences[PROCRASTILEARN_ENABLED_KEY] ?: true
                 }
 
+        val pauseBackgroundAudio: Flow<Boolean> =
+            dataStore.data
+                .map { preferences ->
+                    preferences[PAUSE_BACKGROUND_AUDIO_KEY] ?: true
+                }
+
         // Save blocked apps
         suspend fun setBlockedApps(apps: Set<String>) {
             dataStore.edit { preferences ->
@@ -79,9 +85,16 @@ class PreferencesDataStore
             }
         }
 
+        suspend fun setPauseBackgroundAudio(enabled: Boolean) {
+            dataStore.edit { preferences ->
+                preferences[PAUSE_BACKGROUND_AUDIO_KEY] = enabled
+            }
+        }
+
         companion object {
             // Keys for stored values - like localStorage keys
             val BLOCKED_APPS_KEY = stringSetPreferencesKey("blocked_apps")
             val PROCRASTILEARN_ENABLED_KEY = booleanPreferencesKey("procrastilearn_enabled")
+            val PAUSE_BACKGROUND_AUDIO_KEY = booleanPreferencesKey("pause_background_audio")
         }
     }

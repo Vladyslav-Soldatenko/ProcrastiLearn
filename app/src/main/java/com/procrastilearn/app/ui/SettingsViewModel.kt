@@ -18,6 +18,7 @@ import com.procrastilearn.app.domain.model.MixMode
 import com.procrastilearn.app.domain.model.NewCardOrder
 import com.procrastilearn.app.domain.model.StudyDirectionMode
 import com.procrastilearn.app.domain.parser.VocabularyImportOption
+import com.procrastilearn.app.domain.repository.AppPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -25,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -41,6 +43,7 @@ data class SettingsUiState(
     val gateCooldownMinutes: Int = 0,
     val ratingDelaySeconds: Int = 0,
     val cardsPerGate: Int = 1,
+    val pauseBackgroundAudio: Boolean = true,
     val newCardOrder: NewCardOrder = NewCardOrder.SEQUENTIAL,
     val openAiApiKey: String? = null,
     val openAiPrompt: String = OpenAiPromptDefaults.translationPrompt,
@@ -89,6 +92,7 @@ class SettingsViewModel
         private val translationPreferences: TranslationPreferences,
         private val vocabularyStatsDao: VocabularyStatsDao,
         private val transferManager: VocabularyTransferManager,
+        private val appPreferencesRepository: AppPreferencesRepository,
     ) : ViewModel() {
         private val legacyGateTimingSaves = GateTimingSaves(viewModelScope)
         val gateTimingSaveState: StateFlow<GateTimingSaveState> = legacyGateTimingSaves.state
@@ -118,6 +122,8 @@ class SettingsViewModel
                         nativeLanguage = languagePair?.native ?: Language.ENGLISH,
                         targetLanguage = languagePair?.target ?: Language.RUSSIAN,
                     )
+                }.combine(appPreferencesRepository.pauseBackgroundAudio()) { state, pauseBackgroundAudio ->
+                    state.copy(pauseBackgroundAudio = pauseBackgroundAudio)
                 }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
         private val _availableNewCount = MutableStateFlow(0)
@@ -149,6 +155,10 @@ class SettingsViewModel
 
         fun onStudyDirectionModeChange(mode: StudyDirectionMode) {
             viewModelScope.launch { dayCountersStore.setStudyDirectionMode(mode) }
+        }
+
+        fun onPauseBackgroundAudioChange(enabled: Boolean) {
+            viewModelScope.launch { appPreferencesRepository.setPauseBackgroundAudio(enabled) }
         }
 
         fun onNewPerDayChange(value: Int) {

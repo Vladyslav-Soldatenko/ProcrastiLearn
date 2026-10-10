@@ -379,4 +379,6 @@
         <item quantity="one">%d मिनट</item>
         <item quantity="other">%d मिनट</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">पृष्ठभूमि ऑडियो रोकने का अनुरोध</string>
+    <string name="settings_pause_background_audio_summary">समीक्षा ओवरले दिखाए जाने पर दूसरे ऐप्स से ऑडियो रोकने का अनुरोध करता है। इस सेटिंग के बावजूद ऐप्स ऑडियो चलाते रह सकते हैं या रोक सकते हैं।</string>
 </resources>

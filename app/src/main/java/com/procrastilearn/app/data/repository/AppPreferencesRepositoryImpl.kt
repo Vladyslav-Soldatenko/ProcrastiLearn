@@ -17,6 +17,8 @@ class AppPreferencesRepositoryImpl
 
         override fun isProcrastilearnEnabled(): Flow<Boolean> = preferencesDataStore.isProcrastilearnEnabled
 
+        override fun pauseBackgroundAudio(): Flow<Boolean> = preferencesDataStore.pauseBackgroundAudio
+
         override suspend fun addBlockedApp(packageName: String) {
             preferencesDataStore.addBlockedApp(packageName)
         }
@@ -36,5 +38,9 @@ class AppPreferencesRepositoryImpl
 
         override suspend fun setProcrastilearnEnabled(enabled: Boolean) {
             preferencesDataStore.setProcrastilearnEnabled(enabled)
+        }
+
+        override suspend fun setPauseBackgroundAudio(enabled: Boolean) {
+            preferencesDataStore.setPauseBackgroundAudio(enabled)
         }
     }

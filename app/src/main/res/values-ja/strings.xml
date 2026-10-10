@@ -370,4 +370,6 @@
     <plurals name="gate_cooldown_minutes">
         <item quantity="other">%d分</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">バックグラウンド音声の一時停止をリクエスト</string>
+    <string name="settings_pause_background_audio_summary">復習オーバーレイの表示中に他のアプリへ音声の一時停止を要求します。この設定にかかわらず、アプリは音声を再生し続けたり停止したりすることがあります。</string>
 </resources>

@@ -71,6 +71,7 @@ import com.procrastilearn.app.ui.screens.settings.components.OpenAiApiKeySetting
 import com.procrastilearn.app.ui.screens.settings.components.OpenAiPromptSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.OpenAiReversePromptSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.OverlayPermissionItem
+import com.procrastilearn.app.ui.screens.settings.components.PauseBackgroundAudioSettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.RatingDelaySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.ReviewPerDaySettingsItem
 import com.procrastilearn.app.ui.screens.settings.components.SettingsSectionHeader
@@ -212,6 +213,7 @@ fun SettingsScreen(
                     overlayInterval = state.overlayInterval,
                     gateCooldownMinutes = state.gateCooldownMinutes,
                     cardsPerGate = state.cardsPerGate,
+                    pauseBackgroundAudio = state.pauseBackgroundAudio,
                     ratingDelaySeconds = state.ratingDelaySeconds,
                     newCardOrder = state.newCardOrder,
                 ),
@@ -226,6 +228,7 @@ fun SettingsScreen(
                     onMaximumIntervalDaysChange = viewModel::onMaximumIntervalDaysChange,
                     onGateTimingSave = viewModel::saveGateTiming,
                     onCardsPerGateChange = viewModel::onCardsPerGateChange,
+                    onPauseBackgroundAudioChange = viewModel::onPauseBackgroundAudioChange,
                     onRatingDelayChange = viewModel::onRatingDelayChange,
                     onNewCardOrderChange = viewModel::onNewCardOrderChange,
                 ),
@@ -295,6 +298,7 @@ internal fun SettingsContent(
     val overlayInterval = studySettings.overlayInterval
     val gateCooldownMinutes = studySettings.gateCooldownMinutes
     val cardsPerGate = studySettings.cardsPerGate
+    val pauseBackgroundAudio = studySettings.pauseBackgroundAudio
     val ratingDelaySeconds = studySettings.ratingDelaySeconds
     val newCardOrder = studySettings.newCardOrder
     val nativeLanguage = aiSettings.nativeLanguage
@@ -385,6 +389,13 @@ internal fun SettingsContent(
             GateCooldownSettingsItem(
                 value = gateCooldownMinutes,
                 onClick = { dialogState = DialogState.GateCooldown },
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            PauseBackgroundAudioSettingsItem(
+                enabled = pauseBackgroundAudio,
+                onEnabledChange = studyCallbacks.onPauseBackgroundAudioChange,
             )
 
             Spacer(Modifier.height(4.dp))

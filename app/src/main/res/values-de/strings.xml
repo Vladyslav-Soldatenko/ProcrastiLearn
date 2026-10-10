@@ -379,4 +379,6 @@
         <item quantity="one">%d Minute</item>
         <item quantity="other">%d Minuten</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">Pause für Hintergrundaudio anfordern</string>
+    <string name="settings_pause_background_audio_summary">Fordert andere Apps auf, Audio zu pausieren, während ein Wiederholungs-Overlay angezeigt wird. Apps können Audio unabhängig von dieser Einstellung weiter abspielen oder stoppen.</string>
 </resources>

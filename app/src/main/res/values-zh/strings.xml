@@ -339,4 +339,6 @@
     <plurals name="gate_cooldown_minutes">
         <item quantity="other">%d 分钟</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">请求暂停后台音频</string>
+    <string name="settings_pause_background_audio_summary">显示复习浮层时，请求其他应用暂停音频。无论此设置如何，应用都可能继续播放或停止音频。</string>
 </resources>

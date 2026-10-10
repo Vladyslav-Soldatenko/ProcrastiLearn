@@ -383,4 +383,6 @@
         <item quantity="many">%d минут</item>
         <item quantity="other">%d минуты</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">Запрашивать приостановку фонового звука</string>
+    <string name="settings_pause_background_audio_summary">Запрашивает у других приложений приостановку звука, пока показана карточка для повторения. Независимо от этой настройки приложения могут продолжать воспроизведение или остановить звук.</string>
 </resources>

@@ -370,4 +370,6 @@
     <plurals name="gate_cooldown_minutes">
         <item quantity="other">%d menit</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">Meminta audio latar belakang dijeda</string>
+    <string name="settings_pause_background_audio_summary">Meminta aplikasi lain menjeda audio saat hamparan ulasan ditampilkan. Aplikasi dapat terus memutar atau menghentikan audio terlepas dari setelan ini.</string>
 </resources>

@@ -388,4 +388,6 @@
         <item quantity="many">%d minutos</item>
         <item quantity="other">%d minutos</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">Solicitar pausa del audio en segundo plano</string>
+    <string name="settings_pause_background_audio_summary">Solicita a otras apps que pausen el audio mientras se muestra una superposición de repaso. Las apps pueden seguir reproduciendo o detener el audio independientemente de este ajuste.</string>
 </resources>

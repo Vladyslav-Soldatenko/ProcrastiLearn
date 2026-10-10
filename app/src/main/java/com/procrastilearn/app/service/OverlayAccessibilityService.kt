@@ -77,6 +77,7 @@ class OverlayAccessibilityService : AccessibilityService() {
     private var appsReady = false
     private var enabledReady = false
     private var policyReady = false
+    private var pauseBackgroundAudio = true
     private var foregroundPackage: String? = null
     private var foregroundEpoch = 0L
     private var ownActivityResumed = false
@@ -235,6 +236,11 @@ class OverlayAccessibilityService : AccessibilityService() {
                 isProcrastilearnEnabled = it
                 enabledReady = true
                 updateContext()
+            }
+        }
+        serviceScope.launch {
+            appPreferencesRepository.pauseBackgroundAudio().distinctUntilChanged().collect {
+                pauseBackgroundAudio = it
             }
         }
         serviceScope.launch {
@@ -420,7 +426,7 @@ class OverlayAccessibilityService : AccessibilityService() {
         try {
             checkNotNull(windowManager).addView(view, params)
             overlayView = view
-            requestAudioFocus()
+            if (pauseBackgroundAudio) requestAudioFocus()
         } catch (error: RuntimeException) {
             Log.w(TAG, "Failed to attach gate overlay", error)
             if (overlayView != null) {
@@ -467,8 +473,13 @@ class OverlayAccessibilityService : AccessibilityService() {
                         .setContentType(AudioAttributes.CONTENT_TYPE_UNKNOWN)
                         .build(),
                 ).build()
-        manager.requestAudioFocus(request)
-        focusRequest = request
+        try {
+            if (manager.requestAudioFocus(request) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                focusRequest = request
+            }
+        } catch (error: SecurityException) {
+            Log.w(TAG, "Failed to request gate audio focus", error)
+        }
     }
 
     private fun releaseAudioFocus() {

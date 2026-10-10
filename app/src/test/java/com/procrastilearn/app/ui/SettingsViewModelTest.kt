@@ -33,6 +33,7 @@ import com.procrastilearn.app.domain.model.VocabularyExportItem
 import com.procrastilearn.app.domain.model.VocabularyItem
 import com.procrastilearn.app.domain.parser.VocabularyExportParser
 import com.procrastilearn.app.domain.parser.VocabularyParser
+import com.procrastilearn.app.domain.repository.AppPreferencesRepository
 import com.procrastilearn.app.utils.MainDispatcherRule
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -72,6 +73,7 @@ class SettingsViewModelTest {
     private lateinit var dayCountersStore: DayCountersStore
     private lateinit var openAiStore: OpenAiPreferencesStore
     private lateinit var languagePreferencesStore: LanguagePreferencesStore
+    private lateinit var appPreferencesRepository: AppPreferencesRepository
     private lateinit var vocabularyDao: VocabularyDao
     private lateinit var vocabularyStatsDao: VocabularyStatsDao
     private lateinit var policyFlow: MutableStateFlow<LearningPreferencesConfig>
@@ -80,6 +82,7 @@ class SettingsViewModelTest {
     private lateinit var promptFlow: MutableStateFlow<String>
     private lateinit var reversePromptFlow: MutableStateFlow<String>
     private lateinit var languagePairFlow: MutableStateFlow<LanguagePair?>
+    private lateinit var pauseBackgroundAudioFlow: MutableStateFlow<Boolean>
     private val defaultParser: VocabularyParser =
         object : VocabularyParser {
             override val id: String = "apkg"
@@ -97,6 +100,7 @@ class SettingsViewModelTest {
         dayCountersStore = mockk(relaxed = true)
         openAiStore = mockk(relaxed = true)
         languagePreferencesStore = mockk(relaxed = true)
+        appPreferencesRepository = mockk(relaxed = true)
         vocabularyDao = mockk()
         vocabularyStatsDao = mockk()
         policyFlow =
@@ -132,6 +136,8 @@ class SettingsViewModelTest {
         every { openAiStore.readOpenAiPrompt() } returns promptFlow
         every { openAiStore.readOpenAiReversePrompt() } returns reversePromptFlow
         every { languagePreferencesStore.readLanguagePair() } returns languagePairFlow
+        pauseBackgroundAudioFlow = MutableStateFlow(true)
+        every { appPreferencesRepository.pauseBackgroundAudio() } returns pauseBackgroundAudioFlow
     }
 
     @After
@@ -150,6 +156,7 @@ class SettingsViewModelTest {
                     parsers = parsers,
                     ioDispatcher = mainDispatcherRule.testDispatcher,
                 ),
+            appPreferencesRepository = appPreferencesRepository,
         )
 
     @Test
@@ -322,6 +329,7 @@ class SettingsViewModelTest {
                 assertThat(hydrated.gateCooldownMinutes).isEqualTo(0)
                 assertThat(hydrated.ratingDelaySeconds).isEqualTo(4)
                 assertThat(hydrated.cardsPerGate).isEqualTo(4)
+                assertThat(hydrated.pauseBackgroundAudio).isTrue()
                 assertThat(hydrated.newCardOrder).isEqualTo(NewCardOrder.SEQUENTIAL)
                 assertThat(hydrated.openAiApiKey).isNull()
                 assertThat(hydrated.openAiPrompt).isEqualTo(OpenAiPromptDefaults.translationPrompt)
@@ -571,6 +579,17 @@ class SettingsViewModelTest {
             advanceUntilIdle()
 
             coVerify { dayCountersStore.setRatingDelaySeconds(15) }
+        }
+
+    @Test
+    fun `onPauseBackgroundAudioChange persists the selected setting`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel = buildViewModel()
+
+            viewModel.onPauseBackgroundAudioChange(false)
+            advanceUntilIdle()
+
+            coVerify { appPreferencesRepository.setPauseBackgroundAudio(false) }
         }
 
     @Test

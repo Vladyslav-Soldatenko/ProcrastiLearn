@@ -368,4 +368,6 @@
     <plurals name="gate_cooldown_minutes">
         <item quantity="other">%d phút</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">Yêu cầu tạm dừng âm thanh nền</string>
+    <string name="settings_pause_background_audio_summary">Yêu cầu các ứng dụng khác tạm dừng âm thanh khi lớp phủ ôn tập hiển thị. Ứng dụng có thể tiếp tục phát hoặc dừng âm thanh bất kể cài đặt này.</string>
 </resources>

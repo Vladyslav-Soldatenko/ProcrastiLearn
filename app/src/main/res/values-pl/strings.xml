@@ -395,4 +395,6 @@
         <item quantity="many">%d minut</item>
         <item quantity="other">%d minuty</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">Poproś o wstrzymanie dźwięku w tle</string>
+    <string name="settings_pause_background_audio_summary">Prosi inne aplikacje o wstrzymanie dźwięku, gdy wyświetlana jest nakładka powtórki. Aplikacje mogą niezależnie od tego ustawienia nadal odtwarzać lub zatrzymać dźwięk.</string>
 </resources>

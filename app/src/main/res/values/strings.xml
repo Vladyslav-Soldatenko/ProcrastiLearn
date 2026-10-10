@@ -215,6 +215,8 @@
     <string name="settings_gate_repeat_below_cooldown" tools:ignore="PluralsCandidate">Repeated-gate interval must be at least %1$d minutes, or 0 to turn it off.</string>
     <string name="settings_gate_timing_range_error" tools:ignore="PluralsCandidate">Enter a number from 0 to %1$d minutes.</string>
     <string name="settings_gate_timing_save_failed">Could not save. Try again.</string>
+    <string name="settings_pause_background_audio_headline">Request background audio pause</string>
+    <string name="settings_pause_background_audio_summary">Requests other apps to pause audio while a review overlay is shown. Apps may continue or stop audio regardless of this setting.</string>
 
     <string name="settings_cards_per_gate_headline">Cards per gate</string>
     <string name="settings_cards_per_gate_summary">Required before access: %1$d</string>

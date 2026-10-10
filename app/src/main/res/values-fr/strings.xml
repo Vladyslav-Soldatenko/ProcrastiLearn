@@ -388,4 +388,6 @@
         <item quantity="many">%d minutes</item>
         <item quantity="other">%d minutes</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">Demander la mise en pause de l’audio en arrière-plan</string>
+    <string name="settings_pause_background_audio_summary">Demande aux autres applications de mettre l’audio en pause lorsqu’une superposition de révision est affichée. Les applications peuvent continuer ou arrêter l’audio indépendamment de ce réglage.</string>
 </resources>

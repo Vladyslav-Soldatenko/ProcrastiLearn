@@ -44,4 +44,6 @@
         <item quantity="one">%d minuut</item>
         <item quantity="other">%d minuten</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">Pauzeren van audio op de achtergrond aanvragen</string>
+    <string name="settings_pause_background_audio_summary">Vraagt andere apps om audio te pauzeren terwijl een herhalingsoverlay wordt getoond. Apps kunnen audio ongeacht deze instelling blijven afspelen of stoppen.</string>
 </resources>

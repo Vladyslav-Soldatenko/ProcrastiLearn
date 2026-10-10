@@ -388,4 +388,6 @@
         <item quantity="many">%d minuti</item>
         <item quantity="other">%d minuti</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">Richiedi la pausa dell’audio in sottofondo</string>
+    <string name="settings_pause_background_audio_summary">Chiede alle altre app di mettere in pausa l’audio mentre viene mostrato un riquadro di ripasso. Le app possono continuare o interrompere l’audio indipendentemente da questa impostazione.</string>
 </resources>

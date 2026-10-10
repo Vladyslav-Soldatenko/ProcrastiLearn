@@ -284,4 +284,6 @@
         <item quantity="one">%d minuto</item>
         <item quantity="other">%d minuto</item>
     </plurals>
+    <string name="settings_pause_background_audio_headline">Humiling na i-pause ang background audio</string>
+    <string name="settings_pause_background_audio_summary">Humihiling sa ibang app na i-pause ang audio habang ipinapakita ang review overlay. Maaaring magpatuloy o huminto ang audio ng mga app anuman ang setting na ito.</string>
 </resources>
