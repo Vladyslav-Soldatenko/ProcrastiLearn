@@ -839,7 +839,7 @@ open class OverlayE2eTest {
         const val LAUNCH_POLL_TIMEOUT_MS = 3_000L
         const val LAUNCH_RETRY_COUNT = 3
         const val SERVICE_BIND_POLL_MS = 100L
-        const val TARGET_PACKAGE = "com.google.android.deskclock"
+        const val TARGET_PACKAGE = "com.android.deskclock"
         const val SECOND_TARGET_PACKAGE = "com.android.settings"
         const val SEEDED_WORD = "overlayflashword"
         const val SECOND_WORD = "overlayflashwordtwo"
