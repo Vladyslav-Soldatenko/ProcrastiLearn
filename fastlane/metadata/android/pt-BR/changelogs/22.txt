@@ -1,0 +1,1 @@
+Corrigida uma falha ao importar alguns baralhos do Anki.

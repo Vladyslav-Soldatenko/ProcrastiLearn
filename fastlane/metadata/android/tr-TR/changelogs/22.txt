@@ -1,0 +1,1 @@
+Bazı Anki destelerini içe aktarırken yaşanan çökme düzeltildi.

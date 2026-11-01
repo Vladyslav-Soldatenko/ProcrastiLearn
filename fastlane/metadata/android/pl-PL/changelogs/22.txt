@@ -1,0 +1,1 @@
+Naprawiono awarię podczas importowania niektórych talii Anki.

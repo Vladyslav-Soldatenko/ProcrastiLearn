@@ -1,0 +1,1 @@
+Membetulkan masalah aplikasi terhenti semasa mengimport beberapa dek Anki.

@@ -1,0 +1,1 @@
+Een crash bij het importeren van bepaalde Anki-stapels is opgelost.

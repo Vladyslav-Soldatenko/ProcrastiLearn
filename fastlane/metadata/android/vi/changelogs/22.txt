@@ -1,0 +1,1 @@
+Đã sửa lỗi ứng dụng bị thoát khi nhập một số bộ thẻ Anki.

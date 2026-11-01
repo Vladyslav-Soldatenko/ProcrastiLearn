@@ -1,0 +1,1 @@
+Ein Absturz beim Import bestimmter Anki-Stapel wurde behoben.

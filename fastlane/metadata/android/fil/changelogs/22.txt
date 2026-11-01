@@ -1,0 +1,1 @@
+Inayos ang pag-crash ng app kapag nag-i-import ng ilang Anki deck.

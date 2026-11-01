@@ -1,0 +1,1 @@
+Memperbaiki aplikasi yang berhenti saat mengimpor beberapa dek Anki.
