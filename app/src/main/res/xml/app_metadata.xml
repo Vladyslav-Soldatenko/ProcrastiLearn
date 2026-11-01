@@ -1,12 +1,3 @@
 <AppFunctionAppMetadata xmlns:appfn="http://schemas.android.com/apk/androidx.appfunctions"
-    appfn:description="ProcrastiLearn manages a spaced-repetition vocabulary learning list.
-
-Operational Patterns:
-  - AI translation is applied automatically when an OpenAI API key is configured in the app settings and the AI translation toggle is enabled.
-  - If AI is not configured, provide a manual translation via the optional 'translation' parameter.
-  - If the word already exists in the list, adding it again will reset its learning progress and overwrite the translation.
-
-Constraints:
-  - AI translation availability depends on a valid OpenAI API key saved in app settings.
-  - Word and translation values must not be blank."
+    appfn:instructions="Add a new vocabulary word with a manual translation or optional AI translation. AI requires the configured API key, language pair, and direction. Existing words retain their translation and learning progress. Edit or reset words in the app."
     appfn:displayDescription="@string/app_function_description" />

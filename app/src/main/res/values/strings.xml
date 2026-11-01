@@ -2,7 +2,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <!-- ─── AppFunctions ────────────────────────────────────────────────────── -->
-    <string name="app_function_description">Add vocabulary words with AI-generated translations for spaced-repetition learning</string>
+    <string name="app_function_description">Add vocabulary words with manual or optional AI translations</string>
 
     <!-- ─── App / Brand ─────────────────────────────────────────────────────── -->
     <string name="app_name" translatable="false">ProcrastiLearn</string>

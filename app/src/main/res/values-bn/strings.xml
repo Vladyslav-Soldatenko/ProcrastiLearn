@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <string name="app_function_description">বিরতিযুক্ত পুনরাবৃত্তি পদ্ধতিতে শেখার জন্য AI-তৈরি অনুবাদসহ শব্দভান্ডার যোগ করুন</string>
+    <string name="app_function_description">নিজের বা ঐচ্ছিক AI অনুবাদসহ শব্দ যোগ করুন</string>
 <string name="action_open_settings">সেটিংস খুলুন</string>
     <string name="action_not_now">এখন নয়</string>
     <string name="action_continue">চালিয়ে যান</string>

@@ -2,7 +2,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <!-- ─── AppFunctions ────────────────────────────────────────────────────── -->
-    <string name="app_function_description">Додавайте слова з перекладами, згенерованими ШІ, для навчання за методом інтервального повторення</string>
+    <string name="app_function_description">Додавайте слова з перекладом вручну або за допомогою ШІ</string>
 
     <!-- ─── App / Brand ─────────────────────────────────────────────────────── -->
 

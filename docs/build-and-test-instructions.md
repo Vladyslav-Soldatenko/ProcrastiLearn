@@ -53,3 +53,5 @@ Once a device/emulator is attached, run instrumented tests the normal Gradle way
 ```bash
 ./gradlew connectedDebugAndroidTest
 ```
+
+For AppFunctions discovery and execution checks, see [AppFunctions testing](appfunctions-testing.md).

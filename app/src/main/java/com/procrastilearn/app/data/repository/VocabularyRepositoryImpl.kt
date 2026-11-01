@@ -87,6 +87,23 @@ class VocabularyRepositoryImpl
                 }
             }
 
+        override suspend fun addVocabularyItemIfAbsent(item: VocabularyItem): Boolean =
+            withContext(io) {
+                appDatabase.withTransaction {
+                    val normalized = VocabularyEntity.normalizeWord(item.word)
+                    if (vocabularyDao.getVocabularyByWord(normalized) != null) return@withTransaction false
+                    val entity =
+                        item.toEntity(
+                            fsrsCardJson = Card.builder().build().toJson(),
+                            fsrsDueAt = 0L,
+                            position = vocabularyDao.getMaxPosition() + 1,
+                        )
+                    if (vocabularyDao.insertVocabularyIfAbsent(entity) != -1L) return@withTransaction true
+                    check(vocabularyDao.getVocabularyByWord(normalized) != null) { "Vocabulary insertion failed" }
+                    false
+                }
+            }
+
         override suspend fun updateVocabularyItem(item: VocabularyItem): Unit =
             withContext(io) {
                 val existingEntity = vocabularyDao.getVocabularyById(item.id)

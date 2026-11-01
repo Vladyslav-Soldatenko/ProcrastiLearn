@@ -2,7 +2,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <!-- ─── AppFunctions ────────────────────────────────────────────────────── -->
-    <string name="app_function_description">添加生词，通过 AI 生成翻译，用于间隔重复学习</string>
+    <string name="app_function_description">添加词汇并手动翻译或选择使用 AI 翻译</string>
 
     <!-- ─── App / Brand ─────────────────────────────────────────────────────── -->
 

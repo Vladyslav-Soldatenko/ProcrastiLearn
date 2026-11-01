@@ -46,6 +46,9 @@ interface VocabularyDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertVocabulary(item: VocabularyEntity): Long
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertVocabularyIfAbsent(item: VocabularyEntity): Long
+
     @Insert
     suspend fun insertAllVocabulary(items: List<VocabularyEntity>)
 

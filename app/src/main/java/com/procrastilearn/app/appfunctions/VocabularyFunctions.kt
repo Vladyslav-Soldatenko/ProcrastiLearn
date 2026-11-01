@@ -1,125 +1,101 @@
 package com.procrastilearn.app.appfunctions
 
+import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionAppUnknownException
-import androidx.appfunctions.AppFunctionContext
+import androidx.appfunctions.AppFunctionDeclaration
+import androidx.appfunctions.AppFunctionException
 import androidx.appfunctions.AppFunctionInvalidArgumentException
-import androidx.appfunctions.service.AppFunction
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
+import com.procrastilearn.app.data.local.prefs.LanguagePreferencesStore
 import com.procrastilearn.app.data.local.prefs.OpenAiPreferencesStore
-import com.procrastilearn.app.data.translation.AiTranslationProvider
-import com.procrastilearn.app.data.translation.AiTranslationRequest
-import com.procrastilearn.app.domain.model.AiTranslationDirection
-import com.procrastilearn.app.domain.usecase.VocabularyEntryUseCases
+import com.procrastilearn.app.domain.model.VocabularyItem
+import com.procrastilearn.app.domain.repository.VocabularyCatalogRepository
+import com.procrastilearn.app.domain.usecase.GenerateAiTranslationUseCase
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class VocabularyFunctions
-    @Inject
-    constructor(
-        private val vocabularyEntryUseCases: VocabularyEntryUseCases,
-        private val openAiStore: OpenAiPreferencesStore,
-        private val aiTranslationProvider: AiTranslationProvider,
-        private val ioDispatcher: CoroutineDispatcher,
-    ) {
-        /**
-         * Add a word to the vocabulary learning list with an AI-generated or manual translation.
-         * If the word already exists, its translation is updated and learning progress is reset.
-         *
-         * @param appFunctionContext The execution context.
-         * @param word The word or phrase to add (e.g. "Computer", "Serendipity").
-         *   Must not be blank.
-         * @param translation Optional manual translation used when AI is not configured.
-         *   If null and AI translation is unavailable, the call fails.
-         * @return A status message describing the outcome ("Added …" or "Updated …").
-         * @throws AppFunctionInvalidArgumentException if the word is blank or no translation
-         *   can be resolved. Configure an OpenAI API key in app settings or supply a manual translation.
-         * @throws AppFunctionAppUnknownException on database or network failures.
-         */
-        @Suppress("UnusedParameter")
-        @AppFunction(isDescribedByKDoc = true)
-        suspend fun addWord(
-            appFunctionContext: AppFunctionContext,
-            word: String,
-            translation: String? = null,
-        ): String =
-            withContext(ioDispatcher) {
-                if (word.isBlank()) {
-                    throw AppFunctionInvalidArgumentException("Word must not be blank.")
-                }
+private const val DUPLICATE =
+    "Word already exists in your learning list; its translation and learning progress were preserved."
+private const val CONFIGURATION =
+    "Provide a translation or enable AI translation with an API key and language pair in app settings."
+private const val TRANSLATION_FAILED = "AI translation failed. Provide a manual translation or retry later."
 
-                val trimmedWord = word.trim()
-                val finalTranslation = resolveTranslation(trimmedWord, translation)
+@RequiresApi(36)
+@AndroidEntryPoint
+@AppFunctionServiceEntryPoint(
+    serviceName = "VocabularyAppFunctionService",
+    appFunctionXmlFileName = "vocabulary_app_function_service",
+)
+@Suppress("LateinitUsage")
+abstract class VocabularyFunctions : AppFunctionService() {
+    @Inject lateinit var repository: VocabularyCatalogRepository
 
-                val existingItem =
-                    runCatching { vocabularyEntryUseCases.getByWord(trimmedWord) }
-                        .getOrElse { e ->
-                            throw AppFunctionAppUnknownException(
-                                e.message ?: "Failed to query vocabulary.",
-                            )
-                        }
+    @Inject lateinit var openAiStore: OpenAiPreferencesStore
 
-                if (existingItem != null) {
-                    vocabularyEntryUseCases
-                        .override(existingItem, trimmedWord, finalTranslation)
-                        .getOrElse { e ->
-                            throw AppFunctionAppUnknownException(
-                                e.message ?: "Failed to update word.",
-                            )
-                        }
-                    "Updated \"$trimmedWord\" → \"$finalTranslation\" and reset its learning progress."
-                } else {
-                    vocabularyEntryUseCases
-                        .add(trimmedWord, finalTranslation)
-                        .getOrElse { e ->
-                            throw AppFunctionAppUnknownException(
-                                e.message ?: "Failed to add word.",
-                            )
-                        }
-                    "Added \"$trimmedWord\" → \"$finalTranslation\" to your learning list."
-                }
+    @Inject lateinit var languageStore: LanguagePreferencesStore
+
+    @Inject lateinit var generator: GenerateAiTranslationUseCase
+
+    @Inject lateinit var ioDispatcher: CoroutineDispatcher
+
+    /**
+     * Adds a new word or phrase to the vocabulary learning list. Existing words keep their
+     * translation and learning progress. A supplied translation is used directly; otherwise
+     * the app uses its configured AI translation.
+     *
+     * @param word The word or phrase to add. Whitespace is trimmed; blank input is rejected.
+     * @param translation Manual translation. Whitespace is trimmed. If omitted or blank,
+     * AI translation must be enabled with an API key and language pair configured in the app.
+     * @return A message confirming that the word was added or was already present unchanged.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    suspend fun addWord(
+        word: String,
+        translation: String? = null,
+    ): String =
+        runCatching { addWordInternal(word, translation) }.getOrElse { error ->
+            when (error) {
+                is CancellationException, is AppFunctionException, is Error -> throw error
+                else -> throw AppFunctionAppUnknownException("Could not add the word. Please try again.")
             }
-
-        private suspend fun resolveTranslation(
-            word: String,
-            manualTranslation: String?,
-        ): String {
-            val apiKey = openAiStore.readOpenAiApiKey().first()
-            val useAi = openAiStore.readUseAiForTranslation().first()
-            val direction = openAiStore.readAiTranslationDirection().first()
-
-            if (!apiKey.isNullOrBlank() && useAi) {
-                val systemPrompt =
-                    when (direction) {
-                        AiTranslationDirection.TARGET_TO_NATIVE -> openAiStore.readOpenAiPrompt().first()
-                        AiTranslationDirection.NATIVE_TO_TARGET -> openAiStore.readOpenAiReversePrompt().first()
-                    }
-                val userPrompt =
-                    """
-                    HEADWORD: "$word"
-
-                    Produce ONLY the entry for this headword, in the exact frame and rules above. No extra text.
-                    """.trimIndent()
-
-                val aiTranslation =
-                    runCatching {
-                        aiTranslationProvider.translate(
-                            AiTranslationRequest(
-                                apiKey = apiKey,
-                                systemPrompt = systemPrompt,
-                                userPrompt = userPrompt,
-                            ),
-                        )
-                    }.getOrNull()?.trim()
-
-                if (!aiTranslation.isNullOrBlank()) return aiTranslation
-            }
-
-            val fallback = manualTranslation?.trim()
-            if (!fallback.isNullOrBlank()) return fallback
-
-            throw AppFunctionInvalidArgumentException(
-                "No translation available. Configure an OpenAI API key in settings or provide a manual 'translation' argument.",
-            )
         }
+
+    private suspend fun addWordInternal(
+        word: String,
+        translation: String?,
+    ): String =
+        withContext(ioDispatcher) {
+            if (word.isBlank()) throw AppFunctionInvalidArgumentException("Word must not be blank.")
+            val trimmedWord = word.trim()
+            if (repository.getVocabularyItemByWord(trimmedWord) != null) {
+                return@withContext DUPLICATE
+            }
+            val manual = translation?.trim().orEmpty()
+            val finalTranslation = manual.ifBlank { generateTranslation(trimmedWord) }
+            currentCoroutineContext().ensureActive()
+            val inserted =
+                repository.addVocabularyItemIfAbsent(
+                    VocabularyItem(word = trimmedWord, translation = finalTranslation, isNew = true),
+                )
+            if (inserted) "Added \"$trimmedWord\" to your learning list." else DUPLICATE
+        }
+
+    private suspend fun generateTranslation(word: String): String {
+        val enabled = openAiStore.readUseAiForTranslation().first()
+        val key = openAiStore.readOpenAiApiKey().first()
+        if (!enabled || key.isNullOrBlank() || languageStore.readLanguagePair().first() == null) {
+            throw AppFunctionInvalidArgumentException(CONFIGURATION)
+        }
+        val direction = openAiStore.readAiTranslationDirection().first()
+        val result = generator(word, direction).trim()
+        if (result.isBlank()) throw AppFunctionAppUnknownException(TRANSLATION_FAILED)
+        return result
     }
+}

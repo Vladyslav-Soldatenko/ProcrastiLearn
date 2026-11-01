@@ -25,6 +25,8 @@ import io.mockk.coVerify
 import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -130,6 +132,52 @@ class VocabularyRepositoryImplTest {
             reviewShown = 0,
             reviewsSinceLastNew = 0,
         )
+
+    @Test
+    fun `create if absent preserves existing row and undo`() =
+        runTest {
+            val id = insertTestVocabulary("lernen", "learn", correctCount = 4, fsrsDueAt = 123)
+            val reviewed = vocabularyDao.getVocabularyById(id)!!
+            vocabularyDao.updateVocabulary(
+                reviewed.copy(
+                    bidirectional = true,
+                    backwardCorrectCount = 3,
+                    backwardFsrsDueAt = 456,
+                    backwardFsrsCardJson = "backward state",
+                ),
+            )
+            undoSnapshotDao.insert(testSnapshot(id))
+            val before = vocabularyDao.getVocabularyById(id)
+            val undo = undoSnapshotDao.peekLatest()
+
+            assertThat(
+                repository.addVocabularyItemIfAbsent(
+                    VocabularyItem(word = " LERNEN ", translation = "other", isNew = true),
+                ),
+            ).isFalse()
+            assertThat(vocabularyDao.getVocabularyById(id)).isEqualTo(before)
+            assertThat(undoSnapshotDao.peekLatest()).isEqualTo(undo)
+        }
+
+    @Test
+    fun `competing create if absent calls insert only one row`() =
+        runTest {
+            val results =
+                coroutineScope {
+                    listOf("first", "second")
+                        .map { translation ->
+                            async {
+                                repository.addVocabularyItemIfAbsent(
+                                    VocabularyItem(word = "lernen", translation = translation, isNew = true),
+                                )
+                            }
+                        }.map { it.await() }
+                }
+            assertThat(results.count { it }).isEqualTo(1)
+            val entity = vocabularyDao.getAllVocabulary().first().single()
+            assertThat(entity.translation).isAnyOf("first", "second")
+            assertThat(entity.fsrsCardJson).isNotEmpty()
+        }
 
     @Test
     fun `addVocabularyItem persists new vocabulary with fsrs defaults`() =

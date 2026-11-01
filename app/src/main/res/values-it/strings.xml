@@ -2,7 +2,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <!-- ─── AppFunctions ────────────────────────────────────────────────────── -->
-    <string name="app_function_description">Aggiungi parole di vocabolario con traduzioni generate dall’IA per l’apprendimento con ripetizione dilazionata</string>
+    <string name="app_function_description">Aggiungi parole con traduzioni manuali o IA facoltative</string>
 
     <!-- ─── App / Brand ─────────────────────────────────────────────────────── -->
 

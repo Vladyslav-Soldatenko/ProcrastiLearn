@@ -10,6 +10,8 @@ interface VocabularyCatalogRepository {
 
     suspend fun addVocabularyItem(item: VocabularyItem)
 
+    suspend fun addVocabularyItemIfAbsent(item: VocabularyItem): Boolean
+
     suspend fun updateVocabularyItem(item: VocabularyItem)
 
     suspend fun deleteVocabularyItem(item: VocabularyItem)

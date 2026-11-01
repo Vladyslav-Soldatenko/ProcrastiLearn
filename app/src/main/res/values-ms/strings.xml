@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <string name="app_function_description">Tambah perkataan kosa kata dengan terjemahan dijana AI untuk pembelajaran ulangan berjarak</string>
+    <string name="app_function_description">Tambah kosa kata dengan terjemahan manual atau AI pilihan</string>
     <string name="action_open_settings">Buka Tetapan</string>
     <string name="action_not_now">Bukan sekarang</string>
     <string name="action_continue">Sambung</string>

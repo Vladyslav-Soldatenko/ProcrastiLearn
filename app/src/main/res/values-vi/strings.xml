@@ -2,7 +2,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <!-- ─── AppFunctions ────────────────────────────────────────────────────── -->
-    <string name="app_function_description">Thêm từ vựng kèm bản dịch do AI tạo ra để học theo phương pháp lặp lại ngắt quãng</string>
+    <string name="app_function_description">Thêm từ vựng với bản dịch thủ công hoặc tùy chọn bằng AI</string>
 
     <!-- ─── App / Brand ─────────────────────────────────────────────────────── -->
 

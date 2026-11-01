@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <string name="app_function_description">Magdagdag ng mga salita sa bokabularyo gamit ang mga saling likha ng AI para sa pag-aaral na may spaced repetition</string>
+    <string name="app_function_description">Magdagdag ng mga salita na may manu-mano o opsyonal na AI na salin</string>
     <string name="action_open_settings">Buksan ang Mga Setting</string>
     <string name="action_not_now">Huwag muna</string>
     <string name="action_continue">Magpatuloy</string>
