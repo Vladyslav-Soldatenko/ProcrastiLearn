@@ -60,6 +60,14 @@ open class OverlayE2eTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
+    protected val targetPackage: String
+        get() =
+            if (targetContext.packageManager.getLaunchIntentForPackage("com.google.android.deskclock") != null) {
+                "com.google.android.deskclock"
+            } else {
+                "com.android.deskclock"
+            }
+
     protected lateinit var targetContext: Context
     protected lateinit var uiAutomation: UiAutomation
     protected var previousEnabledServices: String? = null
@@ -465,8 +473,8 @@ open class OverlayE2eTest {
     protected fun launchTargetAppWithoutWaitingForOverlay() {
         goHome()
         val intent =
-            targetContext.packageManager.getLaunchIntentForPackage(TARGET_PACKAGE)
-                ?: error("Target app $TARGET_PACKAGE has no launch intent")
+            targetContext.packageManager.getLaunchIntentForPackage(targetPackage)
+                ?: error("Target app $targetPackage has no launch intent")
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         targetContext.startActivity(intent)
         composeTestRule.waitForIdle()
@@ -509,7 +517,7 @@ open class OverlayE2eTest {
     }
 
     protected fun blockBothTargetApps() {
-        listOf(TARGET_PACKAGE, SECOND_TARGET_PACKAGE).forEach { packageName ->
+        listOf(targetPackage, SECOND_TARGET_PACKAGE).forEach { packageName ->
             val intent =
                 checkNotNull(targetContext.packageManager.getLaunchIntentForPackage(packageName)) {
                     "Target app $packageName has no launch intent"
@@ -517,7 +525,7 @@ open class OverlayE2eTest {
             assertEquals(packageName, intent.resolveActivity(targetContext.packageManager)?.packageName)
         }
         runBlocking(Dispatchers.IO) {
-            appPreferencesRepository().setBlockedApps(setOf(TARGET_PACKAGE, SECOND_TARGET_PACKAGE))
+            appPreferencesRepository().setBlockedApps(setOf(targetPackage, SECOND_TARGET_PACKAGE))
         }
     }
 
@@ -677,8 +685,8 @@ open class OverlayE2eTest {
             .performClick()
         composeTestRule.waitForIdle()
 
-        val rowTag = "app_row_$TARGET_PACKAGE"
-        val checkboxTag = "app_checkbox_$TARGET_PACKAGE"
+        val rowTag = "app_row_$targetPackage"
+        val checkboxTag = "app_checkbox_$targetPackage"
 
         composeTestRule.waitUntilNodeExists(hasScrollAction(), E2E_TIMEOUT_MS)
         composeTestRule.waitUntilNodeGone(hasTestTag("apps_list_loading_indicator"), APPS_LIST_TIMEOUT_MS)
@@ -688,7 +696,7 @@ open class OverlayE2eTest {
         composeTestRule.onNodeWithTag(checkboxTag, useUnmergedTree = true).performClick()
         composeTestRule.waitForIdle()
 
-        waitUntilBlockedAppsContains(TARGET_PACKAGE)
+        waitUntilBlockedAppsContains(targetPackage)
     }
 
     private fun revealTranslation() {
@@ -738,7 +746,7 @@ open class OverlayE2eTest {
         repeat(LAUNCH_RETRY_COUNT) {
             goHome()
 
-            targetContext.packageManager.getLaunchIntentForPackage(TARGET_PACKAGE)?.let { intent ->
+            targetContext.packageManager.getLaunchIntentForPackage(targetPackage)?.let { intent ->
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 targetContext.startActivity(intent)
             }
@@ -839,7 +847,6 @@ open class OverlayE2eTest {
         const val LAUNCH_POLL_TIMEOUT_MS = 3_000L
         const val LAUNCH_RETRY_COUNT = 3
         const val SERVICE_BIND_POLL_MS = 100L
-        const val TARGET_PACKAGE = "com.android.deskclock"
         const val SECOND_TARGET_PACKAGE = "com.android.settings"
         const val SEEDED_WORD = "overlayflashword"
         const val SECOND_WORD = "overlayflashwordtwo"

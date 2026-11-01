@@ -37,8 +37,8 @@ class OverlayGateTimingE2eTest : OverlayE2eTest() {
         waitForForeground(SECOND_TARGET_PACKAGE)
         assertOverlayAndFocusAbsent()
         goHome()
-        launchPackage(TARGET_PACKAGE)
-        waitForForeground(TARGET_PACKAGE)
+        launchPackage(targetPackage)
+        waitForForeground(targetPackage)
         assertOverlayAndFocusAbsent()
         assertEquals(callsAfterRelease, repository.nextItemCalls)
         assertEquals(release + 120_000L, gateState().nextRepeatDeadlineElapsedMs)
@@ -180,7 +180,7 @@ class OverlayGateTimingE2eTest : OverlayE2eTest() {
         blockBothTargetApps()
         goHome()
         InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            listOf(TARGET_PACKAGE, SECOND_TARGET_PACKAGE).forEach { packageName ->
+            listOf(targetPackage, SECOND_TARGET_PACKAGE).forEach { packageName ->
                 val intent = checkNotNull(targetContext.packageManager.getLaunchIntentForPackage(packageName))
                 targetContext.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             }
