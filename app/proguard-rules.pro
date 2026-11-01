@@ -5,3 +5,8 @@
 
 -keep class io.github.openspacedrepetition.Card { *; }
 -keep class io.github.openspacedrepetition.Card$Builder { *; }
+
+-keepclassmembers class com.github.luben.zstd.ZstdInputStreamNoFinalizer {
+    long srcPos;
+    long dstPos;
+}
